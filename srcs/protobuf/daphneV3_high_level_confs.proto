@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+service DaphneController {
+  rpc ConfigureCLKs(ConfigureCLKsRequest) returns (ConfigureCLKsResponse)
+  rpc Configure(ConfigureRequest) returns (ConfigureResponse);
+  rpc Scrap(ScrapRequest) returns (ScrapResponse);
+  rpc DumpSpyBuffers(DumpSpyBuffersRequest) returns (DumpSpyBuffersResponse);
+  rpc GetInfo(InfoRequest) returns (InfoResponse);
+  rpc WriteRegister(WriteRegisterRequest) returns (WriteRegisterResponse);
+}
+
+message ConfigureCLKsRequest {
+  uint32 id = 1;
+  bool ctrl_ep_clk = 2;
+  bool reset_MMCM1 = 3;
+  bool reset_endpoint = 4; 
+}
+
+message ConfigureCLKsResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message ConfigureRequest {
+  string daphne_address = 1;
+  uint32 slot = 2;
+  uint32 timeout_ms = 3;
+  uint32 biasctrl = 4;
+  uint32 self_trigger_threshold = 5;
+  uint64 self_trigger_xcorr = 6;
+  uint64 tp_conf = 7;
+  uint64 compensator = 8;
+  uint64 inverters = 9;
+  repeated ChannelConfig channels = 10;
+  repeated AFEConfig afes = 11 ;
+  repeated uint32 full_stream_channels = 12;
+}
+
+message ChannelConfig {
+  uint32 id = 1;
+  uint32 trim = 2;
+  uint32 offset = 3;
+  uint32 gain = 4; 
+}
+
+message AFEConfig {
+  uint32 id = 1;
+  uint32 attenuators = 2;
+  uint32 v_bias = 3;
+  ADCConfig adc = 4;
+  PGAConfig pga = 5;
+  LNAConfig lna = 6;
+}
+
+message ADCConfig {
+  bool resolution = 1;
+  bool output_format = 2;
+  bool SB_first = 3;
+}
+
+message PGAConfig {
+  uint32 lpf_cut_frequency = 1;
+  bool integrator_disable = 2;
+  bool gain = 3;
+}
+
+message LNAConfig {
+  uint32 clamp = 1;
+  uint32 gain = 2;
+  bool integrator_disable = 3;
+}
+
+message ConfigureResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+
+message ScrapRequest {}
+
+message ScrapResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+
+message DumpSpyBuffersRequest {
+  string directory = 1;
+  uint32 n_samples = 2;
+}
+
+message DumpSpyBuffersResponse {
+  bool success = 1;
+  string file_path = 2;
+  string message = 3;
+}
+
+
+message InfoRequest {
+  uint32 level = 1; 
+}
+
+message InfoResponse {
+  StreamInfo stream_info = 1;
+  repeated ChannelInfo channels = 2;
+  GeneralInfo general_info = 3;
+}
+
+
+message StreamInfo {
+  uint64 total_packets = 1;
+  uint64 new_packets = 2;
+  uint64 total_dropped_packets = 3;
+  uint64 new_dropped_packets = 4;
+}
+
+message ChannelInfo {
+  uint32 id = 1;
+  uint64 total_triggers = 2;
+  uint64 new_triggers = 3;
+  uint64 total_packets = 4;
+  uint64 new_packets = 5;
+}
+
+message GeneralInfo {
+  double v_bias_0 = 1;
+  double v_bias_1 = 2;
+  double v_bias_2 = 3;
+  double v_bias_3 = 4;
+  double v_bias_4 = 5;
+  double power_minus5v = 6;
+  double power_plus2p5v = 7;
+  double power_ce = 8;
+  double temperature = 9;
+}
+
+message WriteRegisterRequest {
+  repeated WriteRegister writes = 1;
+}
+
+message WriteRegister {
+  uint64 address = 1;
+  uint64 value = 2;
+}
+
+message WriteRegisterResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// TODO: Incluir valores de retorno en los mensajes de respuesta.

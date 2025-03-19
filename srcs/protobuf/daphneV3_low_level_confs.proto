@@ -1,0 +1,138 @@
+syntax = "proto3"
+
+
+message cmd_writeAFEReg {
+	int32  id          = 1;
+	uint32 afeBlock    = 2;
+	uint32 regAddress  = 3;
+	uint32 regValue    = 4; 
+}
+
+message cmd_writeAFEVGAIN {
+	int32  id         = 1;
+	uint32 afeBlock   = 2;
+	uint32 vgainValue = 3;
+}
+
+message cmd_writeAFEBiasSet {
+	int32  id        = 1;
+	uint32 afeBlock  = 2;
+	uint32 biasValue = 3;
+}
+
+message cmd_writeTRIM_allChannels {
+	int32  id        = 1;
+	uint32 trimValue = 2;
+}
+
+message cmd_writeTrim_allAFE {
+	int32  id        = 1;
+	uint32 afeBlock  = 2;
+	uint32 trimValue = 3;
+}
+
+message cmd_writeTrim_singleChannel {
+	int32  id          = 1;
+	uint32 trimChannel = 2;
+	uint32 trimValue   = 3;
+}
+
+message cmd_writeOFFSET_allChannels {
+	int32  id          = 1;
+	uint32 offsetValue = 2;
+}
+
+message cmd_writeOFFSET_allAFE {
+	int32  id          = 1;
+	uint32 afeBlock    = 2;
+	uint32 offsetValue = 3;
+}
+
+message cmd_writeOFFSET_singleChannel {
+	int32  id            = 1;
+	uint32 trimChannel   = 2;
+	uint32 offsetValue   = 3;
+}
+
+message cmd_writeVbiasControl {
+	int32  id                = 1;
+	uint32 vBiasControlValue = 2; 
+}
+
+message cmd_readAFEReg {
+	int32 id = 1;
+	uint32 afeBlock = 2;
+	uint32 regAddress = 3;
+}
+ 
+message cmd_readAFEVgain {
+	int32 id = 1;
+	uint32 afeBlock = 2;
+}
+
+message cmd_readAFEBiasSet {
+	int32 id = 1;
+	uint32 afeBlock = 2;
+}
+
+message cmd_readTrim_allChannles {
+	int32 id = 1;
+}
+
+message cmd_readTrim_allAFE {
+	int32 id = 1;
+	uint32 afeBlock = 2;
+}
+
+message cmd_readTrim_singleChannel {
+	int id = 1;
+	uint32 trimChannel = 2;  
+}
+
+message cmd_readOffset_allChannels {
+	int id = 1;
+}
+
+message cmd_readOffset_allAFE {
+	int id = 1;
+	uint32 afeBlock = 2;
+}
+
+message cmd_readOffset_singleChannel {
+	int id = 1;
+	uint32 offsetChannel = 2
+}
+
+message cmd_readVbiasControl {
+	int id = 1; 
+}
+
+message cmd_readCurrentMonitor {
+	int id = 1;
+	uint32 currentMonitorChannel = 2;
+}
+
+message cmd_readBiasVoltageMonitor {
+	int id = 1;
+	uint32 afeBlock = 2;
+}
+
+message cmd_setAFEReset {
+	int id = 1;
+	uint32 afeBlock = 2;
+}
+
+message cmd_setAFEPowerDown {
+	int id = 1;
+	uint32 afeBlock = 2;
+	bool pwrState = 3;
+}
+
+
+
+
+
+
+
+
+
