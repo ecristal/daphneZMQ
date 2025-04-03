@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 service DaphneController {
-  rpc ConfigureCLKs(ConfigureCLKsRequest) returns (ConfigureCLKsResponse)
+  rpc ConfigureCLKs(ConfigureCLKsRequest) returns (ConfigureCLKsResponse);
   rpc Configure(ConfigureRequest) returns (ConfigureResponse);
   rpc Scrap(ScrapRequest) returns (ScrapResponse);
   rpc DumpSpyBuffers(DumpSpyBuffersRequest) returns (DumpSpyBuffersResponse);
@@ -146,6 +146,17 @@ message WriteRegister {
 message WriteRegisterResponse {
   bool success = 1;
   string message = 2;
+}
+
+enum MessageType {
+  UNKNOWN = 0;
+  CONFIGURE_CLKS = 1;
+  CONFIGURE_FE = 2;
+}
+
+message ControlEnvelope {
+  MessageType type = 1;
+  bytes payload = 2;
 }
 
 // TODO: Incluir valores de retorno en los mensajes de respuesta.

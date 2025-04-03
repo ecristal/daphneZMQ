@@ -80,7 +80,7 @@ uint32_t Dac::setDacBias(const uint32_t& afe, const uint32_t& value){
 	return this->setDacGainBias("bias", afe, value);
 }
 
-uint32_t Dac::setDacHvBias(const uint32_t& value, const bool& gain, const bool& buffer){
+uint32_t Dac::setDacHvBias(const uint32_t& value, const bool& gain, const bool& buffer){ // VBIAS_CTRL
 
 	return this->setDacGeneral("U5", 2, gain, buffer, value);
 }
@@ -100,16 +100,51 @@ uint32_t Dac::findCompanionChannelValue(const uint32_t& ch){
     }
     return compCh;
 }
-uint32_t Dac::setDacTrim(const uint32_t& afe,const uint32_t& ch,const uint32_t& value){
+uint32_t Dac::setDacTrim(const uint32_t& afe, const uint32_t& ch, const uint32_t& value, const bool& gain, const bool& buffer){
 
-	uint32_t compCh = this->findCompanionChannelValue(ch);
-	return 0;
+	std::string register_ = "afeDacTrim_" + std::to_string(afe);
+	return this->updateCurrentRegister(register_, ch, value, gain, buffer);
 }
+
+uint32_t Dac::setDacOffset(const uint32_t& afe, const uint32_t& ch, const uint32_t& value, const bool& gain, const bool& buffer){
+
+	std::string register_ = "afeDacOffset_" + std::to_string(afe);
+	return this->updateCurrentRegister(register_, ch, value, gain, buffer);
+}
+
 uint32_t Dac::setDacTrimOffset(const std::string& what, const uint32_t& afe,const uint32_t& channelH,const uint32_t& valueH,const uint32_t& channelL,const uint32_t& valueL, const bool& gain, const bool& buffer){
 
 	std::string register_ = "afeDac" + what + "_" + std::to_string(afe);
     uint32_t valueH_ = (channelH & 0x3) << 14 | gain << 13 | buffer << 12 | valueH & 0xFFF;
     uint32_t valueL_ = (channelL & 0x3) << 14 | gain << 13 | buffer << 12 | valueL & 0xFFF;
-    uint32_t value = (valueH & 0xFFFF) << 16 | valueL & 0xFFFF;
-    return this->spi->setData(register_, value);
+    uint32_t value = (valueH & 0xFFFF) << 16 | (valueL & 0xFFFF);
+	return this->spi->setData(register_, value);
 }
+
+uint32_t Dac::updateCurrentRegister(const std::string& reg_name, const uint32_t& ch, const uint32_t& value, const bool& gain, const bool& buffer){
+	
+	uint32_t configuredData = this->spi->getData(reg_name);
+	uint32_t compCh = this->findCompanionChannelValue(ch);
+	auto compMap = this->CHANNEL_MAPPING[compCh];
+	std::string compChPos = std::get<0>(compMap);
+	uint32_t compChipCh = std::get<1>(compMap);
+	auto chMap = this->CHANNEL_MAPPING[ch];
+	std::string chPos = std::get<0>(chMap);
+	uint32_t chipCh = std::get<1>(chMap);
+	uint32_t dataToWrite = 0;
+	uint32_t compData = 0;
+	uint32_t chData = 0;
+	if(compChPos == "L"){
+		compData = (configuredData & 0xFFFF);
+		chData = (chipCh & 0x3) << 14 | gain << 13 | buffer << 12 | value & 0xFFF;
+		dataToWrite = (chData & 0xFFFF) << 16 | (compData & 0xFFFF);
+	}else if(compChPos == "H"){
+		compData = ((configuredData >> 16) & 0xFFFF);
+		chData = (chipCh & 0x3) << 14 | gain << 13 | buffer << 12 | value & 0xFFF;
+		dataToWrite = (compData & 0xFFFF) << 16 | (chData & 0xFFFF);
+	}else{
+		throw std::runtime_error("Runtime error: undefined data position. " + std::string(__PRETTY_FUNCTION__));
+	}
+	return this->spi->setData(reg_name, dataToWrite);
+}
+

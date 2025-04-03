@@ -6,7 +6,8 @@ reg::reg(uint64_t BaseAddr,  size_t MemLen, FpgaRegDict RegDict)
 	: RegMem(std::make_unique<DevMem>(BaseAddr)){
 	this->BaseAddr = BaseAddr;
 	this->regDict = regDict;
-	this->RegMem->map_memory(MemLen);
+	this->MemLen = MemLen;
+	this->RegMem->map_memory(this->MemLen);
 }
 
 reg::~reg(){}
@@ -50,6 +51,7 @@ uint32_t reg::ReadRegister(const std::string &RegName){
 	if(RegAddr == 0xffffffff){
 		return 0xdeadbeef;
 	}else{
+		//this->RegMem->changeBaseAddr(RegAddr,this->MemLen);
 		std::vector<uint32_t> value = this->RegMem->read(RegAddr,1);
 		return value[0];
 	}
@@ -60,7 +62,8 @@ uint32_t reg::WriteRegister(const std::string &RegName, const std::vector<uint32
 	auto RegAddr = this->GetRegister(RegName);
     if(RegAddr == 0xffffffff){
 		return 0xdeadbeef;
-	}else{;
+	}else{
+		//this->RegMem->changeBaseAddr(RegAddr,this->MemLen);
 		this->RegMem->write(RegAddr,Value);
 		return this->ReadRegister(RegName);
 	}
@@ -76,10 +79,17 @@ uint32_t reg::ReadBits(const std::string &RegName, const std::string &BitName, c
 		uint32_t RegAddr_ = std::get<0>(RegAddr);
 		int BitRangeL = std::get<2>(RegAddr);
 		int BitRangeH = std::get<1>(RegAddr);
+		//this->RegMem->changeBaseAddr(RegAddr_ + Offset,this->MemLen);
 		std::vector<uint32_t> value = this->RegMem->read(RegAddr_ + Offset, 1);
 		//std::cout << "Offset: " << std::hex << Offset << "BitRangeL: " << std::dec << BitRangeL << "BitRangeH: " << BitRangeH << std::endl;
 		//std::cout << "value read 1 = " << std::hex << value[0] << std::endl;
-		value[0] = (value[0] & (( (1 << (BitRangeH - BitRangeL + 1)) - 1) << BitRangeL)) >> BitRangeL;
+		uint32_t Mask;
+		if((BitRangeH - BitRangeL + 1) == 32){ // Uknown behaviour
+			Mask = 0xFFFFFFFF;
+		}else{
+			Mask = (1U << (BitRangeH - BitRangeL + 1)) - 1;
+		}
+		value[0] = (value[0] & (Mask << BitRangeL)) >> BitRangeL;
 		//std::cout << "value read 2 = " << std::hex << value[0] << std::endl;
 		return value[0];
 	}
@@ -93,13 +103,20 @@ uint32_t reg::WriteBits(const std::string &RegName, const std::string &BitName, 
 		return 0xdeadbeef;
 	}else{
 		uint32_t RegAddr_ = std::get<0>(RegAddr);
-		int BitRangeL = std::get<1>(RegAddr);
-		int BitRangeH = std::get<2>(RegAddr);
+		int BitRangeH = std::get<1>(RegAddr);
+		int BitRangeL = std::get<2>(RegAddr);
+		//this->RegMem->changeBaseAddr(RegAddr_,this->MemLen);
 		std::vector<uint32_t> value = this->RegMem->read(RegAddr_, 1);
-		uint32_t Mask = (1U << (BitRangeH - BitRangeL + 1)) - 1;
+		uint32_t Mask;
+		if((BitRangeH - BitRangeL + 1) == 32){
+			Mask = 0xFFFFFFFF;
+		}else{
+			Mask = (1U << (BitRangeH - BitRangeL + 1)) - 1;
+		}
 		value[0] &= ~(Mask << BitRangeL);
 		value[0] |= ((Data & Mask) << BitRangeL);
-        return this->WriteRegister(RegName,value);
+		this->WriteRegister(RegName,value);
+        return this->ReadBits(RegName, BitName,0);
 	}
 }
 

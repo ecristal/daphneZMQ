@@ -1,6 +1,5 @@
 syntax = "proto3"
 
-
 message cmd_writeAFEReg {
 	int32  id          = 1;
 	uint32 afeBlock    = 2;
@@ -100,7 +99,7 @@ message cmd_readOffset_allAFE {
 
 message cmd_readOffset_singleChannel {
 	int id = 1;
-	uint32 offsetChannel = 2
+	uint32 offsetChannel = 2;
 }
 
 message cmd_readVbiasControl {

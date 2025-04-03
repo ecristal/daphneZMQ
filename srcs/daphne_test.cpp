@@ -14,6 +14,7 @@
 #include <string>
 
 #include "Daphne.hpp"
+#include "protobuf/daphneV3_high_level_confs.pb.h"
 
 int main(int argc, char* argv[]) {
 

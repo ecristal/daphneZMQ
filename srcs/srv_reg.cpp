@@ -19,10 +19,10 @@ void *axi_map = NULL;
 
 int main() {
     // Map AXI registers
-    //DevMem devmem(AXI_BASE_ADDR);
-    //devmem.map_memory(AXI_SIZE);
-    FpgaRegDict reg_dict;
-    reg test_reg(AXI_BASE_ADDR,AXI_SIZE,reg_dict);
+    DevMem devmem(AXI_BASE_ADDR);
+    devmem.map_memory(AXI_SIZE);
+    //FpgaRegDict reg_dict;
+    //reg test_reg(AXI_BASE_ADDR,AXI_SIZE,reg_dict);
     // Initialize ZeroMQ
     void *context = zmq_ctx_new();
     void *socket = zmq_socket(context, ZMQ_REP);  // REP = Reply socket
@@ -51,10 +51,11 @@ int main() {
                 std::cout << "Received write command with parameters: " << command << " " << std::hex << offset << " " << value << std::endl;
                 //devmem.changeBaseAddr(offset,AXI_SIZE);
                 std::vector<uint32_t> value_vector(1);
-                value_vector[0] = 0x1234;
-                //devmem.write(0,value_vector);
-                //auto data = devmem.read(0, 1);
-                uint32_t result = test_reg.WriteRegister("endpointClockControl",value_vector);
+                value_vector[0] = value;
+                devmem.write(offset,value_vector);
+                auto data = devmem.read(offset, 1);
+                uint32_t result = data[0];
+                //uint32_t result = test_reg.WriteRegister("endpointClockControl",value_vector);
                 std::cout << "Result: " << std::hex << result << std::endl;
                 if(result == value){
                     zmq_send(socket, "OK: The value was written correctly", 35, 0);
@@ -65,11 +66,11 @@ int main() {
                 if(num_arg < 2){
                     zmq_send(socket, "ERROR", 5, 0);
                     continue;
-                }
+                }\
                 std::cout << "Received read command with parameters: " << command << " " << std::hex << offset << std::endl;
                 //devmem.changeBaseAddr(offset,AXI_SIZE);
-                //auto data = devmem.read(0, 1);
-                uint32_t result = test_reg.ReadRegister("endpointClockControl");
+                auto data = devmem.read(offset, 1);
+                uint32_t result = data[0];
                 std::cout << "Result: " << std::hex << result << std::endl;
                 snprintf(buffer, sizeof(buffer), "%08x", result);
                 zmq_send(socket, buffer, strlen(buffer), 0);

@@ -1,123 +1,98 @@
 cmake_minimum_required(VERSION 3.10)
 
-# Project information
 project(daphneZMQ LANGUAGES CXX)
 
-# Set C++ standard
+add_library(GTest::gtest INTERFACE IMPORTED GLOBAL)
+add_library(GTest::gmock INTERFACE IMPORTED GLOBAL)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Add the path to cppzmqConfig.cmake if necessary
-list(APPEND CMAKE_PREFIX_PATH "/usr/local/share/cmake/cppzmq")
+# Add Abseil and cppzmq to the prefix path
+list(APPEND CMAKE_PREFIX_PATH "/usr/local" "$ENV{HOME}/software/abseil-install")
 
-# Find cppzmq package
+# Find packages
+find_package(Protobuf REQUIRED)
 find_package(cppzmq REQUIRED)
+find_package(absl REQUIRED)
 
-# DevMem source files
-set(DEV_MEM_SRC srcs/DevMem.cpp)
-set(DEV_MEM_HEADER include/DevMem.hpp) # Assuming headers are in 'include' directory
+# Auto-generate protobuf files
+set(PROTO_FILE "${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf/daphneV3_high_level_confs.proto")
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_FILE})
 
-# FpgaRegDict source files
-set(FPGA_REG_DICT_SRC srcs/FpgaRegDict.cpp)
-set(FPGA_REG_DICT_HEADER include/FpgaRegDict.hpp) # Assuming headers are in 'include' directory
+include_directories(
+    include
+    ${PROTOBUF_INCLUDE_DIRS}
+    ${cppzmq_INCLUDE_DIRS}
+    ${absl_INCLUDE_DIRS}
+)
 
-# REG source files
-set(REG_SRC srcs/reg.cpp)
-set(REG_HEADER include/reg.hpp) # Assuming headers are in 'include' directory
+# Source files
+set(SOURCES
+    srcs/DevMem.cpp
+    srcs/FpgaRegDict.cpp
+    srcs/reg.cpp
+    srcs/FpgaReg.cpp
+    srcs/Spi.cpp
+    srcs/SpyBuffer.cpp
+    srcs/Afe.cpp
+    srcs/FrontEnd.cpp
+    srcs/Endpoint.cpp
+    srcs/Dac.cpp
+    srcs/Daphne.cpp
+)
 
-# FPGAREG source files
-set(FPGAREG_SRC srcs/FpgaReg.cpp)
-set(FPGAREG_HEADER include/FpgaReg.hpp) # Assuming headers are in 'include' directory
-
-# SPI source files
-set(SPI_SRC srcs/Spi.cpp)
-set(SPI_HEADER include/Spi.hpp) # Assuming headers are in 'include' directory
-
-# SPYBUFFER source files
-set(SPYBUFFER_SRC srcs/SpyBuffer.cpp)
-set(SPYBUFFER_HEADER include/SpyBuffer.hpp) # Assuming headers are in 'include' directory
-
-# AFE source files
-set(AFE_SRC srcs/Afe.cpp)
-set(AFE_HEADER include/Afe.hpp) # Assuming headers are in 'include' directory
-
-# FRONTEND source files
-set(FRONTEND_SRC srcs/FrontEnd.cpp)
-set(FRONTEND_HEADER include/FrontEnd.hpp) # Assuming headers are in 'include' directory
-
-# ENDPOINT source files
-set(ENDPOINT_SRC srcs/Endpoint.cpp)
-set(ENDPOINT_HEADER include/Endpoint.hpp) # Assuming headers are in 'include' directory
-
-# DAC source files
-set(DAC_SRC srcs/Dac.cpp)
-set(DAC_HEADER include/Dac.hpp) # Assuming headers are in 'include' directory
-
-# DAPHNE source files
-set(DAPHNE_SRC srcs/Daphne.cpp)
-set(DAPHNE_HEADER include/Daphne.hpp) # Assuming headers are in 'include' directory
-
-# Publisher, Subscriber, and SRV source files
-set(PUBLISHER_SRC srcs/publisher.cpp)
-set(SUBSCRIBER_SRC srcs/subscriber.cpp)
-set(SRV_SRC srcs/srv.cpp)
-set(SRV_REG_SRC srcs/srv_reg.cpp)
-set(DAPHNE_TEST_SRC srcs/daphne_test.cpp)
-
-# Include directories
-include_directories(include) # Add your 'include' directory for custom headers
-
-# Create executables and link libraries
-add_executable(publisher ${PUBLISHER_SRC} ${DEV_MEM_SRC})
+# Executables
+add_executable(publisher srcs/publisher.cpp srcs/DevMem.cpp)
 target_link_libraries(publisher PRIVATE cppzmq)
 
-add_executable(subscriber ${SUBSCRIBER_SRC} ${DEV_MEM_SRC})
+add_executable(subscriber srcs/subscriber.cpp srcs/DevMem.cpp)
 target_link_libraries(subscriber PRIVATE cppzmq)
 
-add_executable(srv ${SRV_SRC}
-                   ${DEV_MEM_SRC}
-                   ${FPGA_REG_DICT_SRC}
-                   ${REG_SRC}
-                   ${FPGAREG_SRC}
-                   ${SPI_SRC}
-                   ${SPYBUFFER_SRC}
-                   ${AFE_SRC}
-                   ${FRONTEND_SRC}
-                   ${ENDPOINT_SRC}
-                   ${DAC_SRC}
-                   ${DAPHNE_SRC})
-add_executable(srv_reg ${SRV_REG_SRC}
-					   ${DEV_MEM_SRC}
-					   ${FPGA_REG_DICT_SRC}
-					   ${REG_SRC}
-					   ${FPGAREG_SRC}
-					   ${SPI_SRC}
-					   ${SPYBUFFER_SRC}
-					   ${AFE_SRC}
-					   ${FRONTEND_SRC}
-					   ${ENDPOINT_SRC}
-					   ${DAC_SRC}
-					   ${DAPHNE_SRC})
-add_executable(daphne_test ${DAPHNE_TEST_SRC}
-					   ${DEV_MEM_SRC}
-					   ${FPGA_REG_DICT_SRC}
-					   ${REG_SRC}
-					   ${FPGAREG_SRC}
-					   ${SPI_SRC}
-					   ${SPYBUFFER_SRC}
-					   ${AFE_SRC}
-					   ${FRONTEND_SRC}
-					   ${ENDPOINT_SRC}
-					   ${DAC_SRC}
-					   ${DAPHNE_SRC})					  
+add_executable(srv srcs/srv.cpp ${SOURCES})
 target_link_libraries(srv PRIVATE cppzmq)
-target_link_libraries(srv_reg PRIVATE cppzmq)
-target_link_libraries(daphne_test PRIVATE cppzmq)
 
-# Include cppzmq headers
-target_include_directories(publisher PRIVATE ${cppzmq_INCLUDE_DIRS})
-target_include_directories(subscriber PRIVATE ${cppzmq_INCLUDE_DIRS})
-target_include_directories(srv PRIVATE ${cppzmq_INCLUDE_DIRS})
-target_include_directories(srv_reg PRIVATE ${cppzmq_INCLUDE_DIRS})
-target_include_directories(daphne_test PRIVATE ${cppzmq_INCLUDE_DIRS})
+add_executable(srv_reg srcs/srv_reg.cpp ${SOURCES})
+target_link_libraries(srv_reg PRIVATE cppzmq)
+
+add_executable(daphne_test
+    srcs/daphne_test.cpp
+    ${SOURCES}
+    ${PROTO_SRCS}
+    ${PROTO_HDRS}
+)
+
+add_executable(DaphneSlowController
+    srcs/DaphneSlowController.cpp
+    ${SOURCES}
+    ${PROTO_SRCS}
+    ${PROTO_HDRS}
+)
+
+target_link_libraries(daphne_test
+    PRIVATE
+    cppzmq
+    protobuf::libprotobuf
+    absl::base
+    absl::log_severity
+    absl::raw_logging_internal
+    absl::log_internal_check_op
+    absl::log_internal_message
+)
+
+target_link_libraries(DaphneSlowController
+    PRIVATE
+    cppzmq
+    protobuf::libprotobuf
+    absl::base
+    absl::log_severity
+    absl::raw_logging_internal
+    absl::log_internal_check_op
+    absl::log_internal_message
+)
+
+# Print useful info
+message(STATUS "Protobuf version: ${Protobuf_VERSION}")
+message(STATUS "Abseil include: ${absl_INCLUDE_DIRS}")
+message(STATUS "Abseil libs: ${absl_LIBRARIES}")
