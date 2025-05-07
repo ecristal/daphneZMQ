@@ -48,17 +48,35 @@ void configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
             PGAConfig pga_config = afe_config.pga();
             LNAConfig lna_config = afe_config.lna();
             response_str += "ADC Configurations:\n";
-            response_str += "\tResolution : " + std::to_string(adc_config.resolution()) + "\n";
-            response_str += "\tOutput_format : " + std::to_string(adc_config.output_format()) + "\n";
-            response_str += "\tSB_first : " + std::to_string(adc_config.sb_first()) + "\n";
+
+            uint32_t ADC_RESOLUTION_RESET = daphne.getAfe()->setAFEFunction(afe_config.id(), "ADC_RESOLUTION_RESET", adc_config.resolution());
+            response_str += "\tResolution : " + std::to_string(ADC_RESOLUTION_RESET) + "\n";
+
+            uint32_t ADC_OUTPUT_FORMAT = daphne.getAfe()->setAFEFunction(afe_config.id(), "ADC_OUTPUT_FORMAT", adc_config.output_format());
+            response_str += "\tOutput_format : " + std::to_string(ADC_OUTPUT_FORMAT) + "\n";
+
+            uint32_t LSB_MSB_FIRST = daphne.getAfe()->setAFEFunction(afe_config.id(), "LSB_MSB_FIRST", adc_config.sb_first());
+            response_str += "\tSB_first : " + std::to_string(LSB_MSB_FIRST) + "\n";
+
             response_str += "PGA Configurations:\n";
-            response_str += "\tlpf_cut_frequency : " + std::to_string(pga_config.lpf_cut_frequency()) + "\n";
-            response_str += "\tintegrator_disable : " + std::to_string(pga_config.integrator_disable()) + "\n";
-            response_str += "\tgain : " + std::to_string(pga_config.gain()) + "\n";
+            uint32_t LPF_PROGRAMMABILITY = daphne.getAfe()->setAFEFunction(afe_config.id(), "LPF_PROGRAMMABILITY", pga_config.lpf_cut_frequency());
+            response_str += "\tlpf_cut_frequency : " + std::to_string(LPF_PROGRAMMABILITY) + "\n";
+            
+            uint32_t PGA_INTEGRATOR_DISABLE = daphne.getAfe()->setAFEFunction(afe_config.id(), "PGA_INTEGRATOR_DISABLE", pga_config.integrator_disable());
+            response_str += "\tintegrator_disable : " + std::to_string(PGA_INTEGRATOR_DISABLE) + "\n";
+            
+            uint32_t PGA_GAIN_CONTROL = daphne.getAfe()->setAFEFunction(afe_config.id(), "PGA_GAIN_CONTROL", pga_config.gain());
+            response_str += "\tgain : " + std::to_string(PGA_GAIN_CONTROL) + "\n";
+            
             response_str += "LNA Configurations:\n";
-            response_str += "\tclamp : " + std::to_string(lna_config.clamp()) + "\n";
-            response_str += "\tgain : " + std::to_string(lna_config.gain()) + "\n";
-            response_str += "\tintegrator_disable : " + std::to_string(lna_config.integrator_disable()) + "\n";
+            uint32_t LNA_INPUT_CLAMP_SETTING = daphne.getAfe()->setAFEFunction(afe_config.id(), "LNA_INPUT_CLAMP_SETTING", lna_config.clamp());
+            response_str += "\tclamp : " + std::to_string(LNA_INPUT_CLAMP_SETTING) + "\n";
+            
+            uint32_t LNA_GAIN = daphne.getAfe()->setAFEFunction(afe_config.id(), "LNA_GAIN", lna_config.gain());
+            response_str += "\tgain : " + std::to_string(LNA_GAIN) + "\n";
+            
+            uint32_t LNA_INTEGRATOR_DISABLE = daphne.getAfe()->setAFEFunction(afe_config.id(), "LNA_INTEGRATOR_DISABLE", lna_config.integrator_disable());
+            response_str += "\tintegrator_disable : " + std::to_string(LNA_INTEGRATOR_DISABLE) + "\n";
         }
     }catch(std::exception &e){
         std::cout << "Cought Exception: \n" << e.what();
