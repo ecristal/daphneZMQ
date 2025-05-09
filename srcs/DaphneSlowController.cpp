@@ -6,7 +6,7 @@
 #include "Daphne.hpp"
 #include "protobuf/daphneV3_high_level_confs.pb.h"
 
-void configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std::string &response_str, std::unordered_map<uint32_t, uint32_t> &ch_afe_map) {
+bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std::string &response_str, std::unordered_map<uint32_t, uint32_t> &ch_afe_map) {
     try{
         response_str = "Configuring Daphne with IP : " + requested_cfg.daphne_address() + "\n";
         response_str += "Setting slot : " + std::to_string(requested_cfg.slot()) + "\n";
@@ -81,8 +81,10 @@ void configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
     }catch(std::exception &e){
         std::cout << "Cought Exception: \n" << e.what();
         response_str = "Cought Exception: \n" + std::string(e.what());
+        return false;
     }
-    std::cout << response_str << std::endl;
+    //std::cout << response_str << std::endl;
+    return true;
 }
 
 void process_request(const std::string& request_str, std::string& response_str, Daphne &daphne, std::unordered_map<uint32_t, uint32_t> &ch_afe_map) {
@@ -123,8 +125,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             std::cout << "The request is a ConfigureRequest" << std::endl;
             if(cfg_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
-                configureDaphne(cfg_request, daphne, configure_message, ch_afe_map);
-                cfg_response.set_success(true);
+                bool is_success = configureDaphne(cfg_request, daphne, configure_message, ch_afe_map);
+                cfg_response.set_success(is_success);
                 cfg_response.set_message(configure_message);
                 response_envelope.set_type(CONFIGURE_FE);
                 response_envelope.set_payload(cfg_response.SerializeAsString());
