@@ -34,6 +34,7 @@ public:
 private:
     uint64_t BaseAddr;
     FpgaRegDict regDict;
+    size_t MemLen;
     std::unique_ptr<DevMem> RegMem;
 };
 
