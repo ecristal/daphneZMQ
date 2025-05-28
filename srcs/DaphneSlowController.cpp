@@ -7,7 +7,7 @@
 #include "protobuf/daphneV3_high_level_confs.pb.h"
 #include "protobuf/daphneV3_low_level_confs.pb.h"
 
-bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std::string &response_str, std::unordered_map<uint32_t, uint32_t> &ch_afe_map) {
+bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std::string &response_str) {
     try{
         response_str = "Configuring Daphne with IP : " + requested_cfg.daphne_address() + "\n";
         response_str += "Setting slot : " + std::to_string(requested_cfg.slot()) + "\n";
@@ -38,8 +38,8 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
             response_str += "\tChannel Trim : " + std::to_string(ch_config.trim()) + "\n";
             response_str += "\tChannel Offset : " + std::to_string(ch_config.offset()) + "\n";
             response_str += "\tChannel Gain : " + std::to_string(ch_config.gain()) + "\n\n";
-            daphne.getDac()->setDacTrim(ch_afe_map[ch_config.id()], ch_config.id() % 8, ch_config.trim(), true, true);
-            daphne.getDac()->setDacOffset(ch_afe_map[ch_config.id()], ch_config.id() % 8, ch_config.offset(), true, true);
+            daphne.getDac()->setDacTrim(ch_config.id() / 8, ch_config.id() % 8, ch_config.trim(), true, true);
+            daphne.getDac()->setDacOffset(ch_config.id() / 8, ch_config.id() % 8, ch_config.offset(), true, true);
         }
         for(const AFEConfig &afe_config : requested_cfg.afes()){
             response_str += "AFE ID : " + std::to_string(afe_config.id()) + "\n";
@@ -96,14 +96,120 @@ bool writeAFERegister(const cmd_writeAFEReg &request, Daphne &daphne, std::strin
         returned_value = daphne.getAfe()->setRegister(afe, regAddr, regValue);
         response_str = "AFE Register " + std::to_string(regAddr) + " written with value " + std::to_string(regValue) + " for AFE " + std::to_string(afe) + ".";
         response_str += " Returned value: " + std::to_string(returned_value) + ".";
+        daphne.setAfeRegDictValue(afe, regAddr, returned_value);
     } catch (std::exception &e) {
-        response_str = "Error writing AFE Register: " + std::string(e.what());
+        response_str = "Error writting AFE Register: " + std::string(e.what());
         return false;
     }
     return true;
 }
 
-void process_request(const std::string& request_str, std::string& response_str, Daphne &daphne, std::unordered_map<uint32_t, uint32_t> &ch_afe_map) {
+bool writeAFEVgain(const cmd_writeAFEVGAIN &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value) {
+    try {
+        uint32_t afe = request.afeblock();
+        uint32_t vgain = request.vgainvalue();
+        if(vgain > 4095) throw std::invalid_argument("The VGAIN value " + std::to_string(vgain) + " is out of range. Expected range 0-4095");
+        daphne.getDac()->setDacGain(afe, vgain);
+        daphne.setAfeAttenuationDictValue(afe,vgain);
+        returned_value = daphne.getAfeAttenuationDictValue(afe);
+        response_str = "AFE VGAIN written successfully for AFE " + std::to_string(afe) + ". VGAIN: " + std::to_string(vgain) + ".";
+        response_str += " Returned value: " + std::to_string(returned_value) + ".";
+    } catch (std::exception &e) {
+        response_str = "Error writting AFE VGAIN: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
+bool writeAFEAttenuation(const cmd_writeAFEAttenuation &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value) {
+    try {
+        uint32_t afe = request.afeblock();
+        uint32_t attenuation = request.attenuation();
+        if(attenuation > 4095) throw std::invalid_argument("The attenuation value " + std::to_string(attenuation) + " is out of range. Range 0-4095");
+        daphne.getDac()->setDacGain(afe, attenuation);
+        daphne.setAfeAttenuationDictValue(afe,attenuation);
+        returned_value = daphne.getAfeAttenuationDictValue(afe);
+        response_str = "AFE Attenuation written successfully for AFE " + std::to_string(afe) + ". Attenuation: " + std::to_string(attenuation) + ".";
+        response_str += " Returned value: " + std::to_string(returned_value) + ".";
+    } catch (std::exception &e) {
+        response_str = "Error writting AFE Attenuation: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
+bool writeAFEBiasVoltage(const cmd_writeAFEBiasSet &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value){
+    try {
+        uint32_t afe = request.afeblock();
+        uint32_t biasValue = request.biasvalue();
+        if(biasValue > 4095) throw std::invalid_argument("The BIAS value " + std::to_string(biasValue) + " is out of range. Range 0-4095");
+        daphne.getDac()->setDacBias(afe, biasValue);
+        daphne.setBiasVoltageDictValue(afe, biasValue);
+        returned_value = daphne.getBiasVoltageDictValue(afe);
+        response_str = "AFE bias value written successfully for AFE " + std::to_string(afe) + ". Bias value: " + std::to_string(biasValue) + ".";
+        response_str += " Returned value: " + std::to_string(returned_value) + ".";
+    } catch (std::exception &e) {
+        response_str = "Error writting AFE Bias value: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
+bool writeChannelTrim(const cmd_writeTrim_singleChannel &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value){
+    try {
+        uint32_t trimCh = request.trimchannel();
+        uint32_t trimValue = request.trimvalue();
+        uint32_t trimGain = request.trimgain();
+        if(trimValue > 4095) throw std::invalid_argument("The Trim value " + std::to_string(trimValue) + " is out of range. Range 0-4095");
+        if(trimCh > 39) throw std::invalid_argument("The Channel value " + std::to_string(trimCh) + " is out of range. Range 0-39");
+        daphne.getDac()->setDacTrim(trimCh / 8, trimCh % 8, trimValue, trimGain, true);
+        daphne.setChTrimDictValue(trimCh, trimValue);
+        returned_value = daphne.getChTrimDictValue(trimCh);
+        response_str = "Trim value written successfully for Channel " + std::to_string(trimCh) + ". Trim value: " + std::to_string(trimValue) + ".";
+        response_str += " Returned value: " + std::to_string(returned_value) + ".";
+    } catch (std::exception &e) {
+        response_str = "Error writting Channel Trim value: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
+bool writeChannelOffset(const cmd_writeOFFSET_singleChannel &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value){
+    try {
+        uint32_t offsetCh = request.offsetchannel();
+        uint32_t offsetValue = request.offsetvalue();
+        uint32_t offsetGain = request.offsetgain();
+        if(offsetValue > 4095) throw std::invalid_argument("The Offset value " + std::to_string(offsetValue) + " is out of range. Range 0-4095");
+        if(offsetCh > 39) throw std::invalid_argument("The Channel value " + std::to_string(offsetCh) + " is out of range. Range 0-39");
+        daphne.getDac()->setDacOffset(offsetCh / 8, offsetCh % 8, offsetValue, offsetGain, true);
+        daphne.setChOffsetDictValue(offsetCh, offsetValue);
+        returned_value = daphne.getChOffsetDictValue(offsetCh);
+        response_str = "Offset value written successfully for Channel " + std::to_string(offsetCh) + ". Offset value: " + std::to_string(offsetValue) + ".";
+        response_str += " Returned value: " + std::to_string(returned_value) + ".";
+    } catch (std::exception &e) {
+        response_str = "Error writting Channel Offset value: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
+bool writeBiasVoltageControl(const cmd_writeVbiasControl &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value){
+    try {
+        uint32_t controlValue = request.vbiascontrolvalue();
+        if(controlValue > 4095) throw std::invalid_argument("The Bias Control value " + std::to_string(controlValue) + " is out of range. Range 0-4095");
+        daphne.getDac()->setDacHvBias(controlValue, true, true);
+        daphne.setBiasControlDictValue(controlValue);
+        returned_value = daphne.getBiasControlDictValue();
+        response_str = "Bias Control value written successfully. Bias Control value: " + std::to_string(controlValue) + ".";
+        response_str += " Returned value: " + std::to_string(returned_value) + ".";
+    } catch (std::exception &e) {
+        response_str = "Error writting Bias Control value: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
+void process_request(const std::string& request_str, std::string& response_str, Daphne &daphne) {
     // Identify the message type
     // Here the not equal to std::npos is used to check if the string contains the substring
     // so the issue is to see if it really contains the substring. 
@@ -168,7 +274,7 @@ void process_request(const std::string& request_str, std::string& response_str, 
     }
 
     switch(request_envelope.type()){
-        case CONFIGURE_CLKS: {
+        case CONFIGURE_CLKS: { // to be implemented
             std::cout << "The request is a ConfigureCLKsRequest" << std::endl;
             if(clk_request.ParseFromString(request_envelope.payload())){
                 clk_response.set_success(true);
@@ -190,7 +296,7 @@ void process_request(const std::string& request_str, std::string& response_str, 
             std::cout << "The request is a ConfigureRequest" << std::endl;
             if(cfg_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
-                bool is_success = configureDaphne(cfg_request, daphne, configure_message, ch_afe_map);
+                bool is_success = configureDaphne(cfg_request, daphne, configure_message);
                 cfg_response.set_success(is_success);
                 cfg_response.set_message(configure_message);
                 response_envelope.set_type(CONFIGURE_FE);
@@ -206,7 +312,7 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 return;
             }
         }
-        case WRITE_AFE_REG: { // to be implemented
+        case WRITE_AFE_REG: {
             std::cout << "The request is a WriteAfeRegRequest" << std::endl;
             if(write_afe_reg_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
@@ -230,11 +336,16 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 return;
             }
         }
-        case WRITE_AFE_VGAIN: { // to be implemented
+        case WRITE_AFE_VGAIN: {
             std::cout << "The request is a WriteAfeVgainRequest" << std::endl;
             if(write_afe_vgain_request.ParseFromString(request_envelope.payload())){
-                write_afe_vgain_response.set_success(true);
-                write_afe_vgain_response.set_message("AFE VGAIN written successfully");
+                std::string configure_message;
+                uint32_t returned_value;
+                bool is_success = writeAFEVgain(write_afe_vgain_request, daphne, configure_message, returned_value);
+                write_afe_vgain_response.set_success(is_success);
+                write_afe_vgain_response.set_message(configure_message);
+                write_afe_vgain_response.set_afeblock(write_afe_vgain_request.afeblock());
+                write_afe_vgain_response.set_vgainvalue(returned_value);
                 response_envelope.set_type(WRITE_AFE_VGAIN);
                 response_envelope.set_payload(write_afe_vgain_response.SerializeAsString());
                 response_envelope.SerializeToString(&response_str);
@@ -248,11 +359,16 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 return;
             }
         }
-        case WRITE_AFE_BIAS_SET: { // to be implemented
+        case WRITE_AFE_BIAS_SET: {
             std::cout << "The request is a WriteAfeBiasSetRequest" << std::endl;
             if(write_afe_biasset_request.ParseFromString(request_envelope.payload())){
-                write_afe_biasset_response.set_success(true);
-                write_afe_biasset_response.set_message("AFE Bias Set written successfully");
+                std::string configure_message;
+                uint32_t returned_value;
+                bool is_success = writeAFEBiasVoltage(write_afe_biasset_request, daphne, configure_message, returned_value);
+                write_afe_biasset_response.set_success(is_success);
+                write_afe_biasset_response.set_message(configure_message);
+                write_afe_biasset_response.set_afeblock(write_afe_biasset_request.afeblock());
+                write_afe_biasset_response.set_biasvalue(returned_value);
                 response_envelope.set_type(WRITE_AFE_BIAS_SET);
                 response_envelope.set_payload(write_afe_biasset_response.SerializeAsString());
                 response_envelope.SerializeToString(&response_str);
@@ -302,11 +418,17 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 return;
             }
         }
-        case WRITE_TRIM_CH: { // to be implemented
+        case WRITE_TRIM_CH: {
             std::cout << "The request is a WriteTrimSingleChannelRequest" << std::endl;
             if(write_trim_singlechannel_request.ParseFromString(request_envelope.payload())){
-                write_trim_singlechannel_response.set_success(true);
-                write_trim_singlechannel_response.set_message("Single channel trim written successfully");
+                std::string configure_message;
+                uint32_t returned_value;
+                bool is_success = writeChannelTrim(write_trim_singlechannel_request, daphne, configure_message, returned_value);
+                write_trim_singlechannel_response.set_success(is_success);
+                write_trim_singlechannel_response.set_message(configure_message);
+                write_trim_singlechannel_response.set_trimchannel(write_trim_singlechannel_request.trimchannel());
+                write_trim_singlechannel_response.set_trimvalue(returned_value);
+                write_trim_singlechannel_response.set_trimgain(write_trim_singlechannel_request.trimgain());
                 response_envelope.set_type(WRITE_TRIM_CH);
                 response_envelope.set_payload(write_trim_singlechannel_response.SerializeAsString());
                 response_envelope.SerializeToString(&response_str);
@@ -356,9 +478,17 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 return;
             }
         }
-        case WRITE_OFFSET_CH: { // to be implemented
+        case WRITE_OFFSET_CH: {
             std::cout << "The request is a WriteOffsetSingleChannelRequest" << std::endl;
             if(write_offset_singlechannel_request.ParseFromString(request_envelope.payload())){
+                std::string configure_message;
+                uint32_t returned_value;
+                bool is_success = writeChannelOffset(write_offset_singlechannel_request, daphne, configure_message, returned_value);
+                write_offset_singlechannel_response.set_success(is_success);
+                write_offset_singlechannel_response.set_message(configure_message);
+                write_offset_singlechannel_response.set_offsetchannel(write_offset_singlechannel_request.offsetchannel());
+                write_offset_singlechannel_response.set_offsetvalue(returned_value);
+                write_offset_singlechannel_response.set_offsetgain(write_offset_singlechannel_request.offsetgain());
                 write_offset_singlechannel_response.set_success(true);
                 write_offset_singlechannel_response.set_message("Single channel offset written successfully");
                 response_envelope.set_type(WRITE_OFFSET_CH);
@@ -374,11 +504,15 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 return;
             }
         }
-        case WRITE_VBIAS_CONTROL: { // to be implemented
+        case WRITE_VBIAS_CONTROL: {
             std::cout << "The request is a WriteVbiasControlRequest" << std::endl;
             if(write_vbias_control_request.ParseFromString(request_envelope.payload())){
-                write_vbias_control_response.set_success(true);
-                write_vbias_control_response.set_message("Vbias control written successfully");
+                std::string configure_message;
+                uint32_t returned_value;
+                bool is_success = writeBiasVoltageControl(write_vbias_control_request, daphne, configure_message, returned_value);
+                write_vbias_control_response.set_vbiascontrolvalue(returned_value);
+                write_vbias_control_response.set_success(is_success);
+                write_vbias_control_response.set_message(configure_message);
                 response_envelope.set_type(WRITE_VBIAS_CONTROL);
                 response_envelope.set_payload(write_vbias_control_response.SerializeAsString());
                 response_envelope.SerializeToString(&response_str);
@@ -656,49 +790,6 @@ int main() {
     zmq::socket_t socket(context, ZMQ_REP);
     socket.bind("tcp://193.206.157.36:9000");
     Daphne daphne;
-
-    std::unordered_map<uint32_t, uint32_t> ch_afe_map = {
-        {0, 0},
-        {1, 0},
-        {2, 0},
-        {3, 0},
-        {4, 0},
-        {5, 0},
-        {6, 0},
-        {7, 0},
-        {8, 1},
-        {9, 1},
-        {10, 1},
-        {11, 1},
-        {12, 1},
-        {13, 1},
-        {14, 1},
-        {15, 1},
-        {16, 2},
-        {17, 2},
-        {18, 2},
-        {19, 2},
-        {20, 2},
-        {21, 2},
-        {22, 2},
-        {23, 2},
-        {24, 3},
-        {25, 3},
-        {26, 3},
-        {27, 3},
-        {28, 3},
-        {29, 3},
-        {30, 3},
-        {31, 3},
-        {32, 4},
-        {33, 4},
-        {34, 4},
-        {35, 4},
-        {36, 4},
-        {37, 4},
-        {38, 4},
-        {39, 4},
-    };
     
     while (true) {
         zmq::message_t request;
@@ -707,7 +798,7 @@ int main() {
         std::string request_str(static_cast<char*>(request.data()), request.size());
         std::string response_str;
         
-        process_request(request_str, response_str, daphne, ch_afe_map);
+        process_request(request_str, response_str, daphne);
         
         zmq::message_t response(response_str.size());
         memcpy(response.data(), response_str.data(), response_str.size());

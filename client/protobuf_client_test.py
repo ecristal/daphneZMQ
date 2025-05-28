@@ -1,8 +1,14 @@
 import zmq
-import protobuf.daphneV3_high_level_confs_pb2 as pb
 import json
+import sys
+import os
 
-with open('./protobuf/np02-daphne-running.json') as file:
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
+from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
+
+with open('../srcs/protobuf/np02-daphne-running.json') as file:
     np02_config = json.load(file)
 
 config_file_keys = np02_config.keys()
@@ -12,7 +18,7 @@ for file_key in config_file_keys:
 
 # Prepare request
 for device in devices_list:
-    request = pb.ConfigureRequest()
+    request = pb_high.ConfigureRequest()
     request.daphne_address = "192.168.0.10"
     request.slot = device['slot']
     request.timeout_ms = 500
@@ -76,8 +82,8 @@ for device in devices_list:
 
     print(request)
 
-    envelope = pb.ControlEnvelope()
-    envelope.type = pb.CONFIGURE_FE
+    envelope = pb_high.ControlEnvelope()
+    envelope.type = pb_high.CONFIGURE_FE
     envelope.payload = request.SerializeToString()
 
     # Serialize
@@ -91,17 +97,69 @@ for device in devices_list:
 
     # Receive response
     response_bytes = socket.recv()
-    responseEnvelope = pb.ControlEnvelope()
+    responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
     print(responseEnvelope)
 
-    if(responseEnvelope.type == pb.CONFIGURE_FE):
-        response = pb.ConfigureResponse()
+    if(responseEnvelope.type == pb_high.CONFIGURE_FE):
+        response = pb_high.ConfigureResponse()
         response.ParseFromString(responseEnvelope.payload)
-    elif(responseEnvelope.type == pb.CONFIGURE_CLKS):
-        response = pb.ConfigureCLKsResponse()
+    elif(responseEnvelope.type == pb_high.CONFIGURE_CLKS):
+        response = pb_high.ConfigureCLKsResponse()
         response.ParseFromString(responseEnvelope.payload)
     # Print response
     print("Success:", response.success)
     print("Message:", response.message)
+socket.close()
+
+request = pb_low.cmd_writeAFEReg()
+request.afeBlock = 0
+request.regAddress = 80
+request.regValue = 0b11010
+envelope = pb_high.ControlEnvelope()
+envelope.type = pb_high.WRITE_AFE_REG
+envelope.payload = request.SerializeToString()
+
+# Send via ZMQ
+context = zmq.Context()
+socket = context.socket(zmq.REQ)
+socket.connect("tcp://193.206.157.36:9000")
+socket.send(envelope.SerializeToString())
+
+# Receive response
+response_bytes = socket.recv()
+responseEnvelope = pb_high.ControlEnvelope()
+responseEnvelope.ParseFromString(response_bytes)
+
+if responseEnvelope.type == pb_high.WRITE_AFE_REG:
+    response = pb_low.cmd_writeAFEReg_response()
+    response.ParseFromString(responseEnvelope.payload)
+    print("Success:", response.success)
+    print("Message:", response.message)
+socket.close()
+
+request = pb_low.cmd_writeAFEVGAIN()
+request.afeBlock = 0
+request.vgainValue = 5000
+envelope = pb_high.ControlEnvelope()
+envelope.type = pb_high.WRITE_AFE_VGAIN
+envelope.payload = request.SerializeToString()
+
+# Send via ZMQ
+context = zmq.Context()
+socket = context.socket(zmq.REQ)
+socket.connect("tcp://193.206.157.36:9000")
+socket.send(envelope.SerializeToString())
+
+# Receive response
+response_bytes = socket.recv()
+responseEnvelope = pb_high.ControlEnvelope()
+responseEnvelope.ParseFromString(response_bytes)
+
+if responseEnvelope.type == pb_high.WRITE_AFE_VGAIN:
+    response = pb_low.cmd_writeAFEReg_response()
+    response.ParseFromString(responseEnvelope.payload)
+    print("Success:", response.success)
+    print("Message:", response.message)
+socket.close()

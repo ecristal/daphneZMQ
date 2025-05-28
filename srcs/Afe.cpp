@@ -33,6 +33,11 @@ uint32_t Afe::getPowerdown(){
 
 uint32_t Afe::setRegister(const uint32_t& afe, const uint32_t& register_, const uint32_t& value){
 
+	if(std::find(this->register_list.begin(), this->register_list.end(), register_) == this->register_list.end()){
+		throw std::invalid_argument("Register address " + std::to_string(register_) + " not found in AFE register list.");
+		return 0;
+	}
+
 	uint32_t value_ = (register_ & 0xff) << 16 | (value & 0xFFFF);
 	std::string regString = "afeControl_" + std::to_string(afe);
 	this->spi->setData(regString, value_);
@@ -51,6 +56,11 @@ uint32_t Afe::setRegister(const uint32_t& afe, const uint32_t& register_, const 
 }
 
 uint32_t Afe::getRegister(const uint32_t& afe, const uint32_t& register_){
+
+	if(std::find(this->register_list.begin(), this->register_list.end(), register_) == this->register_list.end()){
+		throw std::invalid_argument("Register address " + std::to_string(register_) + " not found in AFE register list.");
+		return 0;
+	}
 
 	std::string regString = "afeControl_" + std::to_string(afe);
 	this->spi->setData(regString, 0x000002);
@@ -74,7 +84,7 @@ uint32_t Afe::setAFEFunction(const uint32_t& afe, const std::string& functionNam
     
 	auto available_options_it = this->afeFunctionAvailableOptionsDict.find(functionName);
 	if (available_options_it == this->afeFunctionAvailableOptionsDict.end()) {
-		std::cerr << "Function name:" << functionName << " not found in the available options dictionary." << std::endl;
+		throw std::invalid_argument("AFE function name " + functionName + " not found in the AFE options dictionary.");
 		return 0;
 	}
 
@@ -84,19 +94,25 @@ uint32_t Afe::setAFEFunction(const uint32_t& afe, const std::string& functionNam
 		if(value >= available_options[0] && value <= available_options[1]){
 			std::cout << "Value is in range." << std::endl;
 		}else{
-			std::cerr << "Value is out of range." << std::endl;
+			throw std::invalid_argument("Invalid value " + std::to_string(value) + " for AFE function name " + functionName + 
+			                            ".\nThe expected range is " + std::to_string(available_options[0]) + " - " + std::to_string(available_options[1]));
 			return 0;
 		}
 	}else{
 		if(std::find(available_options.begin(), available_options.end(), static_cast<uint16_t>(value)) == available_options.end()){
-			std::cerr << "Value is not in the available options." << std::endl;
+			std::string options_list = "\n";
+			for(const auto &option_ : available_options){
+				options_list = options_list + std::to_string(option_) + "\n";
+			}
+			throw std::invalid_argument("Invalid option " + std::to_string(value) + " for AFE function name " + functionName + 
+			                            ".\nThe expected option list is: " + options_list);
 			return 0;
 		}
 	}
 
 	auto afe_funct_it = this->afeFunctionDict.find(functionName);
 	if (afe_funct_it == this->afeFunctionDict.end()) {
-		std::cerr << "Function name not found in the dictionary." << std::endl;
+		throw std::invalid_argument("AFE function name " + functionName + " not found in the AFE functions dictionary.");
 		return 0;
 	}
 
@@ -120,4 +136,65 @@ uint32_t Afe::setAFEFunction(const uint32_t& afe, const std::string& functionNam
 		     << ")" << std::endl;
 	}
 	return checkValue;
+}
+
+uint32_t Afe::getAFEFunction(const uint32_t& afe, const std::string& functionName){
+
+	auto afe_funct_it = this->afeFunctionDict.find(functionName);
+	if (afe_funct_it == this->afeFunctionDict.end()) {
+		throw std::invalid_argument("AFE function name " + functionName + " not found in the AFE functions dictionary.");
+		return 0;
+	}
+
+	const Afe::BitField& bit_field = afe_funct_it->second;
+	const auto& registerAddr = bit_field.begin()->first;
+	const auto& msb_pos = bit_field.begin()->second.first;
+	const auto& lsb_pos = bit_field.begin()->second.second;
+	uint32_t mask = ((1 << (msb_pos - lsb_pos + 1)) - 1) << lsb_pos;
+	uint32_t registerValue = this->getRegister(afe, registerAddr);
+	uint32_t value = (registerValue & mask) >> lsb_pos;
+
+	return value;
+}
+
+void Afe::updateAfeRegDict(const uint32_t& afe, std::unordered_map<uint32_t, uint32_t> &dict, const std::string& functionName){
+
+	auto afe_funct_it = this->afeFunctionDict.find(functionName);
+	if (afe_funct_it == this->afeFunctionDict.end()) {
+		throw std::invalid_argument("AFE function name " + functionName + " not found in the AFE functions dictionary.");
+	}
+
+	const Afe::BitField& bit_field = afe_funct_it->second;
+	const auto& registerAddr = bit_field.begin()->first;
+	uint32_t registerValue = this->getRegister(afe, registerAddr);
+
+	auto regDict_it = dict.find(registerAddr);
+	if (regDict_it == dict.end()) {
+		throw std::invalid_argument("Internal Error: AFE function name " + functionName + " has an invalid register address: "+ std::to_string(registerAddr) +".");
+	}
+	regDict_it->second = registerValue;
+
+}
+
+uint32_t Afe::getAFEFunctionValueFromRegDict(const uint32_t& afe, std::unordered_map<uint32_t, uint32_t> &dict, const std::string& functionName){
+
+	auto afe_funct_it = this->afeFunctionDict.find(functionName);
+	if (afe_funct_it == this->afeFunctionDict.end()) {
+		throw std::invalid_argument("AFE function name " + functionName + " not found in the AFE functions dictionary.");
+	}
+
+	const Afe::BitField& bit_field = afe_funct_it->second;
+	const auto& registerAddr = bit_field.begin()->first;
+	const auto& msb_pos = bit_field.begin()->second.first;
+	const auto& lsb_pos = bit_field.begin()->second.second;
+	uint32_t mask = ((1 << (msb_pos - lsb_pos + 1)) - 1) << lsb_pos;
+
+	auto regDict_it = dict.find(registerAddr);
+	if (regDict_it == dict.end()) {
+		throw std::invalid_argument("Internal Error: AFE function name " + functionName + " has an invalid register address: "+ std::to_string(registerAddr) +".");
+	}
+	uint32_t registerValue = regDict_it->second;
+	uint32_t value = (registerValue & mask) >> lsb_pos;
+
+	return value;
 }

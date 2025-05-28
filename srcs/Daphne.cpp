@@ -4,7 +4,9 @@ Daphne::Daphne()
 	: afe(std::make_unique<Afe>()),
 	  dac(std::make_unique<Dac>()),
 	  frontend(std::make_unique<FrontEnd>()),
-	  spyBuffer(std::make_unique<SpyBuffer>()){}
+	  spyBuffer(std::make_unique<SpyBuffer>()){
+		this->initRegDictHistory();
+	  }
 
 Daphne::~Daphne(){}
 
@@ -163,4 +165,220 @@ double Daphne::calcInputVoltage(const double& value, const double& vGain_mV){
 	}
 	double gain = std::pow(10,gain_dB / 20);
 	return value / gain;
+}
+
+void Daphne::initRegDictHistory() {
+
+	// {REGISTER_ADDR, REGISTER_VALUE}
+    std::unordered_map<uint32_t, uint32_t> afeRegDict = {
+        {0, 0},
+        {1, 0},
+        {2, 0},
+        {3, 0},
+        {4, 0},
+        {5, 0},
+        {10, 0},
+        {13, 0},
+        {15, 0},
+        {17, 0},
+        {19, 0},
+        {21, 0},
+        {25, 0},
+        {27, 0},
+        {29, 0},
+        {31, 0},
+        {33, 0},
+        {50, 0},
+        {51, 0},
+        {52, 0},
+        {53, 0},
+        {54, 0},
+        {55, 0},
+        {56, 0},
+        {57, 0},
+        {59, 0},
+        {66, 0}
+    };
+
+	std::vector<uint32_t> regList;
+	for(const auto& [key, _] : afeRegDict){
+		regList.push_back(key);
+	}
+	this->afe->setRegisterList(regList);
+
+	std::unordered_map<uint32_t, uint32_t> stdAfeDict = {
+        {0, 0},
+        {1, 0},
+        {2, 0},
+        {3, 0},
+        {4, 0}
+    };
+
+	std::unordered_map<uint32_t, uint32_t> stdChDict = {
+        {0, 0},
+        {1, 0},
+        {2, 0},
+        {3, 0},
+        {4, 0},
+		{5, 0},
+		{6, 0},
+		{7, 0},
+		{8, 0},
+		{9, 0},
+		{10, 0},
+		{11, 0},
+		{12, 0},
+		{13, 0},
+		{14, 0},
+		{15, 0},
+		{16, 0},
+		{17, 0},
+		{18, 0},
+		{19, 0},
+		{20, 0},
+		{21, 0},
+		{22, 0},
+		{23, 0},
+		{24, 0},
+		{25, 0},
+		{26, 0},
+		{27, 0},
+		{28, 0},
+		{29, 0},
+		{30, 0},
+		{31, 0},
+		{32, 0},
+		{33, 0},
+		{34, 0},
+		{35, 0},
+		{36, 0},
+		{37, 0},
+		{38, 0},
+		{39, 0}
+    };
+
+	this->afeRegDictSetting.clear();
+	for(int i = 0; i < 4; i++) {
+		this->afeRegDictSetting.push_back(afeRegDict);
+	}
+	this->afeAttenuationDictSetting.clear();
+	this->afeAttenuationDictSetting = stdAfeDict;
+	this->biasVoltageSetting.clear();
+	this->biasVoltageSetting = stdAfeDict;
+	this->biasControlSetting = 0;
+	this->chOffsetDictSetting.clear();
+	this->chOffsetDictSetting = stdChDict;
+	this->chTrimDictSetting.clear();
+	this->chTrimDictSetting = stdChDict;
+}
+
+void Daphne::setAfeRegDictValue(const uint32_t& afe, const uint32_t &regAddr, const uint32_t &regValue) {
+
+	if(afe >= this->afeRegDictSetting.size()) {
+		throw std::out_of_range("AFE index " + std::to_string(afe) +" out of range. Expected range 0-4.");
+	}
+
+	auto it = this->afeRegDictSetting[afe].find(regAddr);
+	if (it != this->afeRegDictSetting[afe].end()) {
+		it->second = regValue;
+	} else {
+		throw std::invalid_argument("Register " + std::to_string(regAddr) + " not found in the AFE register dictionary.");
+	}
+}
+
+uint32_t Daphne::getAfeRegDictValue(const uint32_t& afe, const uint32_t &regAddr){
+
+	if(afe >= this->afeRegDictSetting.size()) {
+		throw std::out_of_range("AFE index " + std::to_string(afe) +" out of range. Expected range 0-4.");
+	}
+
+	auto it = this->afeRegDictSetting[afe].find(regAddr);
+	if (it != this->afeRegDictSetting[afe].end()) {
+		return it->second;
+	} else {
+		throw std::invalid_argument("Register " + std::to_string(regAddr) + " not found in the AFE register dictionary.");
+		return 0;
+	}
+}
+
+void Daphne::setAfeAttenuationDictValue(const uint32_t& afe, const uint32_t &attenuation) {
+
+	auto it = this->afeAttenuationDictSetting.find(afe);
+	if (it != this->afeAttenuationDictSetting.end()) {
+		it->second = attenuation;
+	} else {
+		throw std::out_of_range("AFE index " + std::to_string(afe) +" out of range. Expected range 0-4.");
+	}
+}
+
+uint32_t Daphne::getAfeAttenuationDictValue(const uint32_t& afe) {
+
+	auto it = this->afeAttenuationDictSetting.find(afe);
+	if (it != this->afeAttenuationDictSetting.end()) {
+		return it->second;
+	} else {
+		throw std::out_of_range("AFE index " + std::to_string(afe) +" out of range. Expected range 0-4.");
+		return 0;
+	}
+}
+
+void Daphne::setChOffsetDictValue(const uint32_t &ch, const uint32_t &offset) {
+	auto it = this->chOffsetDictSetting.find(ch);
+	if (it != this->chOffsetDictSetting.end()) {
+		it->second = offset;
+	} else {
+		throw std::out_of_range("Channel index " + std::to_string(ch) +" out of range. Expected range 0-39.");
+	}
+}
+
+uint32_t Daphne::getChOffsetDictValue(const uint32_t& ch) {
+
+	auto it = this->chOffsetDictSetting.find(ch);
+	if (it != this->chOffsetDictSetting.end()) {
+		return it->second;
+	} else {
+		throw std::out_of_range("Channel index " + std::to_string(ch) +" out of range. Expected range 0-39.");
+		return 0;
+	}
+}
+
+void Daphne::setChTrimDictValue(const uint32_t &ch, const uint32_t &trim) {
+	auto it = this->chTrimDictSetting.find(ch);
+	if (it != this->chTrimDictSetting.end()) {
+		it->second = trim;
+	} else {
+		throw std::out_of_range("Channel index " + std::to_string(ch) +" out of range. Expected range 0-39.");
+	}
+}
+
+uint32_t Daphne::getChTrimDictValue(const uint32_t& ch) {
+
+	auto it = this->chTrimDictSetting.find(ch);
+	if (it != this->chTrimDictSetting.end()) {
+		return it->second;
+	} else {
+		throw std::out_of_range("Channel index " + std::to_string(ch) +" out of range. Expected range 0-39.");
+		return 0;
+	}
+}
+
+void Daphne::setBiasVoltageDictValue(const uint32_t& afe, const uint32_t &biasVoltage) {
+
+	auto it = this->biasVoltageSetting.find(afe);
+	if (it != this->biasVoltageSetting.end()) {
+		it->second = biasVoltage;
+	} else {
+		throw std::out_of_range("AFE index " + std::to_string(afe) +" out of range. Expected range 0-4.");
+	}
+}
+
+uint32_t Daphne::getBiasVoltageDictValue(const uint32_t& afe) {
+
+	auto it = this->biasVoltageSetting.find(afe);
+	if (it != this->biasVoltageSetting.end()) {
+		return it->second;
+	} else {
+		throw std::out_of_range("AFE index " + std::to_string(afe) +" out of range. Expected range 0-4.");
+		return 0;
+	}
 }

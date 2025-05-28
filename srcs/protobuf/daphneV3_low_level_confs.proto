@@ -26,6 +26,18 @@ message cmd_writeAFEVgain_response {
 	uint32 vgainValue  = 4;
 }
 
+message cmd_writeAFEAttenuation {
+	uint32 afeBlock   = 1;
+	uint32 attenuation = 2;
+}
+
+message cmd_writeAFEAttenuation_response {
+	bool   success     = 1;
+	string message     = 2;
+	uint32 afeBlock    = 3;
+	uint32 attenuation  = 4;
+}
+
 message cmd_writeAFEBiasSet {
 	uint32 afeBlock  = 1;
 	uint32 biasValue = 2;
@@ -40,17 +52,20 @@ message cmd_writeAFEBiasSet_response {
 
 message cmd_writeTRIM_allChannels {
 	uint32 trimValue = 1;
+	bool   trimGain  = 2;
 }
 
 message cmd_writeTRIM_allChannels_response {
 	bool   success     = 1;
 	string message     = 2;
 	uint32 trimValue   = 3;
+	bool   trimGain    = 4;
 }
 
 message cmd_writeTrim_allAFE {
 	uint32 afeBlock  = 1;
 	uint32 trimValue = 2;
+	bool   trimGain  = 3;
 }
 
 message cmd_writeTrim_allAFE_response {
@@ -58,11 +73,13 @@ message cmd_writeTrim_allAFE_response {
 	string message     = 2;
 	uint32 afeBlock    = 3;
 	uint32 trimValue   = 4;
+	bool   trimGain    = 5;
 }
 
 message cmd_writeTrim_singleChannel {
 	uint32 trimChannel = 1;
 	uint32 trimValue   = 2;
+	bool   trimGain    = 3;
 }
 
 message cmd_writeTrim_singleChannel_response {
@@ -70,22 +87,26 @@ message cmd_writeTrim_singleChannel_response {
 	string message     = 2;
 	uint32 trimChannel = 3;
 	uint32 trimValue   = 4;
+	bool   trimGain    = 5;
 }
 
 message cmd_writeOFFSET_allChannels {
 	int32  id          = 1;
 	uint32 offsetValue = 2;
+	bool   offsetGain  = 3;
 }
 
 message cmd_writeOFFSET_allChannels_response {
 	bool   success     = 1;
 	string message     = 2;
 	uint32 offsetValue = 3;
+	bool   offsetGain  = 4;
 }
 
 message cmd_writeOFFSET_allAFE {
 	uint32 afeBlock    = 1;
 	uint32 offsetValue = 2;
+	bool   offsetGain  = 3;
 }
 
 message cmd_writeOFFSET_allAFE_response {
@@ -93,18 +114,21 @@ message cmd_writeOFFSET_allAFE_response {
 	string message     = 2;
 	uint32 afeBlock    = 3;
 	uint32 offsetValue = 4;
+	bool   offsetGain  = 5;
 }
 
 message cmd_writeOFFSET_singleChannel {
-	uint32 trimChannel   = 1;
+	uint32 offsetChannel   = 1;
 	uint32 offsetValue   = 2;
+	bool   offsetGain    = 3;
 }
 
 message cmd_writeOFFSET_singleChannel_response {
 	bool   success       = 1;
 	string message       = 2;
-	uint32 trimChannel   = 3;
+	uint32 offsetChannel   = 3;
 	uint32 offsetValue   = 4;
+	bool   offsetGain    = 5;
 }
 
 message cmd_writeVbiasControl {

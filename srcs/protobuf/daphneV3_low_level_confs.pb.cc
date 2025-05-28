@@ -85,8 +85,9 @@ inline constexpr cmd_writeTrim_singleChannel_response::Impl_::Impl_(
         message_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
-        success_{false},
         trimchannel_{0u},
+        success_{false},
+        trimgain_{false},
         trimvalue_{0u} {}
 
 template <typename>
@@ -113,7 +114,8 @@ inline constexpr cmd_writeTrim_singleChannel::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
         trimchannel_{0u},
-        trimvalue_{0u} {}
+        trimvalue_{0u},
+        trimgain_{false} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR cmd_writeTrim_singleChannel::cmd_writeTrim_singleChannel(::_pbi::ConstantInitialized)
@@ -141,8 +143,9 @@ inline constexpr cmd_writeTrim_allAFE_response::Impl_::Impl_(
         message_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
-        success_{false},
         afeblock_{0u},
+        success_{false},
+        trimgain_{false},
         trimvalue_{0u} {}
 
 template <typename>
@@ -169,7 +172,8 @@ inline constexpr cmd_writeTrim_allAFE::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
         afeblock_{0u},
-        trimvalue_{0u} {}
+        trimvalue_{0u},
+        trimgain_{false} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR cmd_writeTrim_allAFE::cmd_writeTrim_allAFE(::_pbi::ConstantInitialized)
@@ -198,6 +202,7 @@ inline constexpr cmd_writeTRIM_allChannels_response::Impl_::Impl_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
         success_{false},
+        trimgain_{false},
         trimvalue_{0u} {}
 
 template <typename>
@@ -223,7 +228,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_writeTRIM_allChannels::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
-        trimvalue_{0u} {}
+        trimvalue_{0u},
+        trimgain_{false} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR cmd_writeTRIM_allChannels::cmd_writeTRIM_allChannels(::_pbi::ConstantInitialized)
@@ -251,8 +257,9 @@ inline constexpr cmd_writeOFFSET_singleChannel_response::Impl_::Impl_(
         message_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
+        offsetchannel_{0u},
         success_{false},
-        trimchannel_{0u},
+        offsetgain_{false},
         offsetvalue_{0u} {}
 
 template <typename>
@@ -278,8 +285,9 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_writeOFFSET_singleChannel::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
-        trimchannel_{0u},
-        offsetvalue_{0u} {}
+        offsetchannel_{0u},
+        offsetvalue_{0u},
+        offsetgain_{false} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR cmd_writeOFFSET_singleChannel::cmd_writeOFFSET_singleChannel(::_pbi::ConstantInitialized)
@@ -308,6 +316,7 @@ inline constexpr cmd_writeOFFSET_allChannels_response::Impl_::Impl_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
         success_{false},
+        offsetgain_{false},
         offsetvalue_{0u} {}
 
 template <typename>
@@ -334,7 +343,8 @@ inline constexpr cmd_writeOFFSET_allChannels::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
         id_{0},
-        offsetvalue_{0u} {}
+        offsetvalue_{0u},
+        offsetgain_{false} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR cmd_writeOFFSET_allChannels::cmd_writeOFFSET_allChannels(::_pbi::ConstantInitialized)
@@ -362,8 +372,9 @@ inline constexpr cmd_writeOFFSET_allAFE_response::Impl_::Impl_(
         message_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
-        success_{false},
         afeblock_{0u},
+        success_{false},
+        offsetgain_{false},
         offsetvalue_{0u} {}
 
 template <typename>
@@ -390,7 +401,8 @@ inline constexpr cmd_writeOFFSET_allAFE::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
         afeblock_{0u},
-        offsetvalue_{0u} {}
+        offsetvalue_{0u},
+        offsetgain_{false} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR cmd_writeOFFSET_allAFE::cmd_writeOFFSET_allAFE(::_pbi::ConstantInitialized)
@@ -581,6 +593,62 @@ struct cmd_writeAFEBiasSetDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_writeAFEBiasSetDefaultTypeInternal _cmd_writeAFEBiasSet_default_instance_;
+
+inline constexpr cmd_writeAFEAttenuation_response::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        message_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        success_{false},
+        afeblock_{0u},
+        attenuation_{0u} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR cmd_writeAFEAttenuation_response::cmd_writeAFEAttenuation_response(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(cmd_writeAFEAttenuation_response_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct cmd_writeAFEAttenuation_responseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR cmd_writeAFEAttenuation_responseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~cmd_writeAFEAttenuation_responseDefaultTypeInternal() {}
+  union {
+    cmd_writeAFEAttenuation_response _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_writeAFEAttenuation_responseDefaultTypeInternal _cmd_writeAFEAttenuation_response_default_instance_;
+
+inline constexpr cmd_writeAFEAttenuation::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        afeblock_{0u},
+        attenuation_{0u} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR cmd_writeAFEAttenuation::cmd_writeAFEAttenuation(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(cmd_writeAFEAttenuation_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct cmd_writeAFEAttenuationDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR cmd_writeAFEAttenuationDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~cmd_writeAFEAttenuationDefaultTypeInternal() {}
+  union {
+    cmd_writeAFEAttenuation _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_writeAFEAttenuationDefaultTypeInternal _cmd_writeAFEAttenuation_default_instance_;
 
 inline constexpr cmd_setAFEReset_response::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -1399,6 +1467,34 @@ const ::uint32_t
         0,
         2,
         3,
+        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation, _impl_.attenuation_),
+        0,
+        1,
+        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation_response, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation_response, _impl_.attenuation_),
+        1,
+        0,
+        2,
+        3,
         PROTOBUF_FIELD_OFFSET(::cmd_writeAFEBiasSet, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeAFEBiasSet, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -1436,7 +1532,9 @@ const ::uint32_t
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels, _impl_.trimvalue_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels, _impl_.trimgain_),
         0,
+        1,
         PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels_response, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels_response, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -1448,8 +1546,10 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels_response, _impl_.success_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels_response, _impl_.message_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels_response, _impl_.trimvalue_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels_response, _impl_.trimgain_),
         1,
         0,
+        3,
         2,
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE, _internal_metadata_),
@@ -1461,8 +1561,10 @@ const ::uint32_t
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE, _impl_.afeblock_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE, _impl_.trimvalue_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE, _impl_.trimgain_),
         0,
         1,
+        2,
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE_response, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE_response, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -1475,9 +1577,11 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE_response, _impl_.message_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE_response, _impl_.afeblock_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE_response, _impl_.trimvalue_),
-        1,
-        0,
+        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE_response, _impl_.trimgain_),
         2,
+        0,
+        1,
+        4,
         3,
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel, _internal_metadata_),
@@ -1489,8 +1593,10 @@ const ::uint32_t
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel, _impl_.trimchannel_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel, _impl_.trimvalue_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel, _impl_.trimgain_),
         0,
         1,
+        2,
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel_response, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel_response, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -1503,9 +1609,11 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel_response, _impl_.message_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel_response, _impl_.trimchannel_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel_response, _impl_.trimvalue_),
-        1,
-        0,
+        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel_response, _impl_.trimgain_),
         2,
+        0,
+        1,
+        4,
         3,
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels, _internal_metadata_),
@@ -1517,8 +1625,10 @@ const ::uint32_t
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels, _impl_.id_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels, _impl_.offsetvalue_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels, _impl_.offsetgain_),
         0,
         1,
+        2,
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels_response, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels_response, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -1530,8 +1640,10 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels_response, _impl_.success_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels_response, _impl_.message_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels_response, _impl_.offsetvalue_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels_response, _impl_.offsetgain_),
         1,
         0,
+        3,
         2,
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE, _internal_metadata_),
@@ -1543,8 +1655,10 @@ const ::uint32_t
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE, _impl_.afeblock_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE, _impl_.offsetvalue_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE, _impl_.offsetgain_),
         0,
         1,
+        2,
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE_response, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE_response, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -1557,9 +1671,11 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE_response, _impl_.message_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE_response, _impl_.afeblock_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE_response, _impl_.offsetvalue_),
-        1,
-        0,
+        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE_response, _impl_.offsetgain_),
         2,
+        0,
+        1,
+        4,
         3,
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel, _internal_metadata_),
@@ -1569,10 +1685,12 @@ const ::uint32_t
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel, _impl_.trimchannel_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel, _impl_.offsetvalue_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel, _impl_.offsetgain_),
         0,
         1,
+        2,
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -1583,11 +1701,13 @@ const ::uint32_t
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _impl_.success_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _impl_.trimchannel_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _impl_.offsetchannel_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _impl_.offsetvalue_),
-        1,
-        0,
+        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _impl_.offsetgain_),
         2,
+        0,
+        1,
+        4,
         3,
         PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl, _internal_metadata_),
@@ -1975,56 +2095,60 @@ static const ::_pbi::MigrationSchema
         {14, 27, -1, sizeof(::cmd_writeAFEReg_response)},
         {32, 42, -1, sizeof(::cmd_writeAFEVGAIN)},
         {44, 56, -1, sizeof(::cmd_writeAFEVgain_response)},
-        {60, 70, -1, sizeof(::cmd_writeAFEBiasSet)},
-        {72, 84, -1, sizeof(::cmd_writeAFEBiasSet_response)},
-        {88, 97, -1, sizeof(::cmd_writeTRIM_allChannels)},
-        {98, 109, -1, sizeof(::cmd_writeTRIM_allChannels_response)},
-        {112, 122, -1, sizeof(::cmd_writeTrim_allAFE)},
-        {124, 136, -1, sizeof(::cmd_writeTrim_allAFE_response)},
-        {140, 150, -1, sizeof(::cmd_writeTrim_singleChannel)},
-        {152, 164, -1, sizeof(::cmd_writeTrim_singleChannel_response)},
-        {168, 178, -1, sizeof(::cmd_writeOFFSET_allChannels)},
-        {180, 191, -1, sizeof(::cmd_writeOFFSET_allChannels_response)},
-        {194, 204, -1, sizeof(::cmd_writeOFFSET_allAFE)},
-        {206, 218, -1, sizeof(::cmd_writeOFFSET_allAFE_response)},
-        {222, 232, -1, sizeof(::cmd_writeOFFSET_singleChannel)},
-        {234, 246, -1, sizeof(::cmd_writeOFFSET_singleChannel_response)},
-        {250, 259, -1, sizeof(::cmd_writeVbiasControl)},
-        {260, 271, -1, sizeof(::cmd_writeVbiasControl_response)},
-        {274, 284, -1, sizeof(::cmd_readAFEReg)},
-        {286, 299, -1, sizeof(::cmd_readAFEReg_response)},
-        {304, 313, -1, sizeof(::cmd_readAFEVgain)},
-        {314, 326, -1, sizeof(::cmd_readAFEVgain_response)},
-        {330, 339, -1, sizeof(::cmd_readAFEBiasSet)},
-        {340, 352, -1, sizeof(::cmd_readAFEBiasSet_response)},
-        {356, -1, -1, sizeof(::cmd_readTrim_allChannels)},
-        {364, 375, -1, sizeof(::cmd_readTrim_allChannels_response)},
-        {378, 387, -1, sizeof(::cmd_readTrim_allAFE)},
-        {388, 400, -1, sizeof(::cmd_readTrim_allAFE_response)},
-        {404, 413, -1, sizeof(::cmd_readTrim_singleChannel)},
-        {414, 426, -1, sizeof(::cmd_readTrim_singleChannel_response)},
-        {430, -1, -1, sizeof(::cmd_readOffset_allChannels)},
-        {438, 449, -1, sizeof(::cmd_readOffset_allChannels_response)},
-        {452, 461, -1, sizeof(::cmd_readOffset_allAFE)},
-        {462, 474, -1, sizeof(::cmd_readOffset_allAFE_response)},
-        {478, 487, -1, sizeof(::cmd_readOffset_singleChannel)},
-        {488, 500, -1, sizeof(::cmd_readOffset_singleChannel_response)},
-        {504, -1, -1, sizeof(::cmd_readVbiasControl)},
-        {512, 523, -1, sizeof(::cmd_readVbiasControl_response)},
-        {526, 535, -1, sizeof(::cmd_readCurrentMonitor)},
-        {536, 548, -1, sizeof(::cmd_readCurrentMonitor_response)},
-        {552, 561, -1, sizeof(::cmd_readBiasVoltageMonitor)},
-        {562, 574, -1, sizeof(::cmd_readBiasVoltageMonitor_response)},
-        {578, 587, -1, sizeof(::cmd_setAFEReset)},
-        {588, 599, -1, sizeof(::cmd_setAFEReset_response)},
-        {602, 612, -1, sizeof(::cmd_setAFEPowerDown)},
-        {614, 625, -1, sizeof(::cmd_setAFEPowerDown_response)},
+        {60, 70, -1, sizeof(::cmd_writeAFEAttenuation)},
+        {72, 84, -1, sizeof(::cmd_writeAFEAttenuation_response)},
+        {88, 98, -1, sizeof(::cmd_writeAFEBiasSet)},
+        {100, 112, -1, sizeof(::cmd_writeAFEBiasSet_response)},
+        {116, 126, -1, sizeof(::cmd_writeTRIM_allChannels)},
+        {128, 140, -1, sizeof(::cmd_writeTRIM_allChannels_response)},
+        {144, 155, -1, sizeof(::cmd_writeTrim_allAFE)},
+        {158, 171, -1, sizeof(::cmd_writeTrim_allAFE_response)},
+        {176, 187, -1, sizeof(::cmd_writeTrim_singleChannel)},
+        {190, 203, -1, sizeof(::cmd_writeTrim_singleChannel_response)},
+        {208, 219, -1, sizeof(::cmd_writeOFFSET_allChannels)},
+        {222, 234, -1, sizeof(::cmd_writeOFFSET_allChannels_response)},
+        {238, 249, -1, sizeof(::cmd_writeOFFSET_allAFE)},
+        {252, 265, -1, sizeof(::cmd_writeOFFSET_allAFE_response)},
+        {270, 281, -1, sizeof(::cmd_writeOFFSET_singleChannel)},
+        {284, 297, -1, sizeof(::cmd_writeOFFSET_singleChannel_response)},
+        {302, 311, -1, sizeof(::cmd_writeVbiasControl)},
+        {312, 323, -1, sizeof(::cmd_writeVbiasControl_response)},
+        {326, 336, -1, sizeof(::cmd_readAFEReg)},
+        {338, 351, -1, sizeof(::cmd_readAFEReg_response)},
+        {356, 365, -1, sizeof(::cmd_readAFEVgain)},
+        {366, 378, -1, sizeof(::cmd_readAFEVgain_response)},
+        {382, 391, -1, sizeof(::cmd_readAFEBiasSet)},
+        {392, 404, -1, sizeof(::cmd_readAFEBiasSet_response)},
+        {408, -1, -1, sizeof(::cmd_readTrim_allChannels)},
+        {416, 427, -1, sizeof(::cmd_readTrim_allChannels_response)},
+        {430, 439, -1, sizeof(::cmd_readTrim_allAFE)},
+        {440, 452, -1, sizeof(::cmd_readTrim_allAFE_response)},
+        {456, 465, -1, sizeof(::cmd_readTrim_singleChannel)},
+        {466, 478, -1, sizeof(::cmd_readTrim_singleChannel_response)},
+        {482, -1, -1, sizeof(::cmd_readOffset_allChannels)},
+        {490, 501, -1, sizeof(::cmd_readOffset_allChannels_response)},
+        {504, 513, -1, sizeof(::cmd_readOffset_allAFE)},
+        {514, 526, -1, sizeof(::cmd_readOffset_allAFE_response)},
+        {530, 539, -1, sizeof(::cmd_readOffset_singleChannel)},
+        {540, 552, -1, sizeof(::cmd_readOffset_singleChannel_response)},
+        {556, -1, -1, sizeof(::cmd_readVbiasControl)},
+        {564, 575, -1, sizeof(::cmd_readVbiasControl_response)},
+        {578, 587, -1, sizeof(::cmd_readCurrentMonitor)},
+        {588, 600, -1, sizeof(::cmd_readCurrentMonitor_response)},
+        {604, 613, -1, sizeof(::cmd_readBiasVoltageMonitor)},
+        {614, 626, -1, sizeof(::cmd_readBiasVoltageMonitor_response)},
+        {630, 639, -1, sizeof(::cmd_setAFEReset)},
+        {640, 651, -1, sizeof(::cmd_setAFEReset_response)},
+        {654, 664, -1, sizeof(::cmd_setAFEPowerDown)},
+        {666, 677, -1, sizeof(::cmd_setAFEPowerDown_response)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::_cmd_writeAFEReg_default_instance_._instance,
     &::_cmd_writeAFEReg_response_default_instance_._instance,
     &::_cmd_writeAFEVGAIN_default_instance_._instance,
     &::_cmd_writeAFEVgain_response_default_instance_._instance,
+    &::_cmd_writeAFEAttenuation_default_instance_._instance,
+    &::_cmd_writeAFEAttenuation_response_default_instance_._instance,
     &::_cmd_writeAFEBiasSet_default_instance_._instance,
     &::_cmd_writeAFEBiasSet_response_default_instance_._instance,
     &::_cmd_writeTRIM_allChannels_default_instance_._instance,
@@ -2081,104 +2205,114 @@ const char descriptor_table_protodef_daphneV3_5flow_5flevel_5fconfs_2eproto[] AB
     "EVGAIN\022\020\n\010afeBlock\030\001 \001(\r\022\022\n\nvgainValue\030\002"
     " \001(\r\"d\n\032cmd_writeAFEVgain_response\022\017\n\007su"
     "ccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock"
-    "\030\003 \001(\r\022\022\n\nvgainValue\030\004 \001(\r\":\n\023cmd_writeA"
-    "FEBiasSet\022\020\n\010afeBlock\030\001 \001(\r\022\021\n\tbiasValue"
-    "\030\002 \001(\r\"e\n\034cmd_writeAFEBiasSet_response\022\017"
-    "\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeB"
-    "lock\030\003 \001(\r\022\021\n\tbiasValue\030\004 \001(\r\".\n\031cmd_wri"
-    "teTRIM_allChannels\022\021\n\ttrimValue\030\001 \001(\r\"Y\n"
-    "\"cmd_writeTRIM_allChannels_response\022\017\n\007s"
-    "uccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\021\n\ttrimVal"
-    "ue\030\003 \001(\r\";\n\024cmd_writeTrim_allAFE\022\020\n\010afeB"
-    "lock\030\001 \001(\r\022\021\n\ttrimValue\030\002 \001(\r\"f\n\035cmd_wri"
-    "teTrim_allAFE_response\022\017\n\007success\030\001 \001(\010\022"
-    "\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\021\n\ttr"
-    "imValue\030\004 \001(\r\"E\n\033cmd_writeTrim_singleCha"
-    "nnel\022\023\n\013trimChannel\030\001 \001(\r\022\021\n\ttrimValue\030\002"
-    " \001(\r\"p\n$cmd_writeTrim_singleChannel_resp"
-    "onse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\023"
-    "\n\013trimChannel\030\003 \001(\r\022\021\n\ttrimValue\030\004 \001(\r\">"
-    "\n\033cmd_writeOFFSET_allChannels\022\n\n\002id\030\001 \001("
-    "\005\022\023\n\013offsetValue\030\002 \001(\r\"]\n$cmd_writeOFFSE"
-    "T_allChannels_response\022\017\n\007success\030\001 \001(\010\022"
-    "\017\n\007message\030\002 \001(\t\022\023\n\013offsetValue\030\003 \001(\r\"\?\n"
-    "\026cmd_writeOFFSET_allAFE\022\020\n\010afeBlock\030\001 \001("
-    "\r\022\023\n\013offsetValue\030\002 \001(\r\"j\n\037cmd_writeOFFSE"
-    "T_allAFE_response\022\017\n\007success\030\001 \001(\010\022\017\n\007me"
-    "ssage\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\023\n\013offsetV"
-    "alue\030\004 \001(\r\"I\n\035cmd_writeOFFSET_singleChan"
-    "nel\022\023\n\013trimChannel\030\001 \001(\r\022\023\n\013offsetValue\030"
-    "\002 \001(\r\"t\n&cmd_writeOFFSET_singleChannel_r"
-    "esponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001("
-    "\t\022\023\n\013trimChannel\030\003 \001(\r\022\023\n\013offsetValue\030\004 "
-    "\001(\r\"2\n\025cmd_writeVbiasControl\022\031\n\021vBiasCon"
-    "trolValue\030\001 \001(\r\"]\n\036cmd_writeVbiasControl"
-    "_response\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 "
-    "\001(\t\022\031\n\021vBiasControlValue\030\003 \001(\r\"6\n\016cmd_re"
-    "adAFEReg\022\020\n\010afeBlock\030\001 \001(\r\022\022\n\nregAddress"
-    "\030\002 \001(\r\"s\n\027cmd_readAFEReg_response\022\017\n\007suc"
-    "cess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock\030"
-    "\003 \001(\r\022\022\n\nregAddress\030\004 \001(\r\022\020\n\010regValue\030\005 "
-    "\001(\r\"$\n\020cmd_readAFEVgain\022\020\n\010afeBlock\030\001 \001("
-    "\r\"c\n\031cmd_readAFEVgain_response\022\017\n\007succes"
-    "s\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001"
-    "(\r\022\022\n\nvgainValue\030\004 \001(\r\"&\n\022cmd_readAFEBia"
-    "sSet\022\020\n\010afeBlock\030\001 \001(\r\"d\n\033cmd_readAFEBia"
+    "\030\003 \001(\r\022\022\n\nvgainValue\030\004 \001(\r\"@\n\027cmd_writeA"
+    "FEAttenuation\022\020\n\010afeBlock\030\001 \001(\r\022\023\n\013atten"
+    "uation\030\002 \001(\r\"k\n cmd_writeAFEAttenuation_"
+    "response\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001"
+    "(\t\022\020\n\010afeBlock\030\003 \001(\r\022\023\n\013attenuation\030\004 \001("
+    "\r\":\n\023cmd_writeAFEBiasSet\022\020\n\010afeBlock\030\001 \001"
+    "(\r\022\021\n\tbiasValue\030\002 \001(\r\"e\n\034cmd_writeAFEBia"
     "sSet_response\022\017\n\007success\030\001 \001(\010\022\017\n\007messag"
     "e\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\021\n\tbiasValue\030\004"
-    " \001(\r\"\032\n\030cmd_readTrim_allChannels\"Y\n!cmd_"
-    "readTrim_allChannels_response\022\017\n\007success"
-    "\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\022\n\ntrimValues\030\003 "
-    "\003(\r\"\'\n\023cmd_readTrim_allAFE\022\020\n\010afeBlock\030\001"
-    " \001(\r\"f\n\034cmd_readTrim_allAFE_response\022\017\n\007"
-    "success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBlo"
-    "ck\030\003 \001(\r\022\022\n\ntrimValues\030\004 \003(\r\"1\n\032cmd_read"
-    "Trim_singleChannel\022\023\n\013trimChannel\030\001 \001(\r\""
-    "o\n#cmd_readTrim_singleChannel_response\022\017"
-    "\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\023\n\013trim"
-    "Channel\030\003 \001(\r\022\021\n\ttrimValue\030\004 \001(\r\"\034\n\032cmd_"
-    "readOffset_allChannels\"]\n#cmd_readOffset"
-    "_allChannels_response\022\017\n\007success\030\001 \001(\010\022\017"
-    "\n\007message\030\002 \001(\t\022\024\n\014offsetValues\030\003 \003(\r\")\n"
-    "\025cmd_readOffset_allAFE\022\020\n\010afeBlock\030\001 \001(\r"
-    "\"j\n\036cmd_readOffset_allAFE_response\022\017\n\007su"
-    "ccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock"
-    "\030\003 \001(\r\022\024\n\014offsetValues\030\004 \003(\r\"5\n\034cmd_read"
-    "Offset_singleChannel\022\025\n\roffsetChannel\030\001 "
-    "\001(\r\"u\n%cmd_readOffset_singleChannel_resp"
-    "onse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\025"
-    "\n\roffsetChannel\030\003 \001(\r\022\023\n\013offsetValue\030\004 \001"
-    "(\r\"\026\n\024cmd_readVbiasControl\"\\\n\035cmd_readVb"
-    "iasControl_response\022\017\n\007success\030\001 \001(\010\022\017\n\007"
-    "message\030\002 \001(\t\022\031\n\021vBiasControlValue\030\003 \001(\r"
-    "\"7\n\026cmd_readCurrentMonitor\022\035\n\025currentMon"
-    "itorChannel\030\001 \001(\r\"x\n\037cmd_readCurrentMoni"
-    "tor_response\022\017\n\007success\030\001 \001(\010\022\017\n\007message"
-    "\030\002 \001(\t\022\035\n\025currentMonitorChannel\030\003 \001(\r\022\024\n"
-    "\014currentValue\030\004 \001(\r\".\n\032cmd_readBiasVolta"
-    "geMonitor\022\020\n\010afeBlock\030\001 \001(\r\"s\n#cmd_readB"
-    "iasVoltageMonitor_response\022\017\n\007success\030\001 "
-    "\001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\030"
-    "\n\020biasVoltageValue\030\004 \001(\r\"#\n\017cmd_setAFERe"
-    "set\022\020\n\010afeBlock\030\001 \001(\r\"N\n\030cmd_setAFEReset"
-    "_response\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 "
-    "\001(\t\022\020\n\010afeBlock\030\003 \001(\r\"9\n\023cmd_setAFEPower"
-    "Down\022\020\n\010afeBlock\030\001 \001(\r\022\020\n\010pwrState\030\002 \001(\010"
-    "\"R\n\034cmd_setAFEPowerDown_response\022\017\n\007succ"
-    "ess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock\030\003"
-    " \001(\rb\006proto3"
+    " \001(\r\"@\n\031cmd_writeTRIM_allChannels\022\021\n\ttri"
+    "mValue\030\001 \001(\r\022\020\n\010trimGain\030\002 \001(\010\"k\n\"cmd_wr"
+    "iteTRIM_allChannels_response\022\017\n\007success\030"
+    "\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\021\n\ttrimValue\030\003 \001("
+    "\r\022\020\n\010trimGain\030\004 \001(\010\"M\n\024cmd_writeTrim_all"
+    "AFE\022\020\n\010afeBlock\030\001 \001(\r\022\021\n\ttrimValue\030\002 \001(\r"
+    "\022\020\n\010trimGain\030\003 \001(\010\"x\n\035cmd_writeTrim_allA"
+    "FE_response\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030"
+    "\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\021\n\ttrimValue\030\004 \001"
+    "(\r\022\020\n\010trimGain\030\005 \001(\010\"W\n\033cmd_writeTrim_si"
+    "ngleChannel\022\023\n\013trimChannel\030\001 \001(\r\022\021\n\ttrim"
+    "Value\030\002 \001(\r\022\020\n\010trimGain\030\003 \001(\010\"\202\001\n$cmd_wr"
+    "iteTrim_singleChannel_response\022\017\n\007succes"
+    "s\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\023\n\013trimChannel\030"
+    "\003 \001(\r\022\021\n\ttrimValue\030\004 \001(\r\022\020\n\010trimGain\030\005 \001"
+    "(\010\"R\n\033cmd_writeOFFSET_allChannels\022\n\n\002id\030"
+    "\001 \001(\005\022\023\n\013offsetValue\030\002 \001(\r\022\022\n\noffsetGain"
+    "\030\003 \001(\010\"q\n$cmd_writeOFFSET_allChannels_re"
+    "sponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t"
+    "\022\023\n\013offsetValue\030\003 \001(\r\022\022\n\noffsetGain\030\004 \001("
+    "\010\"S\n\026cmd_writeOFFSET_allAFE\022\020\n\010afeBlock\030"
+    "\001 \001(\r\022\023\n\013offsetValue\030\002 \001(\r\022\022\n\noffsetGain"
+    "\030\003 \001(\010\"~\n\037cmd_writeOFFSET_allAFE_respons"
+    "e\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010a"
+    "feBlock\030\003 \001(\r\022\023\n\013offsetValue\030\004 \001(\r\022\022\n\nof"
+    "fsetGain\030\005 \001(\010\"_\n\035cmd_writeOFFSET_single"
+    "Channel\022\025\n\roffsetChannel\030\001 \001(\r\022\023\n\013offset"
+    "Value\030\002 \001(\r\022\022\n\noffsetGain\030\003 \001(\010\"\212\001\n&cmd_"
+    "writeOFFSET_singleChannel_response\022\017\n\007su"
+    "ccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\025\n\roffsetCh"
+    "annel\030\003 \001(\r\022\023\n\013offsetValue\030\004 \001(\r\022\022\n\noffs"
+    "etGain\030\005 \001(\010\"2\n\025cmd_writeVbiasControl\022\031\n"
+    "\021vBiasControlValue\030\001 \001(\r\"]\n\036cmd_writeVbi"
+    "asControl_response\022\017\n\007success\030\001 \001(\010\022\017\n\007m"
+    "essage\030\002 \001(\t\022\031\n\021vBiasControlValue\030\003 \001(\r\""
+    "6\n\016cmd_readAFEReg\022\020\n\010afeBlock\030\001 \001(\r\022\022\n\nr"
+    "egAddress\030\002 \001(\r\"s\n\027cmd_readAFEReg_respon"
+    "se\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010"
+    "afeBlock\030\003 \001(\r\022\022\n\nregAddress\030\004 \001(\r\022\020\n\010re"
+    "gValue\030\005 \001(\r\"$\n\020cmd_readAFEVgain\022\020\n\010afeB"
+    "lock\030\001 \001(\r\"c\n\031cmd_readAFEVgain_response\022"
+    "\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afe"
+    "Block\030\003 \001(\r\022\022\n\nvgainValue\030\004 \001(\r\"&\n\022cmd_r"
+    "eadAFEBiasSet\022\020\n\010afeBlock\030\001 \001(\r\"d\n\033cmd_r"
+    "eadAFEBiasSet_response\022\017\n\007success\030\001 \001(\010\022"
+    "\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\021\n\tbi"
+    "asValue\030\004 \001(\r\"\032\n\030cmd_readTrim_allChannel"
+    "s\"Y\n!cmd_readTrim_allChannels_response\022\017"
+    "\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\022\n\ntrim"
+    "Values\030\003 \003(\r\"\'\n\023cmd_readTrim_allAFE\022\020\n\010a"
+    "feBlock\030\001 \001(\r\"f\n\034cmd_readTrim_allAFE_res"
+    "ponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022"
+    "\020\n\010afeBlock\030\003 \001(\r\022\022\n\ntrimValues\030\004 \003(\r\"1\n"
+    "\032cmd_readTrim_singleChannel\022\023\n\013trimChann"
+    "el\030\001 \001(\r\"o\n#cmd_readTrim_singleChannel_r"
+    "esponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001("
+    "\t\022\023\n\013trimChannel\030\003 \001(\r\022\021\n\ttrimValue\030\004 \001("
+    "\r\"\034\n\032cmd_readOffset_allChannels\"]\n#cmd_r"
+    "eadOffset_allChannels_response\022\017\n\007succes"
+    "s\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\024\n\014offsetValues"
+    "\030\003 \003(\r\")\n\025cmd_readOffset_allAFE\022\020\n\010afeBl"
+    "ock\030\001 \001(\r\"j\n\036cmd_readOffset_allAFE_respo"
+    "nse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n"
+    "\010afeBlock\030\003 \001(\r\022\024\n\014offsetValues\030\004 \003(\r\"5\n"
+    "\034cmd_readOffset_singleChannel\022\025\n\roffsetC"
+    "hannel\030\001 \001(\r\"u\n%cmd_readOffset_singleCha"
+    "nnel_response\022\017\n\007success\030\001 \001(\010\022\017\n\007messag"
+    "e\030\002 \001(\t\022\025\n\roffsetChannel\030\003 \001(\r\022\023\n\013offset"
+    "Value\030\004 \001(\r\"\026\n\024cmd_readVbiasControl\"\\\n\035c"
+    "md_readVbiasControl_response\022\017\n\007success\030"
+    "\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\031\n\021vBiasControlVa"
+    "lue\030\003 \001(\r\"7\n\026cmd_readCurrentMonitor\022\035\n\025c"
+    "urrentMonitorChannel\030\001 \001(\r\"x\n\037cmd_readCu"
+    "rrentMonitor_response\022\017\n\007success\030\001 \001(\010\022\017"
+    "\n\007message\030\002 \001(\t\022\035\n\025currentMonitorChannel"
+    "\030\003 \001(\r\022\024\n\014currentValue\030\004 \001(\r\".\n\032cmd_read"
+    "BiasVoltageMonitor\022\020\n\010afeBlock\030\001 \001(\r\"s\n#"
+    "cmd_readBiasVoltageMonitor_response\022\017\n\007s"
+    "uccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBloc"
+    "k\030\003 \001(\r\022\030\n\020biasVoltageValue\030\004 \001(\r\"#\n\017cmd"
+    "_setAFEReset\022\020\n\010afeBlock\030\001 \001(\r\"N\n\030cmd_se"
+    "tAFEReset_response\022\017\n\007success\030\001 \001(\010\022\017\n\007m"
+    "essage\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\"9\n\023cmd_se"
+    "tAFEPowerDown\022\020\n\010afeBlock\030\001 \001(\r\022\020\n\010pwrSt"
+    "ate\030\002 \001(\010\"R\n\034cmd_setAFEPowerDown_respons"
+    "e\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010a"
+    "feBlock\030\003 \001(\rb\006proto3"
 };
 static ::absl::once_flag descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto = {
     false,
     false,
-    3772,
+    4181,
     descriptor_table_protodef_daphneV3_5flow_5flevel_5fconfs_2eproto,
     "daphneV3_low_level_confs.proto",
     &descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto_once,
     nullptr,
     0,
-    48,
+    50,
     schemas,
     file_default_instances,
     TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto::offsets,
@@ -3543,6 +3677,655 @@ void cmd_writeAFEVgain_response::InternalSwap(cmd_writeAFEVgain_response* PROTOB
 }
 // ===================================================================
 
+class cmd_writeAFEAttenuation::_Internal {
+ public:
+  using HasBits =
+      decltype(std::declval<cmd_writeAFEAttenuation>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_._has_bits_);
+};
+
+cmd_writeAFEAttenuation::cmd_writeAFEAttenuation(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, cmd_writeAFEAttenuation_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:cmd_writeAFEAttenuation)
+}
+cmd_writeAFEAttenuation::cmd_writeAFEAttenuation(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeAFEAttenuation& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, cmd_writeAFEAttenuation_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(from._impl_) {
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+}
+PROTOBUF_NDEBUG_INLINE cmd_writeAFEAttenuation::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0} {}
+
+inline void cmd_writeAFEAttenuation::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, afeblock_),
+           0,
+           offsetof(Impl_, attenuation_) -
+               offsetof(Impl_, afeblock_) +
+               sizeof(Impl_::attenuation_));
+}
+cmd_writeAFEAttenuation::~cmd_writeAFEAttenuation() {
+  // @@protoc_insertion_point(destructor:cmd_writeAFEAttenuation)
+  SharedDtor(*this);
+}
+inline void cmd_writeAFEAttenuation::SharedDtor(MessageLite& self) {
+  cmd_writeAFEAttenuation& this_ = static_cast<cmd_writeAFEAttenuation&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL cmd_writeAFEAttenuation::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) cmd_writeAFEAttenuation(arena);
+}
+constexpr auto cmd_writeAFEAttenuation::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(cmd_writeAFEAttenuation),
+                                            alignof(cmd_writeAFEAttenuation));
+}
+constexpr auto cmd_writeAFEAttenuation::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_cmd_writeAFEAttenuation_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &cmd_writeAFEAttenuation::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<cmd_writeAFEAttenuation>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &cmd_writeAFEAttenuation::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<cmd_writeAFEAttenuation>(), &cmd_writeAFEAttenuation::ByteSizeLong,
+              &cmd_writeAFEAttenuation::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_._cached_size_),
+          false,
+      },
+      &cmd_writeAFEAttenuation::kDescriptorMethods,
+      &descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const ::google::protobuf::internal::ClassDataFull
+        cmd_writeAFEAttenuation_class_data_ =
+            cmd_writeAFEAttenuation::InternalGenerateClassData_();
+
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeAFEAttenuation::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&cmd_writeAFEAttenuation_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(cmd_writeAFEAttenuation_class_data_.tc_table);
+  return cmd_writeAFEAttenuation_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+cmd_writeAFEAttenuation::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_._has_bits_),
+    0, // no _extensions_
+    2, 8,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967292,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    2,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    cmd_writeAFEAttenuation_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::cmd_writeAFEAttenuation>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // uint32 attenuation = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEAttenuation, _impl_.attenuation_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.attenuation_)}},
+    // uint32 afeBlock = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEAttenuation, _impl_.afeblock_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.afeblock_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // uint32 afeBlock = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.afeblock_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 attenuation = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.attenuation_), _Internal::kHasBitsOffset + 1, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void cmd_writeAFEAttenuation::Clear() {
+// @@protoc_insertion_point(message_clear_start:cmd_writeAFEAttenuation)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    ::memset(&_impl_.afeblock_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.attenuation_) -
+        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.attenuation_));
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL cmd_writeAFEAttenuation::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const cmd_writeAFEAttenuation& this_ = static_cast<const cmd_writeAFEAttenuation&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL cmd_writeAFEAttenuation::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const cmd_writeAFEAttenuation& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeAFEAttenuation)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // uint32 afeBlock = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_afeblock() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          1, this_._internal_afeblock(), target);
+    }
+  }
+
+  // uint32 attenuation = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_attenuation() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          2, this_._internal_attenuation(), target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeAFEAttenuation)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t cmd_writeAFEAttenuation::ByteSizeLong(const MessageLite& base) {
+  const cmd_writeAFEAttenuation& this_ = static_cast<const cmd_writeAFEAttenuation&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t cmd_writeAFEAttenuation::ByteSizeLong() const {
+  const cmd_writeAFEAttenuation& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:cmd_writeAFEAttenuation)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // uint32 afeBlock = 1;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_afeblock() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_afeblock());
+      }
+    }
+    // uint32 attenuation = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (this_._internal_attenuation() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_attenuation());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void cmd_writeAFEAttenuation::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<cmd_writeAFEAttenuation*>(&to_msg);
+  auto& from = static_cast<const cmd_writeAFEAttenuation&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeAFEAttenuation)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_afeblock() != 0) {
+        _this->_impl_.afeblock_ = from._impl_.afeblock_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_attenuation() != 0) {
+        _this->_impl_.attenuation_ = from._impl_.attenuation_;
+      }
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void cmd_writeAFEAttenuation::CopyFrom(const cmd_writeAFEAttenuation& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeAFEAttenuation)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void cmd_writeAFEAttenuation::InternalSwap(cmd_writeAFEAttenuation* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.attenuation_)
+      + sizeof(cmd_writeAFEAttenuation::_impl_.attenuation_)
+      - PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.afeblock_)>(
+          reinterpret_cast<char*>(&_impl_.afeblock_),
+          reinterpret_cast<char*>(&other->_impl_.afeblock_));
+}
+
+::google::protobuf::Metadata cmd_writeAFEAttenuation::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class cmd_writeAFEAttenuation_response::_Internal {
+ public:
+  using HasBits =
+      decltype(std::declval<cmd_writeAFEAttenuation_response>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_._has_bits_);
+};
+
+cmd_writeAFEAttenuation_response::cmd_writeAFEAttenuation_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, cmd_writeAFEAttenuation_response_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:cmd_writeAFEAttenuation_response)
+}
+PROTOBUF_NDEBUG_INLINE cmd_writeAFEAttenuation_response::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::cmd_writeAFEAttenuation_response& from_msg)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        message_(arena, from.message_) {}
+
+cmd_writeAFEAttenuation_response::cmd_writeAFEAttenuation_response(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const cmd_writeAFEAttenuation_response& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, cmd_writeAFEAttenuation_response_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  cmd_writeAFEAttenuation_response* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  ::memcpy(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, success_),
+           reinterpret_cast<const char *>(&from._impl_) +
+               offsetof(Impl_, success_),
+           offsetof(Impl_, attenuation_) -
+               offsetof(Impl_, success_) +
+               sizeof(Impl_::attenuation_));
+
+  // @@protoc_insertion_point(copy_constructor:cmd_writeAFEAttenuation_response)
+}
+PROTOBUF_NDEBUG_INLINE cmd_writeAFEAttenuation_response::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0},
+        message_(arena) {}
+
+inline void cmd_writeAFEAttenuation_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, success_),
+           0,
+           offsetof(Impl_, attenuation_) -
+               offsetof(Impl_, success_) +
+               sizeof(Impl_::attenuation_));
+}
+cmd_writeAFEAttenuation_response::~cmd_writeAFEAttenuation_response() {
+  // @@protoc_insertion_point(destructor:cmd_writeAFEAttenuation_response)
+  SharedDtor(*this);
+}
+inline void cmd_writeAFEAttenuation_response::SharedDtor(MessageLite& self) {
+  cmd_writeAFEAttenuation_response& this_ = static_cast<cmd_writeAFEAttenuation_response&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.message_.Destroy();
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL cmd_writeAFEAttenuation_response::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) cmd_writeAFEAttenuation_response(arena);
+}
+constexpr auto cmd_writeAFEAttenuation_response::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(cmd_writeAFEAttenuation_response),
+                                            alignof(cmd_writeAFEAttenuation_response));
+}
+constexpr auto cmd_writeAFEAttenuation_response::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_cmd_writeAFEAttenuation_response_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &cmd_writeAFEAttenuation_response::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<cmd_writeAFEAttenuation_response>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &cmd_writeAFEAttenuation_response::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<cmd_writeAFEAttenuation_response>(), &cmd_writeAFEAttenuation_response::ByteSizeLong,
+              &cmd_writeAFEAttenuation_response::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_._cached_size_),
+          false,
+      },
+      &cmd_writeAFEAttenuation_response::kDescriptorMethods,
+      &descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const ::google::protobuf::internal::ClassDataFull
+        cmd_writeAFEAttenuation_response_class_data_ =
+            cmd_writeAFEAttenuation_response::InternalGenerateClassData_();
+
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeAFEAttenuation_response::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&cmd_writeAFEAttenuation_response_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(cmd_writeAFEAttenuation_response_class_data_.tc_table);
+  return cmd_writeAFEAttenuation_response_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<2, 4, 0, 48, 2>
+cmd_writeAFEAttenuation_response::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_._has_bits_),
+    0, // no _extensions_
+    4, 24,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967280,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    4,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    cmd_writeAFEAttenuation_response_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::cmd_writeAFEAttenuation_response>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // uint32 attenuation = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEAttenuation_response, _impl_.attenuation_), 3>(),
+     {32, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_.attenuation_)}},
+    // bool success = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeAFEAttenuation_response, _impl_.success_), 1>(),
+     {8, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_.success_)}},
+    // string message = 2;
+    {::_pbi::TcParser::FastUS1,
+     {18, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_.message_)}},
+    // uint32 afeBlock = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEAttenuation_response, _impl_.afeblock_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_.afeblock_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // bool success = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_.success_), _Internal::kHasBitsOffset + 1, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
+    // string message = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_.message_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // uint32 afeBlock = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_.afeblock_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 attenuation = 4;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_.attenuation_), _Internal::kHasBitsOffset + 3, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+  }},
+  // no aux_entries
+  {{
+    "\40\0\7\0\0\0\0\0"
+    "cmd_writeAFEAttenuation_response"
+    "message"
+  }},
+};
+PROTOBUF_NOINLINE void cmd_writeAFEAttenuation_response::Clear() {
+// @@protoc_insertion_point(message_clear_start:cmd_writeAFEAttenuation_response)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    _impl_.message_.ClearNonDefaultToEmpty();
+  }
+  if ((cached_has_bits & 0x0000000eu) != 0) {
+    ::memset(&_impl_.success_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.attenuation_) -
+        reinterpret_cast<char*>(&_impl_.success_)) + sizeof(_impl_.attenuation_));
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL cmd_writeAFEAttenuation_response::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const cmd_writeAFEAttenuation_response& this_ = static_cast<const cmd_writeAFEAttenuation_response&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL cmd_writeAFEAttenuation_response::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const cmd_writeAFEAttenuation_response& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeAFEAttenuation_response)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // bool success = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_success() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          1, this_._internal_success(), target);
+    }
+  }
+
+  // string message = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (!this_._internal_message().empty()) {
+      const std::string& _s = this_._internal_message();
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeAFEAttenuation_response.message");
+      target = stream->WriteStringMaybeAliased(2, _s, target);
+    }
+  }
+
+  // uint32 afeBlock = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (this_._internal_afeblock() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          3, this_._internal_afeblock(), target);
+    }
+  }
+
+  // uint32 attenuation = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+    if (this_._internal_attenuation() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          4, this_._internal_attenuation(), target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeAFEAttenuation_response)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t cmd_writeAFEAttenuation_response::ByteSizeLong(const MessageLite& base) {
+  const cmd_writeAFEAttenuation_response& this_ = static_cast<const cmd_writeAFEAttenuation_response&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t cmd_writeAFEAttenuation_response::ByteSizeLong() const {
+  const cmd_writeAFEAttenuation_response& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:cmd_writeAFEAttenuation_response)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x0000000fu) != 0) {
+    // string message = 2;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!this_._internal_message().empty()) {
+        total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                        this_._internal_message());
+      }
+    }
+    // bool success = 1;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (this_._internal_success() != 0) {
+        total_size += 2;
+      }
+    }
+    // uint32 afeBlock = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_afeblock() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_afeblock());
+      }
+    }
+    // uint32 attenuation = 4;
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (this_._internal_attenuation() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_attenuation());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void cmd_writeAFEAttenuation_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<cmd_writeAFEAttenuation_response*>(&to_msg);
+  auto& from = static_cast<const cmd_writeAFEAttenuation_response&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeAFEAttenuation_response)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x0000000fu) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!from._internal_message().empty()) {
+        _this->_internal_set_message(from._internal_message());
+      } else {
+        if (_this->_impl_.message_.IsDefault()) {
+          _this->_internal_set_message("");
+        }
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_success() != 0) {
+        _this->_impl_.success_ = from._impl_.success_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_afeblock() != 0) {
+        _this->_impl_.afeblock_ = from._impl_.afeblock_;
+      }
+    }
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (from._internal_attenuation() != 0) {
+        _this->_impl_.attenuation_ = from._impl_.attenuation_;
+      }
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void cmd_writeAFEAttenuation_response::CopyFrom(const cmd_writeAFEAttenuation_response& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeAFEAttenuation_response)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void cmd_writeAFEAttenuation_response::InternalSwap(cmd_writeAFEAttenuation_response* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.message_, &other->_impl_.message_, arena);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_.attenuation_)
+      + sizeof(cmd_writeAFEAttenuation_response::_impl_.attenuation_)
+      - PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_.success_)>(
+          reinterpret_cast<char*>(&_impl_.success_),
+          reinterpret_cast<char*>(&other->_impl_.success_));
+}
+
+::google::protobuf::Metadata cmd_writeAFEAttenuation_response::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
 class cmd_writeAFEBiasSet::_Internal {
  public:
   using HasBits =
@@ -4227,7 +5010,12 @@ PROTOBUF_NDEBUG_INLINE cmd_writeTRIM_allChannels::Impl_::Impl_(
 
 inline void cmd_writeTRIM_allChannels::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.trimvalue_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, trimvalue_),
+           0,
+           offsetof(Impl_, trimgain_) -
+               offsetof(Impl_, trimvalue_) +
+               sizeof(Impl_::trimgain_));
 }
 cmd_writeTRIM_allChannels::~cmd_writeTRIM_allChannels() {
   // @@protoc_insertion_point(destructor:cmd_writeTRIM_allChannels)
@@ -4283,16 +5071,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeTRIM_al
   return cmd_writeTRIM_allChannels_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
 cmd_writeTRIM_allChannels::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeTRIM_allChannels_class_data_.base(),
@@ -4302,6 +5090,9 @@ cmd_writeTRIM_allChannels::_table_ = {
     ::_pbi::TcParser::GetTable<::cmd_writeTRIM_allChannels>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
+    // bool trimGain = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTRIM_allChannels, _impl_.trimgain_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimgain_)}},
     // uint32 trimValue = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTRIM_allChannels, _impl_.trimvalue_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimvalue_)}},
@@ -4311,6 +5102,9 @@ cmd_writeTRIM_allChannels::_table_ = {
     // uint32 trimValue = 1;
     {PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimvalue_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool trimGain = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimgain_), _Internal::kHasBitsOffset + 1, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -4323,7 +5117,12 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.trimvalue_ = 0u;
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    ::memset(&_impl_.trimvalue_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.trimgain_) -
+        reinterpret_cast<char*>(&_impl_.trimvalue_)) + sizeof(_impl_.trimgain_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -4352,6 +5151,15 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels::Clear() {
     }
   }
 
+  // bool trimGain = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_trimgain() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          2, this_._internal_trimgain(), target);
+    }
+  }
+
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -4375,13 +5183,20 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
     // uint32 trimValue = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (this_._internal_trimvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_trimvalue());
+      }
+    }
+    // bool trimGain = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (this_._internal_trimgain() != 0) {
+        total_size += 2;
       }
     }
   }
@@ -4398,9 +5213,16 @@ void cmd_writeTRIM_allChannels::MergeImpl(::google::protobuf::MessageLite& to_ms
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    if (from._internal_trimvalue() != 0) {
-      _this->_impl_.trimvalue_ = from._impl_.trimvalue_;
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_trimvalue() != 0) {
+        _this->_impl_.trimvalue_ = from._impl_.trimvalue_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_trimgain() != 0) {
+        _this->_impl_.trimgain_ = from._impl_.trimgain_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -4419,7 +5241,12 @@ void cmd_writeTRIM_allChannels::InternalSwap(cmd_writeTRIM_allChannels* PROTOBUF
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.trimvalue_, other->_impl_.trimvalue_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimgain_)
+      + sizeof(cmd_writeTRIM_allChannels::_impl_.trimgain_)
+      - PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimvalue_)>(
+          reinterpret_cast<char*>(&_impl_.trimvalue_),
+          reinterpret_cast<char*>(&other->_impl_.trimvalue_));
 }
 
 ::google::protobuf::Metadata cmd_writeTRIM_allChannels::GetMetadata() const {
@@ -4545,16 +5372,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeTRIM_al
   return cmd_writeTRIM_allChannels_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 50, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 50, 2>
 cmd_writeTRIM_allChannels_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels_response, _impl_._has_bits_),
     0, // no _extensions_
-    3, 24,  // max_field_number, fast_idx_mask
+    4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967288,  // skipmap
+    4294967280,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    3,  // num_field_entries
+    4,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeTRIM_allChannels_response_class_data_.base(),
@@ -4564,7 +5391,9 @@ cmd_writeTRIM_allChannels_response::_table_ = {
     ::_pbi::TcParser::GetTable<::cmd_writeTRIM_allChannels_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
+    // bool trimGain = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTRIM_allChannels_response, _impl_.trimgain_), 2>(),
+     {32, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels_response, _impl_.trimgain_)}},
     // bool success = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTRIM_allChannels_response, _impl_.success_), 1>(),
      {8, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels_response, _impl_.success_)}},
@@ -4572,8 +5401,8 @@ cmd_writeTRIM_allChannels_response::_table_ = {
     {::_pbi::TcParser::FastUS1,
      {18, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels_response, _impl_.message_)}},
     // uint32 trimValue = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTRIM_allChannels_response, _impl_.trimvalue_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels_response, _impl_.trimvalue_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTRIM_allChannels_response, _impl_.trimvalue_), 3>(),
+     {24, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels_response, _impl_.trimvalue_)}},
   }}, {{
     65535, 65535
   }}, {{
@@ -4584,8 +5413,11 @@ cmd_writeTRIM_allChannels_response::_table_ = {
     {PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels_response, _impl_.message_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
     // uint32 trimValue = 3;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels_response, _impl_.trimvalue_), _Internal::kHasBitsOffset + 2, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels_response, _impl_.trimvalue_), _Internal::kHasBitsOffset + 3, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool trimGain = 4;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels_response, _impl_.trimgain_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -4605,7 +5437,7 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels_response::Clear() {
   if ((cached_has_bits & 0x00000001u) != 0) {
     _impl_.message_.ClearNonDefaultToEmpty();
   }
-  if ((cached_has_bits & 0x00000006u) != 0) {
+  if ((cached_has_bits & 0x0000000eu) != 0) {
     ::memset(&_impl_.success_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.trimvalue_) -
         reinterpret_cast<char*>(&_impl_.success_)) + sizeof(_impl_.trimvalue_));
@@ -4649,11 +5481,20 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels_response::Clear() {
   }
 
   // uint32 trimValue = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
     if (this_._internal_trimvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
           3, this_._internal_trimvalue(), target);
+    }
+  }
+
+  // bool trimGain = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (this_._internal_trimgain() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          4, this_._internal_trimgain(), target);
     }
   }
 
@@ -4682,7 +5523,7 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels_response::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     // string message = 2;
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!this_._internal_message().empty()) {
@@ -4696,8 +5537,14 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels_response::Clear() {
         total_size += 2;
       }
     }
-    // uint32 trimValue = 3;
+    // bool trimGain = 4;
     if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_trimgain() != 0) {
+        total_size += 2;
+      }
+    }
+    // uint32 trimValue = 3;
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (this_._internal_trimvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_trimvalue());
@@ -4717,7 +5564,7 @@ void cmd_writeTRIM_allChannels_response::MergeImpl(::google::protobuf::MessageLi
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!from._internal_message().empty()) {
         _this->_internal_set_message(from._internal_message());
@@ -4733,6 +5580,11 @@ void cmd_writeTRIM_allChannels_response::MergeImpl(::google::protobuf::MessageLi
       }
     }
     if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_trimgain() != 0) {
+        _this->_impl_.trimgain_ = from._impl_.trimgain_;
+      }
+    }
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (from._internal_trimvalue() != 0) {
         _this->_impl_.trimvalue_ = from._impl_.trimvalue_;
       }
@@ -4808,9 +5660,9 @@ inline void cmd_writeTrim_allAFE::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE are
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, afeblock_),
            0,
-           offsetof(Impl_, trimvalue_) -
+           offsetof(Impl_, trimgain_) -
                offsetof(Impl_, afeblock_) +
-               sizeof(Impl_::trimvalue_));
+               sizeof(Impl_::trimgain_));
 }
 cmd_writeTrim_allAFE::~cmd_writeTrim_allAFE() {
   // @@protoc_insertion_point(destructor:cmd_writeTrim_allAFE)
@@ -4866,16 +5718,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeTrim_al
   return cmd_writeTrim_allAFE_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
 cmd_writeTrim_allAFE::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeTrim_allAFE_class_data_.base(),
@@ -4885,12 +5737,16 @@ cmd_writeTrim_allAFE::_table_ = {
     ::_pbi::TcParser::GetTable<::cmd_writeTrim_allAFE>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 trimValue = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_allAFE, _impl_.trimvalue_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimvalue_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // uint32 afeBlock = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_allAFE, _impl_.afeblock_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.afeblock_)}},
+    // uint32 trimValue = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_allAFE, _impl_.trimvalue_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimvalue_)}},
+    // bool trimGain = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTrim_allAFE, _impl_.trimgain_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimgain_)}},
   }}, {{
     65535, 65535
   }}, {{
@@ -4900,6 +5756,9 @@ cmd_writeTrim_allAFE::_table_ = {
     // uint32 trimValue = 2;
     {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimvalue_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool trimGain = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimgain_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -4913,10 +5772,10 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     ::memset(&_impl_.afeblock_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.trimvalue_) -
-        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.trimvalue_));
+        reinterpret_cast<char*>(&_impl_.trimgain_) -
+        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.trimgain_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -4955,6 +5814,15 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE::Clear() {
     }
   }
 
+  // bool trimGain = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (this_._internal_trimgain() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          3, this_._internal_trimgain(), target);
+    }
+  }
+
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -4980,7 +5848,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     // uint32 afeBlock = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (this_._internal_afeblock() != 0) {
@@ -4993,6 +5861,12 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE::Clear() {
       if (this_._internal_trimvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_trimvalue());
+      }
+    }
+    // bool trimGain = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_trimgain() != 0) {
+        total_size += 2;
       }
     }
   }
@@ -5009,7 +5883,7 @@ void cmd_writeTrim_allAFE::MergeImpl(::google::protobuf::MessageLite& to_msg, co
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (from._internal_afeblock() != 0) {
         _this->_impl_.afeblock_ = from._impl_.afeblock_;
@@ -5018,6 +5892,11 @@ void cmd_writeTrim_allAFE::MergeImpl(::google::protobuf::MessageLite& to_msg, co
     if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_trimvalue() != 0) {
         _this->_impl_.trimvalue_ = from._impl_.trimvalue_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_trimgain() != 0) {
+        _this->_impl_.trimgain_ = from._impl_.trimgain_;
       }
     }
   }
@@ -5038,8 +5917,8 @@ void cmd_writeTrim_allAFE::InternalSwap(cmd_writeTrim_allAFE* PROTOBUF_RESTRICT 
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimvalue_)
-      + sizeof(cmd_writeTrim_allAFE::_impl_.trimvalue_)
+      PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimgain_)
+      + sizeof(cmd_writeTrim_allAFE::_impl_.trimgain_)
       - PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.afeblock_)>(
           reinterpret_cast<char*>(&_impl_.afeblock_),
           reinterpret_cast<char*>(&other->_impl_.afeblock_));
@@ -5089,11 +5968,11 @@ cmd_writeTrim_allAFE_response::cmd_writeTrim_allAFE_response(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::memcpy(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, afeblock_),
            reinterpret_cast<const char *>(&from._impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, afeblock_),
            offsetof(Impl_, trimvalue_) -
-               offsetof(Impl_, success_) +
+               offsetof(Impl_, afeblock_) +
                sizeof(Impl_::trimvalue_));
 
   // @@protoc_insertion_point(copy_constructor:cmd_writeTrim_allAFE_response)
@@ -5107,10 +5986,10 @@ PROTOBUF_NDEBUG_INLINE cmd_writeTrim_allAFE_response::Impl_::Impl_(
 inline void cmd_writeTrim_allAFE_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, afeblock_),
            0,
            offsetof(Impl_, trimvalue_) -
-               offsetof(Impl_, success_) +
+               offsetof(Impl_, afeblock_) +
                sizeof(Impl_::trimvalue_));
 }
 cmd_writeTrim_allAFE_response::~cmd_writeTrim_allAFE_response() {
@@ -5168,16 +6047,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeTrim_al
   return cmd_writeTrim_allAFE_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 45, 2>
+const ::_pbi::TcParseTable<3, 5, 0, 45, 2>
 cmd_writeTrim_allAFE_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_._has_bits_),
     0, // no _extensions_
-    4, 24,  // max_field_number, fast_idx_mask
+    5, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967280,  // skipmap
+    4294967264,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    4,  // num_field_entries
+    5,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeTrim_allAFE_response_class_data_.base(),
@@ -5187,33 +6066,42 @@ cmd_writeTrim_allAFE_response::_table_ = {
     ::_pbi::TcParser::GetTable<::cmd_writeTrim_allAFE_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 trimValue = 4;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_allAFE_response, _impl_.trimvalue_), 3>(),
-     {32, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.trimvalue_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // bool success = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTrim_allAFE_response, _impl_.success_), 1>(),
-     {8, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.success_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTrim_allAFE_response, _impl_.success_), 2>(),
+     {8, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.success_)}},
     // string message = 2;
     {::_pbi::TcParser::FastUS1,
      {18, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.message_)}},
     // uint32 afeBlock = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_allAFE_response, _impl_.afeblock_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.afeblock_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_allAFE_response, _impl_.afeblock_), 1>(),
+     {24, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.afeblock_)}},
+    // uint32 trimValue = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_allAFE_response, _impl_.trimvalue_), 4>(),
+     {32, 4, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.trimvalue_)}},
+    // bool trimGain = 5;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTrim_allAFE_response, _impl_.trimgain_), 3>(),
+     {40, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.trimgain_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
     // bool success = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.success_), _Internal::kHasBitsOffset + 1, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.success_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
     // string message = 2;
     {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.message_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
     // uint32 afeBlock = 3;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.afeblock_), _Internal::kHasBitsOffset + 2, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
     // uint32 trimValue = 4;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.trimvalue_), _Internal::kHasBitsOffset + 3, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.trimvalue_), _Internal::kHasBitsOffset + 4, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool trimGain = 5;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.trimgain_), _Internal::kHasBitsOffset + 3, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -5233,10 +6121,10 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE_response::Clear() {
   if ((cached_has_bits & 0x00000001u) != 0) {
     _impl_.message_.ClearNonDefaultToEmpty();
   }
-  if ((cached_has_bits & 0x0000000eu) != 0) {
-    ::memset(&_impl_.success_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x0000001eu) != 0) {
+    ::memset(&_impl_.afeblock_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.trimvalue_) -
-        reinterpret_cast<char*>(&_impl_.success_)) + sizeof(_impl_.trimvalue_));
+        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.trimvalue_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -5258,7 +6146,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE_response::Clear() {
   (void)cached_has_bits;
 
   // bool success = 1;
-  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_success() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
@@ -5277,7 +6165,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE_response::Clear() {
   }
 
   // uint32 afeBlock = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_afeblock() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
@@ -5286,11 +6174,20 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE_response::Clear() {
   }
 
   // uint32 trimValue = 4;
-  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
     if (this_._internal_trimvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
           4, this_._internal_trimvalue(), target);
+    }
+  }
+
+  // bool trimGain = 5;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+    if (this_._internal_trimgain() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          5, this_._internal_trimgain(), target);
     }
   }
 
@@ -5319,7 +6216,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE_response::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000000fu) != 0) {
+  if ((cached_has_bits & 0x0000001fu) != 0) {
     // string message = 2;
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!this_._internal_message().empty()) {
@@ -5327,21 +6224,27 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE_response::Clear() {
                                         this_._internal_message());
       }
     }
-    // bool success = 1;
-    if ((cached_has_bits & 0x00000002u) != 0) {
-      if (this_._internal_success() != 0) {
-        total_size += 2;
-      }
-    }
     // uint32 afeBlock = 3;
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
       }
     }
-    // uint32 trimValue = 4;
+    // bool success = 1;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_success() != 0) {
+        total_size += 2;
+      }
+    }
+    // bool trimGain = 5;
     if ((cached_has_bits & 0x00000008u) != 0) {
+      if (this_._internal_trimgain() != 0) {
+        total_size += 2;
+      }
+    }
+    // uint32 trimValue = 4;
+    if ((cached_has_bits & 0x00000010u) != 0) {
       if (this_._internal_trimvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_trimvalue());
@@ -5361,7 +6264,7 @@ void cmd_writeTrim_allAFE_response::MergeImpl(::google::protobuf::MessageLite& t
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000000fu) != 0) {
+  if ((cached_has_bits & 0x0000001fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!from._internal_message().empty()) {
         _this->_internal_set_message(from._internal_message());
@@ -5372,16 +6275,21 @@ void cmd_writeTrim_allAFE_response::MergeImpl(::google::protobuf::MessageLite& t
       }
     }
     if ((cached_has_bits & 0x00000002u) != 0) {
-      if (from._internal_success() != 0) {
-        _this->_impl_.success_ = from._impl_.success_;
-      }
-    }
-    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_afeblock() != 0) {
         _this->_impl_.afeblock_ = from._impl_.afeblock_;
       }
     }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_success() != 0) {
+        _this->_impl_.success_ = from._impl_.success_;
+      }
+    }
     if ((cached_has_bits & 0x00000008u) != 0) {
+      if (from._internal_trimgain() != 0) {
+        _this->_impl_.trimgain_ = from._impl_.trimgain_;
+      }
+    }
+    if ((cached_has_bits & 0x00000010u) != 0) {
       if (from._internal_trimvalue() != 0) {
         _this->_impl_.trimvalue_ = from._impl_.trimvalue_;
       }
@@ -5409,9 +6317,9 @@ void cmd_writeTrim_allAFE_response::InternalSwap(cmd_writeTrim_allAFE_response* 
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.trimvalue_)
       + sizeof(cmd_writeTrim_allAFE_response::_impl_.trimvalue_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.success_)>(
-          reinterpret_cast<char*>(&_impl_.success_),
-          reinterpret_cast<char*>(&other->_impl_.success_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_.afeblock_)>(
+          reinterpret_cast<char*>(&_impl_.afeblock_),
+          reinterpret_cast<char*>(&other->_impl_.afeblock_));
 }
 
 ::google::protobuf::Metadata cmd_writeTrim_allAFE_response::GetMetadata() const {
@@ -5457,9 +6365,9 @@ inline void cmd_writeTrim_singleChannel::SharedCtor(::_pb::Arena* PROTOBUF_NULLA
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, trimchannel_),
            0,
-           offsetof(Impl_, trimvalue_) -
+           offsetof(Impl_, trimgain_) -
                offsetof(Impl_, trimchannel_) +
-               sizeof(Impl_::trimvalue_));
+               sizeof(Impl_::trimgain_));
 }
 cmd_writeTrim_singleChannel::~cmd_writeTrim_singleChannel() {
   // @@protoc_insertion_point(destructor:cmd_writeTrim_singleChannel)
@@ -5515,16 +6423,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeTrim_si
   return cmd_writeTrim_singleChannel_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
 cmd_writeTrim_singleChannel::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeTrim_singleChannel_class_data_.base(),
@@ -5534,12 +6442,16 @@ cmd_writeTrim_singleChannel::_table_ = {
     ::_pbi::TcParser::GetTable<::cmd_writeTrim_singleChannel>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 trimValue = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_singleChannel, _impl_.trimvalue_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimvalue_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // uint32 trimChannel = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_singleChannel, _impl_.trimchannel_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimchannel_)}},
+    // uint32 trimValue = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_singleChannel, _impl_.trimvalue_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimvalue_)}},
+    // bool trimGain = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTrim_singleChannel, _impl_.trimgain_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimgain_)}},
   }}, {{
     65535, 65535
   }}, {{
@@ -5549,6 +6461,9 @@ cmd_writeTrim_singleChannel::_table_ = {
     // uint32 trimValue = 2;
     {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimvalue_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool trimGain = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimgain_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -5562,10 +6477,10 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     ::memset(&_impl_.trimchannel_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.trimvalue_) -
-        reinterpret_cast<char*>(&_impl_.trimchannel_)) + sizeof(_impl_.trimvalue_));
+        reinterpret_cast<char*>(&_impl_.trimgain_) -
+        reinterpret_cast<char*>(&_impl_.trimchannel_)) + sizeof(_impl_.trimgain_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -5604,6 +6519,15 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel::Clear() {
     }
   }
 
+  // bool trimGain = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (this_._internal_trimgain() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          3, this_._internal_trimgain(), target);
+    }
+  }
+
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -5629,7 +6553,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     // uint32 trimChannel = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (this_._internal_trimchannel() != 0) {
@@ -5642,6 +6566,12 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel::Clear() {
       if (this_._internal_trimvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_trimvalue());
+      }
+    }
+    // bool trimGain = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_trimgain() != 0) {
+        total_size += 2;
       }
     }
   }
@@ -5658,7 +6588,7 @@ void cmd_writeTrim_singleChannel::MergeImpl(::google::protobuf::MessageLite& to_
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (from._internal_trimchannel() != 0) {
         _this->_impl_.trimchannel_ = from._impl_.trimchannel_;
@@ -5667,6 +6597,11 @@ void cmd_writeTrim_singleChannel::MergeImpl(::google::protobuf::MessageLite& to_
     if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_trimvalue() != 0) {
         _this->_impl_.trimvalue_ = from._impl_.trimvalue_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_trimgain() != 0) {
+        _this->_impl_.trimgain_ = from._impl_.trimgain_;
       }
     }
   }
@@ -5687,8 +6622,8 @@ void cmd_writeTrim_singleChannel::InternalSwap(cmd_writeTrim_singleChannel* PROT
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimvalue_)
-      + sizeof(cmd_writeTrim_singleChannel::_impl_.trimvalue_)
+      PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimgain_)
+      + sizeof(cmd_writeTrim_singleChannel::_impl_.trimgain_)
       - PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimchannel_)>(
           reinterpret_cast<char*>(&_impl_.trimchannel_),
           reinterpret_cast<char*>(&other->_impl_.trimchannel_));
@@ -5738,11 +6673,11 @@ cmd_writeTrim_singleChannel_response::cmd_writeTrim_singleChannel_response(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::memcpy(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, trimchannel_),
            reinterpret_cast<const char *>(&from._impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, trimchannel_),
            offsetof(Impl_, trimvalue_) -
-               offsetof(Impl_, success_) +
+               offsetof(Impl_, trimchannel_) +
                sizeof(Impl_::trimvalue_));
 
   // @@protoc_insertion_point(copy_constructor:cmd_writeTrim_singleChannel_response)
@@ -5756,10 +6691,10 @@ PROTOBUF_NDEBUG_INLINE cmd_writeTrim_singleChannel_response::Impl_::Impl_(
 inline void cmd_writeTrim_singleChannel_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, trimchannel_),
            0,
            offsetof(Impl_, trimvalue_) -
-               offsetof(Impl_, success_) +
+               offsetof(Impl_, trimchannel_) +
                sizeof(Impl_::trimvalue_));
 }
 cmd_writeTrim_singleChannel_response::~cmd_writeTrim_singleChannel_response() {
@@ -5817,16 +6752,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeTrim_si
   return cmd_writeTrim_singleChannel_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 52, 2>
+const ::_pbi::TcParseTable<3, 5, 0, 52, 2>
 cmd_writeTrim_singleChannel_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_._has_bits_),
     0, // no _extensions_
-    4, 24,  // max_field_number, fast_idx_mask
+    5, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967280,  // skipmap
+    4294967264,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    4,  // num_field_entries
+    5,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeTrim_singleChannel_response_class_data_.base(),
@@ -5836,33 +6771,42 @@ cmd_writeTrim_singleChannel_response::_table_ = {
     ::_pbi::TcParser::GetTable<::cmd_writeTrim_singleChannel_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 trimValue = 4;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_singleChannel_response, _impl_.trimvalue_), 3>(),
-     {32, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.trimvalue_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // bool success = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTrim_singleChannel_response, _impl_.success_), 1>(),
-     {8, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.success_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTrim_singleChannel_response, _impl_.success_), 2>(),
+     {8, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.success_)}},
     // string message = 2;
     {::_pbi::TcParser::FastUS1,
      {18, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.message_)}},
     // uint32 trimChannel = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_singleChannel_response, _impl_.trimchannel_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.trimchannel_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_singleChannel_response, _impl_.trimchannel_), 1>(),
+     {24, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.trimchannel_)}},
+    // uint32 trimValue = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_singleChannel_response, _impl_.trimvalue_), 4>(),
+     {32, 4, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.trimvalue_)}},
+    // bool trimGain = 5;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTrim_singleChannel_response, _impl_.trimgain_), 3>(),
+     {40, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.trimgain_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
     // bool success = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.success_), _Internal::kHasBitsOffset + 1, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.success_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
     // string message = 2;
     {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.message_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
     // uint32 trimChannel = 3;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.trimchannel_), _Internal::kHasBitsOffset + 2, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.trimchannel_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
     // uint32 trimValue = 4;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.trimvalue_), _Internal::kHasBitsOffset + 3, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.trimvalue_), _Internal::kHasBitsOffset + 4, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool trimGain = 5;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.trimgain_), _Internal::kHasBitsOffset + 3, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -5882,10 +6826,10 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel_response::Clear() {
   if ((cached_has_bits & 0x00000001u) != 0) {
     _impl_.message_.ClearNonDefaultToEmpty();
   }
-  if ((cached_has_bits & 0x0000000eu) != 0) {
-    ::memset(&_impl_.success_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x0000001eu) != 0) {
+    ::memset(&_impl_.trimchannel_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.trimvalue_) -
-        reinterpret_cast<char*>(&_impl_.success_)) + sizeof(_impl_.trimvalue_));
+        reinterpret_cast<char*>(&_impl_.trimchannel_)) + sizeof(_impl_.trimvalue_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -5907,7 +6851,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel_response::Clear() {
   (void)cached_has_bits;
 
   // bool success = 1;
-  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_success() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
@@ -5926,7 +6870,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel_response::Clear() {
   }
 
   // uint32 trimChannel = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_trimchannel() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
@@ -5935,11 +6879,20 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel_response::Clear() {
   }
 
   // uint32 trimValue = 4;
-  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
     if (this_._internal_trimvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
           4, this_._internal_trimvalue(), target);
+    }
+  }
+
+  // bool trimGain = 5;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+    if (this_._internal_trimgain() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          5, this_._internal_trimgain(), target);
     }
   }
 
@@ -5968,7 +6921,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel_response::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000000fu) != 0) {
+  if ((cached_has_bits & 0x0000001fu) != 0) {
     // string message = 2;
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!this_._internal_message().empty()) {
@@ -5976,21 +6929,27 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel_response::Clear() {
                                         this_._internal_message());
       }
     }
-    // bool success = 1;
-    if ((cached_has_bits & 0x00000002u) != 0) {
-      if (this_._internal_success() != 0) {
-        total_size += 2;
-      }
-    }
     // uint32 trimChannel = 3;
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_trimchannel() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_trimchannel());
       }
     }
-    // uint32 trimValue = 4;
+    // bool success = 1;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_success() != 0) {
+        total_size += 2;
+      }
+    }
+    // bool trimGain = 5;
     if ((cached_has_bits & 0x00000008u) != 0) {
+      if (this_._internal_trimgain() != 0) {
+        total_size += 2;
+      }
+    }
+    // uint32 trimValue = 4;
+    if ((cached_has_bits & 0x00000010u) != 0) {
       if (this_._internal_trimvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_trimvalue());
@@ -6010,7 +6969,7 @@ void cmd_writeTrim_singleChannel_response::MergeImpl(::google::protobuf::Message
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000000fu) != 0) {
+  if ((cached_has_bits & 0x0000001fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!from._internal_message().empty()) {
         _this->_internal_set_message(from._internal_message());
@@ -6021,16 +6980,21 @@ void cmd_writeTrim_singleChannel_response::MergeImpl(::google::protobuf::Message
       }
     }
     if ((cached_has_bits & 0x00000002u) != 0) {
-      if (from._internal_success() != 0) {
-        _this->_impl_.success_ = from._impl_.success_;
-      }
-    }
-    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_trimchannel() != 0) {
         _this->_impl_.trimchannel_ = from._impl_.trimchannel_;
       }
     }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_success() != 0) {
+        _this->_impl_.success_ = from._impl_.success_;
+      }
+    }
     if ((cached_has_bits & 0x00000008u) != 0) {
+      if (from._internal_trimgain() != 0) {
+        _this->_impl_.trimgain_ = from._impl_.trimgain_;
+      }
+    }
+    if ((cached_has_bits & 0x00000010u) != 0) {
       if (from._internal_trimvalue() != 0) {
         _this->_impl_.trimvalue_ = from._impl_.trimvalue_;
       }
@@ -6058,9 +7022,9 @@ void cmd_writeTrim_singleChannel_response::InternalSwap(cmd_writeTrim_singleChan
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.trimvalue_)
       + sizeof(cmd_writeTrim_singleChannel_response::_impl_.trimvalue_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.success_)>(
-          reinterpret_cast<char*>(&_impl_.success_),
-          reinterpret_cast<char*>(&other->_impl_.success_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_.trimchannel_)>(
+          reinterpret_cast<char*>(&_impl_.trimchannel_),
+          reinterpret_cast<char*>(&other->_impl_.trimchannel_));
 }
 
 ::google::protobuf::Metadata cmd_writeTrim_singleChannel_response::GetMetadata() const {
@@ -6106,9 +7070,9 @@ inline void cmd_writeOFFSET_allChannels::SharedCtor(::_pb::Arena* PROTOBUF_NULLA
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, id_),
            0,
-           offsetof(Impl_, offsetvalue_) -
+           offsetof(Impl_, offsetgain_) -
                offsetof(Impl_, id_) +
-               sizeof(Impl_::offsetvalue_));
+               sizeof(Impl_::offsetgain_));
 }
 cmd_writeOFFSET_allChannels::~cmd_writeOFFSET_allChannels() {
   // @@protoc_insertion_point(destructor:cmd_writeOFFSET_allChannels)
@@ -6164,16 +7128,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeOFFSET_
   return cmd_writeOFFSET_allChannels_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
 cmd_writeOFFSET_allChannels::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeOFFSET_allChannels_class_data_.base(),
@@ -6183,12 +7147,16 @@ cmd_writeOFFSET_allChannels::_table_ = {
     ::_pbi::TcParser::GetTable<::cmd_writeOFFSET_allChannels>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 offsetValue = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allChannels, _impl_.offsetvalue_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels, _impl_.offsetvalue_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // int32 id = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allChannels, _impl_.id_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels, _impl_.id_)}},
+    // uint32 offsetValue = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allChannels, _impl_.offsetvalue_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels, _impl_.offsetvalue_)}},
+    // bool offsetGain = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_allChannels, _impl_.offsetgain_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels, _impl_.offsetgain_)}},
   }}, {{
     65535, 65535
   }}, {{
@@ -6198,6 +7166,9 @@ cmd_writeOFFSET_allChannels::_table_ = {
     // uint32 offsetValue = 2;
     {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels, _impl_.offsetvalue_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool offsetGain = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels, _impl_.offsetgain_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -6211,10 +7182,10 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     ::memset(&_impl_.id_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.offsetvalue_) -
-        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.offsetvalue_));
+        reinterpret_cast<char*>(&_impl_.offsetgain_) -
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.offsetgain_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -6253,6 +7224,15 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels::Clear() {
     }
   }
 
+  // bool offsetGain = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (this_._internal_offsetgain() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          3, this_._internal_offsetgain(), target);
+    }
+  }
+
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -6278,7 +7258,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (this_._internal_id() != 0) {
@@ -6291,6 +7271,12 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels::Clear() {
       if (this_._internal_offsetvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_offsetvalue());
+      }
+    }
+    // bool offsetGain = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_offsetgain() != 0) {
+        total_size += 2;
       }
     }
   }
@@ -6307,7 +7293,7 @@ void cmd_writeOFFSET_allChannels::MergeImpl(::google::protobuf::MessageLite& to_
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (from._internal_id() != 0) {
         _this->_impl_.id_ = from._impl_.id_;
@@ -6316,6 +7302,11 @@ void cmd_writeOFFSET_allChannels::MergeImpl(::google::protobuf::MessageLite& to_
     if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_offsetvalue() != 0) {
         _this->_impl_.offsetvalue_ = from._impl_.offsetvalue_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_offsetgain() != 0) {
+        _this->_impl_.offsetgain_ = from._impl_.offsetgain_;
       }
     }
   }
@@ -6336,8 +7327,8 @@ void cmd_writeOFFSET_allChannels::InternalSwap(cmd_writeOFFSET_allChannels* PROT
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels, _impl_.offsetvalue_)
-      + sizeof(cmd_writeOFFSET_allChannels::_impl_.offsetvalue_)
+      PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels, _impl_.offsetgain_)
+      + sizeof(cmd_writeOFFSET_allChannels::_impl_.offsetgain_)
       - PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels, _impl_.id_)>(
           reinterpret_cast<char*>(&_impl_.id_),
           reinterpret_cast<char*>(&other->_impl_.id_));
@@ -6466,16 +7457,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeOFFSET_
   return cmd_writeOFFSET_allChannels_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 52, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 52, 2>
 cmd_writeOFFSET_allChannels_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels_response, _impl_._has_bits_),
     0, // no _extensions_
-    3, 24,  // max_field_number, fast_idx_mask
+    4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967288,  // skipmap
+    4294967280,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    3,  // num_field_entries
+    4,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeOFFSET_allChannels_response_class_data_.base(),
@@ -6485,7 +7476,9 @@ cmd_writeOFFSET_allChannels_response::_table_ = {
     ::_pbi::TcParser::GetTable<::cmd_writeOFFSET_allChannels_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
+    // bool offsetGain = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_allChannels_response, _impl_.offsetgain_), 2>(),
+     {32, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels_response, _impl_.offsetgain_)}},
     // bool success = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_allChannels_response, _impl_.success_), 1>(),
      {8, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels_response, _impl_.success_)}},
@@ -6493,8 +7486,8 @@ cmd_writeOFFSET_allChannels_response::_table_ = {
     {::_pbi::TcParser::FastUS1,
      {18, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels_response, _impl_.message_)}},
     // uint32 offsetValue = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allChannels_response, _impl_.offsetvalue_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels_response, _impl_.offsetvalue_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allChannels_response, _impl_.offsetvalue_), 3>(),
+     {24, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels_response, _impl_.offsetvalue_)}},
   }}, {{
     65535, 65535
   }}, {{
@@ -6505,8 +7498,11 @@ cmd_writeOFFSET_allChannels_response::_table_ = {
     {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels_response, _impl_.message_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
     // uint32 offsetValue = 3;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels_response, _impl_.offsetvalue_), _Internal::kHasBitsOffset + 2, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels_response, _impl_.offsetvalue_), _Internal::kHasBitsOffset + 3, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool offsetGain = 4;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels_response, _impl_.offsetgain_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -6526,7 +7522,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels_response::Clear() {
   if ((cached_has_bits & 0x00000001u) != 0) {
     _impl_.message_.ClearNonDefaultToEmpty();
   }
-  if ((cached_has_bits & 0x00000006u) != 0) {
+  if ((cached_has_bits & 0x0000000eu) != 0) {
     ::memset(&_impl_.success_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.offsetvalue_) -
         reinterpret_cast<char*>(&_impl_.success_)) + sizeof(_impl_.offsetvalue_));
@@ -6570,11 +7566,20 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels_response::Clear() {
   }
 
   // uint32 offsetValue = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
     if (this_._internal_offsetvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
           3, this_._internal_offsetvalue(), target);
+    }
+  }
+
+  // bool offsetGain = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (this_._internal_offsetgain() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          4, this_._internal_offsetgain(), target);
     }
   }
 
@@ -6603,7 +7608,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels_response::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     // string message = 2;
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!this_._internal_message().empty()) {
@@ -6617,8 +7622,14 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels_response::Clear() {
         total_size += 2;
       }
     }
-    // uint32 offsetValue = 3;
+    // bool offsetGain = 4;
     if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_offsetgain() != 0) {
+        total_size += 2;
+      }
+    }
+    // uint32 offsetValue = 3;
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (this_._internal_offsetvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_offsetvalue());
@@ -6638,7 +7649,7 @@ void cmd_writeOFFSET_allChannels_response::MergeImpl(::google::protobuf::Message
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!from._internal_message().empty()) {
         _this->_internal_set_message(from._internal_message());
@@ -6654,6 +7665,11 @@ void cmd_writeOFFSET_allChannels_response::MergeImpl(::google::protobuf::Message
       }
     }
     if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_offsetgain() != 0) {
+        _this->_impl_.offsetgain_ = from._impl_.offsetgain_;
+      }
+    }
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (from._internal_offsetvalue() != 0) {
         _this->_impl_.offsetvalue_ = from._impl_.offsetvalue_;
       }
@@ -6729,9 +7745,9 @@ inline void cmd_writeOFFSET_allAFE::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE a
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, afeblock_),
            0,
-           offsetof(Impl_, offsetvalue_) -
+           offsetof(Impl_, offsetgain_) -
                offsetof(Impl_, afeblock_) +
-               sizeof(Impl_::offsetvalue_));
+               sizeof(Impl_::offsetgain_));
 }
 cmd_writeOFFSET_allAFE::~cmd_writeOFFSET_allAFE() {
   // @@protoc_insertion_point(destructor:cmd_writeOFFSET_allAFE)
@@ -6787,16 +7803,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeOFFSET_
   return cmd_writeOFFSET_allAFE_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
 cmd_writeOFFSET_allAFE::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeOFFSET_allAFE_class_data_.base(),
@@ -6806,12 +7822,16 @@ cmd_writeOFFSET_allAFE::_table_ = {
     ::_pbi::TcParser::GetTable<::cmd_writeOFFSET_allAFE>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 offsetValue = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allAFE, _impl_.offsetvalue_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetvalue_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // uint32 afeBlock = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allAFE, _impl_.afeblock_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.afeblock_)}},
+    // uint32 offsetValue = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allAFE, _impl_.offsetvalue_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetvalue_)}},
+    // bool offsetGain = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_allAFE, _impl_.offsetgain_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetgain_)}},
   }}, {{
     65535, 65535
   }}, {{
@@ -6821,6 +7841,9 @@ cmd_writeOFFSET_allAFE::_table_ = {
     // uint32 offsetValue = 2;
     {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetvalue_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool offsetGain = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetgain_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -6834,10 +7857,10 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     ::memset(&_impl_.afeblock_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.offsetvalue_) -
-        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.offsetvalue_));
+        reinterpret_cast<char*>(&_impl_.offsetgain_) -
+        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.offsetgain_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -6876,6 +7899,15 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE::Clear() {
     }
   }
 
+  // bool offsetGain = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (this_._internal_offsetgain() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          3, this_._internal_offsetgain(), target);
+    }
+  }
+
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -6901,7 +7933,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     // uint32 afeBlock = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (this_._internal_afeblock() != 0) {
@@ -6914,6 +7946,12 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE::Clear() {
       if (this_._internal_offsetvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_offsetvalue());
+      }
+    }
+    // bool offsetGain = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_offsetgain() != 0) {
+        total_size += 2;
       }
     }
   }
@@ -6930,7 +7968,7 @@ void cmd_writeOFFSET_allAFE::MergeImpl(::google::protobuf::MessageLite& to_msg, 
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (from._internal_afeblock() != 0) {
         _this->_impl_.afeblock_ = from._impl_.afeblock_;
@@ -6939,6 +7977,11 @@ void cmd_writeOFFSET_allAFE::MergeImpl(::google::protobuf::MessageLite& to_msg, 
     if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_offsetvalue() != 0) {
         _this->_impl_.offsetvalue_ = from._impl_.offsetvalue_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_offsetgain() != 0) {
+        _this->_impl_.offsetgain_ = from._impl_.offsetgain_;
       }
     }
   }
@@ -6959,8 +8002,8 @@ void cmd_writeOFFSET_allAFE::InternalSwap(cmd_writeOFFSET_allAFE* PROTOBUF_RESTR
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetvalue_)
-      + sizeof(cmd_writeOFFSET_allAFE::_impl_.offsetvalue_)
+      PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetgain_)
+      + sizeof(cmd_writeOFFSET_allAFE::_impl_.offsetgain_)
       - PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.afeblock_)>(
           reinterpret_cast<char*>(&_impl_.afeblock_),
           reinterpret_cast<char*>(&other->_impl_.afeblock_));
@@ -7010,11 +8053,11 @@ cmd_writeOFFSET_allAFE_response::cmd_writeOFFSET_allAFE_response(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::memcpy(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, afeblock_),
            reinterpret_cast<const char *>(&from._impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, afeblock_),
            offsetof(Impl_, offsetvalue_) -
-               offsetof(Impl_, success_) +
+               offsetof(Impl_, afeblock_) +
                sizeof(Impl_::offsetvalue_));
 
   // @@protoc_insertion_point(copy_constructor:cmd_writeOFFSET_allAFE_response)
@@ -7028,10 +8071,10 @@ PROTOBUF_NDEBUG_INLINE cmd_writeOFFSET_allAFE_response::Impl_::Impl_(
 inline void cmd_writeOFFSET_allAFE_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, afeblock_),
            0,
            offsetof(Impl_, offsetvalue_) -
-               offsetof(Impl_, success_) +
+               offsetof(Impl_, afeblock_) +
                sizeof(Impl_::offsetvalue_));
 }
 cmd_writeOFFSET_allAFE_response::~cmd_writeOFFSET_allAFE_response() {
@@ -7089,16 +8132,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeOFFSET_
   return cmd_writeOFFSET_allAFE_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 47, 2>
+const ::_pbi::TcParseTable<3, 5, 0, 47, 2>
 cmd_writeOFFSET_allAFE_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_._has_bits_),
     0, // no _extensions_
-    4, 24,  // max_field_number, fast_idx_mask
+    5, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967280,  // skipmap
+    4294967264,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    4,  // num_field_entries
+    5,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeOFFSET_allAFE_response_class_data_.base(),
@@ -7108,33 +8151,42 @@ cmd_writeOFFSET_allAFE_response::_table_ = {
     ::_pbi::TcParser::GetTable<::cmd_writeOFFSET_allAFE_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 offsetValue = 4;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allAFE_response, _impl_.offsetvalue_), 3>(),
-     {32, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.offsetvalue_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // bool success = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_allAFE_response, _impl_.success_), 1>(),
-     {8, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.success_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_allAFE_response, _impl_.success_), 2>(),
+     {8, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.success_)}},
     // string message = 2;
     {::_pbi::TcParser::FastUS1,
      {18, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.message_)}},
     // uint32 afeBlock = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allAFE_response, _impl_.afeblock_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.afeblock_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allAFE_response, _impl_.afeblock_), 1>(),
+     {24, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.afeblock_)}},
+    // uint32 offsetValue = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allAFE_response, _impl_.offsetvalue_), 4>(),
+     {32, 4, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.offsetvalue_)}},
+    // bool offsetGain = 5;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_allAFE_response, _impl_.offsetgain_), 3>(),
+     {40, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.offsetgain_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
     // bool success = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.success_), _Internal::kHasBitsOffset + 1, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.success_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
     // string message = 2;
     {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.message_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
     // uint32 afeBlock = 3;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.afeblock_), _Internal::kHasBitsOffset + 2, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
     // uint32 offsetValue = 4;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.offsetvalue_), _Internal::kHasBitsOffset + 3, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.offsetvalue_), _Internal::kHasBitsOffset + 4, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool offsetGain = 5;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.offsetgain_), _Internal::kHasBitsOffset + 3, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -7154,10 +8206,10 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE_response::Clear() {
   if ((cached_has_bits & 0x00000001u) != 0) {
     _impl_.message_.ClearNonDefaultToEmpty();
   }
-  if ((cached_has_bits & 0x0000000eu) != 0) {
-    ::memset(&_impl_.success_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x0000001eu) != 0) {
+    ::memset(&_impl_.afeblock_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.offsetvalue_) -
-        reinterpret_cast<char*>(&_impl_.success_)) + sizeof(_impl_.offsetvalue_));
+        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.offsetvalue_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -7179,7 +8231,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE_response::Clear() {
   (void)cached_has_bits;
 
   // bool success = 1;
-  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_success() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
@@ -7198,7 +8250,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE_response::Clear() {
   }
 
   // uint32 afeBlock = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_afeblock() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
@@ -7207,11 +8259,20 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE_response::Clear() {
   }
 
   // uint32 offsetValue = 4;
-  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
     if (this_._internal_offsetvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
           4, this_._internal_offsetvalue(), target);
+    }
+  }
+
+  // bool offsetGain = 5;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+    if (this_._internal_offsetgain() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          5, this_._internal_offsetgain(), target);
     }
   }
 
@@ -7240,7 +8301,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE_response::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000000fu) != 0) {
+  if ((cached_has_bits & 0x0000001fu) != 0) {
     // string message = 2;
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!this_._internal_message().empty()) {
@@ -7248,21 +8309,27 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE_response::Clear() {
                                         this_._internal_message());
       }
     }
-    // bool success = 1;
-    if ((cached_has_bits & 0x00000002u) != 0) {
-      if (this_._internal_success() != 0) {
-        total_size += 2;
-      }
-    }
     // uint32 afeBlock = 3;
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
       }
     }
-    // uint32 offsetValue = 4;
+    // bool success = 1;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_success() != 0) {
+        total_size += 2;
+      }
+    }
+    // bool offsetGain = 5;
     if ((cached_has_bits & 0x00000008u) != 0) {
+      if (this_._internal_offsetgain() != 0) {
+        total_size += 2;
+      }
+    }
+    // uint32 offsetValue = 4;
+    if ((cached_has_bits & 0x00000010u) != 0) {
       if (this_._internal_offsetvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_offsetvalue());
@@ -7282,7 +8349,7 @@ void cmd_writeOFFSET_allAFE_response::MergeImpl(::google::protobuf::MessageLite&
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000000fu) != 0) {
+  if ((cached_has_bits & 0x0000001fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!from._internal_message().empty()) {
         _this->_internal_set_message(from._internal_message());
@@ -7293,16 +8360,21 @@ void cmd_writeOFFSET_allAFE_response::MergeImpl(::google::protobuf::MessageLite&
       }
     }
     if ((cached_has_bits & 0x00000002u) != 0) {
-      if (from._internal_success() != 0) {
-        _this->_impl_.success_ = from._impl_.success_;
-      }
-    }
-    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_afeblock() != 0) {
         _this->_impl_.afeblock_ = from._impl_.afeblock_;
       }
     }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_success() != 0) {
+        _this->_impl_.success_ = from._impl_.success_;
+      }
+    }
     if ((cached_has_bits & 0x00000008u) != 0) {
+      if (from._internal_offsetgain() != 0) {
+        _this->_impl_.offsetgain_ = from._impl_.offsetgain_;
+      }
+    }
+    if ((cached_has_bits & 0x00000010u) != 0) {
       if (from._internal_offsetvalue() != 0) {
         _this->_impl_.offsetvalue_ = from._impl_.offsetvalue_;
       }
@@ -7330,9 +8402,9 @@ void cmd_writeOFFSET_allAFE_response::InternalSwap(cmd_writeOFFSET_allAFE_respon
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.offsetvalue_)
       + sizeof(cmd_writeOFFSET_allAFE_response::_impl_.offsetvalue_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.success_)>(
-          reinterpret_cast<char*>(&_impl_.success_),
-          reinterpret_cast<char*>(&other->_impl_.success_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_.afeblock_)>(
+          reinterpret_cast<char*>(&_impl_.afeblock_),
+          reinterpret_cast<char*>(&other->_impl_.afeblock_));
 }
 
 ::google::protobuf::Metadata cmd_writeOFFSET_allAFE_response::GetMetadata() const {
@@ -7376,11 +8448,11 @@ PROTOBUF_NDEBUG_INLINE cmd_writeOFFSET_singleChannel::Impl_::Impl_(
 inline void cmd_writeOFFSET_singleChannel::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, trimchannel_),
+               offsetof(Impl_, offsetchannel_),
            0,
-           offsetof(Impl_, offsetvalue_) -
-               offsetof(Impl_, trimchannel_) +
-               sizeof(Impl_::offsetvalue_));
+           offsetof(Impl_, offsetgain_) -
+               offsetof(Impl_, offsetchannel_) +
+               sizeof(Impl_::offsetgain_));
 }
 cmd_writeOFFSET_singleChannel::~cmd_writeOFFSET_singleChannel() {
   // @@protoc_insertion_point(destructor:cmd_writeOFFSET_singleChannel)
@@ -7436,16 +8508,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeOFFSET_
   return cmd_writeOFFSET_singleChannel_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
 cmd_writeOFFSET_singleChannel::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeOFFSET_singleChannel_class_data_.base(),
@@ -7455,21 +8527,28 @@ cmd_writeOFFSET_singleChannel::_table_ = {
     ::_pbi::TcParser::GetTable<::cmd_writeOFFSET_singleChannel>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+    // uint32 offsetChannel = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_)}},
     // uint32 offsetValue = 2;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_singleChannel, _impl_.offsetvalue_), 1>(),
      {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetvalue_)}},
-    // uint32 trimChannel = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_singleChannel, _impl_.trimchannel_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.trimchannel_)}},
+    // bool offsetGain = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_singleChannel, _impl_.offsetgain_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetgain_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 trimChannel = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.trimchannel_), _Internal::kHasBitsOffset + 0, 0,
+    // uint32 offsetChannel = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
     // uint32 offsetValue = 2;
     {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetvalue_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool offsetGain = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetgain_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -7483,10 +8562,10 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    ::memset(&_impl_.trimchannel_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.offsetvalue_) -
-        reinterpret_cast<char*>(&_impl_.trimchannel_)) + sizeof(_impl_.offsetvalue_));
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    ::memset(&_impl_.offsetchannel_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.offsetgain_) -
+        reinterpret_cast<char*>(&_impl_.offsetchannel_)) + sizeof(_impl_.offsetgain_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -7507,12 +8586,12 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel::Clear() {
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 trimChannel = 1;
+  // uint32 offsetChannel = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
-    if (this_._internal_trimchannel() != 0) {
+    if (this_._internal_offsetchannel() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_trimchannel(), target);
+          1, this_._internal_offsetchannel(), target);
     }
   }
 
@@ -7522,6 +8601,15 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel::Clear() {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
           2, this_._internal_offsetvalue(), target);
+    }
+  }
+
+  // bool offsetGain = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (this_._internal_offsetgain() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          3, this_._internal_offsetgain(), target);
     }
   }
 
@@ -7550,12 +8638,12 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    // uint32 trimChannel = 1;
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    // uint32 offsetChannel = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
-      if (this_._internal_trimchannel() != 0) {
+      if (this_._internal_offsetchannel() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
-            this_._internal_trimchannel());
+            this_._internal_offsetchannel());
       }
     }
     // uint32 offsetValue = 2;
@@ -7563,6 +8651,12 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel::Clear() {
       if (this_._internal_offsetvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_offsetvalue());
+      }
+    }
+    // bool offsetGain = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_offsetgain() != 0) {
+        total_size += 2;
       }
     }
   }
@@ -7579,15 +8673,20 @@ void cmd_writeOFFSET_singleChannel::MergeImpl(::google::protobuf::MessageLite& t
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
-      if (from._internal_trimchannel() != 0) {
-        _this->_impl_.trimchannel_ = from._impl_.trimchannel_;
+      if (from._internal_offsetchannel() != 0) {
+        _this->_impl_.offsetchannel_ = from._impl_.offsetchannel_;
       }
     }
     if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_offsetvalue() != 0) {
         _this->_impl_.offsetvalue_ = from._impl_.offsetvalue_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_offsetgain() != 0) {
+        _this->_impl_.offsetgain_ = from._impl_.offsetgain_;
       }
     }
   }
@@ -7608,11 +8707,11 @@ void cmd_writeOFFSET_singleChannel::InternalSwap(cmd_writeOFFSET_singleChannel* 
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetvalue_)
-      + sizeof(cmd_writeOFFSET_singleChannel::_impl_.offsetvalue_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.trimchannel_)>(
-          reinterpret_cast<char*>(&_impl_.trimchannel_),
-          reinterpret_cast<char*>(&other->_impl_.trimchannel_));
+      PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetgain_)
+      + sizeof(cmd_writeOFFSET_singleChannel::_impl_.offsetgain_)
+      - PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_)>(
+          reinterpret_cast<char*>(&_impl_.offsetchannel_),
+          reinterpret_cast<char*>(&other->_impl_.offsetchannel_));
 }
 
 ::google::protobuf::Metadata cmd_writeOFFSET_singleChannel::GetMetadata() const {
@@ -7659,11 +8758,11 @@ cmd_writeOFFSET_singleChannel_response::cmd_writeOFFSET_singleChannel_response(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::memcpy(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, offsetchannel_),
            reinterpret_cast<const char *>(&from._impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, offsetchannel_),
            offsetof(Impl_, offsetvalue_) -
-               offsetof(Impl_, success_) +
+               offsetof(Impl_, offsetchannel_) +
                sizeof(Impl_::offsetvalue_));
 
   // @@protoc_insertion_point(copy_constructor:cmd_writeOFFSET_singleChannel_response)
@@ -7677,10 +8776,10 @@ PROTOBUF_NDEBUG_INLINE cmd_writeOFFSET_singleChannel_response::Impl_::Impl_(
 inline void cmd_writeOFFSET_singleChannel_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, offsetchannel_),
            0,
            offsetof(Impl_, offsetvalue_) -
-               offsetof(Impl_, success_) +
+               offsetof(Impl_, offsetchannel_) +
                sizeof(Impl_::offsetvalue_));
 }
 cmd_writeOFFSET_singleChannel_response::~cmd_writeOFFSET_singleChannel_response() {
@@ -7738,16 +8837,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeOFFSET_
   return cmd_writeOFFSET_singleChannel_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 54, 2>
+const ::_pbi::TcParseTable<3, 5, 0, 54, 2>
 cmd_writeOFFSET_singleChannel_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_._has_bits_),
     0, // no _extensions_
-    4, 24,  // max_field_number, fast_idx_mask
+    5, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967280,  // skipmap
+    4294967264,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    4,  // num_field_entries
+    5,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeOFFSET_singleChannel_response_class_data_.base(),
@@ -7757,33 +8856,42 @@ cmd_writeOFFSET_singleChannel_response::_table_ = {
     ::_pbi::TcParser::GetTable<::cmd_writeOFFSET_singleChannel_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 offsetValue = 4;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_singleChannel_response, _impl_.offsetvalue_), 3>(),
-     {32, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.offsetvalue_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // bool success = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_singleChannel_response, _impl_.success_), 1>(),
-     {8, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.success_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_singleChannel_response, _impl_.success_), 2>(),
+     {8, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.success_)}},
     // string message = 2;
     {::_pbi::TcParser::FastUS1,
      {18, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.message_)}},
-    // uint32 trimChannel = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_singleChannel_response, _impl_.trimchannel_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.trimchannel_)}},
+    // uint32 offsetChannel = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_singleChannel_response, _impl_.offsetchannel_), 1>(),
+     {24, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.offsetchannel_)}},
+    // uint32 offsetValue = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_singleChannel_response, _impl_.offsetvalue_), 4>(),
+     {32, 4, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.offsetvalue_)}},
+    // bool offsetGain = 5;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_singleChannel_response, _impl_.offsetgain_), 3>(),
+     {40, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.offsetgain_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
     // bool success = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.success_), _Internal::kHasBitsOffset + 1, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.success_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
     // string message = 2;
     {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.message_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
-    // uint32 trimChannel = 3;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.trimchannel_), _Internal::kHasBitsOffset + 2, 0,
+    // uint32 offsetChannel = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.offsetchannel_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
     // uint32 offsetValue = 4;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.offsetvalue_), _Internal::kHasBitsOffset + 3, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.offsetvalue_), _Internal::kHasBitsOffset + 4, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool offsetGain = 5;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.offsetgain_), _Internal::kHasBitsOffset + 3, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -7803,10 +8911,10 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel_response::Clear() {
   if ((cached_has_bits & 0x00000001u) != 0) {
     _impl_.message_.ClearNonDefaultToEmpty();
   }
-  if ((cached_has_bits & 0x0000000eu) != 0) {
-    ::memset(&_impl_.success_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x0000001eu) != 0) {
+    ::memset(&_impl_.offsetchannel_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.offsetvalue_) -
-        reinterpret_cast<char*>(&_impl_.success_)) + sizeof(_impl_.offsetvalue_));
+        reinterpret_cast<char*>(&_impl_.offsetchannel_)) + sizeof(_impl_.offsetvalue_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -7828,7 +8936,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel_response::Clear() {
   (void)cached_has_bits;
 
   // bool success = 1;
-  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_success() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
@@ -7846,21 +8954,30 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel_response::Clear() {
     }
   }
 
-  // uint32 trimChannel = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
-    if (this_._internal_trimchannel() != 0) {
+  // uint32 offsetChannel = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_offsetchannel() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          3, this_._internal_trimchannel(), target);
+          3, this_._internal_offsetchannel(), target);
     }
   }
 
   // uint32 offsetValue = 4;
-  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
     if (this_._internal_offsetvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
           4, this_._internal_offsetvalue(), target);
+    }
+  }
+
+  // bool offsetGain = 5;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+    if (this_._internal_offsetgain() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          5, this_._internal_offsetgain(), target);
     }
   }
 
@@ -7889,7 +9006,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel_response::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000000fu) != 0) {
+  if ((cached_has_bits & 0x0000001fu) != 0) {
     // string message = 2;
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!this_._internal_message().empty()) {
@@ -7897,21 +9014,27 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel_response::Clear() {
                                         this_._internal_message());
       }
     }
-    // bool success = 1;
+    // uint32 offsetChannel = 3;
     if ((cached_has_bits & 0x00000002u) != 0) {
+      if (this_._internal_offsetchannel() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_offsetchannel());
+      }
+    }
+    // bool success = 1;
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (this_._internal_success() != 0) {
         total_size += 2;
       }
     }
-    // uint32 trimChannel = 3;
-    if ((cached_has_bits & 0x00000004u) != 0) {
-      if (this_._internal_trimchannel() != 0) {
-        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
-            this_._internal_trimchannel());
+    // bool offsetGain = 5;
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (this_._internal_offsetgain() != 0) {
+        total_size += 2;
       }
     }
     // uint32 offsetValue = 4;
-    if ((cached_has_bits & 0x00000008u) != 0) {
+    if ((cached_has_bits & 0x00000010u) != 0) {
       if (this_._internal_offsetvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_offsetvalue());
@@ -7931,7 +9054,7 @@ void cmd_writeOFFSET_singleChannel_response::MergeImpl(::google::protobuf::Messa
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000000fu) != 0) {
+  if ((cached_has_bits & 0x0000001fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!from._internal_message().empty()) {
         _this->_internal_set_message(from._internal_message());
@@ -7942,16 +9065,21 @@ void cmd_writeOFFSET_singleChannel_response::MergeImpl(::google::protobuf::Messa
       }
     }
     if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_offsetchannel() != 0) {
+        _this->_impl_.offsetchannel_ = from._impl_.offsetchannel_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_success() != 0) {
         _this->_impl_.success_ = from._impl_.success_;
       }
     }
-    if ((cached_has_bits & 0x00000004u) != 0) {
-      if (from._internal_trimchannel() != 0) {
-        _this->_impl_.trimchannel_ = from._impl_.trimchannel_;
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (from._internal_offsetgain() != 0) {
+        _this->_impl_.offsetgain_ = from._impl_.offsetgain_;
       }
     }
-    if ((cached_has_bits & 0x00000008u) != 0) {
+    if ((cached_has_bits & 0x00000010u) != 0) {
       if (from._internal_offsetvalue() != 0) {
         _this->_impl_.offsetvalue_ = from._impl_.offsetvalue_;
       }
@@ -7979,9 +9107,9 @@ void cmd_writeOFFSET_singleChannel_response::InternalSwap(cmd_writeOFFSET_single
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.offsetvalue_)
       + sizeof(cmd_writeOFFSET_singleChannel_response::_impl_.offsetvalue_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.success_)>(
-          reinterpret_cast<char*>(&_impl_.success_),
-          reinterpret_cast<char*>(&other->_impl_.success_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_.offsetchannel_)>(
+          reinterpret_cast<char*>(&_impl_.offsetchannel_),
+          reinterpret_cast<char*>(&other->_impl_.offsetchannel_));
 }
 
 ::google::protobuf::Metadata cmd_writeOFFSET_singleChannel_response::GetMetadata() const {

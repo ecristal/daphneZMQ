@@ -43,6 +43,19 @@ public:
     uint32_t setBestDelay(const uint32_t& afe, const size_t& delayTaps = 512);
     uint32_t setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps = 16);
     double calcInputVoltage(const double& value, const double& vGain_mV);
+    
+    void setAfeRegDictValue(const uint32_t& afe, const uint32_t &regAddr, const uint32_t &regValue);
+    uint32_t getAfeRegDictValue(const uint32_t& afe, const uint32_t &regAddr);
+    void setAfeAttenuationDictValue(const uint32_t& afe, const uint32_t &attenuation);
+    uint32_t getAfeAttenuationDictValue(const uint32_t& afe);
+    void setChOffsetDictValue(const uint32_t &ch, const uint32_t &offset);
+    uint32_t getChOffsetDictValue(const uint32_t &ch);
+    void setChTrimDictValue(const uint32_t &ch, const uint32_t &trim);
+    uint32_t getChTrimDictValue(const uint32_t &ch);
+    void setBiasVoltageDictValue(const uint32_t& afe, const uint32_t& biasVoltage);
+    uint32_t getBiasVoltageDictValue(const uint32_t& afe);
+    void setBiasControlDictValue(const uint32_t& biasControl) {this->biasControlSetting = biasControl;}
+    uint32_t getBiasControlDictValue() {return this->biasControlSetting;}
 
 private:
     std::unique_ptr<Afe> afe;
@@ -55,8 +68,16 @@ private:
         {"GAIN" ,{36.45, 33.91, 30.78, 27.39, 23.74, 20.69, 17.11, 13.54, 10.27, 6.48, 3.16, -0.35, -2.48, -3.58, -4.01, -4}}
     };
 
+    std::vector<std::unordered_map<uint32_t, uint32_t>> afeRegDictSetting;
+    std::unordered_map<uint32_t, uint32_t> afeAttenuationDictSetting;
+    std::unordered_map<uint32_t, uint32_t> chOffsetDictSetting;
+    std::unordered_map<uint32_t, uint32_t> chTrimDictSetting;
+    std::unordered_map<uint32_t, uint32_t> biasVoltageSetting;
+    uint32_t biasControlSetting;
+
     template <typename T>
     int findIndex(const std::vector<T>& data, const T& target);
+    void initRegDictHistory();
 };
 
 #endif // DAPHNE_HPP

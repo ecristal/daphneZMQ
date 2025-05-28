@@ -153,12 +153,12 @@ enum MessageType {
   CONFIGURE_CLKS = 1; //to be implemented
   CONFIGURE_FE = 2; // implemented but needs testing
   //Legacy DAPHNE V2 commands
-  WRITE_AFE_REG = 3; // to be implemented
-  WRITE_AFE_VGAIN = 4; // to be implemented
-  WRITE_AFE_BIAS_SET = 5; // to be implemented
+  WRITE_AFE_REG = 3; // implemented 
+  WRITE_AFE_VGAIN = 4; // implemented 
+  WRITE_AFE_BIAS_SET = 5; // implemented 
   WRITE_TRIM_ALL_CH = 6; // to be implemented
   WRITE_TRIM_ALL_AFE = 7; // to be implemented
-  WRITE_TRIM_CH = 8; // to be implemented
+  WRITE_TRIM_CH = 8; // implemented 
   WRITE_OFFSET_ALL_CH = 9; // to be implemented
   WRITE_OFFSET_ALL_AFE = 10; // to be implemented
   WRITE_OFFSET_CH = 11; // to be implemented
@@ -177,6 +177,8 @@ enum MessageType {
   READ_BIAS_VOLTAGE_MONITOR = 24; // to be implemented
   SET_AFE_RESET = 25; // to be implemented
   SET_AFE_POWERDOWN = 26; // to be implemented
+  // DAPHNE V3 low-level commands
+  WRITE_AFE_ATTENUATION = 27; // to be implemented
 }
 
 message ControlEnvelope {

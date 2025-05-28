@@ -33,41 +33,15 @@ public:
     uint32_t getRegister(const uint32_t& afe, const uint32_t& register_);
     uint32_t initAFE(const uint32_t& afe, const std::unordered_map<uint32_t, uint32_t> &regDict);
     uint32_t setAFEFunction(const uint32_t& afe, const std::string& functionName, const uint16_t& value);
+    uint32_t getAFEFunction(const uint32_t& afe, const std::string& functionName);
+    void updateAfeRegDict(const uint32_t& afe, std::unordered_map<uint32_t, uint32_t> &dict, const std::string& functionName);
+    uint32_t getAFEFunctionValueFromRegDict(const uint32_t& afe, std::unordered_map<uint32_t, uint32_t> &dict, const std::string& functionName);
+    void setRegisterList(const std::vector<uint32_t> reg_list) {this->register_list = reg_list;}
 
 private:
     std::unique_ptr<Spi> spi;
-
-    // {REGISTER_ADDR, REGISTER_VALUE}
-    std::unordered_map<uint32_t, uint32_t> afeRegDict = {
-        {0, 0},
-        {1, 0},
-        {2, 0},
-        {3, 0},
-        {4, 0},
-        {5, 0},
-        {10, 0},
-        {13, 0},
-        {15, 0},
-        {17, 0},
-        {19, 0},
-        {21, 0},
-        {25, 0},
-        {27, 0},
-        {29, 0},
-        {31, 0},
-        {33, 0},
-        {50, 0},
-        {51, 0},
-        {52, 0},
-        {53, 0},
-        {54, 0},
-        {55, 0},
-        {56, 0},
-        {57, 0},
-        {59, 0},
-        {66, 0}
-    };
     
+    std::vector<uint32_t> register_list;
     // {FUNCTION_NAME, {REGISTER_ADDR, {BITH, BITL}}}
     std::unordered_map<std::string, Afe::BitField> afeFunctionDict = { 
         {"SOFTWARE_RESET", {{0, {0, 0}}}},

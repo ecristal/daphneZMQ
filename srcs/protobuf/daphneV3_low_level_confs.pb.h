@@ -165,6 +165,14 @@ class cmd_setAFEReset_response;
 struct cmd_setAFEReset_responseDefaultTypeInternal;
 extern cmd_setAFEReset_responseDefaultTypeInternal _cmd_setAFEReset_response_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull cmd_setAFEReset_response_class_data_;
+class cmd_writeAFEAttenuation;
+struct cmd_writeAFEAttenuationDefaultTypeInternal;
+extern cmd_writeAFEAttenuationDefaultTypeInternal _cmd_writeAFEAttenuation_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEAttenuation_class_data_;
+class cmd_writeAFEAttenuation_response;
+struct cmd_writeAFEAttenuation_responseDefaultTypeInternal;
+extern cmd_writeAFEAttenuation_responseDefaultTypeInternal _cmd_writeAFEAttenuation_response_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEAttenuation_response_class_data_;
 class cmd_writeAFEBiasSet;
 struct cmd_writeAFEBiasSetDefaultTypeInternal;
 extern cmd_writeAFEBiasSetDefaultTypeInternal _cmd_writeAFEBiasSet_default_instance_;
@@ -311,7 +319,7 @@ class cmd_writeVbiasControl_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeVbiasControl_response*>(
         &_cmd_writeVbiasControl_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 19;
+  static constexpr int kIndexInFileMessages = 21;
   friend void swap(cmd_writeVbiasControl_response& a, cmd_writeVbiasControl_response& b) { a.Swap(&b); }
   inline void Swap(cmd_writeVbiasControl_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -531,7 +539,7 @@ class cmd_writeVbiasControl final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeVbiasControl*>(
         &_cmd_writeVbiasControl_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 18;
+  static constexpr int kIndexInFileMessages = 20;
   friend void swap(cmd_writeVbiasControl& a, cmd_writeVbiasControl& b) { a.Swap(&b); }
   inline void Swap(cmd_writeVbiasControl* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -722,7 +730,7 @@ class cmd_writeTrim_singleChannel_response final : public ::google::protobuf::Me
     return *reinterpret_cast<const cmd_writeTrim_singleChannel_response*>(
         &_cmd_writeTrim_singleChannel_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 11;
+  static constexpr int kIndexInFileMessages = 13;
   friend void swap(cmd_writeTrim_singleChannel_response& a, cmd_writeTrim_singleChannel_response& b) { a.Swap(&b); }
   inline void Swap(cmd_writeTrim_singleChannel_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -811,8 +819,9 @@ class cmd_writeTrim_singleChannel_response final : public ::google::protobuf::Me
   // accessors -------------------------------------------------------
   enum : int {
     kMessageFieldNumber = 2,
-    kSuccessFieldNumber = 1,
     kTrimChannelFieldNumber = 3,
+    kSuccessFieldNumber = 1,
+    kTrimGainFieldNumber = 5,
     kTrimValueFieldNumber = 4,
   };
   // string message = 2;
@@ -830,6 +839,16 @@ class cmd_writeTrim_singleChannel_response final : public ::google::protobuf::Me
   std::string* PROTOBUF_NONNULL _internal_mutable_message();
 
   public:
+  // uint32 trimChannel = 3;
+  void clear_trimchannel() ;
+  ::uint32_t trimchannel() const;
+  void set_trimchannel(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_trimchannel() const;
+  void _internal_set_trimchannel(::uint32_t value);
+
+  public:
   // bool success = 1;
   void clear_success() ;
   bool success() const;
@@ -840,14 +859,14 @@ class cmd_writeTrim_singleChannel_response final : public ::google::protobuf::Me
   void _internal_set_success(bool value);
 
   public:
-  // uint32 trimChannel = 3;
-  void clear_trimchannel() ;
-  ::uint32_t trimchannel() const;
-  void set_trimchannel(::uint32_t value);
+  // bool trimGain = 5;
+  void clear_trimgain() ;
+  bool trimgain() const;
+  void set_trimgain(bool value);
 
   private:
-  ::uint32_t _internal_trimchannel() const;
-  void _internal_set_trimchannel(::uint32_t value);
+  bool _internal_trimgain() const;
+  void _internal_set_trimgain(bool value);
 
   public:
   // uint32 trimValue = 4;
@@ -864,7 +883,7 @@ class cmd_writeTrim_singleChannel_response final : public ::google::protobuf::Me
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 4,
+  static const ::google::protobuf::internal::TcParseTable<3, 5,
                                    0, 52,
                                    2>
       _table_;
@@ -887,8 +906,9 @@ class cmd_writeTrim_singleChannel_response final : public ::google::protobuf::Me
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr message_;
-    bool success_;
     ::uint32_t trimchannel_;
+    bool success_;
+    bool trimgain_;
     ::uint32_t trimvalue_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -954,7 +974,7 @@ class cmd_writeTrim_singleChannel final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeTrim_singleChannel*>(
         &_cmd_writeTrim_singleChannel_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 10;
+  static constexpr int kIndexInFileMessages = 12;
   friend void swap(cmd_writeTrim_singleChannel& a, cmd_writeTrim_singleChannel& b) { a.Swap(&b); }
   inline void Swap(cmd_writeTrim_singleChannel* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1044,6 +1064,7 @@ class cmd_writeTrim_singleChannel final : public ::google::protobuf::Message
   enum : int {
     kTrimChannelFieldNumber = 1,
     kTrimValueFieldNumber = 2,
+    kTrimGainFieldNumber = 3,
   };
   // uint32 trimChannel = 1;
   void clear_trimchannel() ;
@@ -1065,11 +1086,21 @@ class cmd_writeTrim_singleChannel final : public ::google::protobuf::Message
   void _internal_set_trimvalue(::uint32_t value);
 
   public:
+  // bool trimGain = 3;
+  void clear_trimgain() ;
+  bool trimgain() const;
+  void set_trimgain(bool value);
+
+  private:
+  bool _internal_trimgain() const;
+  void _internal_set_trimgain(bool value);
+
+  public:
   // @@protoc_insertion_point(class_scope:cmd_writeTrim_singleChannel)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    0, 0,
                                    2>
       _table_;
@@ -1093,6 +1124,7 @@ class cmd_writeTrim_singleChannel final : public ::google::protobuf::Message
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t trimchannel_;
     ::uint32_t trimvalue_;
+    bool trimgain_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1157,7 +1189,7 @@ class cmd_writeTrim_allAFE_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeTrim_allAFE_response*>(
         &_cmd_writeTrim_allAFE_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 9;
+  static constexpr int kIndexInFileMessages = 11;
   friend void swap(cmd_writeTrim_allAFE_response& a, cmd_writeTrim_allAFE_response& b) { a.Swap(&b); }
   inline void Swap(cmd_writeTrim_allAFE_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1246,8 +1278,9 @@ class cmd_writeTrim_allAFE_response final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kMessageFieldNumber = 2,
-    kSuccessFieldNumber = 1,
     kAfeBlockFieldNumber = 3,
+    kSuccessFieldNumber = 1,
+    kTrimGainFieldNumber = 5,
     kTrimValueFieldNumber = 4,
   };
   // string message = 2;
@@ -1265,6 +1298,16 @@ class cmd_writeTrim_allAFE_response final : public ::google::protobuf::Message
   std::string* PROTOBUF_NONNULL _internal_mutable_message();
 
   public:
+  // uint32 afeBlock = 3;
+  void clear_afeblock() ;
+  ::uint32_t afeblock() const;
+  void set_afeblock(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_afeblock() const;
+  void _internal_set_afeblock(::uint32_t value);
+
+  public:
   // bool success = 1;
   void clear_success() ;
   bool success() const;
@@ -1275,14 +1318,14 @@ class cmd_writeTrim_allAFE_response final : public ::google::protobuf::Message
   void _internal_set_success(bool value);
 
   public:
-  // uint32 afeBlock = 3;
-  void clear_afeblock() ;
-  ::uint32_t afeblock() const;
-  void set_afeblock(::uint32_t value);
+  // bool trimGain = 5;
+  void clear_trimgain() ;
+  bool trimgain() const;
+  void set_trimgain(bool value);
 
   private:
-  ::uint32_t _internal_afeblock() const;
-  void _internal_set_afeblock(::uint32_t value);
+  bool _internal_trimgain() const;
+  void _internal_set_trimgain(bool value);
 
   public:
   // uint32 trimValue = 4;
@@ -1299,7 +1342,7 @@ class cmd_writeTrim_allAFE_response final : public ::google::protobuf::Message
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 4,
+  static const ::google::protobuf::internal::TcParseTable<3, 5,
                                    0, 45,
                                    2>
       _table_;
@@ -1322,8 +1365,9 @@ class cmd_writeTrim_allAFE_response final : public ::google::protobuf::Message
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr message_;
-    bool success_;
     ::uint32_t afeblock_;
+    bool success_;
+    bool trimgain_;
     ::uint32_t trimvalue_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1389,7 +1433,7 @@ class cmd_writeTrim_allAFE final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeTrim_allAFE*>(
         &_cmd_writeTrim_allAFE_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 8;
+  static constexpr int kIndexInFileMessages = 10;
   friend void swap(cmd_writeTrim_allAFE& a, cmd_writeTrim_allAFE& b) { a.Swap(&b); }
   inline void Swap(cmd_writeTrim_allAFE* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1479,6 +1523,7 @@ class cmd_writeTrim_allAFE final : public ::google::protobuf::Message
   enum : int {
     kAfeBlockFieldNumber = 1,
     kTrimValueFieldNumber = 2,
+    kTrimGainFieldNumber = 3,
   };
   // uint32 afeBlock = 1;
   void clear_afeblock() ;
@@ -1500,11 +1545,21 @@ class cmd_writeTrim_allAFE final : public ::google::protobuf::Message
   void _internal_set_trimvalue(::uint32_t value);
 
   public:
+  // bool trimGain = 3;
+  void clear_trimgain() ;
+  bool trimgain() const;
+  void set_trimgain(bool value);
+
+  private:
+  bool _internal_trimgain() const;
+  void _internal_set_trimgain(bool value);
+
+  public:
   // @@protoc_insertion_point(class_scope:cmd_writeTrim_allAFE)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    0, 0,
                                    2>
       _table_;
@@ -1528,6 +1583,7 @@ class cmd_writeTrim_allAFE final : public ::google::protobuf::Message
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t afeblock_;
     ::uint32_t trimvalue_;
+    bool trimgain_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1592,7 +1648,7 @@ class cmd_writeTRIM_allChannels_response final : public ::google::protobuf::Mess
     return *reinterpret_cast<const cmd_writeTRIM_allChannels_response*>(
         &_cmd_writeTRIM_allChannels_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 7;
+  static constexpr int kIndexInFileMessages = 9;
   friend void swap(cmd_writeTRIM_allChannels_response& a, cmd_writeTRIM_allChannels_response& b) { a.Swap(&b); }
   inline void Swap(cmd_writeTRIM_allChannels_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1682,6 +1738,7 @@ class cmd_writeTRIM_allChannels_response final : public ::google::protobuf::Mess
   enum : int {
     kMessageFieldNumber = 2,
     kSuccessFieldNumber = 1,
+    kTrimGainFieldNumber = 4,
     kTrimValueFieldNumber = 3,
   };
   // string message = 2;
@@ -1709,6 +1766,16 @@ class cmd_writeTRIM_allChannels_response final : public ::google::protobuf::Mess
   void _internal_set_success(bool value);
 
   public:
+  // bool trimGain = 4;
+  void clear_trimgain() ;
+  bool trimgain() const;
+  void set_trimgain(bool value);
+
+  private:
+  bool _internal_trimgain() const;
+  void _internal_set_trimgain(bool value);
+
+  public:
   // uint32 trimValue = 3;
   void clear_trimvalue() ;
   ::uint32_t trimvalue() const;
@@ -1723,7 +1790,7 @@ class cmd_writeTRIM_allChannels_response final : public ::google::protobuf::Mess
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
+  static const ::google::protobuf::internal::TcParseTable<2, 4,
                                    0, 50,
                                    2>
       _table_;
@@ -1747,6 +1814,7 @@ class cmd_writeTRIM_allChannels_response final : public ::google::protobuf::Mess
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr message_;
     bool success_;
+    bool trimgain_;
     ::uint32_t trimvalue_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1812,7 +1880,7 @@ class cmd_writeTRIM_allChannels final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeTRIM_allChannels*>(
         &_cmd_writeTRIM_allChannels_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 6;
+  static constexpr int kIndexInFileMessages = 8;
   friend void swap(cmd_writeTRIM_allChannels& a, cmd_writeTRIM_allChannels& b) { a.Swap(&b); }
   inline void Swap(cmd_writeTRIM_allChannels* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1901,6 +1969,7 @@ class cmd_writeTRIM_allChannels final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kTrimValueFieldNumber = 1,
+    kTrimGainFieldNumber = 2,
   };
   // uint32 trimValue = 1;
   void clear_trimvalue() ;
@@ -1912,11 +1981,21 @@ class cmd_writeTRIM_allChannels final : public ::google::protobuf::Message
   void _internal_set_trimvalue(::uint32_t value);
 
   public:
+  // bool trimGain = 2;
+  void clear_trimgain() ;
+  bool trimgain() const;
+  void set_trimgain(bool value);
+
+  private:
+  bool _internal_trimgain() const;
+  void _internal_set_trimgain(bool value);
+
+  public:
   // @@protoc_insertion_point(class_scope:cmd_writeTRIM_allChannels)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
                                    0, 0,
                                    2>
       _table_;
@@ -1939,6 +2018,7 @@ class cmd_writeTRIM_allChannels final : public ::google::protobuf::Message
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t trimvalue_;
+    bool trimgain_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -2003,7 +2083,7 @@ class cmd_writeOFFSET_singleChannel_response final : public ::google::protobuf::
     return *reinterpret_cast<const cmd_writeOFFSET_singleChannel_response*>(
         &_cmd_writeOFFSET_singleChannel_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 17;
+  static constexpr int kIndexInFileMessages = 19;
   friend void swap(cmd_writeOFFSET_singleChannel_response& a, cmd_writeOFFSET_singleChannel_response& b) { a.Swap(&b); }
   inline void Swap(cmd_writeOFFSET_singleChannel_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -2092,8 +2172,9 @@ class cmd_writeOFFSET_singleChannel_response final : public ::google::protobuf::
   // accessors -------------------------------------------------------
   enum : int {
     kMessageFieldNumber = 2,
+    kOffsetChannelFieldNumber = 3,
     kSuccessFieldNumber = 1,
-    kTrimChannelFieldNumber = 3,
+    kOffsetGainFieldNumber = 5,
     kOffsetValueFieldNumber = 4,
   };
   // string message = 2;
@@ -2111,6 +2192,16 @@ class cmd_writeOFFSET_singleChannel_response final : public ::google::protobuf::
   std::string* PROTOBUF_NONNULL _internal_mutable_message();
 
   public:
+  // uint32 offsetChannel = 3;
+  void clear_offsetchannel() ;
+  ::uint32_t offsetchannel() const;
+  void set_offsetchannel(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_offsetchannel() const;
+  void _internal_set_offsetchannel(::uint32_t value);
+
+  public:
   // bool success = 1;
   void clear_success() ;
   bool success() const;
@@ -2121,14 +2212,14 @@ class cmd_writeOFFSET_singleChannel_response final : public ::google::protobuf::
   void _internal_set_success(bool value);
 
   public:
-  // uint32 trimChannel = 3;
-  void clear_trimchannel() ;
-  ::uint32_t trimchannel() const;
-  void set_trimchannel(::uint32_t value);
+  // bool offsetGain = 5;
+  void clear_offsetgain() ;
+  bool offsetgain() const;
+  void set_offsetgain(bool value);
 
   private:
-  ::uint32_t _internal_trimchannel() const;
-  void _internal_set_trimchannel(::uint32_t value);
+  bool _internal_offsetgain() const;
+  void _internal_set_offsetgain(bool value);
 
   public:
   // uint32 offsetValue = 4;
@@ -2145,7 +2236,7 @@ class cmd_writeOFFSET_singleChannel_response final : public ::google::protobuf::
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 4,
+  static const ::google::protobuf::internal::TcParseTable<3, 5,
                                    0, 54,
                                    2>
       _table_;
@@ -2168,8 +2259,9 @@ class cmd_writeOFFSET_singleChannel_response final : public ::google::protobuf::
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr message_;
+    ::uint32_t offsetchannel_;
     bool success_;
-    ::uint32_t trimchannel_;
+    bool offsetgain_;
     ::uint32_t offsetvalue_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -2235,7 +2327,7 @@ class cmd_writeOFFSET_singleChannel final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeOFFSET_singleChannel*>(
         &_cmd_writeOFFSET_singleChannel_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 16;
+  static constexpr int kIndexInFileMessages = 18;
   friend void swap(cmd_writeOFFSET_singleChannel& a, cmd_writeOFFSET_singleChannel& b) { a.Swap(&b); }
   inline void Swap(cmd_writeOFFSET_singleChannel* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -2323,17 +2415,18 @@ class cmd_writeOFFSET_singleChannel final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kTrimChannelFieldNumber = 1,
+    kOffsetChannelFieldNumber = 1,
     kOffsetValueFieldNumber = 2,
+    kOffsetGainFieldNumber = 3,
   };
-  // uint32 trimChannel = 1;
-  void clear_trimchannel() ;
-  ::uint32_t trimchannel() const;
-  void set_trimchannel(::uint32_t value);
+  // uint32 offsetChannel = 1;
+  void clear_offsetchannel() ;
+  ::uint32_t offsetchannel() const;
+  void set_offsetchannel(::uint32_t value);
 
   private:
-  ::uint32_t _internal_trimchannel() const;
-  void _internal_set_trimchannel(::uint32_t value);
+  ::uint32_t _internal_offsetchannel() const;
+  void _internal_set_offsetchannel(::uint32_t value);
 
   public:
   // uint32 offsetValue = 2;
@@ -2346,11 +2439,21 @@ class cmd_writeOFFSET_singleChannel final : public ::google::protobuf::Message
   void _internal_set_offsetvalue(::uint32_t value);
 
   public:
+  // bool offsetGain = 3;
+  void clear_offsetgain() ;
+  bool offsetgain() const;
+  void set_offsetgain(bool value);
+
+  private:
+  bool _internal_offsetgain() const;
+  void _internal_set_offsetgain(bool value);
+
+  public:
   // @@protoc_insertion_point(class_scope:cmd_writeOFFSET_singleChannel)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    0, 0,
                                    2>
       _table_;
@@ -2372,8 +2475,9 @@ class cmd_writeOFFSET_singleChannel final : public ::google::protobuf::Message
         const cmd_writeOFFSET_singleChannel& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::uint32_t trimchannel_;
+    ::uint32_t offsetchannel_;
     ::uint32_t offsetvalue_;
+    bool offsetgain_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -2438,7 +2542,7 @@ class cmd_writeOFFSET_allChannels_response final : public ::google::protobuf::Me
     return *reinterpret_cast<const cmd_writeOFFSET_allChannels_response*>(
         &_cmd_writeOFFSET_allChannels_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 13;
+  static constexpr int kIndexInFileMessages = 15;
   friend void swap(cmd_writeOFFSET_allChannels_response& a, cmd_writeOFFSET_allChannels_response& b) { a.Swap(&b); }
   inline void Swap(cmd_writeOFFSET_allChannels_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -2528,6 +2632,7 @@ class cmd_writeOFFSET_allChannels_response final : public ::google::protobuf::Me
   enum : int {
     kMessageFieldNumber = 2,
     kSuccessFieldNumber = 1,
+    kOffsetGainFieldNumber = 4,
     kOffsetValueFieldNumber = 3,
   };
   // string message = 2;
@@ -2555,6 +2660,16 @@ class cmd_writeOFFSET_allChannels_response final : public ::google::protobuf::Me
   void _internal_set_success(bool value);
 
   public:
+  // bool offsetGain = 4;
+  void clear_offsetgain() ;
+  bool offsetgain() const;
+  void set_offsetgain(bool value);
+
+  private:
+  bool _internal_offsetgain() const;
+  void _internal_set_offsetgain(bool value);
+
+  public:
   // uint32 offsetValue = 3;
   void clear_offsetvalue() ;
   ::uint32_t offsetvalue() const;
@@ -2569,7 +2684,7 @@ class cmd_writeOFFSET_allChannels_response final : public ::google::protobuf::Me
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
+  static const ::google::protobuf::internal::TcParseTable<2, 4,
                                    0, 52,
                                    2>
       _table_;
@@ -2593,6 +2708,7 @@ class cmd_writeOFFSET_allChannels_response final : public ::google::protobuf::Me
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr message_;
     bool success_;
+    bool offsetgain_;
     ::uint32_t offsetvalue_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -2658,7 +2774,7 @@ class cmd_writeOFFSET_allChannels final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeOFFSET_allChannels*>(
         &_cmd_writeOFFSET_allChannels_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 12;
+  static constexpr int kIndexInFileMessages = 14;
   friend void swap(cmd_writeOFFSET_allChannels& a, cmd_writeOFFSET_allChannels& b) { a.Swap(&b); }
   inline void Swap(cmd_writeOFFSET_allChannels* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -2748,6 +2864,7 @@ class cmd_writeOFFSET_allChannels final : public ::google::protobuf::Message
   enum : int {
     kIdFieldNumber = 1,
     kOffsetValueFieldNumber = 2,
+    kOffsetGainFieldNumber = 3,
   };
   // int32 id = 1;
   void clear_id() ;
@@ -2769,11 +2886,21 @@ class cmd_writeOFFSET_allChannels final : public ::google::protobuf::Message
   void _internal_set_offsetvalue(::uint32_t value);
 
   public:
+  // bool offsetGain = 3;
+  void clear_offsetgain() ;
+  bool offsetgain() const;
+  void set_offsetgain(bool value);
+
+  private:
+  bool _internal_offsetgain() const;
+  void _internal_set_offsetgain(bool value);
+
+  public:
   // @@protoc_insertion_point(class_scope:cmd_writeOFFSET_allChannels)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    0, 0,
                                    2>
       _table_;
@@ -2797,6 +2924,7 @@ class cmd_writeOFFSET_allChannels final : public ::google::protobuf::Message
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::int32_t id_;
     ::uint32_t offsetvalue_;
+    bool offsetgain_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -2861,7 +2989,7 @@ class cmd_writeOFFSET_allAFE_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeOFFSET_allAFE_response*>(
         &_cmd_writeOFFSET_allAFE_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 15;
+  static constexpr int kIndexInFileMessages = 17;
   friend void swap(cmd_writeOFFSET_allAFE_response& a, cmd_writeOFFSET_allAFE_response& b) { a.Swap(&b); }
   inline void Swap(cmd_writeOFFSET_allAFE_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -2950,8 +3078,9 @@ class cmd_writeOFFSET_allAFE_response final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kMessageFieldNumber = 2,
-    kSuccessFieldNumber = 1,
     kAfeBlockFieldNumber = 3,
+    kSuccessFieldNumber = 1,
+    kOffsetGainFieldNumber = 5,
     kOffsetValueFieldNumber = 4,
   };
   // string message = 2;
@@ -2969,6 +3098,16 @@ class cmd_writeOFFSET_allAFE_response final : public ::google::protobuf::Message
   std::string* PROTOBUF_NONNULL _internal_mutable_message();
 
   public:
+  // uint32 afeBlock = 3;
+  void clear_afeblock() ;
+  ::uint32_t afeblock() const;
+  void set_afeblock(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_afeblock() const;
+  void _internal_set_afeblock(::uint32_t value);
+
+  public:
   // bool success = 1;
   void clear_success() ;
   bool success() const;
@@ -2979,14 +3118,14 @@ class cmd_writeOFFSET_allAFE_response final : public ::google::protobuf::Message
   void _internal_set_success(bool value);
 
   public:
-  // uint32 afeBlock = 3;
-  void clear_afeblock() ;
-  ::uint32_t afeblock() const;
-  void set_afeblock(::uint32_t value);
+  // bool offsetGain = 5;
+  void clear_offsetgain() ;
+  bool offsetgain() const;
+  void set_offsetgain(bool value);
 
   private:
-  ::uint32_t _internal_afeblock() const;
-  void _internal_set_afeblock(::uint32_t value);
+  bool _internal_offsetgain() const;
+  void _internal_set_offsetgain(bool value);
 
   public:
   // uint32 offsetValue = 4;
@@ -3003,7 +3142,7 @@ class cmd_writeOFFSET_allAFE_response final : public ::google::protobuf::Message
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 4,
+  static const ::google::protobuf::internal::TcParseTable<3, 5,
                                    0, 47,
                                    2>
       _table_;
@@ -3026,8 +3165,9 @@ class cmd_writeOFFSET_allAFE_response final : public ::google::protobuf::Message
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr message_;
-    bool success_;
     ::uint32_t afeblock_;
+    bool success_;
+    bool offsetgain_;
     ::uint32_t offsetvalue_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -3093,7 +3233,7 @@ class cmd_writeOFFSET_allAFE final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeOFFSET_allAFE*>(
         &_cmd_writeOFFSET_allAFE_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 14;
+  static constexpr int kIndexInFileMessages = 16;
   friend void swap(cmd_writeOFFSET_allAFE& a, cmd_writeOFFSET_allAFE& b) { a.Swap(&b); }
   inline void Swap(cmd_writeOFFSET_allAFE* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -3183,6 +3323,7 @@ class cmd_writeOFFSET_allAFE final : public ::google::protobuf::Message
   enum : int {
     kAfeBlockFieldNumber = 1,
     kOffsetValueFieldNumber = 2,
+    kOffsetGainFieldNumber = 3,
   };
   // uint32 afeBlock = 1;
   void clear_afeblock() ;
@@ -3204,11 +3345,21 @@ class cmd_writeOFFSET_allAFE final : public ::google::protobuf::Message
   void _internal_set_offsetvalue(::uint32_t value);
 
   public:
+  // bool offsetGain = 3;
+  void clear_offsetgain() ;
+  bool offsetgain() const;
+  void set_offsetgain(bool value);
+
+  private:
+  bool _internal_offsetgain() const;
+  void _internal_set_offsetgain(bool value);
+
+  public:
   // @@protoc_insertion_point(class_scope:cmd_writeOFFSET_allAFE)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    0, 0,
                                    2>
       _table_;
@@ -3232,6 +3383,7 @@ class cmd_writeOFFSET_allAFE final : public ::google::protobuf::Message
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t afeblock_;
     ::uint32_t offsetvalue_;
+    bool offsetgain_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -4190,7 +4342,7 @@ class cmd_writeAFEBiasSet_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeAFEBiasSet_response*>(
         &_cmd_writeAFEBiasSet_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 5;
+  static constexpr int kIndexInFileMessages = 7;
   friend void swap(cmd_writeAFEBiasSet_response& a, cmd_writeAFEBiasSet_response& b) { a.Swap(&b); }
   inline void Swap(cmd_writeAFEBiasSet_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -4422,7 +4574,7 @@ class cmd_writeAFEBiasSet final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeAFEBiasSet*>(
         &_cmd_writeAFEBiasSet_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 4;
+  static constexpr int kIndexInFileMessages = 6;
   friend void swap(cmd_writeAFEBiasSet& a, cmd_writeAFEBiasSet& b) { a.Swap(&b); }
   inline void Swap(cmd_writeAFEBiasSet* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -4570,6 +4722,441 @@ class cmd_writeAFEBiasSet final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEBiasSet_class_data_;
 // -------------------------------------------------------------------
 
+class cmd_writeAFEAttenuation_response final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:cmd_writeAFEAttenuation_response) */ {
+ public:
+  inline cmd_writeAFEAttenuation_response() : cmd_writeAFEAttenuation_response(nullptr) {}
+  ~cmd_writeAFEAttenuation_response() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(cmd_writeAFEAttenuation_response* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(cmd_writeAFEAttenuation_response));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR cmd_writeAFEAttenuation_response(::google::protobuf::internal::ConstantInitialized);
+
+  inline cmd_writeAFEAttenuation_response(const cmd_writeAFEAttenuation_response& from) : cmd_writeAFEAttenuation_response(nullptr, from) {}
+  inline cmd_writeAFEAttenuation_response(cmd_writeAFEAttenuation_response&& from) noexcept
+      : cmd_writeAFEAttenuation_response(nullptr, std::move(from)) {}
+  inline cmd_writeAFEAttenuation_response& operator=(const cmd_writeAFEAttenuation_response& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline cmd_writeAFEAttenuation_response& operator=(cmd_writeAFEAttenuation_response&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const cmd_writeAFEAttenuation_response& default_instance() {
+    return *reinterpret_cast<const cmd_writeAFEAttenuation_response*>(
+        &_cmd_writeAFEAttenuation_response_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 5;
+  friend void swap(cmd_writeAFEAttenuation_response& a, cmd_writeAFEAttenuation_response& b) { a.Swap(&b); }
+  inline void Swap(cmd_writeAFEAttenuation_response* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(cmd_writeAFEAttenuation_response* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  cmd_writeAFEAttenuation_response* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<cmd_writeAFEAttenuation_response>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const cmd_writeAFEAttenuation_response& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const cmd_writeAFEAttenuation_response& from) { cmd_writeAFEAttenuation_response::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(cmd_writeAFEAttenuation_response* PROTOBUF_NONNULL other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "cmd_writeAFEAttenuation_response"; }
+
+ protected:
+  explicit cmd_writeAFEAttenuation_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  cmd_writeAFEAttenuation_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeAFEAttenuation_response& from);
+  cmd_writeAFEAttenuation_response(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, cmd_writeAFEAttenuation_response&& from) noexcept
+      : cmd_writeAFEAttenuation_response(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kMessageFieldNumber = 2,
+    kSuccessFieldNumber = 1,
+    kAfeBlockFieldNumber = 3,
+    kAttenuationFieldNumber = 4,
+  };
+  // string message = 2;
+  void clear_message() ;
+  const std::string& message() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_message(Arg_&& arg, Args_... args);
+  std::string* PROTOBUF_NONNULL mutable_message();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_message();
+  void set_allocated_message(std::string* PROTOBUF_NULLABLE value);
+
+  private:
+  const std::string& _internal_message() const;
+  PROTOBUF_ALWAYS_INLINE void _internal_set_message(const std::string& value);
+  std::string* PROTOBUF_NONNULL _internal_mutable_message();
+
+  public:
+  // bool success = 1;
+  void clear_success() ;
+  bool success() const;
+  void set_success(bool value);
+
+  private:
+  bool _internal_success() const;
+  void _internal_set_success(bool value);
+
+  public:
+  // uint32 afeBlock = 3;
+  void clear_afeblock() ;
+  ::uint32_t afeblock() const;
+  void set_afeblock(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_afeblock() const;
+  void _internal_set_afeblock(::uint32_t value);
+
+  public:
+  // uint32 attenuation = 4;
+  void clear_attenuation() ;
+  ::uint32_t attenuation() const;
+  void set_attenuation(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_attenuation() const;
+  void _internal_set_attenuation(::uint32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:cmd_writeAFEAttenuation_response)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<2, 4,
+                                   0, 48,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const cmd_writeAFEAttenuation_response& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::internal::ArenaStringPtr message_;
+    bool success_;
+    ::uint32_t afeblock_;
+    ::uint32_t attenuation_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEAttenuation_response_class_data_;
+// -------------------------------------------------------------------
+
+class cmd_writeAFEAttenuation final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:cmd_writeAFEAttenuation) */ {
+ public:
+  inline cmd_writeAFEAttenuation() : cmd_writeAFEAttenuation(nullptr) {}
+  ~cmd_writeAFEAttenuation() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(cmd_writeAFEAttenuation* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(cmd_writeAFEAttenuation));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR cmd_writeAFEAttenuation(::google::protobuf::internal::ConstantInitialized);
+
+  inline cmd_writeAFEAttenuation(const cmd_writeAFEAttenuation& from) : cmd_writeAFEAttenuation(nullptr, from) {}
+  inline cmd_writeAFEAttenuation(cmd_writeAFEAttenuation&& from) noexcept
+      : cmd_writeAFEAttenuation(nullptr, std::move(from)) {}
+  inline cmd_writeAFEAttenuation& operator=(const cmd_writeAFEAttenuation& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline cmd_writeAFEAttenuation& operator=(cmd_writeAFEAttenuation&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const cmd_writeAFEAttenuation& default_instance() {
+    return *reinterpret_cast<const cmd_writeAFEAttenuation*>(
+        &_cmd_writeAFEAttenuation_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 4;
+  friend void swap(cmd_writeAFEAttenuation& a, cmd_writeAFEAttenuation& b) { a.Swap(&b); }
+  inline void Swap(cmd_writeAFEAttenuation* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(cmd_writeAFEAttenuation* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  cmd_writeAFEAttenuation* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<cmd_writeAFEAttenuation>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const cmd_writeAFEAttenuation& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const cmd_writeAFEAttenuation& from) { cmd_writeAFEAttenuation::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(cmd_writeAFEAttenuation* PROTOBUF_NONNULL other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "cmd_writeAFEAttenuation"; }
+
+ protected:
+  explicit cmd_writeAFEAttenuation(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  cmd_writeAFEAttenuation(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeAFEAttenuation& from);
+  cmd_writeAFEAttenuation(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, cmd_writeAFEAttenuation&& from) noexcept
+      : cmd_writeAFEAttenuation(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kAfeBlockFieldNumber = 1,
+    kAttenuationFieldNumber = 2,
+  };
+  // uint32 afeBlock = 1;
+  void clear_afeblock() ;
+  ::uint32_t afeblock() const;
+  void set_afeblock(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_afeblock() const;
+  void _internal_set_afeblock(::uint32_t value);
+
+  public:
+  // uint32 attenuation = 2;
+  void clear_attenuation() ;
+  ::uint32_t attenuation() const;
+  void set_attenuation(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_attenuation() const;
+  void _internal_set_attenuation(::uint32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:cmd_writeAFEAttenuation)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   0, 0,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const cmd_writeAFEAttenuation& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::uint32_t afeblock_;
+    ::uint32_t attenuation_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEAttenuation_class_data_;
+// -------------------------------------------------------------------
+
 class cmd_setAFEReset_response final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:cmd_setAFEReset_response) */ {
  public:
@@ -4625,7 +5212,7 @@ class cmd_setAFEReset_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_setAFEReset_response*>(
         &_cmd_setAFEReset_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 45;
+  static constexpr int kIndexInFileMessages = 47;
   friend void swap(cmd_setAFEReset_response& a, cmd_setAFEReset_response& b) { a.Swap(&b); }
   inline void Swap(cmd_setAFEReset_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -4845,7 +5432,7 @@ class cmd_setAFEReset final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_setAFEReset*>(
         &_cmd_setAFEReset_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 44;
+  static constexpr int kIndexInFileMessages = 46;
   friend void swap(cmd_setAFEReset& a, cmd_setAFEReset& b) { a.Swap(&b); }
   inline void Swap(cmd_setAFEReset* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -5036,7 +5623,7 @@ class cmd_setAFEPowerDown_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_setAFEPowerDown_response*>(
         &_cmd_setAFEPowerDown_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 47;
+  static constexpr int kIndexInFileMessages = 49;
   friend void swap(cmd_setAFEPowerDown_response& a, cmd_setAFEPowerDown_response& b) { a.Swap(&b); }
   inline void Swap(cmd_setAFEPowerDown_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -5256,7 +5843,7 @@ class cmd_setAFEPowerDown final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_setAFEPowerDown*>(
         &_cmd_setAFEPowerDown_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 46;
+  static constexpr int kIndexInFileMessages = 48;
   friend void swap(cmd_setAFEPowerDown& a, cmd_setAFEPowerDown& b) { a.Swap(&b); }
   inline void Swap(cmd_setAFEPowerDown* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -5459,7 +6046,7 @@ class cmd_readVbiasControl_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readVbiasControl_response*>(
         &_cmd_readVbiasControl_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 39;
+  static constexpr int kIndexInFileMessages = 41;
   friend void swap(cmd_readVbiasControl_response& a, cmd_readVbiasControl_response& b) { a.Swap(&b); }
   inline void Swap(cmd_readVbiasControl_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -5678,7 +6265,7 @@ class cmd_readVbiasControl final : public ::google::protobuf::internal::ZeroFiel
     return *reinterpret_cast<const cmd_readVbiasControl*>(
         &_cmd_readVbiasControl_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 38;
+  static constexpr int kIndexInFileMessages = 40;
   friend void swap(cmd_readVbiasControl& a, cmd_readVbiasControl& b) { a.Swap(&b); }
   inline void Swap(cmd_readVbiasControl* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -5825,7 +6412,7 @@ class cmd_readTrim_singleChannel_response final : public ::google::protobuf::Mes
     return *reinterpret_cast<const cmd_readTrim_singleChannel_response*>(
         &_cmd_readTrim_singleChannel_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 31;
+  static constexpr int kIndexInFileMessages = 33;
   friend void swap(cmd_readTrim_singleChannel_response& a, cmd_readTrim_singleChannel_response& b) { a.Swap(&b); }
   inline void Swap(cmd_readTrim_singleChannel_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -6057,7 +6644,7 @@ class cmd_readTrim_singleChannel final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readTrim_singleChannel*>(
         &_cmd_readTrim_singleChannel_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 30;
+  static constexpr int kIndexInFileMessages = 32;
   friend void swap(cmd_readTrim_singleChannel& a, cmd_readTrim_singleChannel& b) { a.Swap(&b); }
   inline void Swap(cmd_readTrim_singleChannel* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -6248,7 +6835,7 @@ class cmd_readTrim_allChannels_response final : public ::google::protobuf::Messa
     return *reinterpret_cast<const cmd_readTrim_allChannels_response*>(
         &_cmd_readTrim_allChannels_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 27;
+  static constexpr int kIndexInFileMessages = 29;
   friend void swap(cmd_readTrim_allChannels_response& a, cmd_readTrim_allChannels_response& b) { a.Swap(&b); }
   inline void Swap(cmd_readTrim_allChannels_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -6476,7 +7063,7 @@ class cmd_readTrim_allChannels final : public ::google::protobuf::internal::Zero
     return *reinterpret_cast<const cmd_readTrim_allChannels*>(
         &_cmd_readTrim_allChannels_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 26;
+  static constexpr int kIndexInFileMessages = 28;
   friend void swap(cmd_readTrim_allChannels& a, cmd_readTrim_allChannels& b) { a.Swap(&b); }
   inline void Swap(cmd_readTrim_allChannels* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -6623,7 +7210,7 @@ class cmd_readTrim_allAFE_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readTrim_allAFE_response*>(
         &_cmd_readTrim_allAFE_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 29;
+  static constexpr int kIndexInFileMessages = 31;
   friend void swap(cmd_readTrim_allAFE_response& a, cmd_readTrim_allAFE_response& b) { a.Swap(&b); }
   inline void Swap(cmd_readTrim_allAFE_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -6864,7 +7451,7 @@ class cmd_readTrim_allAFE final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readTrim_allAFE*>(
         &_cmd_readTrim_allAFE_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 28;
+  static constexpr int kIndexInFileMessages = 30;
   friend void swap(cmd_readTrim_allAFE& a, cmd_readTrim_allAFE& b) { a.Swap(&b); }
   inline void Swap(cmd_readTrim_allAFE* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -7055,7 +7642,7 @@ class cmd_readOffset_singleChannel_response final : public ::google::protobuf::M
     return *reinterpret_cast<const cmd_readOffset_singleChannel_response*>(
         &_cmd_readOffset_singleChannel_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 37;
+  static constexpr int kIndexInFileMessages = 39;
   friend void swap(cmd_readOffset_singleChannel_response& a, cmd_readOffset_singleChannel_response& b) { a.Swap(&b); }
   inline void Swap(cmd_readOffset_singleChannel_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -7287,7 +7874,7 @@ class cmd_readOffset_singleChannel final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readOffset_singleChannel*>(
         &_cmd_readOffset_singleChannel_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 36;
+  static constexpr int kIndexInFileMessages = 38;
   friend void swap(cmd_readOffset_singleChannel& a, cmd_readOffset_singleChannel& b) { a.Swap(&b); }
   inline void Swap(cmd_readOffset_singleChannel* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -7478,7 +8065,7 @@ class cmd_readOffset_allChannels_response final : public ::google::protobuf::Mes
     return *reinterpret_cast<const cmd_readOffset_allChannels_response*>(
         &_cmd_readOffset_allChannels_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 33;
+  static constexpr int kIndexInFileMessages = 35;
   friend void swap(cmd_readOffset_allChannels_response& a, cmd_readOffset_allChannels_response& b) { a.Swap(&b); }
   inline void Swap(cmd_readOffset_allChannels_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -7706,7 +8293,7 @@ class cmd_readOffset_allChannels final : public ::google::protobuf::internal::Ze
     return *reinterpret_cast<const cmd_readOffset_allChannels*>(
         &_cmd_readOffset_allChannels_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 32;
+  static constexpr int kIndexInFileMessages = 34;
   friend void swap(cmd_readOffset_allChannels& a, cmd_readOffset_allChannels& b) { a.Swap(&b); }
   inline void Swap(cmd_readOffset_allChannels* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -7853,7 +8440,7 @@ class cmd_readOffset_allAFE_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readOffset_allAFE_response*>(
         &_cmd_readOffset_allAFE_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 35;
+  static constexpr int kIndexInFileMessages = 37;
   friend void swap(cmd_readOffset_allAFE_response& a, cmd_readOffset_allAFE_response& b) { a.Swap(&b); }
   inline void Swap(cmd_readOffset_allAFE_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -8094,7 +8681,7 @@ class cmd_readOffset_allAFE final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readOffset_allAFE*>(
         &_cmd_readOffset_allAFE_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 34;
+  static constexpr int kIndexInFileMessages = 36;
   friend void swap(cmd_readOffset_allAFE& a, cmd_readOffset_allAFE& b) { a.Swap(&b); }
   inline void Swap(cmd_readOffset_allAFE* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -8285,7 +8872,7 @@ class cmd_readCurrentMonitor_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readCurrentMonitor_response*>(
         &_cmd_readCurrentMonitor_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 41;
+  static constexpr int kIndexInFileMessages = 43;
   friend void swap(cmd_readCurrentMonitor_response& a, cmd_readCurrentMonitor_response& b) { a.Swap(&b); }
   inline void Swap(cmd_readCurrentMonitor_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -8517,7 +9104,7 @@ class cmd_readCurrentMonitor final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readCurrentMonitor*>(
         &_cmd_readCurrentMonitor_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 40;
+  static constexpr int kIndexInFileMessages = 42;
   friend void swap(cmd_readCurrentMonitor& a, cmd_readCurrentMonitor& b) { a.Swap(&b); }
   inline void Swap(cmd_readCurrentMonitor* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -8708,7 +9295,7 @@ class cmd_readBiasVoltageMonitor_response final : public ::google::protobuf::Mes
     return *reinterpret_cast<const cmd_readBiasVoltageMonitor_response*>(
         &_cmd_readBiasVoltageMonitor_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 43;
+  static constexpr int kIndexInFileMessages = 45;
   friend void swap(cmd_readBiasVoltageMonitor_response& a, cmd_readBiasVoltageMonitor_response& b) { a.Swap(&b); }
   inline void Swap(cmd_readBiasVoltageMonitor_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -8940,7 +9527,7 @@ class cmd_readBiasVoltageMonitor final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readBiasVoltageMonitor*>(
         &_cmd_readBiasVoltageMonitor_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 42;
+  static constexpr int kIndexInFileMessages = 44;
   friend void swap(cmd_readBiasVoltageMonitor& a, cmd_readBiasVoltageMonitor& b) { a.Swap(&b); }
   inline void Swap(cmd_readBiasVoltageMonitor* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -9131,7 +9718,7 @@ class cmd_readAFEVgain_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readAFEVgain_response*>(
         &_cmd_readAFEVgain_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 23;
+  static constexpr int kIndexInFileMessages = 25;
   friend void swap(cmd_readAFEVgain_response& a, cmd_readAFEVgain_response& b) { a.Swap(&b); }
   inline void Swap(cmd_readAFEVgain_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -9363,7 +9950,7 @@ class cmd_readAFEVgain final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readAFEVgain*>(
         &_cmd_readAFEVgain_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 22;
+  static constexpr int kIndexInFileMessages = 24;
   friend void swap(cmd_readAFEVgain& a, cmd_readAFEVgain& b) { a.Swap(&b); }
   inline void Swap(cmd_readAFEVgain* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -9554,7 +10141,7 @@ class cmd_readAFEReg_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readAFEReg_response*>(
         &_cmd_readAFEReg_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 21;
+  static constexpr int kIndexInFileMessages = 23;
   friend void swap(cmd_readAFEReg_response& a, cmd_readAFEReg_response& b) { a.Swap(&b); }
   inline void Swap(cmd_readAFEReg_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -9798,7 +10385,7 @@ class cmd_readAFEReg final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readAFEReg*>(
         &_cmd_readAFEReg_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 20;
+  static constexpr int kIndexInFileMessages = 22;
   friend void swap(cmd_readAFEReg& a, cmd_readAFEReg& b) { a.Swap(&b); }
   inline void Swap(cmd_readAFEReg* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -10001,7 +10588,7 @@ class cmd_readAFEBiasSet_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readAFEBiasSet_response*>(
         &_cmd_readAFEBiasSet_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 25;
+  static constexpr int kIndexInFileMessages = 27;
   friend void swap(cmd_readAFEBiasSet_response& a, cmd_readAFEBiasSet_response& b) { a.Swap(&b); }
   inline void Swap(cmd_readAFEBiasSet_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -10233,7 +10820,7 @@ class cmd_readAFEBiasSet final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_readAFEBiasSet*>(
         &_cmd_readAFEBiasSet_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 24;
+  static constexpr int kIndexInFileMessages = 26;
   friend void swap(cmd_readAFEBiasSet& a, cmd_readAFEBiasSet& b) { a.Swap(&b); }
   inline void Swap(cmd_readAFEBiasSet* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -10816,6 +11403,199 @@ inline void cmd_writeAFEVgain_response::_internal_set_vgainvalue(::uint32_t valu
 
 // -------------------------------------------------------------------
 
+// cmd_writeAFEAttenuation
+
+// uint32 afeBlock = 1;
+inline void cmd_writeAFEAttenuation::clear_afeblock() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.afeblock_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::uint32_t cmd_writeAFEAttenuation::afeblock() const {
+  // @@protoc_insertion_point(field_get:cmd_writeAFEAttenuation.afeBlock)
+  return _internal_afeblock();
+}
+inline void cmd_writeAFEAttenuation::set_afeblock(::uint32_t value) {
+  _internal_set_afeblock(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:cmd_writeAFEAttenuation.afeBlock)
+}
+inline ::uint32_t cmd_writeAFEAttenuation::_internal_afeblock() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.afeblock_;
+}
+inline void cmd_writeAFEAttenuation::_internal_set_afeblock(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.afeblock_ = value;
+}
+
+// uint32 attenuation = 2;
+inline void cmd_writeAFEAttenuation::clear_attenuation() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.attenuation_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline ::uint32_t cmd_writeAFEAttenuation::attenuation() const {
+  // @@protoc_insertion_point(field_get:cmd_writeAFEAttenuation.attenuation)
+  return _internal_attenuation();
+}
+inline void cmd_writeAFEAttenuation::set_attenuation(::uint32_t value) {
+  _internal_set_attenuation(value);
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:cmd_writeAFEAttenuation.attenuation)
+}
+inline ::uint32_t cmd_writeAFEAttenuation::_internal_attenuation() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.attenuation_;
+}
+inline void cmd_writeAFEAttenuation::_internal_set_attenuation(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.attenuation_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// cmd_writeAFEAttenuation_response
+
+// bool success = 1;
+inline void cmd_writeAFEAttenuation_response::clear_success() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.success_ = false;
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline bool cmd_writeAFEAttenuation_response::success() const {
+  // @@protoc_insertion_point(field_get:cmd_writeAFEAttenuation_response.success)
+  return _internal_success();
+}
+inline void cmd_writeAFEAttenuation_response::set_success(bool value) {
+  _internal_set_success(value);
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:cmd_writeAFEAttenuation_response.success)
+}
+inline bool cmd_writeAFEAttenuation_response::_internal_success() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.success_;
+}
+inline void cmd_writeAFEAttenuation_response::_internal_set_success(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.success_ = value;
+}
+
+// string message = 2;
+inline void cmd_writeAFEAttenuation_response::clear_message() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.message_.ClearToEmpty();
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline const std::string& cmd_writeAFEAttenuation_response::message() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:cmd_writeAFEAttenuation_response.message)
+  return _internal_message();
+}
+template <typename Arg_, typename... Args_>
+PROTOBUF_ALWAYS_INLINE void cmd_writeAFEAttenuation_response::set_message(Arg_&& arg, Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:cmd_writeAFEAttenuation_response.message)
+}
+inline std::string* PROTOBUF_NONNULL cmd_writeAFEAttenuation_response::mutable_message()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_message();
+  // @@protoc_insertion_point(field_mutable:cmd_writeAFEAttenuation_response.message)
+  return _s;
+}
+inline const std::string& cmd_writeAFEAttenuation_response::_internal_message() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.message_.Get();
+}
+inline void cmd_writeAFEAttenuation_response::_internal_set_message(const std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.message_.Set(value, GetArena());
+}
+inline std::string* PROTOBUF_NONNULL cmd_writeAFEAttenuation_response::_internal_mutable_message() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  return _impl_.message_.Mutable( GetArena());
+}
+inline std::string* PROTOBUF_NULLABLE cmd_writeAFEAttenuation_response::release_message() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:cmd_writeAFEAttenuation_response.message)
+  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
+    return nullptr;
+  }
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  auto* released = _impl_.message_.Release();
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
+    _impl_.message_.Set("", GetArena());
+  }
+  return released;
+}
+inline void cmd_writeAFEAttenuation_response::set_allocated_message(std::string* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  _impl_.message_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
+    _impl_.message_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:cmd_writeAFEAttenuation_response.message)
+}
+
+// uint32 afeBlock = 3;
+inline void cmd_writeAFEAttenuation_response::clear_afeblock() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.afeblock_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline ::uint32_t cmd_writeAFEAttenuation_response::afeblock() const {
+  // @@protoc_insertion_point(field_get:cmd_writeAFEAttenuation_response.afeBlock)
+  return _internal_afeblock();
+}
+inline void cmd_writeAFEAttenuation_response::set_afeblock(::uint32_t value) {
+  _internal_set_afeblock(value);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:cmd_writeAFEAttenuation_response.afeBlock)
+}
+inline ::uint32_t cmd_writeAFEAttenuation_response::_internal_afeblock() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.afeblock_;
+}
+inline void cmd_writeAFEAttenuation_response::_internal_set_afeblock(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.afeblock_ = value;
+}
+
+// uint32 attenuation = 4;
+inline void cmd_writeAFEAttenuation_response::clear_attenuation() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.attenuation_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline ::uint32_t cmd_writeAFEAttenuation_response::attenuation() const {
+  // @@protoc_insertion_point(field_get:cmd_writeAFEAttenuation_response.attenuation)
+  return _internal_attenuation();
+}
+inline void cmd_writeAFEAttenuation_response::set_attenuation(::uint32_t value) {
+  _internal_set_attenuation(value);
+  _impl_._has_bits_[0] |= 0x00000008u;
+  // @@protoc_insertion_point(field_set:cmd_writeAFEAttenuation_response.attenuation)
+}
+inline ::uint32_t cmd_writeAFEAttenuation_response::_internal_attenuation() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.attenuation_;
+}
+inline void cmd_writeAFEAttenuation_response::_internal_set_attenuation(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.attenuation_ = value;
+}
+
+// -------------------------------------------------------------------
+
 // cmd_writeAFEBiasSet
 
 // uint32 afeBlock = 1;
@@ -11035,6 +11815,30 @@ inline void cmd_writeTRIM_allChannels::_internal_set_trimvalue(::uint32_t value)
   _impl_.trimvalue_ = value;
 }
 
+// bool trimGain = 2;
+inline void cmd_writeTRIM_allChannels::clear_trimgain() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.trimgain_ = false;
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline bool cmd_writeTRIM_allChannels::trimgain() const {
+  // @@protoc_insertion_point(field_get:cmd_writeTRIM_allChannels.trimGain)
+  return _internal_trimgain();
+}
+inline void cmd_writeTRIM_allChannels::set_trimgain(bool value) {
+  _internal_set_trimgain(value);
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:cmd_writeTRIM_allChannels.trimGain)
+}
+inline bool cmd_writeTRIM_allChannels::_internal_trimgain() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.trimgain_;
+}
+inline void cmd_writeTRIM_allChannels::_internal_set_trimgain(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.trimgain_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // cmd_writeTRIM_allChannels_response
@@ -11132,7 +11936,7 @@ inline void cmd_writeTRIM_allChannels_response::set_allocated_message(std::strin
 inline void cmd_writeTRIM_allChannels_response::clear_trimvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_writeTRIM_allChannels_response::trimvalue() const {
   // @@protoc_insertion_point(field_get:cmd_writeTRIM_allChannels_response.trimValue)
@@ -11140,7 +11944,7 @@ inline ::uint32_t cmd_writeTRIM_allChannels_response::trimvalue() const {
 }
 inline void cmd_writeTRIM_allChannels_response::set_trimvalue(::uint32_t value) {
   _internal_set_trimvalue(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_._has_bits_[0] |= 0x00000008u;
   // @@protoc_insertion_point(field_set:cmd_writeTRIM_allChannels_response.trimValue)
 }
 inline ::uint32_t cmd_writeTRIM_allChannels_response::_internal_trimvalue() const {
@@ -11150,6 +11954,30 @@ inline ::uint32_t cmd_writeTRIM_allChannels_response::_internal_trimvalue() cons
 inline void cmd_writeTRIM_allChannels_response::_internal_set_trimvalue(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimvalue_ = value;
+}
+
+// bool trimGain = 4;
+inline void cmd_writeTRIM_allChannels_response::clear_trimgain() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.trimgain_ = false;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline bool cmd_writeTRIM_allChannels_response::trimgain() const {
+  // @@protoc_insertion_point(field_get:cmd_writeTRIM_allChannels_response.trimGain)
+  return _internal_trimgain();
+}
+inline void cmd_writeTRIM_allChannels_response::set_trimgain(bool value) {
+  _internal_set_trimgain(value);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:cmd_writeTRIM_allChannels_response.trimGain)
+}
+inline bool cmd_writeTRIM_allChannels_response::_internal_trimgain() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.trimgain_;
+}
+inline void cmd_writeTRIM_allChannels_response::_internal_set_trimgain(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.trimgain_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -11204,6 +12032,30 @@ inline void cmd_writeTrim_allAFE::_internal_set_trimvalue(::uint32_t value) {
   _impl_.trimvalue_ = value;
 }
 
+// bool trimGain = 3;
+inline void cmd_writeTrim_allAFE::clear_trimgain() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.trimgain_ = false;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline bool cmd_writeTrim_allAFE::trimgain() const {
+  // @@protoc_insertion_point(field_get:cmd_writeTrim_allAFE.trimGain)
+  return _internal_trimgain();
+}
+inline void cmd_writeTrim_allAFE::set_trimgain(bool value) {
+  _internal_set_trimgain(value);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:cmd_writeTrim_allAFE.trimGain)
+}
+inline bool cmd_writeTrim_allAFE::_internal_trimgain() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.trimgain_;
+}
+inline void cmd_writeTrim_allAFE::_internal_set_trimgain(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.trimgain_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // cmd_writeTrim_allAFE_response
@@ -11212,7 +12064,7 @@ inline void cmd_writeTrim_allAFE::_internal_set_trimvalue(::uint32_t value) {
 inline void cmd_writeTrim_allAFE_response::clear_success() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.success_ = false;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeTrim_allAFE_response::success() const {
   // @@protoc_insertion_point(field_get:cmd_writeTrim_allAFE_response.success)
@@ -11220,7 +12072,7 @@ inline bool cmd_writeTrim_allAFE_response::success() const {
 }
 inline void cmd_writeTrim_allAFE_response::set_success(bool value) {
   _internal_set_success(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000004u;
   // @@protoc_insertion_point(field_set:cmd_writeTrim_allAFE_response.success)
 }
 inline bool cmd_writeTrim_allAFE_response::_internal_success() const {
@@ -11301,7 +12153,7 @@ inline void cmd_writeTrim_allAFE_response::set_allocated_message(std::string* PR
 inline void cmd_writeTrim_allAFE_response::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeTrim_allAFE_response::afeblock() const {
   // @@protoc_insertion_point(field_get:cmd_writeTrim_allAFE_response.afeBlock)
@@ -11309,7 +12161,7 @@ inline ::uint32_t cmd_writeTrim_allAFE_response::afeblock() const {
 }
 inline void cmd_writeTrim_allAFE_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_._has_bits_[0] |= 0x00000002u;
   // @@protoc_insertion_point(field_set:cmd_writeTrim_allAFE_response.afeBlock)
 }
 inline ::uint32_t cmd_writeTrim_allAFE_response::_internal_afeblock() const {
@@ -11325,7 +12177,7 @@ inline void cmd_writeTrim_allAFE_response::_internal_set_afeblock(::uint32_t val
 inline void cmd_writeTrim_allAFE_response::clear_trimvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000008u;
+  _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::uint32_t cmd_writeTrim_allAFE_response::trimvalue() const {
   // @@protoc_insertion_point(field_get:cmd_writeTrim_allAFE_response.trimValue)
@@ -11333,7 +12185,7 @@ inline ::uint32_t cmd_writeTrim_allAFE_response::trimvalue() const {
 }
 inline void cmd_writeTrim_allAFE_response::set_trimvalue(::uint32_t value) {
   _internal_set_trimvalue(value);
-  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_._has_bits_[0] |= 0x00000010u;
   // @@protoc_insertion_point(field_set:cmd_writeTrim_allAFE_response.trimValue)
 }
 inline ::uint32_t cmd_writeTrim_allAFE_response::_internal_trimvalue() const {
@@ -11343,6 +12195,30 @@ inline ::uint32_t cmd_writeTrim_allAFE_response::_internal_trimvalue() const {
 inline void cmd_writeTrim_allAFE_response::_internal_set_trimvalue(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimvalue_ = value;
+}
+
+// bool trimGain = 5;
+inline void cmd_writeTrim_allAFE_response::clear_trimgain() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.trimgain_ = false;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline bool cmd_writeTrim_allAFE_response::trimgain() const {
+  // @@protoc_insertion_point(field_get:cmd_writeTrim_allAFE_response.trimGain)
+  return _internal_trimgain();
+}
+inline void cmd_writeTrim_allAFE_response::set_trimgain(bool value) {
+  _internal_set_trimgain(value);
+  _impl_._has_bits_[0] |= 0x00000008u;
+  // @@protoc_insertion_point(field_set:cmd_writeTrim_allAFE_response.trimGain)
+}
+inline bool cmd_writeTrim_allAFE_response::_internal_trimgain() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.trimgain_;
+}
+inline void cmd_writeTrim_allAFE_response::_internal_set_trimgain(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.trimgain_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -11397,6 +12273,30 @@ inline void cmd_writeTrim_singleChannel::_internal_set_trimvalue(::uint32_t valu
   _impl_.trimvalue_ = value;
 }
 
+// bool trimGain = 3;
+inline void cmd_writeTrim_singleChannel::clear_trimgain() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.trimgain_ = false;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline bool cmd_writeTrim_singleChannel::trimgain() const {
+  // @@protoc_insertion_point(field_get:cmd_writeTrim_singleChannel.trimGain)
+  return _internal_trimgain();
+}
+inline void cmd_writeTrim_singleChannel::set_trimgain(bool value) {
+  _internal_set_trimgain(value);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:cmd_writeTrim_singleChannel.trimGain)
+}
+inline bool cmd_writeTrim_singleChannel::_internal_trimgain() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.trimgain_;
+}
+inline void cmd_writeTrim_singleChannel::_internal_set_trimgain(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.trimgain_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // cmd_writeTrim_singleChannel_response
@@ -11405,7 +12305,7 @@ inline void cmd_writeTrim_singleChannel::_internal_set_trimvalue(::uint32_t valu
 inline void cmd_writeTrim_singleChannel_response::clear_success() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.success_ = false;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeTrim_singleChannel_response::success() const {
   // @@protoc_insertion_point(field_get:cmd_writeTrim_singleChannel_response.success)
@@ -11413,7 +12313,7 @@ inline bool cmd_writeTrim_singleChannel_response::success() const {
 }
 inline void cmd_writeTrim_singleChannel_response::set_success(bool value) {
   _internal_set_success(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000004u;
   // @@protoc_insertion_point(field_set:cmd_writeTrim_singleChannel_response.success)
 }
 inline bool cmd_writeTrim_singleChannel_response::_internal_success() const {
@@ -11494,7 +12394,7 @@ inline void cmd_writeTrim_singleChannel_response::set_allocated_message(std::str
 inline void cmd_writeTrim_singleChannel_response::clear_trimchannel() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimchannel_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeTrim_singleChannel_response::trimchannel() const {
   // @@protoc_insertion_point(field_get:cmd_writeTrim_singleChannel_response.trimChannel)
@@ -11502,7 +12402,7 @@ inline ::uint32_t cmd_writeTrim_singleChannel_response::trimchannel() const {
 }
 inline void cmd_writeTrim_singleChannel_response::set_trimchannel(::uint32_t value) {
   _internal_set_trimchannel(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_._has_bits_[0] |= 0x00000002u;
   // @@protoc_insertion_point(field_set:cmd_writeTrim_singleChannel_response.trimChannel)
 }
 inline ::uint32_t cmd_writeTrim_singleChannel_response::_internal_trimchannel() const {
@@ -11518,7 +12418,7 @@ inline void cmd_writeTrim_singleChannel_response::_internal_set_trimchannel(::ui
 inline void cmd_writeTrim_singleChannel_response::clear_trimvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000008u;
+  _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::uint32_t cmd_writeTrim_singleChannel_response::trimvalue() const {
   // @@protoc_insertion_point(field_get:cmd_writeTrim_singleChannel_response.trimValue)
@@ -11526,7 +12426,7 @@ inline ::uint32_t cmd_writeTrim_singleChannel_response::trimvalue() const {
 }
 inline void cmd_writeTrim_singleChannel_response::set_trimvalue(::uint32_t value) {
   _internal_set_trimvalue(value);
-  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_._has_bits_[0] |= 0x00000010u;
   // @@protoc_insertion_point(field_set:cmd_writeTrim_singleChannel_response.trimValue)
 }
 inline ::uint32_t cmd_writeTrim_singleChannel_response::_internal_trimvalue() const {
@@ -11536,6 +12436,30 @@ inline ::uint32_t cmd_writeTrim_singleChannel_response::_internal_trimvalue() co
 inline void cmd_writeTrim_singleChannel_response::_internal_set_trimvalue(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimvalue_ = value;
+}
+
+// bool trimGain = 5;
+inline void cmd_writeTrim_singleChannel_response::clear_trimgain() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.trimgain_ = false;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline bool cmd_writeTrim_singleChannel_response::trimgain() const {
+  // @@protoc_insertion_point(field_get:cmd_writeTrim_singleChannel_response.trimGain)
+  return _internal_trimgain();
+}
+inline void cmd_writeTrim_singleChannel_response::set_trimgain(bool value) {
+  _internal_set_trimgain(value);
+  _impl_._has_bits_[0] |= 0x00000008u;
+  // @@protoc_insertion_point(field_set:cmd_writeTrim_singleChannel_response.trimGain)
+}
+inline bool cmd_writeTrim_singleChannel_response::_internal_trimgain() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.trimgain_;
+}
+inline void cmd_writeTrim_singleChannel_response::_internal_set_trimgain(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.trimgain_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -11588,6 +12512,30 @@ inline ::uint32_t cmd_writeOFFSET_allChannels::_internal_offsetvalue() const {
 inline void cmd_writeOFFSET_allChannels::_internal_set_offsetvalue(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.offsetvalue_ = value;
+}
+
+// bool offsetGain = 3;
+inline void cmd_writeOFFSET_allChannels::clear_offsetgain() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.offsetgain_ = false;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline bool cmd_writeOFFSET_allChannels::offsetgain() const {
+  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allChannels.offsetGain)
+  return _internal_offsetgain();
+}
+inline void cmd_writeOFFSET_allChannels::set_offsetgain(bool value) {
+  _internal_set_offsetgain(value);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allChannels.offsetGain)
+}
+inline bool cmd_writeOFFSET_allChannels::_internal_offsetgain() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.offsetgain_;
+}
+inline void cmd_writeOFFSET_allChannels::_internal_set_offsetgain(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.offsetgain_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -11687,7 +12635,7 @@ inline void cmd_writeOFFSET_allChannels_response::set_allocated_message(std::str
 inline void cmd_writeOFFSET_allChannels_response::clear_offsetvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.offsetvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_writeOFFSET_allChannels_response::offsetvalue() const {
   // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allChannels_response.offsetValue)
@@ -11695,7 +12643,7 @@ inline ::uint32_t cmd_writeOFFSET_allChannels_response::offsetvalue() const {
 }
 inline void cmd_writeOFFSET_allChannels_response::set_offsetvalue(::uint32_t value) {
   _internal_set_offsetvalue(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_._has_bits_[0] |= 0x00000008u;
   // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allChannels_response.offsetValue)
 }
 inline ::uint32_t cmd_writeOFFSET_allChannels_response::_internal_offsetvalue() const {
@@ -11705,6 +12653,30 @@ inline ::uint32_t cmd_writeOFFSET_allChannels_response::_internal_offsetvalue() 
 inline void cmd_writeOFFSET_allChannels_response::_internal_set_offsetvalue(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.offsetvalue_ = value;
+}
+
+// bool offsetGain = 4;
+inline void cmd_writeOFFSET_allChannels_response::clear_offsetgain() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.offsetgain_ = false;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline bool cmd_writeOFFSET_allChannels_response::offsetgain() const {
+  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allChannels_response.offsetGain)
+  return _internal_offsetgain();
+}
+inline void cmd_writeOFFSET_allChannels_response::set_offsetgain(bool value) {
+  _internal_set_offsetgain(value);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allChannels_response.offsetGain)
+}
+inline bool cmd_writeOFFSET_allChannels_response::_internal_offsetgain() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.offsetgain_;
+}
+inline void cmd_writeOFFSET_allChannels_response::_internal_set_offsetgain(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.offsetgain_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -11759,6 +12731,30 @@ inline void cmd_writeOFFSET_allAFE::_internal_set_offsetvalue(::uint32_t value) 
   _impl_.offsetvalue_ = value;
 }
 
+// bool offsetGain = 3;
+inline void cmd_writeOFFSET_allAFE::clear_offsetgain() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.offsetgain_ = false;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline bool cmd_writeOFFSET_allAFE::offsetgain() const {
+  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allAFE.offsetGain)
+  return _internal_offsetgain();
+}
+inline void cmd_writeOFFSET_allAFE::set_offsetgain(bool value) {
+  _internal_set_offsetgain(value);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allAFE.offsetGain)
+}
+inline bool cmd_writeOFFSET_allAFE::_internal_offsetgain() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.offsetgain_;
+}
+inline void cmd_writeOFFSET_allAFE::_internal_set_offsetgain(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.offsetgain_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // cmd_writeOFFSET_allAFE_response
@@ -11767,7 +12763,7 @@ inline void cmd_writeOFFSET_allAFE::_internal_set_offsetvalue(::uint32_t value) 
 inline void cmd_writeOFFSET_allAFE_response::clear_success() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.success_ = false;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeOFFSET_allAFE_response::success() const {
   // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allAFE_response.success)
@@ -11775,7 +12771,7 @@ inline bool cmd_writeOFFSET_allAFE_response::success() const {
 }
 inline void cmd_writeOFFSET_allAFE_response::set_success(bool value) {
   _internal_set_success(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000004u;
   // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allAFE_response.success)
 }
 inline bool cmd_writeOFFSET_allAFE_response::_internal_success() const {
@@ -11856,7 +12852,7 @@ inline void cmd_writeOFFSET_allAFE_response::set_allocated_message(std::string* 
 inline void cmd_writeOFFSET_allAFE_response::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeOFFSET_allAFE_response::afeblock() const {
   // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allAFE_response.afeBlock)
@@ -11864,7 +12860,7 @@ inline ::uint32_t cmd_writeOFFSET_allAFE_response::afeblock() const {
 }
 inline void cmd_writeOFFSET_allAFE_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_._has_bits_[0] |= 0x00000002u;
   // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allAFE_response.afeBlock)
 }
 inline ::uint32_t cmd_writeOFFSET_allAFE_response::_internal_afeblock() const {
@@ -11880,7 +12876,7 @@ inline void cmd_writeOFFSET_allAFE_response::_internal_set_afeblock(::uint32_t v
 inline void cmd_writeOFFSET_allAFE_response::clear_offsetvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.offsetvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000008u;
+  _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::uint32_t cmd_writeOFFSET_allAFE_response::offsetvalue() const {
   // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allAFE_response.offsetValue)
@@ -11888,7 +12884,7 @@ inline ::uint32_t cmd_writeOFFSET_allAFE_response::offsetvalue() const {
 }
 inline void cmd_writeOFFSET_allAFE_response::set_offsetvalue(::uint32_t value) {
   _internal_set_offsetvalue(value);
-  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_._has_bits_[0] |= 0x00000010u;
   // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allAFE_response.offsetValue)
 }
 inline ::uint32_t cmd_writeOFFSET_allAFE_response::_internal_offsetvalue() const {
@@ -11900,32 +12896,56 @@ inline void cmd_writeOFFSET_allAFE_response::_internal_set_offsetvalue(::uint32_
   _impl_.offsetvalue_ = value;
 }
 
+// bool offsetGain = 5;
+inline void cmd_writeOFFSET_allAFE_response::clear_offsetgain() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.offsetgain_ = false;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline bool cmd_writeOFFSET_allAFE_response::offsetgain() const {
+  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allAFE_response.offsetGain)
+  return _internal_offsetgain();
+}
+inline void cmd_writeOFFSET_allAFE_response::set_offsetgain(bool value) {
+  _internal_set_offsetgain(value);
+  _impl_._has_bits_[0] |= 0x00000008u;
+  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allAFE_response.offsetGain)
+}
+inline bool cmd_writeOFFSET_allAFE_response::_internal_offsetgain() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.offsetgain_;
+}
+inline void cmd_writeOFFSET_allAFE_response::_internal_set_offsetgain(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.offsetgain_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // cmd_writeOFFSET_singleChannel
 
-// uint32 trimChannel = 1;
-inline void cmd_writeOFFSET_singleChannel::clear_trimchannel() {
+// uint32 offsetChannel = 1;
+inline void cmd_writeOFFSET_singleChannel::clear_offsetchannel() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.trimchannel_ = 0u;
+  _impl_.offsetchannel_ = 0u;
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline ::uint32_t cmd_writeOFFSET_singleChannel::trimchannel() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel.trimChannel)
-  return _internal_trimchannel();
+inline ::uint32_t cmd_writeOFFSET_singleChannel::offsetchannel() const {
+  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel.offsetChannel)
+  return _internal_offsetchannel();
 }
-inline void cmd_writeOFFSET_singleChannel::set_trimchannel(::uint32_t value) {
-  _internal_set_trimchannel(value);
+inline void cmd_writeOFFSET_singleChannel::set_offsetchannel(::uint32_t value) {
+  _internal_set_offsetchannel(value);
   _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel.trimChannel)
+  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel.offsetChannel)
 }
-inline ::uint32_t cmd_writeOFFSET_singleChannel::_internal_trimchannel() const {
+inline ::uint32_t cmd_writeOFFSET_singleChannel::_internal_offsetchannel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.trimchannel_;
+  return _impl_.offsetchannel_;
 }
-inline void cmd_writeOFFSET_singleChannel::_internal_set_trimchannel(::uint32_t value) {
+inline void cmd_writeOFFSET_singleChannel::_internal_set_offsetchannel(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.trimchannel_ = value;
+  _impl_.offsetchannel_ = value;
 }
 
 // uint32 offsetValue = 2;
@@ -11952,6 +12972,30 @@ inline void cmd_writeOFFSET_singleChannel::_internal_set_offsetvalue(::uint32_t 
   _impl_.offsetvalue_ = value;
 }
 
+// bool offsetGain = 3;
+inline void cmd_writeOFFSET_singleChannel::clear_offsetgain() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.offsetgain_ = false;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline bool cmd_writeOFFSET_singleChannel::offsetgain() const {
+  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel.offsetGain)
+  return _internal_offsetgain();
+}
+inline void cmd_writeOFFSET_singleChannel::set_offsetgain(bool value) {
+  _internal_set_offsetgain(value);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel.offsetGain)
+}
+inline bool cmd_writeOFFSET_singleChannel::_internal_offsetgain() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.offsetgain_;
+}
+inline void cmd_writeOFFSET_singleChannel::_internal_set_offsetgain(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.offsetgain_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // cmd_writeOFFSET_singleChannel_response
@@ -11960,7 +13004,7 @@ inline void cmd_writeOFFSET_singleChannel::_internal_set_offsetvalue(::uint32_t 
 inline void cmd_writeOFFSET_singleChannel_response::clear_success() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.success_ = false;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeOFFSET_singleChannel_response::success() const {
   // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel_response.success)
@@ -11968,7 +13012,7 @@ inline bool cmd_writeOFFSET_singleChannel_response::success() const {
 }
 inline void cmd_writeOFFSET_singleChannel_response::set_success(bool value) {
   _internal_set_success(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000004u;
   // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel_response.success)
 }
 inline bool cmd_writeOFFSET_singleChannel_response::_internal_success() const {
@@ -12045,35 +13089,35 @@ inline void cmd_writeOFFSET_singleChannel_response::set_allocated_message(std::s
   // @@protoc_insertion_point(field_set_allocated:cmd_writeOFFSET_singleChannel_response.message)
 }
 
-// uint32 trimChannel = 3;
-inline void cmd_writeOFFSET_singleChannel_response::clear_trimchannel() {
+// uint32 offsetChannel = 3;
+inline void cmd_writeOFFSET_singleChannel_response::clear_offsetchannel() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.trimchannel_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_.offsetchannel_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
-inline ::uint32_t cmd_writeOFFSET_singleChannel_response::trimchannel() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel_response.trimChannel)
-  return _internal_trimchannel();
+inline ::uint32_t cmd_writeOFFSET_singleChannel_response::offsetchannel() const {
+  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel_response.offsetChannel)
+  return _internal_offsetchannel();
 }
-inline void cmd_writeOFFSET_singleChannel_response::set_trimchannel(::uint32_t value) {
-  _internal_set_trimchannel(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel_response.trimChannel)
+inline void cmd_writeOFFSET_singleChannel_response::set_offsetchannel(::uint32_t value) {
+  _internal_set_offsetchannel(value);
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel_response.offsetChannel)
 }
-inline ::uint32_t cmd_writeOFFSET_singleChannel_response::_internal_trimchannel() const {
+inline ::uint32_t cmd_writeOFFSET_singleChannel_response::_internal_offsetchannel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.trimchannel_;
+  return _impl_.offsetchannel_;
 }
-inline void cmd_writeOFFSET_singleChannel_response::_internal_set_trimchannel(::uint32_t value) {
+inline void cmd_writeOFFSET_singleChannel_response::_internal_set_offsetchannel(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.trimchannel_ = value;
+  _impl_.offsetchannel_ = value;
 }
 
 // uint32 offsetValue = 4;
 inline void cmd_writeOFFSET_singleChannel_response::clear_offsetvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.offsetvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000008u;
+  _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::uint32_t cmd_writeOFFSET_singleChannel_response::offsetvalue() const {
   // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel_response.offsetValue)
@@ -12081,7 +13125,7 @@ inline ::uint32_t cmd_writeOFFSET_singleChannel_response::offsetvalue() const {
 }
 inline void cmd_writeOFFSET_singleChannel_response::set_offsetvalue(::uint32_t value) {
   _internal_set_offsetvalue(value);
-  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_._has_bits_[0] |= 0x00000010u;
   // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel_response.offsetValue)
 }
 inline ::uint32_t cmd_writeOFFSET_singleChannel_response::_internal_offsetvalue() const {
@@ -12091,6 +13135,30 @@ inline ::uint32_t cmd_writeOFFSET_singleChannel_response::_internal_offsetvalue(
 inline void cmd_writeOFFSET_singleChannel_response::_internal_set_offsetvalue(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.offsetvalue_ = value;
+}
+
+// bool offsetGain = 5;
+inline void cmd_writeOFFSET_singleChannel_response::clear_offsetgain() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.offsetgain_ = false;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline bool cmd_writeOFFSET_singleChannel_response::offsetgain() const {
+  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel_response.offsetGain)
+  return _internal_offsetgain();
+}
+inline void cmd_writeOFFSET_singleChannel_response::set_offsetgain(bool value) {
+  _internal_set_offsetgain(value);
+  _impl_._has_bits_[0] |= 0x00000008u;
+  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel_response.offsetGain)
+}
+inline bool cmd_writeOFFSET_singleChannel_response::_internal_offsetgain() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.offsetgain_;
+}
+inline void cmd_writeOFFSET_singleChannel_response::_internal_set_offsetgain(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.offsetgain_ = value;
 }
 
 // -------------------------------------------------------------------

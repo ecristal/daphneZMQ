@@ -84,6 +84,7 @@ uint32_t Dac::setDacHvBias(const uint32_t& value, const bool& gain, const bool& 
 
 	return this->setDacGeneral("U5", 2, gain, buffer, value);
 }
+
 uint32_t Dac::findCompanionChannelValue(const uint32_t& ch){
 	std::string chPos = std::get<0>(this->CHANNEL_MAPPING[ch]);
     uint32_t chCh = std::get<1>(this->CHANNEL_MAPPING[ch]);
@@ -100,6 +101,7 @@ uint32_t Dac::findCompanionChannelValue(const uint32_t& ch){
     }
     return compCh;
 }
+
 uint32_t Dac::setDacTrim(const uint32_t& afe, const uint32_t& ch, const uint32_t& value, const bool& gain, const bool& buffer){
 
 	std::string register_ = "afeDacTrim_" + std::to_string(afe);
