@@ -1,39 +1,75 @@
-syntax = "proto3"
+syntax = "proto3";
 
 message cmd_writeAFEReg {
-	int32  id          = 1;
-	uint32 afeBlock    = 2;
-	uint32 regAddress  = 3;
-	uint32 regValue    = 4; 
+	uint32 afeBlock    = 1;
+	uint32 regAddress  = 2;
+	uint32 regValue    = 3; 
+}
+
+message cmd_writeAFEReg_response{
+	bool   success     = 1;
+	string message     = 2;
+	uint32 afeBlock    = 3;
+	uint32 regAddress  = 4;
+	uint32 regValue    = 5;
 }
 
 message cmd_writeAFEVGAIN {
-	int32  id         = 1;
-	uint32 afeBlock   = 2;
-	uint32 vgainValue = 3;
+	uint32 afeBlock   = 1;
+	uint32 vgainValue = 2;
+}
+
+message cmd_writeAFEVgain_response {
+	bool   success     = 1;
+	string message     = 2;
+	uint32 afeBlock    = 3;
+	uint32 vgainValue  = 4;
 }
 
 message cmd_writeAFEBiasSet {
-	int32  id        = 1;
-	uint32 afeBlock  = 2;
-	uint32 biasValue = 3;
+	uint32 afeBlock  = 1;
+	uint32 biasValue = 2;
+}
+
+message cmd_writeAFEBiasSet_response {
+	bool   success     = 1;
+	string message     = 2;
+	uint32 afeBlock    = 3;
+	uint32 biasValue   = 4;
 }
 
 message cmd_writeTRIM_allChannels {
-	int32  id        = 1;
-	uint32 trimValue = 2;
+	uint32 trimValue = 1;
+}
+
+message cmd_writeTRIM_allChannels_response {
+	bool   success     = 1;
+	string message     = 2;
+	uint32 trimValue   = 3;
 }
 
 message cmd_writeTrim_allAFE {
-	int32  id        = 1;
-	uint32 afeBlock  = 2;
-	uint32 trimValue = 3;
+	uint32 afeBlock  = 1;
+	uint32 trimValue = 2;
+}
+
+message cmd_writeTrim_allAFE_response {
+	bool   success     = 1;
+	string message     = 2;
+	uint32 afeBlock    = 3;
+	uint32 trimValue   = 4;
 }
 
 message cmd_writeTrim_singleChannel {
-	int32  id          = 1;
-	uint32 trimChannel = 2;
-	uint32 trimValue   = 3;
+	uint32 trimChannel = 1;
+	uint32 trimValue   = 2;
+}
+
+message cmd_writeTrim_singleChannel_response {
+	bool   success     = 1;
+	string message     = 2;
+	uint32 trimChannel = 3;
+	uint32 trimValue   = 4;
 }
 
 message cmd_writeOFFSET_allChannels {
@@ -41,94 +77,194 @@ message cmd_writeOFFSET_allChannels {
 	uint32 offsetValue = 2;
 }
 
-message cmd_writeOFFSET_allAFE {
-	int32  id          = 1;
-	uint32 afeBlock    = 2;
+message cmd_writeOFFSET_allChannels_response {
+	bool   success     = 1;
+	string message     = 2;
 	uint32 offsetValue = 3;
 }
 
+message cmd_writeOFFSET_allAFE {
+	uint32 afeBlock    = 1;
+	uint32 offsetValue = 2;
+}
+
+message cmd_writeOFFSET_allAFE_response {
+	bool   success     = 1;
+	string message     = 2;
+	uint32 afeBlock    = 3;
+	uint32 offsetValue = 4;
+}
+
 message cmd_writeOFFSET_singleChannel {
-	int32  id            = 1;
-	uint32 trimChannel   = 2;
-	uint32 offsetValue   = 3;
+	uint32 trimChannel   = 1;
+	uint32 offsetValue   = 2;
+}
+
+message cmd_writeOFFSET_singleChannel_response {
+	bool   success       = 1;
+	string message       = 2;
+	uint32 trimChannel   = 3;
+	uint32 offsetValue   = 4;
 }
 
 message cmd_writeVbiasControl {
-	int32  id                = 1;
-	uint32 vBiasControlValue = 2; 
+	uint32 vBiasControlValue = 1; 
+}
+
+message cmd_writeVbiasControl_response {
+	bool   success           = 1;
+	string message           = 2;
+	uint32 vBiasControlValue = 3; 
 }
 
 message cmd_readAFEReg {
-	int32 id = 1;
-	uint32 afeBlock = 2;
-	uint32 regAddress = 3;
+	uint32 afeBlock = 1;
+	uint32 regAddress = 2;
+}
+
+message cmd_readAFEReg_response {
+	bool   success = 1;
+	string message = 2;
+	uint32 afeBlock = 3;
+	uint32 regAddress = 4;
+	uint32 regValue = 5;
 }
  
 message cmd_readAFEVgain {
-	int32 id = 1;
-	uint32 afeBlock = 2;
+	uint32 afeBlock = 1;
+}
+
+message cmd_readAFEVgain_response {
+	bool   success = 1;
+	string message = 2;
+	uint32 afeBlock = 3;
+	uint32 vgainValue = 4;
 }
 
 message cmd_readAFEBiasSet {
-	int32 id = 1;
-	uint32 afeBlock = 2;
+	uint32 afeBlock = 1;
+}
+
+message cmd_readAFEBiasSet_response {
+	bool   success = 1;
+	string message = 2;
+	uint32 afeBlock = 3;
+	uint32 biasValue = 4;
 }
 
 message cmd_readTrim_allChannels {
-	int32 id = 1;
+}
+
+message cmd_readTrim_allChannels_response {
+	bool   success = 1;
+	string message = 2; //Here trim value should be a vector of trim values for all channels
+	repeated uint32 trimValues = 3; // This is a repeated field to hold trim values for all channels
 }
 
 message cmd_readTrim_allAFE {
-	int32 id = 1;
-	uint32 afeBlock = 2;
+	uint32 afeBlock = 1;
+}
+
+message cmd_readTrim_allAFE_response {
+	bool   success = 1;
+	string message = 2;
+	uint32 afeBlock = 3;
+	repeated uint32 trimValues = 4; // This is a repeated field to hold trim values for all channels
 }
 
 message cmd_readTrim_singleChannel {
-	int id = 1;
-	uint32 trimChannel = 2;  
+	uint32 trimChannel = 1;  
+}
+
+message cmd_readTrim_singleChannel_response {
+	bool   success = 1;
+	string message = 2;
+	uint32 trimChannel = 3;
+	uint32 trimValue = 4;
 }
 
 message cmd_readOffset_allChannels {
-	int id = 1;
+}
+
+message cmd_readOffset_allChannels_response {
+	bool   success = 1;
+	string message = 2; //Here offset value should be a vector of offset values for all channels
+	repeated uint32 offsetValues = 3; // This is a repeated field to hold offset values for all channels
 }
 
 message cmd_readOffset_allAFE {
-	int id = 1;
-	uint32 afeBlock = 2;
+	uint32 afeBlock = 1;
+}
+
+message cmd_readOffset_allAFE_response {
+	bool   success = 1;
+	string message = 2;
+	uint32 afeBlock = 3;
+	repeated uint32 offsetValues = 4; // This is a repeated field to hold offset values for all channels
 }
 
 message cmd_readOffset_singleChannel {
-	int id = 1;
-	uint32 offsetChannel = 2;
+	uint32 offsetChannel = 1;
+}
+
+message cmd_readOffset_singleChannel_response {
+	bool   success = 1;
+	string message = 2;
+	uint32 offsetChannel = 3;
+	uint32 offsetValue = 4;
 }
 
 message cmd_readVbiasControl {
-	int id = 1; 
+}
+
+message cmd_readVbiasControl_response {
+	bool   success = 1;
+	string message = 2;
+	uint32 vBiasControlValue = 3; 
 }
 
 message cmd_readCurrentMonitor {
-	int id = 1;
-	uint32 currentMonitorChannel = 2;
+	uint32 currentMonitorChannel = 1;
+}
+
+message cmd_readCurrentMonitor_response {
+	bool   success = 1;
+	string message = 2;
+	uint32 currentMonitorChannel = 3;
+	uint32 currentValue = 4; // The current value read from the monitor
 }
 
 message cmd_readBiasVoltageMonitor {
-	int id = 1;
-	uint32 afeBlock = 2;
+	uint32 afeBlock = 1;
+}
+
+message cmd_readBiasVoltageMonitor_response {
+	bool   success = 1;
+	string message = 2;
+	uint32 afeBlock = 3;
+	uint32 biasVoltageValue = 4; // The bias voltage value read from the monitor
 }
 
 message cmd_setAFEReset {
-	int id = 1;
-	uint32 afeBlock = 2;
+	uint32 afeBlock = 1;
+}
+
+message cmd_setAFEReset_response {
+	bool success = 1;
+	string message = 2;
+	uint32 afeBlock = 3;
 }
 
 message cmd_setAFEPowerDown {
-	int id = 1;
-	uint32 afeBlock = 2;
-	bool pwrState = 3;
+	uint32 afeBlock = 1;
+	bool pwrState = 2;
 }
 
-
-
+message cmd_setAFEPowerDown_response {
+	bool success = 1;
+	string message = 2;
+	uint32 afeBlock = 3;
+}
 
 
 

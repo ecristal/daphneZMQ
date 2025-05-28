@@ -5,6 +5,7 @@
 
 #include "Daphne.hpp"
 #include "protobuf/daphneV3_high_level_confs.pb.h"
+#include "protobuf/daphneV3_low_level_confs.pb.h"
 
 bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std::string &response_str, std::unordered_map<uint32_t, uint32_t> &ch_afe_map) {
     try{
@@ -87,6 +88,21 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
     return true;
 }
 
+bool writeAFERegister(const cmd_writeAFEReg &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value) {
+    try {
+        uint32_t afe = request.afeblock();
+        uint32_t regAddr = request.regaddress();
+        uint32_t regValue = request.regvalue();
+        returned_value = daphne.getAfe()->setRegister(afe, regAddr, regValue);
+        response_str = "AFE Register " + std::to_string(regAddr) + " written with value " + std::to_string(regValue) + " for AFE " + std::to_string(afe) + ".";
+        response_str += " Returned value: " + std::to_string(returned_value) + ".";
+    } catch (std::exception &e) {
+        response_str = "Error writing AFE Register: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
 void process_request(const std::string& request_str, std::string& response_str, Daphne &daphne, std::unordered_map<uint32_t, uint32_t> &ch_afe_map) {
     // Identify the message type
     // Here the not equal to std::npos is used to check if the string contains the substring
@@ -97,6 +113,55 @@ void process_request(const std::string& request_str, std::string& response_str, 
     ConfigureCLKsResponse clk_response;
     ConfigureRequest cfg_request;
     ConfigureResponse cfg_response;
+    // DAPHNE V2 Legacy commands
+    cmd_writeAFEReg write_afe_reg_request;
+    cmd_writeAFEReg_response write_afe_reg_response;
+    cmd_writeAFEVGAIN write_afe_vgain_request;
+    cmd_writeAFEVgain_response write_afe_vgain_response;
+    cmd_writeAFEBiasSet write_afe_biasset_request;
+    cmd_writeAFEBiasSet_response write_afe_biasset_response;
+    cmd_writeTRIM_allChannels write_trim_allchannels_request;
+    cmd_writeTRIM_allChannels_response write_trim_allchannels_response;
+    cmd_writeTrim_allAFE write_trim_allafe_request;
+    cmd_writeTrim_allAFE_response write_trim_allafe_response;
+    cmd_writeTrim_singleChannel write_trim_singlechannel_request;
+    cmd_writeTrim_singleChannel_response write_trim_singlechannel_response;
+    cmd_writeOFFSET_allChannels write_offset_allchannels_request;
+    cmd_writeOFFSET_allChannels_response write_offset_allchannels_response;
+    cmd_writeOFFSET_allAFE write_offset_allafe_request;
+    cmd_writeOFFSET_allAFE_response write_offset_allafe_response;
+    cmd_writeOFFSET_singleChannel write_offset_singlechannel_request;
+    cmd_writeOFFSET_singleChannel_response write_offset_singlechannel_response;
+    cmd_writeVbiasControl write_vbias_control_request;
+    cmd_writeVbiasControl_response write_vbias_control_response;
+    cmd_readAFEReg read_afe_reg_request;
+    cmd_readAFEReg_response read_afe_reg_response;
+    cmd_readAFEVgain read_afe_vgain_request;
+    cmd_readAFEVgain_response read_afe_vgain_response;
+    cmd_readAFEBiasSet read_afe_biasset_request;
+    cmd_readAFEBiasSet_response read_afe_biasset_response;
+    cmd_readTrim_allChannels read_trim_allchannels_request;
+    cmd_readTrim_allChannels_response read_trim_allchannels_response;
+    cmd_readTrim_allAFE read_trim_allafe_request;
+    cmd_readTrim_allAFE_response read_trim_allafe_response;
+    cmd_readTrim_singleChannel read_trim_singlechannel_request;
+    cmd_readTrim_singleChannel_response read_trim_singlechannel_response;
+    cmd_readOffset_allChannels read_offset_allchannels_request;
+    cmd_readOffset_allChannels_response read_offset_allchannels_response;
+    cmd_readOffset_allAFE read_offset_allafe_request;
+    cmd_readOffset_allAFE_response read_offset_allafe_response;
+    cmd_readOffset_singleChannel read_offset_singlechannel_request;
+    cmd_readOffset_singleChannel_response read_offset_singlechannel_response;
+    cmd_readVbiasControl read_vbias_control_request;
+    cmd_readVbiasControl_response read_vbias_control_response;
+    cmd_readCurrentMonitor read_current_monitor_request;
+    cmd_readCurrentMonitor_response read_current_monitor_response;
+    cmd_readBiasVoltageMonitor read_bias_voltage_monitor_request;
+    cmd_readBiasVoltageMonitor_response read_bias_voltage_monitor_response;
+    cmd_setAFEReset set_afe_reset_request;
+    cmd_setAFEReset_response set_afe_reset_response;
+    cmd_setAFEPowerDown set_afe_powerdown_request;
+    cmd_setAFEPowerDown_response set_afe_powerdown_response;
     if(!request_envelope.ParseFromString(request_str)){
         response_str = "Request not recognized";
         return;
@@ -140,11 +205,449 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 response_envelope.SerializeToString(&response_str);
                 return;
             }
+        }
+        case WRITE_AFE_REG: { // to be implemented
+            std::cout << "The request is a WriteAfeRegRequest" << std::endl;
+            if(write_afe_reg_request.ParseFromString(request_envelope.payload())){
+                std::string configure_message;
+                uint32_t returned_value;
+                bool is_success = writeAFERegister(write_afe_reg_request, daphne, configure_message, returned_value);
+                write_afe_reg_response.set_success(is_success);
+                write_afe_reg_response.set_message(configure_message);
+                write_afe_reg_response.set_afeblock(write_afe_reg_request.afeblock());
+                write_afe_reg_response.set_regaddress(write_afe_reg_request.regaddress());
+                write_afe_reg_response.set_regvalue(returned_value);
+                response_envelope.set_type(WRITE_AFE_REG);
+                response_envelope.set_payload(write_afe_reg_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                write_afe_reg_response.set_success(false);
+                write_afe_reg_response.set_message("WRITE_AFE_REG: Payload not recognized");
+                response_envelope.set_type(WRITE_AFE_REG);
+                response_envelope.set_payload(write_afe_reg_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case WRITE_AFE_VGAIN: { // to be implemented
+            std::cout << "The request is a WriteAfeVgainRequest" << std::endl;
+            if(write_afe_vgain_request.ParseFromString(request_envelope.payload())){
+                write_afe_vgain_response.set_success(true);
+                write_afe_vgain_response.set_message("AFE VGAIN written successfully");
+                response_envelope.set_type(WRITE_AFE_VGAIN);
+                response_envelope.set_payload(write_afe_vgain_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                write_afe_vgain_response.set_success(false);
+                write_afe_vgain_response.set_message("Payload not recognized");
+                response_envelope.set_type(WRITE_AFE_VGAIN);
+                response_envelope.set_payload(write_afe_vgain_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case WRITE_AFE_BIAS_SET: { // to be implemented
+            std::cout << "The request is a WriteAfeBiasSetRequest" << std::endl;
+            if(write_afe_biasset_request.ParseFromString(request_envelope.payload())){
+                write_afe_biasset_response.set_success(true);
+                write_afe_biasset_response.set_message("AFE Bias Set written successfully");
+                response_envelope.set_type(WRITE_AFE_BIAS_SET);
+                response_envelope.set_payload(write_afe_biasset_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                write_afe_biasset_response.set_success(false);
+                write_afe_biasset_response.set_message("Payload not recognized");
+                response_envelope.set_type(WRITE_AFE_BIAS_SET);
+                response_envelope.set_payload(write_afe_biasset_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case WRITE_TRIM_ALL_CH: { // to be implemented
+            std::cout << "The request is a WriteTrimAllChannelsRequest" << std::endl;
+            if(write_trim_allchannels_request.ParseFromString(request_envelope.payload())){
+                write_trim_allchannels_response.set_success(true);
+                write_trim_allchannels_response.set_message("All channel trims written successfully");
+                response_envelope.set_type(WRITE_TRIM_ALL_CH);
+                response_envelope.set_payload(write_trim_allchannels_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                write_trim_allchannels_response.set_success(false);
+                write_trim_allchannels_response.set_message("Payload not recognized");
+                response_envelope.set_type(WRITE_TRIM_ALL_CH);
+                response_envelope.set_payload(write_trim_allchannels_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case WRITE_TRIM_ALL_AFE: { // to be implemented
+            std::cout << "The request is a WriteTrimAllAfeRequest" << std::endl;
+            if(write_trim_allafe_request.ParseFromString(request_envelope.payload())){
+                write_trim_allafe_response.set_success(true);
+                write_trim_allafe_response.set_message("All AFE trims written successfully");
+                response_envelope.set_type(WRITE_TRIM_ALL_AFE);
+                response_envelope.set_payload(write_trim_allafe_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                write_trim_allafe_response.set_success(false);
+                write_trim_allafe_response.set_message("Payload not recognized");
+                response_envelope.set_type(WRITE_TRIM_ALL_AFE);
+                response_envelope.set_payload(write_trim_allafe_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case WRITE_TRIM_CH: { // to be implemented
+            std::cout << "The request is a WriteTrimSingleChannelRequest" << std::endl;
+            if(write_trim_singlechannel_request.ParseFromString(request_envelope.payload())){
+                write_trim_singlechannel_response.set_success(true);
+                write_trim_singlechannel_response.set_message("Single channel trim written successfully");
+                response_envelope.set_type(WRITE_TRIM_CH);
+                response_envelope.set_payload(write_trim_singlechannel_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                write_trim_singlechannel_response.set_success(false);
+                write_trim_singlechannel_response.set_message("Payload not recognized");
+                response_envelope.set_type(WRITE_TRIM_CH);
+                response_envelope.set_payload(write_trim_singlechannel_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case WRITE_OFFSET_ALL_CH: { // to be implemented
+            std::cout << "The request is a WriteOffsetAllChannelsRequest" << std::endl;
+            if(write_offset_allchannels_request.ParseFromString(request_envelope.payload())){
+                write_offset_allchannels_response.set_success(true);
+                write_offset_allchannels_response.set_message("All channel offsets written successfully");
+                response_envelope.set_type(WRITE_OFFSET_ALL_CH);
+                response_envelope.set_payload(write_offset_allchannels_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                write_offset_allchannels_response.set_success(false);
+                write_offset_allchannels_response.set_message("Payload not recognized");
+                response_envelope.set_type(WRITE_OFFSET_ALL_CH);
+                response_envelope.set_payload(write_offset_allchannels_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case WRITE_OFFSET_ALL_AFE: { // to be implemented
+            std::cout << "The request is a WriteOffsetAllAfeRequest" << std::endl;
+            if(write_offset_allafe_request.ParseFromString(request_envelope.payload())){
+                write_offset_allafe_response.set_success(true);
+                write_offset_allafe_response.set_message("All AFE offsets written successfully");
+                response_envelope.set_type(WRITE_OFFSET_ALL_AFE);
+                response_envelope.set_payload(write_offset_allafe_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                write_offset_allafe_response.set_success(false);
+                write_offset_allafe_response.set_message("Payload not recognized");
+                response_envelope.set_type(WRITE_OFFSET_ALL_AFE);
+                response_envelope.set_payload(write_offset_allafe_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case WRITE_OFFSET_CH: { // to be implemented
+            std::cout << "The request is a WriteOffsetSingleChannelRequest" << std::endl;
+            if(write_offset_singlechannel_request.ParseFromString(request_envelope.payload())){
+                write_offset_singlechannel_response.set_success(true);
+                write_offset_singlechannel_response.set_message("Single channel offset written successfully");
+                response_envelope.set_type(WRITE_OFFSET_CH);
+                response_envelope.set_payload(write_offset_singlechannel_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                write_offset_singlechannel_response.set_success(false);
+                write_offset_singlechannel_response.set_message("Payload not recognized");
+                response_envelope.set_type(WRITE_OFFSET_CH);
+                response_envelope.set_payload(write_offset_singlechannel_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case WRITE_VBIAS_CONTROL: { // to be implemented
+            std::cout << "The request is a WriteVbiasControlRequest" << std::endl;
+            if(write_vbias_control_request.ParseFromString(request_envelope.payload())){
+                write_vbias_control_response.set_success(true);
+                write_vbias_control_response.set_message("Vbias control written successfully");
+                response_envelope.set_type(WRITE_VBIAS_CONTROL);
+                response_envelope.set_payload(write_vbias_control_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                write_vbias_control_response.set_success(false);
+                write_vbias_control_response.set_message("Payload not recognized");
+                response_envelope.set_type(WRITE_VBIAS_CONTROL);
+                response_envelope.set_payload(write_vbias_control_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case READ_AFE_REG: { // to be implemented
+            std::cout << "The request is a ReadAfeRegRequest" << std::endl;
+            if(read_afe_reg_request.ParseFromString(request_envelope.payload())){
+                read_afe_reg_response.set_success(true);
+                read_afe_reg_response.set_message("AFE register read successfully");
+                response_envelope.set_type(READ_AFE_REG);
+                response_envelope.set_payload(read_afe_reg_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                read_afe_reg_response.set_success(false);
+                read_afe_reg_response.set_message("Payload not recognized");
+                response_envelope.set_type(READ_AFE_REG);
+                response_envelope.set_payload(read_afe_reg_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case READ_AFE_VGAIN: { // to be implemented
+            std::cout << "The request is a ReadAfeVgainRequest" << std::endl;
+            if(read_afe_vgain_request.ParseFromString(request_envelope.payload())){
+                read_afe_vgain_response.set_success(true);
+                read_afe_vgain_response.set_message("AFE VGAIN read successfully");
+                response_envelope.set_type(READ_AFE_VGAIN);
+                response_envelope.set_payload(read_afe_vgain_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                read_afe_vgain_response.set_success(false);
+                read_afe_vgain_response.set_message("Payload not recognized");
+                response_envelope.set_type(READ_AFE_VGAIN);
+                response_envelope.set_payload(read_afe_vgain_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case READ_AFE_BIAS_SET: { // to be implemented
+            std::cout << "The request is a ReadAfeBiasSetRequest" << std::endl;
+            if(read_afe_biasset_request.ParseFromString(request_envelope.payload())){
+                read_afe_biasset_response.set_success(true);
+                read_afe_biasset_response.set_message("AFE Bias Set read successfully");
+                response_envelope.set_type(READ_AFE_BIAS_SET);
+                response_envelope.set_payload(read_afe_biasset_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                read_afe_biasset_response.set_success(false);
+                read_afe_biasset_response.set_message("Payload not recognized");
+                response_envelope.set_type(READ_AFE_BIAS_SET);
+                response_envelope.set_payload(read_afe_biasset_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case READ_TRIM_ALL_CH: { // to be implemented
+            std::cout << "The request is a ReadTrimAllChannelsRequest" << std::endl;
+            if(read_trim_allchannels_request.ParseFromString(request_envelope.payload())){
+                read_trim_allchannels_response.set_success(true);
+                read_trim_allchannels_response.set_message("All channel trims read successfully");
+                response_envelope.set_type(READ_TRIM_ALL_CH);
+                response_envelope.set_payload(read_trim_allchannels_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                read_trim_allchannels_response.set_success(false);
+                read_trim_allchannels_response.set_message("Payload not recognized");
+                response_envelope.set_type(READ_TRIM_ALL_CH);
+                response_envelope.set_payload(read_trim_allchannels_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case READ_TRIM_ALL_AFE: { // to be implemented
+            std::cout << "The request is a ReadTrimAllAfeRequest" << std::endl;
+            if(read_trim_allafe_request.ParseFromString(request_envelope.payload())){
+                read_trim_allafe_response.set_success(true);
+                read_trim_allafe_response.set_message("All AFE trims read successfully");
+                response_envelope.set_type(READ_TRIM_ALL_AFE);
+                response_envelope.set_payload(read_trim_allafe_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                read_trim_allafe_response.set_success(false);
+                read_trim_allafe_response.set_message("Payload not recognized");
+                response_envelope.set_type(READ_TRIM_ALL_AFE);
+                response_envelope.set_payload(read_trim_allafe_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case READ_TRIM_CH: { // to be implemented
+            std::cout << "The request is a ReadTrimSingleChannelRequest" << std::endl;
+            if(read_trim_singlechannel_request.ParseFromString(request_envelope.payload())){
+                read_trim_singlechannel_response.set_success(true);
+                read_trim_singlechannel_response.set_message("Single channel trim read successfully");
+                response_envelope.set_type(READ_TRIM_CH);
+                response_envelope.set_payload(read_trim_singlechannel_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                read_trim_singlechannel_response.set_success(false);
+                read_trim_singlechannel_response.set_message("Payload not recognized");
+                response_envelope.set_type(READ_TRIM_CH);
+                response_envelope.set_payload(read_trim_singlechannel_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case READ_OFFSET_ALL_CH: { // to be implemented
+            std::cout << "The request is a ReadOffsetAllChannelsRequest" << std::endl;
+            if(read_offset_allchannels_request.ParseFromString(request_envelope.payload())){
+                read_offset_allchannels_response.set_success(true);
+                read_offset_allchannels_response.set_message("All channel offsets read successfully");
+                response_envelope.set_type(READ_OFFSET_ALL_CH);
+                response_envelope.set_payload(read_offset_allchannels_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                read_offset_allchannels_response.set_success(false);
+                read_offset_allchannels_response.set_message("Payload not recognized");
+                response_envelope.set_type(READ_OFFSET_ALL_CH);
+                response_envelope.set_payload(read_offset_allchannels_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case READ_OFFSET_ALL_AFE: { // to be implemented
+            std::cout << "The request is a ReadOffsetAllAfeRequest" << std::endl;
+            if(read_offset_allafe_request.ParseFromString(request_envelope.payload())){
+                read_offset_allafe_response.set_success(true);
+                read_offset_allafe_response.set_message("All AFE offsets read successfully");
+                response_envelope.set_type(READ_OFFSET_ALL_AFE);
+                response_envelope.set_payload(read_offset_allafe_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                read_offset_allafe_response.set_success(false);
+                read_offset_allafe_response.set_message("Payload not recognized");
+                response_envelope.set_type(READ_OFFSET_ALL_AFE);
+                response_envelope.set_payload(read_offset_allafe_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case READ_OFFSET_CH: { // to be implemented
+            std::cout << "The request is a ReadOffsetSingleChannelRequest" << std::endl;
+            if(read_offset_singlechannel_request.ParseFromString(request_envelope.payload())){
+                read_offset_singlechannel_response.set_success(true);
+                read_offset_singlechannel_response.set_message("Single channel offset read successfully");
+                response_envelope.set_type(READ_OFFSET_CH);
+                response_envelope.set_payload(read_offset_singlechannel_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                read_offset_singlechannel_response.set_success(false);
+                read_offset_singlechannel_response.set_message("Payload not recognized");
+                response_envelope.set_type(READ_OFFSET_CH);
+                response_envelope.set_payload(read_offset_singlechannel_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case READ_VBIAS_CONTROL: { // to be implemented
+            std::cout << "The request is a ReadVbiasControlRequest" << std::endl;
+            if(read_vbias_control_request.ParseFromString(request_envelope.payload())){
+                read_vbias_control_response.set_success(true);
+                read_vbias_control_response.set_message("Vbias control read successfully");
+                response_envelope.set_type(READ_VBIAS_CONTROL);
+                response_envelope.set_payload(read_vbias_control_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                read_vbias_control_response.set_success(false);
+                read_vbias_control_response.set_message("Payload not recognized");
+                response_envelope.set_type(READ_VBIAS_CONTROL);
+                response_envelope.set_payload(read_vbias_control_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case READ_CURRENT_MONITOR: { // to be implemented
+            std::cout << "The request is a ReadCurrentMonitorRequest" << std::endl;
+            if(read_current_monitor_request.ParseFromString(request_envelope.payload())){
+                read_current_monitor_response.set_success(true);
+                read_current_monitor_response.set_message("Current monitor read successfully");
+                response_envelope.set_type(READ_CURRENT_MONITOR);
+                response_envelope.set_payload(read_current_monitor_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                read_current_monitor_response.set_success(false);
+                read_current_monitor_response.set_message("Payload not recognized");
+                response_envelope.set_type(READ_CURRENT_MONITOR);
+                response_envelope.set_payload(read_current_monitor_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case READ_BIAS_VOLTAGE_MONITOR: { // to be implemented
+            std::cout << "The request is a ReadBiasVoltageMonitorRequest" << std::endl;
+            if(read_bias_voltage_monitor_request.ParseFromString(request_envelope.payload())){
+                read_bias_voltage_monitor_response.set_success(true);
+                read_bias_voltage_monitor_response.set_message("Bias voltage monitor read successfully");
+                response_envelope.set_type(READ_BIAS_VOLTAGE_MONITOR);
+                response_envelope.set_payload(read_bias_voltage_monitor_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                read_bias_voltage_monitor_response.set_success(false);
+                read_bias_voltage_monitor_response.set_message("Payload not recognized");
+                response_envelope.set_type(READ_BIAS_VOLTAGE_MONITOR);
+                response_envelope.set_payload(read_bias_voltage_monitor_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case SET_AFE_RESET: { // to be implemented
+            std::cout << "The request is a SetAfeResetRequest" << std::endl;
+            if(set_afe_reset_request.ParseFromString(request_envelope.payload())){
+                set_afe_reset_response.set_success(true);
+                set_afe_reset_response.set_message("AFE reset set successfully");
+                response_envelope.set_type(SET_AFE_RESET);
+                response_envelope.set_payload(set_afe_reset_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                set_afe_reset_response.set_success(false);
+                set_afe_reset_response.set_message("Payload not recognized");
+                response_envelope.set_type(SET_AFE_RESET);
+                response_envelope.set_payload(set_afe_reset_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case SET_AFE_POWERDOWN: { // to be implemented
+            std::cout << "The request is a SetAfePowerDownRequest" << std::endl;
+            if(set_afe_powerdown_request.ParseFromString(request_envelope.payload())){
+                set_afe_powerdown_response.set_success(true);
+                set_afe_powerdown_response.set_message("AFE power down set successfully");
+                response_envelope.set_type(SET_AFE_POWERDOWN);
+                response_envelope.set_payload(set_afe_powerdown_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                set_afe_powerdown_response.set_success(false);
+                set_afe_powerdown_response.set_message("Payload not recognized");
+                response_envelope.set_type(SET_AFE_POWERDOWN);
+                response_envelope.set_payload(set_afe_powerdown_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
         default: {
             response_str = "Request not recognized";
             return;
         }
-    }
     }
 }
 

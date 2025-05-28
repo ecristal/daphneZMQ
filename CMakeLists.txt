@@ -18,8 +18,28 @@ find_package(cppzmq REQUIRED)
 find_package(absl REQUIRED)
 
 # Auto-generate protobuf files
-set(PROTO_FILE "${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf/daphneV3_high_level_confs.proto")
-protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_FILE})
+set(PROTO_HIGH_LEVEL_FILE "${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf/daphneV3_high_level_confs.proto")
+set(PROTO_LOW_LEVEL_FILE "${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf/daphneV3_low_level_confs.proto")
+#protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_HIGH_LEVEL_FILE} ${PROTO_LOW_LEVEL_FILE})
+
+set(PROTO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf")
+
+foreach(PROTO_FILE ${PROTO_HIGH_LEVEL_FILE} ${PROTO_LOW_LEVEL_FILE})
+    get_filename_component(PROTO_FILE_NAME ${PROTO_FILE} NAME_WE)
+    set(pb_cc "${PROTO_DIR}/${PROTO_FILE_NAME}.pb.cc")
+    set(pb_h "${PROTO_DIR}/${PROTO_FILE_NAME}.pb.h")
+
+    add_custom_command(
+        OUTPUT ${pb_cc} ${pb_h}
+        COMMAND ${Protobuf_PROTOC_EXECUTABLE}
+        ARGS --cpp_out=${PROTO_DIR} --proto_path=${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf ${PROTO_FILE}
+        DEPENDS ${PROTO_FILE}
+        COMMENT "Generating protobuf files for ${PROTO_FILE_NAME}"
+    )
+    list(APPEND PROTO_SRCS ${pb_cc})
+    list(APPEND PROTO_HDRS ${pb_h})
+endforeach()
+
 
 include_directories(
     include

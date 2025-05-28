@@ -156,6 +156,30 @@ enum MessageType : int {
   UNKNOWN = 0,
   CONFIGURE_CLKS = 1,
   CONFIGURE_FE = 2,
+  WRITE_AFE_REG = 3,
+  WRITE_AFE_VGAIN = 4,
+  WRITE_AFE_BIAS_SET = 5,
+  WRITE_TRIM_ALL_CH = 6,
+  WRITE_TRIM_ALL_AFE = 7,
+  WRITE_TRIM_CH = 8,
+  WRITE_OFFSET_ALL_CH = 9,
+  WRITE_OFFSET_ALL_AFE = 10,
+  WRITE_OFFSET_CH = 11,
+  WRITE_VBIAS_CONTROL = 12,
+  READ_AFE_REG = 13,
+  READ_AFE_VGAIN = 14,
+  READ_AFE_BIAS_SET = 15,
+  READ_TRIM_ALL_CH = 16,
+  READ_TRIM_ALL_AFE = 17,
+  READ_TRIM_CH = 18,
+  READ_OFFSET_ALL_CH = 19,
+  READ_OFFSET_ALL_AFE = 20,
+  READ_OFFSET_CH = 21,
+  READ_VBIAS_CONTROL = 22,
+  READ_CURRENT_MONITOR = 23,
+  READ_BIAS_VOLTAGE_MONITOR = 24,
+  SET_AFE_RESET = 25,
+  SET_AFE_POWERDOWN = 26,
   MessageType_INT_MIN_SENTINEL_DO_NOT_USE_ =
       std::numeric_limits<::int32_t>::min(),
   MessageType_INT_MAX_SENTINEL_DO_NOT_USE_ =
@@ -166,11 +190,11 @@ extern const uint32_t MessageType_internal_data_[];
 inline constexpr MessageType MessageType_MIN =
     static_cast<MessageType>(0);
 inline constexpr MessageType MessageType_MAX =
-    static_cast<MessageType>(2);
+    static_cast<MessageType>(26);
 inline bool MessageType_IsValid(int value) {
-  return 0 <= value && value <= 2;
+  return 0 <= value && value <= 26;
 }
-inline constexpr int MessageType_ARRAYSIZE = 2 + 1;
+inline constexpr int MessageType_ARRAYSIZE = 26 + 1;
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL MessageType_descriptor();
 template <typename T>
 const std::string& MessageType_Name(T value) {
@@ -181,7 +205,7 @@ const std::string& MessageType_Name(T value) {
 }
 template <>
 inline const std::string& MessageType_Name(MessageType value) {
-  return ::google::protobuf::internal::NameOfDenseEnum<MessageType_descriptor, 0, 2>(
+  return ::google::protobuf::internal::NameOfDenseEnum<MessageType_descriptor, 0, 26>(
       static_cast<int>(value));
 }
 inline bool MessageType_Parse(

@@ -1075,23 +1075,37 @@ const char descriptor_table_protodef_daphneV3_5fhigh_5flevel_5fconfs_2eproto[] A
     "9\n\025WriteRegisterResponse\022\017\n\007success\030\001 \001("
     "\010\022\017\n\007message\030\002 \001(\t\">\n\017ControlEnvelope\022\032\n"
     "\004type\030\001 \001(\0162\014.MessageType\022\017\n\007payload\030\002 \001"
-    "(\014*@\n\013MessageType\022\013\n\007UNKNOWN\020\000\022\022\n\016CONFIG"
-    "URE_CLKS\020\001\022\020\n\014CONFIGURE_FE\020\0022\331\002\n\020DaphneC"
-    "ontroller\022>\n\rConfigureCLKs\022\025.ConfigureCL"
-    "KsRequest\032\026.ConfigureCLKsResponse\0222\n\tCon"
-    "figure\022\021.ConfigureRequest\032\022.ConfigureRes"
-    "ponse\022&\n\005Scrap\022\r.ScrapRequest\032\016.ScrapRes"
-    "ponse\022A\n\016DumpSpyBuffers\022\026.DumpSpyBuffers"
-    "Request\032\027.DumpSpyBuffersResponse\022&\n\007GetI"
-    "nfo\022\014.InfoRequest\032\r.InfoResponse\022>\n\rWrit"
-    "eRegister\022\025.WriteRegisterRequest\032\026.Write"
-    "RegisterResponseb\006proto3"
+    "(\014*\337\004\n\013MessageType\022\013\n\007UNKNOWN\020\000\022\022\n\016CONFI"
+    "GURE_CLKS\020\001\022\020\n\014CONFIGURE_FE\020\002\022\021\n\rWRITE_A"
+    "FE_REG\020\003\022\023\n\017WRITE_AFE_VGAIN\020\004\022\026\n\022WRITE_A"
+    "FE_BIAS_SET\020\005\022\025\n\021WRITE_TRIM_ALL_CH\020\006\022\026\n\022"
+    "WRITE_TRIM_ALL_AFE\020\007\022\021\n\rWRITE_TRIM_CH\020\010\022"
+    "\027\n\023WRITE_OFFSET_ALL_CH\020\t\022\030\n\024WRITE_OFFSET"
+    "_ALL_AFE\020\n\022\023\n\017WRITE_OFFSET_CH\020\013\022\027\n\023WRITE"
+    "_VBIAS_CONTROL\020\014\022\020\n\014READ_AFE_REG\020\r\022\022\n\016RE"
+    "AD_AFE_VGAIN\020\016\022\025\n\021READ_AFE_BIAS_SET\020\017\022\024\n"
+    "\020READ_TRIM_ALL_CH\020\020\022\025\n\021READ_TRIM_ALL_AFE"
+    "\020\021\022\020\n\014READ_TRIM_CH\020\022\022\026\n\022READ_OFFSET_ALL_"
+    "CH\020\023\022\027\n\023READ_OFFSET_ALL_AFE\020\024\022\022\n\016READ_OF"
+    "FSET_CH\020\025\022\026\n\022READ_VBIAS_CONTROL\020\026\022\030\n\024REA"
+    "D_CURRENT_MONITOR\020\027\022\035\n\031READ_BIAS_VOLTAGE"
+    "_MONITOR\020\030\022\021\n\rSET_AFE_RESET\020\031\022\025\n\021SET_AFE"
+    "_POWERDOWN\020\0322\331\002\n\020DaphneController\022>\n\rCon"
+    "figureCLKs\022\025.ConfigureCLKsRequest\032\026.Conf"
+    "igureCLKsResponse\0222\n\tConfigure\022\021.Configu"
+    "reRequest\032\022.ConfigureResponse\022&\n\005Scrap\022\r"
+    ".ScrapRequest\032\016.ScrapResponse\022A\n\016DumpSpy"
+    "Buffers\022\026.DumpSpyBuffersRequest\032\027.DumpSp"
+    "yBuffersResponse\022&\n\007GetInfo\022\014.InfoReques"
+    "t\032\r.InfoResponse\022>\n\rWriteRegister\022\025.Writ"
+    "eRegisterRequest\032\026.WriteRegisterResponse"
+    "b\006proto3"
 };
 static ::absl::once_flag descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto = {
     false,
     false,
-    2424,
+    2968,
     descriptor_table_protodef_daphneV3_5fhigh_5flevel_5fconfs_2eproto,
     "daphneV3_high_level_confs.proto",
     &descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto_once,
@@ -1109,7 +1123,7 @@ const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL MessageType_descripto
   return file_level_enum_descriptors_daphneV3_5fhigh_5flevel_5fconfs_2eproto[0];
 }
 PROTOBUF_CONSTINIT const uint32_t MessageType_internal_data_[] = {
-    196608u, 0u, };
+    1769472u, 0u, };
 // ===================================================================
 
 class ConfigureCLKsRequest::_Internal {
