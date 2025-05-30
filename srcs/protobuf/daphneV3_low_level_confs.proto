@@ -132,7 +132,8 @@ message cmd_writeOFFSET_singleChannel_response {
 }
 
 message cmd_writeVbiasControl {
-	uint32 vBiasControlValue = 1; 
+	uint32 vBiasControlValue = 1;
+	bool   enable            = 2;
 }
 
 message cmd_writeVbiasControl_response {

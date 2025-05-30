@@ -57,7 +57,8 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_writeVbiasControl::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
-        vbiascontrolvalue_{0u} {}
+        vbiascontrolvalue_{0u},
+        enable_{false} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR cmd_writeVbiasControl::cmd_writeVbiasControl(::_pbi::ConstantInitialized)
@@ -1718,7 +1719,9 @@ const ::uint32_t
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl, _impl_.vbiascontrolvalue_),
+        PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl, _impl_.enable_),
         0,
+        1,
         PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl_response, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl_response, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -2111,36 +2114,36 @@ static const ::_pbi::MigrationSchema
         {252, 265, -1, sizeof(::cmd_writeOFFSET_allAFE_response)},
         {270, 281, -1, sizeof(::cmd_writeOFFSET_singleChannel)},
         {284, 297, -1, sizeof(::cmd_writeOFFSET_singleChannel_response)},
-        {302, 311, -1, sizeof(::cmd_writeVbiasControl)},
-        {312, 323, -1, sizeof(::cmd_writeVbiasControl_response)},
-        {326, 336, -1, sizeof(::cmd_readAFEReg)},
-        {338, 351, -1, sizeof(::cmd_readAFEReg_response)},
-        {356, 365, -1, sizeof(::cmd_readAFEVgain)},
-        {366, 378, -1, sizeof(::cmd_readAFEVgain_response)},
-        {382, 391, -1, sizeof(::cmd_readAFEBiasSet)},
-        {392, 404, -1, sizeof(::cmd_readAFEBiasSet_response)},
-        {408, -1, -1, sizeof(::cmd_readTrim_allChannels)},
-        {416, 427, -1, sizeof(::cmd_readTrim_allChannels_response)},
-        {430, 439, -1, sizeof(::cmd_readTrim_allAFE)},
-        {440, 452, -1, sizeof(::cmd_readTrim_allAFE_response)},
-        {456, 465, -1, sizeof(::cmd_readTrim_singleChannel)},
-        {466, 478, -1, sizeof(::cmd_readTrim_singleChannel_response)},
-        {482, -1, -1, sizeof(::cmd_readOffset_allChannels)},
-        {490, 501, -1, sizeof(::cmd_readOffset_allChannels_response)},
-        {504, 513, -1, sizeof(::cmd_readOffset_allAFE)},
-        {514, 526, -1, sizeof(::cmd_readOffset_allAFE_response)},
-        {530, 539, -1, sizeof(::cmd_readOffset_singleChannel)},
-        {540, 552, -1, sizeof(::cmd_readOffset_singleChannel_response)},
-        {556, -1, -1, sizeof(::cmd_readVbiasControl)},
-        {564, 575, -1, sizeof(::cmd_readVbiasControl_response)},
-        {578, 587, -1, sizeof(::cmd_readCurrentMonitor)},
-        {588, 600, -1, sizeof(::cmd_readCurrentMonitor_response)},
-        {604, 613, -1, sizeof(::cmd_readBiasVoltageMonitor)},
-        {614, 626, -1, sizeof(::cmd_readBiasVoltageMonitor_response)},
-        {630, 639, -1, sizeof(::cmd_setAFEReset)},
-        {640, 651, -1, sizeof(::cmd_setAFEReset_response)},
-        {654, 664, -1, sizeof(::cmd_setAFEPowerDown)},
-        {666, 677, -1, sizeof(::cmd_setAFEPowerDown_response)},
+        {302, 312, -1, sizeof(::cmd_writeVbiasControl)},
+        {314, 325, -1, sizeof(::cmd_writeVbiasControl_response)},
+        {328, 338, -1, sizeof(::cmd_readAFEReg)},
+        {340, 353, -1, sizeof(::cmd_readAFEReg_response)},
+        {358, 367, -1, sizeof(::cmd_readAFEVgain)},
+        {368, 380, -1, sizeof(::cmd_readAFEVgain_response)},
+        {384, 393, -1, sizeof(::cmd_readAFEBiasSet)},
+        {394, 406, -1, sizeof(::cmd_readAFEBiasSet_response)},
+        {410, -1, -1, sizeof(::cmd_readTrim_allChannels)},
+        {418, 429, -1, sizeof(::cmd_readTrim_allChannels_response)},
+        {432, 441, -1, sizeof(::cmd_readTrim_allAFE)},
+        {442, 454, -1, sizeof(::cmd_readTrim_allAFE_response)},
+        {458, 467, -1, sizeof(::cmd_readTrim_singleChannel)},
+        {468, 480, -1, sizeof(::cmd_readTrim_singleChannel_response)},
+        {484, -1, -1, sizeof(::cmd_readOffset_allChannels)},
+        {492, 503, -1, sizeof(::cmd_readOffset_allChannels_response)},
+        {506, 515, -1, sizeof(::cmd_readOffset_allAFE)},
+        {516, 528, -1, sizeof(::cmd_readOffset_allAFE_response)},
+        {532, 541, -1, sizeof(::cmd_readOffset_singleChannel)},
+        {542, 554, -1, sizeof(::cmd_readOffset_singleChannel_response)},
+        {558, -1, -1, sizeof(::cmd_readVbiasControl)},
+        {566, 577, -1, sizeof(::cmd_readVbiasControl_response)},
+        {580, 589, -1, sizeof(::cmd_readCurrentMonitor)},
+        {590, 602, -1, sizeof(::cmd_readCurrentMonitor_response)},
+        {606, 615, -1, sizeof(::cmd_readBiasVoltageMonitor)},
+        {616, 628, -1, sizeof(::cmd_readBiasVoltageMonitor_response)},
+        {632, 641, -1, sizeof(::cmd_setAFEReset)},
+        {642, 653, -1, sizeof(::cmd_setAFEReset_response)},
+        {656, 666, -1, sizeof(::cmd_setAFEPowerDown)},
+        {668, 679, -1, sizeof(::cmd_setAFEPowerDown_response)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::_cmd_writeAFEReg_default_instance_._instance,
@@ -2245,68 +2248,68 @@ const char descriptor_table_protodef_daphneV3_5flow_5flevel_5fconfs_2eproto[] AB
     "writeOFFSET_singleChannel_response\022\017\n\007su"
     "ccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\025\n\roffsetCh"
     "annel\030\003 \001(\r\022\023\n\013offsetValue\030\004 \001(\r\022\022\n\noffs"
-    "etGain\030\005 \001(\010\"2\n\025cmd_writeVbiasControl\022\031\n"
-    "\021vBiasControlValue\030\001 \001(\r\"]\n\036cmd_writeVbi"
-    "asControl_response\022\017\n\007success\030\001 \001(\010\022\017\n\007m"
-    "essage\030\002 \001(\t\022\031\n\021vBiasControlValue\030\003 \001(\r\""
-    "6\n\016cmd_readAFEReg\022\020\n\010afeBlock\030\001 \001(\r\022\022\n\nr"
-    "egAddress\030\002 \001(\r\"s\n\027cmd_readAFEReg_respon"
-    "se\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010"
-    "afeBlock\030\003 \001(\r\022\022\n\nregAddress\030\004 \001(\r\022\020\n\010re"
-    "gValue\030\005 \001(\r\"$\n\020cmd_readAFEVgain\022\020\n\010afeB"
-    "lock\030\001 \001(\r\"c\n\031cmd_readAFEVgain_response\022"
-    "\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afe"
-    "Block\030\003 \001(\r\022\022\n\nvgainValue\030\004 \001(\r\"&\n\022cmd_r"
-    "eadAFEBiasSet\022\020\n\010afeBlock\030\001 \001(\r\"d\n\033cmd_r"
-    "eadAFEBiasSet_response\022\017\n\007success\030\001 \001(\010\022"
-    "\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\021\n\tbi"
-    "asValue\030\004 \001(\r\"\032\n\030cmd_readTrim_allChannel"
-    "s\"Y\n!cmd_readTrim_allChannels_response\022\017"
-    "\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\022\n\ntrim"
-    "Values\030\003 \003(\r\"\'\n\023cmd_readTrim_allAFE\022\020\n\010a"
-    "feBlock\030\001 \001(\r\"f\n\034cmd_readTrim_allAFE_res"
-    "ponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022"
-    "\020\n\010afeBlock\030\003 \001(\r\022\022\n\ntrimValues\030\004 \003(\r\"1\n"
-    "\032cmd_readTrim_singleChannel\022\023\n\013trimChann"
-    "el\030\001 \001(\r\"o\n#cmd_readTrim_singleChannel_r"
-    "esponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001("
-    "\t\022\023\n\013trimChannel\030\003 \001(\r\022\021\n\ttrimValue\030\004 \001("
-    "\r\"\034\n\032cmd_readOffset_allChannels\"]\n#cmd_r"
-    "eadOffset_allChannels_response\022\017\n\007succes"
-    "s\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\024\n\014offsetValues"
-    "\030\003 \003(\r\")\n\025cmd_readOffset_allAFE\022\020\n\010afeBl"
-    "ock\030\001 \001(\r\"j\n\036cmd_readOffset_allAFE_respo"
-    "nse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n"
-    "\010afeBlock\030\003 \001(\r\022\024\n\014offsetValues\030\004 \003(\r\"5\n"
-    "\034cmd_readOffset_singleChannel\022\025\n\roffsetC"
-    "hannel\030\001 \001(\r\"u\n%cmd_readOffset_singleCha"
-    "nnel_response\022\017\n\007success\030\001 \001(\010\022\017\n\007messag"
-    "e\030\002 \001(\t\022\025\n\roffsetChannel\030\003 \001(\r\022\023\n\013offset"
-    "Value\030\004 \001(\r\"\026\n\024cmd_readVbiasControl\"\\\n\035c"
-    "md_readVbiasControl_response\022\017\n\007success\030"
-    "\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\031\n\021vBiasControlVa"
-    "lue\030\003 \001(\r\"7\n\026cmd_readCurrentMonitor\022\035\n\025c"
-    "urrentMonitorChannel\030\001 \001(\r\"x\n\037cmd_readCu"
-    "rrentMonitor_response\022\017\n\007success\030\001 \001(\010\022\017"
-    "\n\007message\030\002 \001(\t\022\035\n\025currentMonitorChannel"
-    "\030\003 \001(\r\022\024\n\014currentValue\030\004 \001(\r\".\n\032cmd_read"
-    "BiasVoltageMonitor\022\020\n\010afeBlock\030\001 \001(\r\"s\n#"
-    "cmd_readBiasVoltageMonitor_response\022\017\n\007s"
-    "uccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBloc"
-    "k\030\003 \001(\r\022\030\n\020biasVoltageValue\030\004 \001(\r\"#\n\017cmd"
-    "_setAFEReset\022\020\n\010afeBlock\030\001 \001(\r\"N\n\030cmd_se"
-    "tAFEReset_response\022\017\n\007success\030\001 \001(\010\022\017\n\007m"
-    "essage\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\"9\n\023cmd_se"
-    "tAFEPowerDown\022\020\n\010afeBlock\030\001 \001(\r\022\020\n\010pwrSt"
-    "ate\030\002 \001(\010\"R\n\034cmd_setAFEPowerDown_respons"
-    "e\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010a"
-    "feBlock\030\003 \001(\rb\006proto3"
+    "etGain\030\005 \001(\010\"B\n\025cmd_writeVbiasControl\022\031\n"
+    "\021vBiasControlValue\030\001 \001(\r\022\016\n\006enable\030\002 \001(\010"
+    "\"]\n\036cmd_writeVbiasControl_response\022\017\n\007su"
+    "ccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\031\n\021vBiasCon"
+    "trolValue\030\003 \001(\r\"6\n\016cmd_readAFEReg\022\020\n\010afe"
+    "Block\030\001 \001(\r\022\022\n\nregAddress\030\002 \001(\r\"s\n\027cmd_r"
+    "eadAFEReg_response\022\017\n\007success\030\001 \001(\010\022\017\n\007m"
+    "essage\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\022\n\nregAdd"
+    "ress\030\004 \001(\r\022\020\n\010regValue\030\005 \001(\r\"$\n\020cmd_read"
+    "AFEVgain\022\020\n\010afeBlock\030\001 \001(\r\"c\n\031cmd_readAF"
+    "EVgain_response\022\017\n\007success\030\001 \001(\010\022\017\n\007mess"
+    "age\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\022\n\nvgainValu"
+    "e\030\004 \001(\r\"&\n\022cmd_readAFEBiasSet\022\020\n\010afeBloc"
+    "k\030\001 \001(\r\"d\n\033cmd_readAFEBiasSet_response\022\017"
+    "\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeB"
+    "lock\030\003 \001(\r\022\021\n\tbiasValue\030\004 \001(\r\"\032\n\030cmd_rea"
+    "dTrim_allChannels\"Y\n!cmd_readTrim_allCha"
+    "nnels_response\022\017\n\007success\030\001 \001(\010\022\017\n\007messa"
+    "ge\030\002 \001(\t\022\022\n\ntrimValues\030\003 \003(\r\"\'\n\023cmd_read"
+    "Trim_allAFE\022\020\n\010afeBlock\030\001 \001(\r\"f\n\034cmd_rea"
+    "dTrim_allAFE_response\022\017\n\007success\030\001 \001(\010\022\017"
+    "\n\007message\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\022\n\ntri"
+    "mValues\030\004 \003(\r\"1\n\032cmd_readTrim_singleChan"
+    "nel\022\023\n\013trimChannel\030\001 \001(\r\"o\n#cmd_readTrim"
+    "_singleChannel_response\022\017\n\007success\030\001 \001(\010"
+    "\022\017\n\007message\030\002 \001(\t\022\023\n\013trimChannel\030\003 \001(\r\022\021"
+    "\n\ttrimValue\030\004 \001(\r\"\034\n\032cmd_readOffset_allC"
+    "hannels\"]\n#cmd_readOffset_allChannels_re"
+    "sponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t"
+    "\022\024\n\014offsetValues\030\003 \003(\r\")\n\025cmd_readOffset"
+    "_allAFE\022\020\n\010afeBlock\030\001 \001(\r\"j\n\036cmd_readOff"
+    "set_allAFE_response\022\017\n\007success\030\001 \001(\010\022\017\n\007"
+    "message\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\024\n\014offse"
+    "tValues\030\004 \003(\r\"5\n\034cmd_readOffset_singleCh"
+    "annel\022\025\n\roffsetChannel\030\001 \001(\r\"u\n%cmd_read"
+    "Offset_singleChannel_response\022\017\n\007success"
+    "\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\025\n\roffsetChannel"
+    "\030\003 \001(\r\022\023\n\013offsetValue\030\004 \001(\r\"\026\n\024cmd_readV"
+    "biasControl\"\\\n\035cmd_readVbiasControl_resp"
+    "onse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\031"
+    "\n\021vBiasControlValue\030\003 \001(\r\"7\n\026cmd_readCur"
+    "rentMonitor\022\035\n\025currentMonitorChannel\030\001 \001"
+    "(\r\"x\n\037cmd_readCurrentMonitor_response\022\017\n"
+    "\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\035\n\025curre"
+    "ntMonitorChannel\030\003 \001(\r\022\024\n\014currentValue\030\004"
+    " \001(\r\".\n\032cmd_readBiasVoltageMonitor\022\020\n\010af"
+    "eBlock\030\001 \001(\r\"s\n#cmd_readBiasVoltageMonit"
+    "or_response\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030"
+    "\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\030\n\020biasVoltageVa"
+    "lue\030\004 \001(\r\"#\n\017cmd_setAFEReset\022\020\n\010afeBlock"
+    "\030\001 \001(\r\"N\n\030cmd_setAFEReset_response\022\017\n\007su"
+    "ccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock"
+    "\030\003 \001(\r\"9\n\023cmd_setAFEPowerDown\022\020\n\010afeBloc"
+    "k\030\001 \001(\r\022\020\n\010pwrState\030\002 \001(\010\"R\n\034cmd_setAFEP"
+    "owerDown_response\022\017\n\007success\030\001 \001(\010\022\017\n\007me"
+    "ssage\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\rb\006proto3"
 };
 static ::absl::once_flag descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto = {
     false,
     false,
-    4181,
+    4197,
     descriptor_table_protodef_daphneV3_5flow_5flevel_5fconfs_2eproto,
     "daphneV3_low_level_confs.proto",
     &descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto_once,
@@ -9152,7 +9155,12 @@ PROTOBUF_NDEBUG_INLINE cmd_writeVbiasControl::Impl_::Impl_(
 
 inline void cmd_writeVbiasControl::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.vbiascontrolvalue_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, vbiascontrolvalue_),
+           0,
+           offsetof(Impl_, enable_) -
+               offsetof(Impl_, vbiascontrolvalue_) +
+               sizeof(Impl_::enable_));
 }
 cmd_writeVbiasControl::~cmd_writeVbiasControl() {
   // @@protoc_insertion_point(destructor:cmd_writeVbiasControl)
@@ -9208,16 +9216,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeVbiasCo
   return cmd_writeVbiasControl_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
 cmd_writeVbiasControl::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeVbiasControl_class_data_.base(),
@@ -9227,6 +9235,9 @@ cmd_writeVbiasControl::_table_ = {
     ::_pbi::TcParser::GetTable<::cmd_writeVbiasControl>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
+    // bool enable = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeVbiasControl, _impl_.enable_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.enable_)}},
     // uint32 vBiasControlValue = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeVbiasControl, _impl_.vbiascontrolvalue_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.vbiascontrolvalue_)}},
@@ -9236,6 +9247,9 @@ cmd_writeVbiasControl::_table_ = {
     // uint32 vBiasControlValue = 1;
     {PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.vbiascontrolvalue_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool enable = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.enable_), _Internal::kHasBitsOffset + 1, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -9248,7 +9262,12 @@ PROTOBUF_NOINLINE void cmd_writeVbiasControl::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.vbiascontrolvalue_ = 0u;
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    ::memset(&_impl_.vbiascontrolvalue_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.enable_) -
+        reinterpret_cast<char*>(&_impl_.vbiascontrolvalue_)) + sizeof(_impl_.enable_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -9277,6 +9296,15 @@ PROTOBUF_NOINLINE void cmd_writeVbiasControl::Clear() {
     }
   }
 
+  // bool enable = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_enable() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          2, this_._internal_enable(), target);
+    }
+  }
+
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -9300,13 +9328,20 @@ PROTOBUF_NOINLINE void cmd_writeVbiasControl::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
     // uint32 vBiasControlValue = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (this_._internal_vbiascontrolvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_vbiascontrolvalue());
+      }
+    }
+    // bool enable = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (this_._internal_enable() != 0) {
+        total_size += 2;
       }
     }
   }
@@ -9323,9 +9358,16 @@ void cmd_writeVbiasControl::MergeImpl(::google::protobuf::MessageLite& to_msg, c
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    if (from._internal_vbiascontrolvalue() != 0) {
-      _this->_impl_.vbiascontrolvalue_ = from._impl_.vbiascontrolvalue_;
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_vbiascontrolvalue() != 0) {
+        _this->_impl_.vbiascontrolvalue_ = from._impl_.vbiascontrolvalue_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_enable() != 0) {
+        _this->_impl_.enable_ = from._impl_.enable_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -9344,7 +9386,12 @@ void cmd_writeVbiasControl::InternalSwap(cmd_writeVbiasControl* PROTOBUF_RESTRIC
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.vbiascontrolvalue_, other->_impl_.vbiascontrolvalue_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.enable_)
+      + sizeof(cmd_writeVbiasControl::_impl_.enable_)
+      - PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.vbiascontrolvalue_)>(
+          reinterpret_cast<char*>(&_impl_.vbiascontrolvalue_),
+          reinterpret_cast<char*>(&other->_impl_.vbiascontrolvalue_));
 }
 
 ::google::protobuf::Metadata cmd_writeVbiasControl::GetMetadata() const {

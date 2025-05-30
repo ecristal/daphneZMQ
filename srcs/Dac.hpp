@@ -31,22 +31,15 @@ public:
     uint32_t setDacTrim(const uint32_t& afe,const uint32_t& ch,const uint32_t& value, const bool& gain, const bool& buffer);
     uint32_t setDacOffset(const uint32_t& afe,const uint32_t& ch,const uint32_t& value, const bool& gain, const bool& buffer);
     uint32_t setDacTrimOffset(const std::string& what, const uint32_t& afe,const uint32_t& channelH,const uint32_t& valueH,const uint32_t& channelL,const uint32_t& valueL, const bool& gain = false, const bool& buffer = false);
+    uint32_t setBiasEnable(const bool &enable);
 
 private:
     using TupleEntry_GainBias = std::tuple<std::string, uint32_t, bool, bool>;
     using TupleEntry_ChMapping = std::tuple<std::string, uint32_t>;
 
     std::unique_ptr<Spi> spi;
-    std::unordered_map<uint32_t, uint32_t> channelValues = {
-        {0, 0},
-        {1, 0},
-        {2, 0},
-        {3, 0},
-        {4, 0},
-        {5, 0},
-        {6, 0},
-        {7, 0},
-    };
+
+    std::unordered_map<std::string, std::unordered_map<uint32_t, uint32_t>> channelValues;
     // This mapping has to be verified!!!!
     std::map<uint32_t, TupleEntry_GainBias> GAIN_MAPPING = {
         {0, {"U50", 0, false, false}}, // chip, chip_channel, chip_channel_gain, chip_channel_buffer
@@ -56,7 +49,7 @@ private:
         {4, {"U5", 1, false, false}}
     };
     std::map<uint32_t, TupleEntry_GainBias> BIAS_MAPPING = {
-        {0, {"U53", 0, false, false}},
+        {0, {"U53", 0, false, false}}, // chip, chip_channel, chip_channel_gain, chip_channel_buffer
         {1, {"U53", 1, false, false}},
         {2, {"U53", 2, false, false}},
         {3, {"U53", 3, false, false}},

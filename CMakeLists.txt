@@ -28,18 +28,31 @@ foreach(PROTO_FILE ${PROTO_HIGH_LEVEL_FILE} ${PROTO_LOW_LEVEL_FILE})
     get_filename_component(PROTO_FILE_NAME ${PROTO_FILE} NAME_WE)
     set(pb_cc "${PROTO_DIR}/${PROTO_FILE_NAME}.pb.cc")
     set(pb_h "${PROTO_DIR}/${PROTO_FILE_NAME}.pb.h")
+    set(pb_py "${PROTO_DIR}/${PROTO_FILE_NAME}.pb.py")
 
     add_custom_command(
         OUTPUT ${pb_cc} ${pb_h}
         COMMAND ${Protobuf_PROTOC_EXECUTABLE}
         ARGS --cpp_out=${PROTO_DIR} --proto_path=${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf ${PROTO_FILE}
         DEPENDS ${PROTO_FILE}
-        COMMENT "Generating protobuf files for ${PROTO_FILE_NAME}"
+        COMMENT "Generating C++ protobuf files for ${PROTO_FILE_NAME}"
     )
+
+    add_custom_command(
+        OUTPUT ${pb_py}
+        COMMAND ${Protobuf_PROTOC_EXECUTABLE}
+        ARGS --python_out=${PROTO_DIR} --proto_path=${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf ${PROTO_FILE}
+        DEPENDS ${PROTO_FILE}
+        COMMENT "Generating Python protobuf files for ${PROTO_FILE_NAME}"
+    )
+
     list(APPEND PROTO_SRCS ${pb_cc})
     list(APPEND PROTO_HDRS ${pb_h})
+    list(APPEND PROTO_PY_SRCS ${pb_py})
+
 endforeach()
 
+add_custom_target(protobuf_py ALL DEPENDS ${PROTO_PY_SRCS})
 
 include_directories(
     include

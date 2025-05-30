@@ -80,7 +80,7 @@ for device in devices_list:
         afe_lna.integrator_disable = afe_lnas_integrator_disable[i]
         afe_lna.gain = afe_lnas_gains[i]
 
-    print(request)
+    #print(request)
 
     envelope = pb_high.ControlEnvelope()
     envelope.type = pb_high.CONFIGURE_FE
@@ -90,35 +90,110 @@ for device in devices_list:
     serialized_request = envelope.SerializeToString()
 
     # Send via ZMQ
-    context = zmq.Context()
-    socket = context.socket(zmq.REQ)
-    socket.connect("tcp://193.206.157.36:9000")
-    socket.send(serialized_request)
+#     context = zmq.Context()
+#     socket = context.socket(zmq.REQ)
+#     socket.connect("tcp://193.206.157.36:9000")
+#     socket.send(serialized_request)
 
-    # Receive response
-    response_bytes = socket.recv()
-    responseEnvelope = pb_high.ControlEnvelope()
-    responseEnvelope.ParseFromString(response_bytes)
+#     # Receive response
+#     response_bytes = socket.recv()
+#     responseEnvelope = pb_high.ControlEnvelope()
+#     responseEnvelope.ParseFromString(response_bytes)
 
-    print(responseEnvelope)
+#     print(responseEnvelope)
 
-    if(responseEnvelope.type == pb_high.CONFIGURE_FE):
-        response = pb_high.ConfigureResponse()
-        response.ParseFromString(responseEnvelope.payload)
-    elif(responseEnvelope.type == pb_high.CONFIGURE_CLKS):
-        response = pb_high.ConfigureCLKsResponse()
-        response.ParseFromString(responseEnvelope.payload)
-    # Print response
-    print("Success:", response.success)
-    print("Message:", response.message)
-socket.close()
+#     if(responseEnvelope.type == pb_high.CONFIGURE_FE):
+#         response = pb_high.ConfigureResponse()
+#         response.ParseFromString(responseEnvelope.payload)
+#     elif(responseEnvelope.type == pb_high.CONFIGURE_CLKS):
+#         response = pb_high.ConfigureCLKsResponse()
+#         response.ParseFromString(responseEnvelope.payload)
+#     # Print response
+#     print("Success:", response.success)
+#     print("Message:", response.message)
+# socket.close()
 
-request = pb_low.cmd_writeAFEReg()
-request.afeBlock = 0
-request.regAddress = 80
-request.regValue = 0b11010
+# request = pb_low.cmd_writeAFEReg()
+# request.afeBlock = 0
+# request.regAddress = 51
+# request.regValue = 0b11010
+# envelope = pb_high.ControlEnvelope()
+# envelope.type = pb_high.WRITE_AFE_REG
+# envelope.payload = request.SerializeToString()
+
+# # Send via ZMQ
+# context = zmq.Context()
+# socket = context.socket(zmq.REQ)
+# socket.connect("tcp://193.206.157.36:9000")
+# socket.send(envelope.SerializeToString())
+
+# # Receive response
+# response_bytes = socket.recv()
+# responseEnvelope = pb_high.ControlEnvelope()
+# responseEnvelope.ParseFromString(response_bytes)
+
+# if responseEnvelope.type == pb_high.WRITE_AFE_REG:
+#     response = pb_low.cmd_writeAFEReg_response()
+#     response.ParseFromString(responseEnvelope.payload)
+#     print("Success:", response.success)
+#     print("Message:", response.message)
+# socket.close()
+
+# request = pb_low.cmd_writeAFEVGAIN()
+# request.afeBlock = 0
+# request.vgainValue = 1330
+# envelope = pb_high.ControlEnvelope()
+# envelope.type = pb_high.WRITE_AFE_VGAIN
+# envelope.payload = request.SerializeToString()
+
+# # Send via ZMQ
+# context = zmq.Context()
+# socket = context.socket(zmq.REQ)
+# socket.connect("tcp://193.206.157.36:9000")
+# socket.send(envelope.SerializeToString())
+
+# # Receive response
+# response_bytes = socket.recv()
+# responseEnvelope = pb_high.ControlEnvelope()
+# responseEnvelope.ParseFromString(response_bytes)
+
+# if responseEnvelope.type == pb_high.WRITE_AFE_VGAIN:
+#     response = pb_low.cmd_writeAFEReg_response()
+#     response.ParseFromString(responseEnvelope.payload)
+#     print("Success:", response.success)
+#     print("Message:", response.message)
+# socket.close()
+
+# request = pb_low.cmd_writeVbiasControl()
+# request.vBiasControlValue = 1300
+# envelope = pb_high.ControlEnvelope()
+# envelope.type = pb_high.WRITE_VBIAS_CONTROL
+# envelope.payload = request.SerializeToString()
+
+# # Send via ZMQ
+# context = zmq.Context()
+# socket = context.socket(zmq.REQ)
+# socket.connect("tcp://193.206.157.36:9000")
+# socket.send(envelope.SerializeToString())
+
+# # Receive response
+# response_bytes = socket.recv()
+# responseEnvelope = pb_high.ControlEnvelope()
+# responseEnvelope.ParseFromString(response_bytes)
+
+# if responseEnvelope.type == pb_high.WRITE_VBIAS_CONTROL:
+#     response = pb_low.cmd_writeVbiasControl_response()
+#     response.ParseFromString(responseEnvelope.payload)
+#     print("Success:", response.success)
+#     print("Message:", response.message)
+# socket.close()
+
+request = pb_low.cmd_writeTrim_singleChannel()
+request.trimChannel = 8
+request.trimValue = 1500
+request.trimGain = False
 envelope = pb_high.ControlEnvelope()
-envelope.type = pb_high.WRITE_AFE_REG
+envelope.type = pb_high.WRITE_TRIM_CH
 envelope.payload = request.SerializeToString()
 
 # Send via ZMQ
@@ -132,33 +207,8 @@ response_bytes = socket.recv()
 responseEnvelope = pb_high.ControlEnvelope()
 responseEnvelope.ParseFromString(response_bytes)
 
-if responseEnvelope.type == pb_high.WRITE_AFE_REG:
-    response = pb_low.cmd_writeAFEReg_response()
-    response.ParseFromString(responseEnvelope.payload)
-    print("Success:", response.success)
-    print("Message:", response.message)
-socket.close()
-
-request = pb_low.cmd_writeAFEVGAIN()
-request.afeBlock = 0
-request.vgainValue = 5000
-envelope = pb_high.ControlEnvelope()
-envelope.type = pb_high.WRITE_AFE_VGAIN
-envelope.payload = request.SerializeToString()
-
-# Send via ZMQ
-context = zmq.Context()
-socket = context.socket(zmq.REQ)
-socket.connect("tcp://193.206.157.36:9000")
-socket.send(envelope.SerializeToString())
-
-# Receive response
-response_bytes = socket.recv()
-responseEnvelope = pb_high.ControlEnvelope()
-responseEnvelope.ParseFromString(response_bytes)
-
-if responseEnvelope.type == pb_high.WRITE_AFE_VGAIN:
-    response = pb_low.cmd_writeAFEReg_response()
+if responseEnvelope.type == pb_high.WRITE_TRIM_CH:
+    response = pb_low.cmd_writeTrim_singleChannel_response()
     response.ParseFromString(responseEnvelope.payload)
     print("Success:", response.success)
     print("Message:", response.message)

@@ -628,6 +628,7 @@ class cmd_writeVbiasControl final : public ::google::protobuf::Message
   // accessors -------------------------------------------------------
   enum : int {
     kVBiasControlValueFieldNumber = 1,
+    kEnableFieldNumber = 2,
   };
   // uint32 vBiasControlValue = 1;
   void clear_vbiascontrolvalue() ;
@@ -639,11 +640,21 @@ class cmd_writeVbiasControl final : public ::google::protobuf::Message
   void _internal_set_vbiascontrolvalue(::uint32_t value);
 
   public:
+  // bool enable = 2;
+  void clear_enable() ;
+  bool enable() const;
+  void set_enable(bool value);
+
+  private:
+  bool _internal_enable() const;
+  void _internal_set_enable(bool value);
+
+  public:
   // @@protoc_insertion_point(class_scope:cmd_writeVbiasControl)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
                                    0, 0,
                                    2>
       _table_;
@@ -666,6 +677,7 @@ class cmd_writeVbiasControl final : public ::google::protobuf::Message
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t vbiascontrolvalue_;
+    bool enable_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -13187,6 +13199,30 @@ inline ::uint32_t cmd_writeVbiasControl::_internal_vbiascontrolvalue() const {
 inline void cmd_writeVbiasControl::_internal_set_vbiascontrolvalue(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.vbiascontrolvalue_ = value;
+}
+
+// bool enable = 2;
+inline void cmd_writeVbiasControl::clear_enable() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.enable_ = false;
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline bool cmd_writeVbiasControl::enable() const {
+  // @@protoc_insertion_point(field_get:cmd_writeVbiasControl.enable)
+  return _internal_enable();
+}
+inline void cmd_writeVbiasControl::set_enable(bool value) {
+  _internal_set_enable(value);
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:cmd_writeVbiasControl.enable)
+}
+inline bool cmd_writeVbiasControl::_internal_enable() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.enable_;
+}
+inline void cmd_writeVbiasControl::_internal_set_enable(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.enable_ = value;
 }
 
 // -------------------------------------------------------------------

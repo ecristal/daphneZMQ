@@ -4,6 +4,7 @@
 #include <zmq.hpp>
 
 #include "Daphne.hpp"
+#include "defines.hpp"
 #include "protobuf/daphneV3_high_level_confs.pb.h"
 #include "protobuf/daphneV3_low_level_confs.pb.h"
 
@@ -38,8 +39,8 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
             response_str += "\tChannel Trim : " + std::to_string(ch_config.trim()) + "\n";
             response_str += "\tChannel Offset : " + std::to_string(ch_config.offset()) + "\n";
             response_str += "\tChannel Gain : " + std::to_string(ch_config.gain()) + "\n\n";
-            daphne.getDac()->setDacTrim(ch_config.id() / 8, ch_config.id() % 8, ch_config.trim(), true, true);
-            daphne.getDac()->setDacOffset(ch_config.id() / 8, ch_config.id() % 8, ch_config.offset(), true, true);
+            daphne.getDac()->setDacTrim(ch_config.id() / 8, ch_config.id() % 8, ch_config.trim(), false, false);
+            daphne.getDac()->setDacOffset(ch_config.id() / 8, ch_config.id() % 8, ch_config.offset(), false, false);
         }
         for(const AFEConfig &afe_config : requested_cfg.afes()){
             response_str += "AFE ID : " + std::to_string(afe_config.id()) + "\n";
@@ -91,10 +92,13 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
 bool writeAFERegister(const cmd_writeAFEReg &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value) {
     try {
         uint32_t afe = request.afeblock();
+        afe = afe_definitions::AFE_board2PL_map.at(afe);
         uint32_t regAddr = request.regaddress();
         uint32_t regValue = request.regvalue();
         returned_value = daphne.getAfe()->setRegister(afe, regAddr, regValue);
-        response_str = "AFE Register " + std::to_string(regAddr) + " written with value " + std::to_string(regValue) + " for AFE " + std::to_string(afe) + ".";
+        response_str = "AFE Register " + std::to_string(regAddr) 
+                       + " written with value " + std::to_string(regValue) 
+                       + " for AFE " + std::to_string(afe_definitions::AFE_PL2board_map.at(afe)) + ".";
         response_str += " Returned value: " + std::to_string(returned_value) + ".";
         daphne.setAfeRegDictValue(afe, regAddr, returned_value);
     } catch (std::exception &e) {
@@ -107,12 +111,14 @@ bool writeAFERegister(const cmd_writeAFEReg &request, Daphne &daphne, std::strin
 bool writeAFEVgain(const cmd_writeAFEVGAIN &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value) {
     try {
         uint32_t afe = request.afeblock();
+        afe = afe_definitions::AFE_board2PL_map.at(afe);
         uint32_t vgain = request.vgainvalue();
         if(vgain > 4095) throw std::invalid_argument("The VGAIN value " + std::to_string(vgain) + " is out of range. Expected range 0-4095");
         daphne.getDac()->setDacGain(afe, vgain);
         daphne.setAfeAttenuationDictValue(afe,vgain);
         returned_value = daphne.getAfeAttenuationDictValue(afe);
-        response_str = "AFE VGAIN written successfully for AFE " + std::to_string(afe) + ". VGAIN: " + std::to_string(vgain) + ".";
+        response_str = "AFE VGAIN written successfully for AFE " + std::to_string(afe_definitions::AFE_PL2board_map.at(afe)) 
+                       + ". VGAIN: " + std::to_string(vgain) + ".";
         response_str += " Returned value: " + std::to_string(returned_value) + ".";
     } catch (std::exception &e) {
         response_str = "Error writting AFE VGAIN: " + std::string(e.what());
@@ -124,12 +130,15 @@ bool writeAFEVgain(const cmd_writeAFEVGAIN &request, Daphne &daphne, std::string
 bool writeAFEAttenuation(const cmd_writeAFEAttenuation &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value) {
     try {
         uint32_t afe = request.afeblock();
+        afe = afe_definitions::AFE_board2PL_map.at(afe);
         uint32_t attenuation = request.attenuation();
         if(attenuation > 4095) throw std::invalid_argument("The attenuation value " + std::to_string(attenuation) + " is out of range. Range 0-4095");
         daphne.getDac()->setDacGain(afe, attenuation);
         daphne.setAfeAttenuationDictValue(afe,attenuation);
         returned_value = daphne.getAfeAttenuationDictValue(afe);
-        response_str = "AFE Attenuation written successfully for AFE " + std::to_string(afe) + ". Attenuation: " + std::to_string(attenuation) + ".";
+        response_str = "AFE Attenuation written successfully for AFE " 
+                       + std::to_string(afe_definitions::AFE_PL2board_map.at(afe)) 
+                       + ". Attenuation: " + std::to_string(attenuation) + ".";
         response_str += " Returned value: " + std::to_string(returned_value) + ".";
     } catch (std::exception &e) {
         response_str = "Error writting AFE Attenuation: " + std::string(e.what());
@@ -141,12 +150,15 @@ bool writeAFEAttenuation(const cmd_writeAFEAttenuation &request, Daphne &daphne,
 bool writeAFEBiasVoltage(const cmd_writeAFEBiasSet &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value){
     try {
         uint32_t afe = request.afeblock();
+        afe = afe_definitions::AFE_board2PL_map.at(afe);
         uint32_t biasValue = request.biasvalue();
         if(biasValue > 4095) throw std::invalid_argument("The BIAS value " + std::to_string(biasValue) + " is out of range. Range 0-4095");
         daphne.getDac()->setDacBias(afe, biasValue);
         daphne.setBiasVoltageDictValue(afe, biasValue);
         returned_value = daphne.getBiasVoltageDictValue(afe);
-        response_str = "AFE bias value written successfully for AFE " + std::to_string(afe) + ". Bias value: " + std::to_string(biasValue) + ".";
+        response_str = "AFE bias value written successfully for AFE " 
+                       + std::to_string(afe_definitions::AFE_PL2board_map.at(afe)) 
+                       + ". Bias value: " + std::to_string(biasValue) + ".";
         response_str += " Returned value: " + std::to_string(returned_value) + ".";
     } catch (std::exception &e) {
         response_str = "Error writting AFE Bias value: " + std::string(e.what());
@@ -162,7 +174,8 @@ bool writeChannelTrim(const cmd_writeTrim_singleChannel &request, Daphne &daphne
         uint32_t trimGain = request.trimgain();
         if(trimValue > 4095) throw std::invalid_argument("The Trim value " + std::to_string(trimValue) + " is out of range. Range 0-4095");
         if(trimCh > 39) throw std::invalid_argument("The Channel value " + std::to_string(trimCh) + " is out of range. Range 0-39");
-        daphne.getDac()->setDacTrim(trimCh / 8, trimCh % 8, trimValue, trimGain, true);
+        uint32_t afe = afe_definitions::AFE_board2PL_map.at(trimCh / 8);
+        daphne.getDac()->setDacTrim(afe, trimCh % 8, trimValue, trimGain, false);
         daphne.setChTrimDictValue(trimCh, trimValue);
         returned_value = daphne.getChTrimDictValue(trimCh);
         response_str = "Trim value written successfully for Channel " + std::to_string(trimCh) + ". Trim value: " + std::to_string(trimValue) + ".";
@@ -181,7 +194,8 @@ bool writeChannelOffset(const cmd_writeOFFSET_singleChannel &request, Daphne &da
         uint32_t offsetGain = request.offsetgain();
         if(offsetValue > 4095) throw std::invalid_argument("The Offset value " + std::to_string(offsetValue) + " is out of range. Range 0-4095");
         if(offsetCh > 39) throw std::invalid_argument("The Channel value " + std::to_string(offsetCh) + " is out of range. Range 0-39");
-        daphne.getDac()->setDacOffset(offsetCh / 8, offsetCh % 8, offsetValue, offsetGain, true);
+        uint32_t afe = afe_definitions::AFE_board2PL_map.at(offsetCh / 8);
+        daphne.getDac()->setDacOffset(afe, offsetCh % 8, offsetValue, offsetGain, false);
         daphne.setChOffsetDictValue(offsetCh, offsetValue);
         returned_value = daphne.getChOffsetDictValue(offsetCh);
         response_str = "Offset value written successfully for Channel " + std::to_string(offsetCh) + ". Offset value: " + std::to_string(offsetValue) + ".";
@@ -196,12 +210,15 @@ bool writeChannelOffset(const cmd_writeOFFSET_singleChannel &request, Daphne &da
 bool writeBiasVoltageControl(const cmd_writeVbiasControl &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value){
     try {
         uint32_t controlValue = request.vbiascontrolvalue();
+        bool biasEnable = request.enable();
         if(controlValue > 4095) throw std::invalid_argument("The Bias Control value " + std::to_string(controlValue) + " is out of range. Range 0-4095");
-        daphne.getDac()->setDacHvBias(controlValue, true, true);
+        uint32_t returnedControlValue = daphne.getDac()->setDacHvBias(controlValue, false, false);
+        uint32_t returnedBiasEnable = daphne.getDac()->setBiasEnable(biasEnable);
         daphne.setBiasControlDictValue(controlValue);
-        returned_value = daphne.getBiasControlDictValue();
-        response_str = "Bias Control value written successfully. Bias Control value: " + std::to_string(controlValue) + ".";
-        response_str += " Returned value: " + std::to_string(returned_value) + ".";
+        returned_value = returnedControlValue;
+        response_str = "Bias Control value written successfully. Bias Control value: " + std::to_string(controlValue)
+                       + " and Enable: " + std::to_string(returnedBiasEnable);
+        response_str += " Returned value: " + std::to_string(returnedControlValue) + ".";
     } catch (std::exception &e) {
         response_str = "Error writting Bias Control value: " + std::string(e.what());
         return false;
@@ -418,7 +435,7 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 return;
             }
         }
-        case WRITE_TRIM_CH: {
+        case WRITE_TRIM_CH: { //Verified in DAPHNE V3
             std::cout << "The request is a WriteTrimSingleChannelRequest" << std::endl;
             if(write_trim_singlechannel_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
@@ -478,7 +495,7 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 return;
             }
         }
-        case WRITE_OFFSET_CH: {
+        case WRITE_OFFSET_CH: { //Verified in DAPHNE V3
             std::cout << "The request is a WriteOffsetSingleChannelRequest" << std::endl;
             if(write_offset_singlechannel_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
@@ -489,8 +506,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 write_offset_singlechannel_response.set_offsetchannel(write_offset_singlechannel_request.offsetchannel());
                 write_offset_singlechannel_response.set_offsetvalue(returned_value);
                 write_offset_singlechannel_response.set_offsetgain(write_offset_singlechannel_request.offsetgain());
-                write_offset_singlechannel_response.set_success(true);
-                write_offset_singlechannel_response.set_message("Single channel offset written successfully");
+                write_offset_singlechannel_response.set_success(is_success);
+                write_offset_singlechannel_response.set_message(configure_message);
                 response_envelope.set_type(WRITE_OFFSET_CH);
                 response_envelope.set_payload(write_offset_singlechannel_response.SerializeAsString());
                 response_envelope.SerializeToString(&response_str);
