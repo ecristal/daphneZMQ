@@ -226,6 +226,51 @@ bool writeBiasVoltageControl(const cmd_writeVbiasControl &request, Daphne &daphn
     return true;
 }
 
+bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse &response, Daphne &daphne, std::string &response_str){
+    try {
+        uint32_t channel = request.channel();
+        uint32_t numberOfSamples = request.numberofsamples();
+        if(channel > 39) throw std::invalid_argument("The channel value " + std::to_string(channel) + " is out of range. Range 0-39");
+        if(numberOfSamples > 4096 || numberOfSamples < 1) throw std::invalid_argument("The number of samples value " + std::to_string(numberOfSamples) + " is out of range. Range 1-4096");
+        response.mutable_data()->Resize(numberOfSamples, 0); // This line allocates the required number of Data 
+        for(int i=0; i<numberOfSamples; i++){
+            response.set_data(i, daphne.getSpyBuffer()->getData(channel / 8, channel % 8, i));
+        }
+        response.set_channel(channel);
+        response.set_numberofsamples(numberOfSamples);
+        response_str = "Spybuffer channel " + std::to_string(channel) + " dumped correctly."
+                       + " Number of samples: " + std::to_string(numberOfSamples);
+    } catch (std::exception &e) {
+        response_str = "Error dumping spybuffer: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
+bool alignAFE(const cmd_alignAFE &request, cmd_alignAFE_response &response, Daphne &daphne, std::string &response_str){
+    try {
+        uint32_t afe = request.afe();
+        if(afe > 4) throw std::invalid_argument("The AFE value " + std::to_string(afe) + " is out of range. Range 0-4");
+        daphne.getFrontEnd()->doResetDelayCtrl();
+        daphne.getFrontEnd()->doResetSerDesCtrl();
+        daphne.getFrontEnd()->setEnableDelayVtc(0);
+        daphne.setBestDelay(afe);
+        daphne.setBestBitslip(afe);
+        daphne.getFrontEnd()->setEnableDelayVtc(1);
+        uint32_t delay = daphne.getFrontEnd()->getDelay(afe);
+        uint32_t bitslip = daphne.getFrontEnd()->getBitslip(afe);
+        response.set_delay(delay);
+        response.set_bitslip(bitslip);
+        response_str = "AFE number " + std::to_string(afe) + " correctly.\n" +
+                        "DELAY: " + std::to_string(delay) + "\n" + 
+                        "BITSLIP: " + std::to_string(bitslip);
+    } catch (std::exception &e) {
+        response_str = "Error aligning AFE: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
 void process_request(const std::string& request_str, std::string& response_str, Daphne &daphne) {
     // Identify the message type
     // Here the not equal to std::npos is used to check if the string contains the substring
@@ -236,6 +281,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
     ConfigureCLKsResponse clk_response;
     ConfigureRequest cfg_request;
     ConfigureResponse cfg_response;
+    DumpSpyBuffersRequest dump_spybuffer_request;
+    DumpSpyBuffersResponse dump_spybuffer_response;
     // DAPHNE V2 Legacy commands
     cmd_writeAFEReg write_afe_reg_request;
     cmd_writeAFEReg_response write_afe_reg_response;
@@ -285,6 +332,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
     cmd_setAFEReset_response set_afe_reset_response;
     cmd_setAFEPowerDown set_afe_powerdown_request;
     cmd_setAFEPowerDown_response set_afe_powerdown_response;
+    cmd_alignAFE alignAFE_request;
+    cmd_alignAFE_response alignAFE_response;
     if(!request_envelope.ParseFromString(request_str)){
         response_str = "Request not recognized";
         return;
@@ -795,6 +844,48 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 return;
             }
         }
+
+        case DUMP_SPYBUFFER: {
+            std::cout << "The request is a DumpSpyBuffersRequest" << std::endl;
+            if(dump_spybuffer_request.ParseFromString(request_envelope.payload())){
+                std::string configure_message;
+                bool is_success = dumpSpybuffer(dump_spybuffer_request, dump_spybuffer_response, daphne, configure_message);
+                dump_spybuffer_response.set_success(is_success);
+                dump_spybuffer_response.set_message(configure_message);
+                response_envelope.set_type(DUMP_SPYBUFFER);
+                response_envelope.set_payload(dump_spybuffer_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                dump_spybuffer_response.set_success(false);
+                dump_spybuffer_response.set_message("Payload not recognized");
+                response_envelope.set_type(DUMP_SPYBUFFER);
+                response_envelope.set_payload(dump_spybuffer_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+
+        case ALIGN_AFE: {
+            std::cout << "The request is a cmd_alignAFE" << std::endl;
+            if(alignAFE_request.ParseFromString(request_envelope.payload())){
+                std::string configure_message;
+                bool is_success = alignAFE(alignAFE_request, alignAFE_response, daphne, configure_message);
+                alignAFE_response.set_success(is_success);
+                alignAFE_response.set_message(configure_message);
+                response_envelope.set_type(ALIGN_AFE);
+                response_envelope.set_payload(alignAFE_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                alignAFE_response.set_success(false);
+                alignAFE_response.set_message("Payload not recognized");
+                response_envelope.set_type(ALIGN_AFE);
+                response_envelope.set_payload(alignAFE_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
         default: {
             response_str = "Request not recognized";
             return;
@@ -802,12 +893,85 @@ void process_request(const std::string& request_str, std::string& response_str, 
     }
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+
+    std::map<std::string, std::string> args;
+    std::string ip_address;
+    int port;
+    std::string config_file;
+
+    // Parse arguments
+    for (int i = 1; i < argc; i += 2) {
+        if (i + 1 < argc) { // Ensure value exists
+            args[argv[i]] = argv[i + 1];
+        }
+    }
+
+    // Validate and extract -ip
+    if (args.find("--ip") != args.end()) {
+        ip_address = args["--ip"];
+        std::cout << "IP Address: " << ip_address << std::endl;
+    } else if(args.find("--config_file") == args.end()) {
+        std::cerr << "Error: Missing -ip parameter.\n";
+        std::cerr << "Usage: ./DaphneSlowController -ip <IP_ADDRESS> -port <PORT>\n";
+        return 1;
+    }
+
+    // Validate and extract -port
+    if (args.find("--port") != args.end()) {
+        try {
+            port = std::stoi(args["--port"]); // Convert string to int
+            if (port < 1 || port > 65535) { // Here I must put a real range based.
+                throw std::out_of_range("Port out of range");
+            }
+            std::cout << "Port: " << port << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "Error: Invalid port number. " << e.what() << std::endl;
+            return 1;
+        }
+    } else if(args.find("--config_file") == args.end()){
+        std::cerr << "Error: Missing -port parameter.\n";
+        std::cerr << "Usage: ./DaphneSlowController -ip <IP_ADDRESS> -port <PORT>\n";
+        return 1;
+    }
+
+    if (args.find("--config_file") != args.end()) {
+        try {
+            config_file = args["--config_file"]; // Convert string to int
+            std::cout << "Configuration file: " << config_file << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "Error: Invalid  number. " << e.what() << std::endl;
+            return 1;
+        }
+    } else if (args.find("--port") == args.end() && args.find("-ip") == args.end() && (args.find("--help") == args.end() || args.find("-h") == args.end())) {
+        std::cerr << "Error: Missing parameters.\n";
+        std::cerr << "Usage: ./DaphneSlowController -config_file <CONFIG_FILE> \n";
+        return 1;
+    }
+
+    if (args.find("--help") != args.end() || args.find("-h") != args.end()) {
+        std::cout << "Example: " << std::endl;
+        std::cout << "\tsudo ./DaphneSlowController --ip <IP ADDRESS> --port <PORT NUMBER>" << std::endl;
+        std::cout << "\tsudo ./DaphneSlowController --config-file <CONFIG FILE>" << std::endl;
+        std::cout << "Arguments: " << std::endl;
+        std::cout << "\t--ip :\t IP address of the DAPHNE device." << std::endl;
+        std::cout << "\t--port :\t Port number." << std::endl;
+        std::cout << "\t--config_file :\t Location of the .json file used for configuring the application." << std::endl;
+        std::cout << "\t--help -h :\t Displays this help message." << std::endl;
+    }
+
     zmq::context_t context(1);
     zmq::socket_t socket(context, ZMQ_REP);
-    socket.bind("tcp://193.206.157.36:9000");
+    std::string socket_ip_address = "tcp://" + ip_address + ":" + std::to_string(port); 
+    try {
+        socket.bind(socket_ip_address.c_str());
+        std::cout << "ZMQ Reply socket initialized in " << socket_ip_address << std::endl;
+    } catch (std::exception &e){
+        std::cerr << "Error initializing ZMQ socket: " << e.what() << std::endl;
+        return 1;
+    }
+
     Daphne daphne;
-    
     while (true) {
         zmq::message_t request;
         socket.recv(request, zmq::recv_flags::none);

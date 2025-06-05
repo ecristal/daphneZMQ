@@ -1401,6 +1401,62 @@ struct cmd_readAFEBiasSetDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_readAFEBiasSetDefaultTypeInternal _cmd_readAFEBiasSet_default_instance_;
+
+inline constexpr cmd_alignAFE_response::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        message_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        success_{false},
+        afe_{0u},
+        delay_{0u},
+        bitslip_{0u} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR cmd_alignAFE_response::cmd_alignAFE_response(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(cmd_alignAFE_response_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct cmd_alignAFE_responseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR cmd_alignAFE_responseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~cmd_alignAFE_responseDefaultTypeInternal() {}
+  union {
+    cmd_alignAFE_response _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_alignAFE_responseDefaultTypeInternal _cmd_alignAFE_response_default_instance_;
+
+inline constexpr cmd_alignAFE::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        afe_{0u} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR cmd_alignAFE::cmd_alignAFE(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(cmd_alignAFE_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct cmd_alignAFEDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR cmd_alignAFEDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~cmd_alignAFEDefaultTypeInternal() {}
+  union {
+    cmd_alignAFE _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_alignAFEDefaultTypeInternal _cmd_alignAFE_default_instance_;
 static constexpr const ::_pb::EnumDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_enum_descriptors_daphneV3_5flow_5flevel_5fconfs_2eproto = nullptr;
 static constexpr const ::_pb::ServiceDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
@@ -2090,6 +2146,34 @@ const ::uint32_t
         1,
         0,
         2,
+        PROTOBUF_FIELD_OFFSET(::cmd_alignAFE, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::cmd_alignAFE, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::cmd_alignAFE, _impl_.afe_),
+        0,
+        PROTOBUF_FIELD_OFFSET(::cmd_alignAFE_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::cmd_alignAFE_response, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::cmd_alignAFE_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::cmd_alignAFE_response, _impl_.afe_),
+        PROTOBUF_FIELD_OFFSET(::cmd_alignAFE_response, _impl_.delay_),
+        PROTOBUF_FIELD_OFFSET(::cmd_alignAFE_response, _impl_.bitslip_),
+        PROTOBUF_FIELD_OFFSET(::cmd_alignAFE_response, _impl_.message_),
+        1,
+        2,
+        3,
+        4,
+        0,
 };
 
 static const ::_pbi::MigrationSchema
@@ -2144,6 +2228,8 @@ static const ::_pbi::MigrationSchema
         {642, 653, -1, sizeof(::cmd_setAFEReset_response)},
         {656, 666, -1, sizeof(::cmd_setAFEPowerDown)},
         {668, 679, -1, sizeof(::cmd_setAFEPowerDown_response)},
+        {682, 691, -1, sizeof(::cmd_alignAFE)},
+        {692, 705, -1, sizeof(::cmd_alignAFE_response)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::_cmd_writeAFEReg_default_instance_._instance,
@@ -2196,6 +2282,8 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::_cmd_setAFEReset_response_default_instance_._instance,
     &::_cmd_setAFEPowerDown_default_instance_._instance,
     &::_cmd_setAFEPowerDown_response_default_instance_._instance,
+    &::_cmd_alignAFE_default_instance_._instance,
+    &::_cmd_alignAFE_response_default_instance_._instance,
 };
 const char descriptor_table_protodef_daphneV3_5flow_5flevel_5fconfs_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
@@ -2303,19 +2391,23 @@ const char descriptor_table_protodef_daphneV3_5flow_5flevel_5fconfs_2eproto[] AB
     "\030\003 \001(\r\"9\n\023cmd_setAFEPowerDown\022\020\n\010afeBloc"
     "k\030\001 \001(\r\022\020\n\010pwrState\030\002 \001(\010\"R\n\034cmd_setAFEP"
     "owerDown_response\022\017\n\007success\030\001 \001(\010\022\017\n\007me"
-    "ssage\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\rb\006proto3"
+    "ssage\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\"\033\n\014cmd_ali"
+    "gnAFE\022\013\n\003afe\030\001 \001(\r\"f\n\025cmd_alignAFE_respo"
+    "nse\022\017\n\007success\030\001 \001(\010\022\013\n\003afe\030\002 \001(\r\022\r\n\005del"
+    "ay\030\003 \001(\r\022\017\n\007bitslip\030\004 \001(\r\022\017\n\007message\030\005 \001"
+    "(\tb\006proto3"
 };
 static ::absl::once_flag descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto = {
     false,
     false,
-    4197,
+    4330,
     descriptor_table_protodef_daphneV3_5flow_5flevel_5fconfs_2eproto,
     "daphneV3_low_level_confs.proto",
     &descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto_once,
     nullptr,
     0,
-    50,
+    52,
     schemas,
     file_default_instances,
     TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto::offsets,
@@ -17829,6 +17921,640 @@ void cmd_setAFEPowerDown_response::InternalSwap(cmd_setAFEPowerDown_response* PR
 }
 
 ::google::protobuf::Metadata cmd_setAFEPowerDown_response::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class cmd_alignAFE::_Internal {
+ public:
+  using HasBits =
+      decltype(std::declval<cmd_alignAFE>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(cmd_alignAFE, _impl_._has_bits_);
+};
+
+cmd_alignAFE::cmd_alignAFE(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, cmd_alignAFE_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:cmd_alignAFE)
+}
+cmd_alignAFE::cmd_alignAFE(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_alignAFE& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, cmd_alignAFE_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(from._impl_) {
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+}
+PROTOBUF_NDEBUG_INLINE cmd_alignAFE::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0} {}
+
+inline void cmd_alignAFE::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.afe_ = {};
+}
+cmd_alignAFE::~cmd_alignAFE() {
+  // @@protoc_insertion_point(destructor:cmd_alignAFE)
+  SharedDtor(*this);
+}
+inline void cmd_alignAFE::SharedDtor(MessageLite& self) {
+  cmd_alignAFE& this_ = static_cast<cmd_alignAFE&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL cmd_alignAFE::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) cmd_alignAFE(arena);
+}
+constexpr auto cmd_alignAFE::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::ZeroInit(sizeof(cmd_alignAFE),
+                                            alignof(cmd_alignAFE));
+}
+constexpr auto cmd_alignAFE::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_cmd_alignAFE_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &cmd_alignAFE::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<cmd_alignAFE>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &cmd_alignAFE::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<cmd_alignAFE>(), &cmd_alignAFE::ByteSizeLong,
+              &cmd_alignAFE::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(cmd_alignAFE, _impl_._cached_size_),
+          false,
+      },
+      &cmd_alignAFE::kDescriptorMethods,
+      &descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const ::google::protobuf::internal::ClassDataFull
+        cmd_alignAFE_class_data_ =
+            cmd_alignAFE::InternalGenerateClassData_();
+
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_alignAFE::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&cmd_alignAFE_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(cmd_alignAFE_class_data_.tc_table);
+  return cmd_alignAFE_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+cmd_alignAFE::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(cmd_alignAFE, _impl_._has_bits_),
+    0, // no _extensions_
+    1, 0,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    cmd_alignAFE_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::cmd_alignAFE>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // uint32 afe = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_alignAFE, _impl_.afe_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_alignAFE, _impl_.afe_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // uint32 afe = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_alignAFE, _impl_.afe_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void cmd_alignAFE::Clear() {
+// @@protoc_insertion_point(message_clear_start:cmd_alignAFE)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.afe_ = 0u;
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL cmd_alignAFE::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const cmd_alignAFE& this_ = static_cast<const cmd_alignAFE&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL cmd_alignAFE::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const cmd_alignAFE& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(serialize_to_array_start:cmd_alignAFE)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // uint32 afe = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_afe() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          1, this_._internal_afe(), target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:cmd_alignAFE)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t cmd_alignAFE::ByteSizeLong(const MessageLite& base) {
+  const cmd_alignAFE& this_ = static_cast<const cmd_alignAFE&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t cmd_alignAFE::ByteSizeLong() const {
+  const cmd_alignAFE& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:cmd_alignAFE)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+   {
+    // uint32 afe = 1;
+    cached_has_bits = this_._impl_._has_bits_[0];
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_afe() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_afe());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void cmd_alignAFE::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<cmd_alignAFE*>(&to_msg);
+  auto& from = static_cast<const cmd_alignAFE&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_alignAFE)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    if (from._internal_afe() != 0) {
+      _this->_impl_.afe_ = from._impl_.afe_;
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void cmd_alignAFE::CopyFrom(const cmd_alignAFE& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:cmd_alignAFE)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void cmd_alignAFE::InternalSwap(cmd_alignAFE* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  swap(_impl_.afe_, other->_impl_.afe_);
+}
+
+::google::protobuf::Metadata cmd_alignAFE::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class cmd_alignAFE_response::_Internal {
+ public:
+  using HasBits =
+      decltype(std::declval<cmd_alignAFE_response>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_._has_bits_);
+};
+
+cmd_alignAFE_response::cmd_alignAFE_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, cmd_alignAFE_response_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:cmd_alignAFE_response)
+}
+PROTOBUF_NDEBUG_INLINE cmd_alignAFE_response::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::cmd_alignAFE_response& from_msg)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        message_(arena, from.message_) {}
+
+cmd_alignAFE_response::cmd_alignAFE_response(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const cmd_alignAFE_response& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, cmd_alignAFE_response_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  cmd_alignAFE_response* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  ::memcpy(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, success_),
+           reinterpret_cast<const char *>(&from._impl_) +
+               offsetof(Impl_, success_),
+           offsetof(Impl_, bitslip_) -
+               offsetof(Impl_, success_) +
+               sizeof(Impl_::bitslip_));
+
+  // @@protoc_insertion_point(copy_constructor:cmd_alignAFE_response)
+}
+PROTOBUF_NDEBUG_INLINE cmd_alignAFE_response::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0},
+        message_(arena) {}
+
+inline void cmd_alignAFE_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, success_),
+           0,
+           offsetof(Impl_, bitslip_) -
+               offsetof(Impl_, success_) +
+               sizeof(Impl_::bitslip_));
+}
+cmd_alignAFE_response::~cmd_alignAFE_response() {
+  // @@protoc_insertion_point(destructor:cmd_alignAFE_response)
+  SharedDtor(*this);
+}
+inline void cmd_alignAFE_response::SharedDtor(MessageLite& self) {
+  cmd_alignAFE_response& this_ = static_cast<cmd_alignAFE_response&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.message_.Destroy();
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL cmd_alignAFE_response::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) cmd_alignAFE_response(arena);
+}
+constexpr auto cmd_alignAFE_response::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(cmd_alignAFE_response),
+                                            alignof(cmd_alignAFE_response));
+}
+constexpr auto cmd_alignAFE_response::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_cmd_alignAFE_response_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &cmd_alignAFE_response::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<cmd_alignAFE_response>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &cmd_alignAFE_response::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<cmd_alignAFE_response>(), &cmd_alignAFE_response::ByteSizeLong,
+              &cmd_alignAFE_response::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_._cached_size_),
+          false,
+      },
+      &cmd_alignAFE_response::kDescriptorMethods,
+      &descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const ::google::protobuf::internal::ClassDataFull
+        cmd_alignAFE_response_class_data_ =
+            cmd_alignAFE_response::InternalGenerateClassData_();
+
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_alignAFE_response::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&cmd_alignAFE_response_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(cmd_alignAFE_response_class_data_.tc_table);
+  return cmd_alignAFE_response_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<3, 5, 0, 37, 2>
+cmd_alignAFE_response::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_._has_bits_),
+    0, // no _extensions_
+    5, 56,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967264,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    5,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    cmd_alignAFE_response_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::cmd_alignAFE_response>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+    // bool success = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_alignAFE_response, _impl_.success_), 1>(),
+     {8, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_.success_)}},
+    // uint32 afe = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_alignAFE_response, _impl_.afe_), 2>(),
+     {16, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_.afe_)}},
+    // uint32 delay = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_alignAFE_response, _impl_.delay_), 3>(),
+     {24, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_.delay_)}},
+    // uint32 bitslip = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_alignAFE_response, _impl_.bitslip_), 4>(),
+     {32, 4, 0, PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_.bitslip_)}},
+    // string message = 5;
+    {::_pbi::TcParser::FastUS1,
+     {42, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_.message_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // bool success = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_.success_), _Internal::kHasBitsOffset + 1, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
+    // uint32 afe = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_.afe_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 delay = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_.delay_), _Internal::kHasBitsOffset + 3, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 bitslip = 4;
+    {PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_.bitslip_), _Internal::kHasBitsOffset + 4, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // string message = 5;
+    {PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_.message_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
+  }},
+  // no aux_entries
+  {{
+    "\25\0\0\0\0\7\0\0"
+    "cmd_alignAFE_response"
+    "message"
+  }},
+};
+PROTOBUF_NOINLINE void cmd_alignAFE_response::Clear() {
+// @@protoc_insertion_point(message_clear_start:cmd_alignAFE_response)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    _impl_.message_.ClearNonDefaultToEmpty();
+  }
+  if ((cached_has_bits & 0x0000001eu) != 0) {
+    ::memset(&_impl_.success_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.bitslip_) -
+        reinterpret_cast<char*>(&_impl_.success_)) + sizeof(_impl_.bitslip_));
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL cmd_alignAFE_response::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const cmd_alignAFE_response& this_ = static_cast<const cmd_alignAFE_response&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL cmd_alignAFE_response::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const cmd_alignAFE_response& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(serialize_to_array_start:cmd_alignAFE_response)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // bool success = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_success() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          1, this_._internal_success(), target);
+    }
+  }
+
+  // uint32 afe = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (this_._internal_afe() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          2, this_._internal_afe(), target);
+    }
+  }
+
+  // uint32 delay = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+    if (this_._internal_delay() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          3, this_._internal_delay(), target);
+    }
+  }
+
+  // uint32 bitslip = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
+    if (this_._internal_bitslip() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          4, this_._internal_bitslip(), target);
+    }
+  }
+
+  // string message = 5;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (!this_._internal_message().empty()) {
+      const std::string& _s = this_._internal_message();
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_alignAFE_response.message");
+      target = stream->WriteStringMaybeAliased(5, _s, target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:cmd_alignAFE_response)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t cmd_alignAFE_response::ByteSizeLong(const MessageLite& base) {
+  const cmd_alignAFE_response& this_ = static_cast<const cmd_alignAFE_response&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t cmd_alignAFE_response::ByteSizeLong() const {
+  const cmd_alignAFE_response& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:cmd_alignAFE_response)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x0000001fu) != 0) {
+    // string message = 5;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!this_._internal_message().empty()) {
+        total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                        this_._internal_message());
+      }
+    }
+    // bool success = 1;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (this_._internal_success() != 0) {
+        total_size += 2;
+      }
+    }
+    // uint32 afe = 2;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_afe() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_afe());
+      }
+    }
+    // uint32 delay = 3;
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (this_._internal_delay() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_delay());
+      }
+    }
+    // uint32 bitslip = 4;
+    if ((cached_has_bits & 0x00000010u) != 0) {
+      if (this_._internal_bitslip() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_bitslip());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void cmd_alignAFE_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<cmd_alignAFE_response*>(&to_msg);
+  auto& from = static_cast<const cmd_alignAFE_response&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_alignAFE_response)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x0000001fu) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!from._internal_message().empty()) {
+        _this->_internal_set_message(from._internal_message());
+      } else {
+        if (_this->_impl_.message_.IsDefault()) {
+          _this->_internal_set_message("");
+        }
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_success() != 0) {
+        _this->_impl_.success_ = from._impl_.success_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_afe() != 0) {
+        _this->_impl_.afe_ = from._impl_.afe_;
+      }
+    }
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (from._internal_delay() != 0) {
+        _this->_impl_.delay_ = from._impl_.delay_;
+      }
+    }
+    if ((cached_has_bits & 0x00000010u) != 0) {
+      if (from._internal_bitslip() != 0) {
+        _this->_impl_.bitslip_ = from._impl_.bitslip_;
+      }
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void cmd_alignAFE_response::CopyFrom(const cmd_alignAFE_response& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:cmd_alignAFE_response)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void cmd_alignAFE_response::InternalSwap(cmd_alignAFE_response* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.message_, &other->_impl_.message_, arena);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_.bitslip_)
+      + sizeof(cmd_alignAFE_response::_impl_.bitslip_)
+      - PROTOBUF_FIELD_OFFSET(cmd_alignAFE_response, _impl_.success_)>(
+          reinterpret_cast<char*>(&_impl_.success_),
+          reinterpret_cast<char*>(&other->_impl_.success_));
+}
+
+::google::protobuf::Metadata cmd_alignAFE_response::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // @@protoc_insertion_point(namespace_scope)

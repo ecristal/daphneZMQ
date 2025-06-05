@@ -291,6 +291,18 @@ message cmd_setAFEPowerDown_response {
 	uint32 afeBlock = 3;
 }
 
+message cmd_alignAFE{
+  uint32 afe = 1;
+}
+
+message cmd_alignAFE_response{
+  bool success = 1;
+  uint32 afe = 2;
+  uint32 delay = 3;
+  uint32 bitslip = 4;
+  string message = 5;
+}
+
 
 
 

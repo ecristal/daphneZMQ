@@ -132,14 +132,14 @@ class StreamInfo;
 struct StreamInfoDefaultTypeInternal;
 extern StreamInfoDefaultTypeInternal _StreamInfo_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull StreamInfo_class_data_;
+class WriteMultipleRegisterRequest;
+struct WriteMultipleRegisterRequestDefaultTypeInternal;
+extern WriteMultipleRegisterRequestDefaultTypeInternal _WriteMultipleRegisterRequest_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull WriteMultipleRegisterRequest_class_data_;
 class WriteRegister;
 struct WriteRegisterDefaultTypeInternal;
 extern WriteRegisterDefaultTypeInternal _WriteRegister_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull WriteRegister_class_data_;
-class WriteRegisterRequest;
-struct WriteRegisterRequestDefaultTypeInternal;
-extern WriteRegisterRequestDefaultTypeInternal _WriteRegisterRequest_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull WriteRegisterRequest_class_data_;
 class WriteRegisterResponse;
 struct WriteRegisterResponseDefaultTypeInternal;
 extern WriteRegisterResponseDefaultTypeInternal _WriteRegisterResponse_default_instance_;
@@ -181,6 +181,8 @@ enum MessageType : int {
   SET_AFE_RESET = 25,
   SET_AFE_POWERDOWN = 26,
   WRITE_AFE_ATTENUATION = 27,
+  DUMP_SPYBUFFER = 28,
+  ALIGN_AFE = 29,
   MessageType_INT_MIN_SENTINEL_DO_NOT_USE_ =
       std::numeric_limits<::int32_t>::min(),
   MessageType_INT_MAX_SENTINEL_DO_NOT_USE_ =
@@ -191,11 +193,11 @@ extern const uint32_t MessageType_internal_data_[];
 inline constexpr MessageType MessageType_MIN =
     static_cast<MessageType>(0);
 inline constexpr MessageType MessageType_MAX =
-    static_cast<MessageType>(27);
+    static_cast<MessageType>(29);
 inline bool MessageType_IsValid(int value) {
-  return 0 <= value && value <= 27;
+  return 0 <= value && value <= 29;
 }
-inline constexpr int MessageType_ARRAYSIZE = 27 + 1;
+inline constexpr int MessageType_ARRAYSIZE = 29 + 1;
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL MessageType_descriptor();
 template <typename T>
 const std::string& MessageType_Name(T value) {
@@ -206,7 +208,7 @@ const std::string& MessageType_Name(T value) {
 }
 template <>
 inline const std::string& MessageType_Name(MessageType value) {
-  return ::google::protobuf::internal::NameOfDenseEnum<MessageType_descriptor, 0, 27>(
+  return ::google::protobuf::internal::NameOfDenseEnum<MessageType_descriptor, 0, 29>(
       static_cast<int>(value));
 }
 inline bool MessageType_Parse(
@@ -2263,26 +2265,31 @@ class DumpSpyBuffersResponse final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kFilePathFieldNumber = 2,
-    kMessageFieldNumber = 3,
+    kDataFieldNumber = 4,
+    kMessageFieldNumber = 5,
     kSuccessFieldNumber = 1,
+    kChannelFieldNumber = 2,
+    kNumberOfSamplesFieldNumber = 3,
   };
-  // string file_path = 2;
-  void clear_file_path() ;
-  const std::string& file_path() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_file_path(Arg_&& arg, Args_... args);
-  std::string* PROTOBUF_NONNULL mutable_file_path();
-  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_file_path();
-  void set_allocated_file_path(std::string* PROTOBUF_NULLABLE value);
-
+  // repeated uint32 data = 4;
+  int data_size() const;
   private:
-  const std::string& _internal_file_path() const;
-  PROTOBUF_ALWAYS_INLINE void _internal_set_file_path(const std::string& value);
-  std::string* PROTOBUF_NONNULL _internal_mutable_file_path();
+  int _internal_data_size() const;
 
   public:
-  // string message = 3;
+  void clear_data() ;
+  ::uint32_t data(int index) const;
+  void set_data(int index, ::uint32_t value);
+  void add_data(::uint32_t value);
+  const ::google::protobuf::RepeatedField<::uint32_t>& data() const;
+  ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL mutable_data();
+
+  private:
+  const ::google::protobuf::RepeatedField<::uint32_t>& _internal_data() const;
+  ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL _internal_mutable_data();
+
+  public:
+  // string message = 5;
   void clear_message() ;
   const std::string& message() const;
   template <typename Arg_ = const std::string&, typename... Args_>
@@ -2307,12 +2314,32 @@ class DumpSpyBuffersResponse final : public ::google::protobuf::Message
   void _internal_set_success(bool value);
 
   public:
+  // uint32 channel = 2;
+  void clear_channel() ;
+  ::uint32_t channel() const;
+  void set_channel(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_channel() const;
+  void _internal_set_channel(::uint32_t value);
+
+  public:
+  // uint32 numberOfSamples = 3;
+  void clear_numberofsamples() ;
+  ::uint32_t numberofsamples() const;
+  void set_numberofsamples(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_numberofsamples() const;
+  void _internal_set_numberofsamples(::uint32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:DumpSpyBuffersResponse)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
-                                   0, 47,
+  static const ::google::protobuf::internal::TcParseTable<3, 5,
+                                   0, 38,
                                    2>
       _table_;
 
@@ -2333,9 +2360,12 @@ class DumpSpyBuffersResponse final : public ::google::protobuf::Message
         const DumpSpyBuffersResponse& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::internal::ArenaStringPtr file_path_;
+    ::google::protobuf::RepeatedField<::uint32_t> data_;
+    ::google::protobuf::internal::CachedSize _data_cached_byte_size_;
     ::google::protobuf::internal::ArenaStringPtr message_;
     bool success_;
+    ::uint32_t channel_;
+    ::uint32_t numberofsamples_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -2488,32 +2518,27 @@ class DumpSpyBuffersRequest final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kDirectoryFieldNumber = 1,
-    kNSamplesFieldNumber = 2,
+    kChannelFieldNumber = 1,
+    kNumberOfSamplesFieldNumber = 2,
   };
-  // string directory = 1;
-  void clear_directory() ;
-  const std::string& directory() const;
-  template <typename Arg_ = const std::string&, typename... Args_>
-  void set_directory(Arg_&& arg, Args_... args);
-  std::string* PROTOBUF_NONNULL mutable_directory();
-  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_directory();
-  void set_allocated_directory(std::string* PROTOBUF_NULLABLE value);
+  // uint32 channel = 1;
+  void clear_channel() ;
+  ::uint32_t channel() const;
+  void set_channel(::uint32_t value);
 
   private:
-  const std::string& _internal_directory() const;
-  PROTOBUF_ALWAYS_INLINE void _internal_set_directory(const std::string& value);
-  std::string* PROTOBUF_NONNULL _internal_mutable_directory();
+  ::uint32_t _internal_channel() const;
+  void _internal_set_channel(::uint32_t value);
 
   public:
-  // uint32 n_samples = 2;
-  void clear_n_samples() ;
-  ::uint32_t n_samples() const;
-  void set_n_samples(::uint32_t value);
+  // uint32 numberOfSamples = 2;
+  void clear_numberofsamples() ;
+  ::uint32_t numberofsamples() const;
+  void set_numberofsamples(::uint32_t value);
 
   private:
-  ::uint32_t _internal_n_samples() const;
-  void _internal_set_n_samples(::uint32_t value);
+  ::uint32_t _internal_numberofsamples() const;
+  void _internal_set_numberofsamples(::uint32_t value);
 
   public:
   // @@protoc_insertion_point(class_scope:DumpSpyBuffersRequest)
@@ -2521,7 +2546,7 @@ class DumpSpyBuffersRequest final : public ::google::protobuf::Message
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<1, 2,
-                                   0, 39,
+                                   0, 0,
                                    2>
       _table_;
 
@@ -2542,8 +2567,8 @@ class DumpSpyBuffersRequest final : public ::google::protobuf::Message
         const DumpSpyBuffersRequest& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::internal::ArenaStringPtr directory_;
-    ::uint32_t n_samples_;
+    ::uint32_t channel_;
+    ::uint32_t numberofsamples_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -4085,30 +4110,30 @@ class ADCConfig final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull ADCConfig_class_data_;
 // -------------------------------------------------------------------
 
-class WriteRegisterRequest final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:WriteRegisterRequest) */ {
+class WriteMultipleRegisterRequest final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:WriteMultipleRegisterRequest) */ {
  public:
-  inline WriteRegisterRequest() : WriteRegisterRequest(nullptr) {}
-  ~WriteRegisterRequest() PROTOBUF_FINAL;
+  inline WriteMultipleRegisterRequest() : WriteMultipleRegisterRequest(nullptr) {}
+  ~WriteMultipleRegisterRequest() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(WriteRegisterRequest* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+  void operator delete(WriteMultipleRegisterRequest* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(WriteRegisterRequest));
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(WriteMultipleRegisterRequest));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR WriteRegisterRequest(::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR WriteMultipleRegisterRequest(::google::protobuf::internal::ConstantInitialized);
 
-  inline WriteRegisterRequest(const WriteRegisterRequest& from) : WriteRegisterRequest(nullptr, from) {}
-  inline WriteRegisterRequest(WriteRegisterRequest&& from) noexcept
-      : WriteRegisterRequest(nullptr, std::move(from)) {}
-  inline WriteRegisterRequest& operator=(const WriteRegisterRequest& from) {
+  inline WriteMultipleRegisterRequest(const WriteMultipleRegisterRequest& from) : WriteMultipleRegisterRequest(nullptr, from) {}
+  inline WriteMultipleRegisterRequest(WriteMultipleRegisterRequest&& from) noexcept
+      : WriteMultipleRegisterRequest(nullptr, std::move(from)) {}
+  inline WriteMultipleRegisterRequest& operator=(const WriteMultipleRegisterRequest& from) {
     CopyFrom(from);
     return *this;
   }
-  inline WriteRegisterRequest& operator=(WriteRegisterRequest&& from) noexcept {
+  inline WriteMultipleRegisterRequest& operator=(WriteMultipleRegisterRequest&& from) noexcept {
     if (this == &from) return *this;
     if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
       InternalSwap(&from);
@@ -4136,13 +4161,13 @@ class WriteRegisterRequest final : public ::google::protobuf::Message
   static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const WriteRegisterRequest& default_instance() {
-    return *reinterpret_cast<const WriteRegisterRequest*>(
-        &_WriteRegisterRequest_default_instance_);
+  static const WriteMultipleRegisterRequest& default_instance() {
+    return *reinterpret_cast<const WriteMultipleRegisterRequest*>(
+        &_WriteMultipleRegisterRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 18;
-  friend void swap(WriteRegisterRequest& a, WriteRegisterRequest& b) { a.Swap(&b); }
-  inline void Swap(WriteRegisterRequest* PROTOBUF_NONNULL other) {
+  friend void swap(WriteMultipleRegisterRequest& a, WriteMultipleRegisterRequest& b) { a.Swap(&b); }
+  inline void Swap(WriteMultipleRegisterRequest* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -4150,7 +4175,7 @@ class WriteRegisterRequest final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(WriteRegisterRequest* PROTOBUF_NONNULL other) {
+  void UnsafeArenaSwap(WriteMultipleRegisterRequest* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -4158,13 +4183,13 @@ class WriteRegisterRequest final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  WriteRegisterRequest* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<WriteRegisterRequest>(arena);
+  WriteMultipleRegisterRequest* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<WriteMultipleRegisterRequest>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const WriteRegisterRequest& from);
+  void CopyFrom(const WriteMultipleRegisterRequest& from);
   using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const WriteRegisterRequest& from) { WriteRegisterRequest::MergeImpl(*this, from); }
+  void MergeFrom(const WriteMultipleRegisterRequest& from) { WriteMultipleRegisterRequest::MergeImpl(*this, from); }
 
   private:
   static void MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -4200,18 +4225,18 @@ class WriteRegisterRequest final : public ::google::protobuf::Message
   private:
   void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(WriteRegisterRequest* PROTOBUF_NONNULL other);
+  void InternalSwap(WriteMultipleRegisterRequest* PROTOBUF_NONNULL other);
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "WriteRegisterRequest"; }
+  static ::absl::string_view FullMessageName() { return "WriteMultipleRegisterRequest"; }
 
  protected:
-  explicit WriteRegisterRequest(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  WriteRegisterRequest(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const WriteRegisterRequest& from);
-  WriteRegisterRequest(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, WriteRegisterRequest&& from) noexcept
-      : WriteRegisterRequest(arena) {
+  explicit WriteMultipleRegisterRequest(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  WriteMultipleRegisterRequest(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const WriteMultipleRegisterRequest& from);
+  WriteMultipleRegisterRequest(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, WriteMultipleRegisterRequest&& from) noexcept
+      : WriteMultipleRegisterRequest(arena) {
     *this = ::std::move(from);
   }
   const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
@@ -4247,7 +4272,7 @@ class WriteRegisterRequest final : public ::google::protobuf::Message
   const ::WriteRegister& writes(int index) const;
   ::WriteRegister* PROTOBUF_NONNULL add_writes();
   const ::google::protobuf::RepeatedPtrField<::WriteRegister>& writes() const;
-  // @@protoc_insertion_point(class_scope:WriteRegisterRequest)
+  // @@protoc_insertion_point(class_scope:WriteMultipleRegisterRequest)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
@@ -4270,7 +4295,7 @@ class WriteRegisterRequest final : public ::google::protobuf::Message
     inline explicit Impl_(
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const WriteRegisterRequest& from_msg);
+        const WriteMultipleRegisterRequest& from_msg);
     ::google::protobuf::RepeatedPtrField< ::WriteRegister > writes_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -4279,7 +4304,7 @@ class WriteRegisterRequest final : public ::google::protobuf::Message
   friend struct ::TableStruct_daphneV3_5fhigh_5flevel_5fconfs_2eproto;
 };
 
-extern const ::google::protobuf::internal::ClassDataFull WriteRegisterRequest_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull WriteMultipleRegisterRequest_class_data_;
 // -------------------------------------------------------------------
 
 class InfoResponse final : public ::google::protobuf::Message
@@ -6634,93 +6659,52 @@ inline void ScrapResponse::set_allocated_message(std::string* PROTOBUF_NULLABLE 
 
 // DumpSpyBuffersRequest
 
-// string directory = 1;
-inline void DumpSpyBuffersRequest::clear_directory() {
+// uint32 channel = 1;
+inline void DumpSpyBuffersRequest::clear_channel() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.directory_.ClearToEmpty();
+  _impl_.channel_ = 0u;
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string& DumpSpyBuffersRequest::directory() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:DumpSpyBuffersRequest.directory)
-  return _internal_directory();
+inline ::uint32_t DumpSpyBuffersRequest::channel() const {
+  // @@protoc_insertion_point(field_get:DumpSpyBuffersRequest.channel)
+  return _internal_channel();
 }
-template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void DumpSpyBuffersRequest::set_directory(Arg_&& arg, Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
+inline void DumpSpyBuffersRequest::set_channel(::uint32_t value) {
+  _internal_set_channel(value);
   _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.directory_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:DumpSpyBuffersRequest.directory)
+  // @@protoc_insertion_point(field_set:DumpSpyBuffersRequest.channel)
 }
-inline std::string* PROTOBUF_NONNULL DumpSpyBuffersRequest::mutable_directory()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_directory();
-  // @@protoc_insertion_point(field_mutable:DumpSpyBuffersRequest.directory)
-  return _s;
-}
-inline const std::string& DumpSpyBuffersRequest::_internal_directory() const {
+inline ::uint32_t DumpSpyBuffersRequest::_internal_channel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.directory_.Get();
+  return _impl_.channel_;
 }
-inline void DumpSpyBuffersRequest::_internal_set_directory(const std::string& value) {
+inline void DumpSpyBuffersRequest::_internal_set_channel(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.directory_.Set(value, GetArena());
-}
-inline std::string* PROTOBUF_NONNULL DumpSpyBuffersRequest::_internal_mutable_directory() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  return _impl_.directory_.Mutable( GetArena());
-}
-inline std::string* PROTOBUF_NULLABLE DumpSpyBuffersRequest::release_directory() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:DumpSpyBuffersRequest.directory)
-  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
-    return nullptr;
-  }
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* released = _impl_.directory_.Release();
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
-    _impl_.directory_.Set("", GetArena());
-  }
-  return released;
-}
-inline void DumpSpyBuffersRequest::set_allocated_directory(std::string* PROTOBUF_NULLABLE value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
-  }
-  _impl_.directory_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.directory_.IsDefault()) {
-    _impl_.directory_.Set("", GetArena());
-  }
-  // @@protoc_insertion_point(field_set_allocated:DumpSpyBuffersRequest.directory)
+  _impl_.channel_ = value;
 }
 
-// uint32 n_samples = 2;
-inline void DumpSpyBuffersRequest::clear_n_samples() {
+// uint32 numberOfSamples = 2;
+inline void DumpSpyBuffersRequest::clear_numberofsamples() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.n_samples_ = 0u;
+  _impl_.numberofsamples_ = 0u;
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
-inline ::uint32_t DumpSpyBuffersRequest::n_samples() const {
-  // @@protoc_insertion_point(field_get:DumpSpyBuffersRequest.n_samples)
-  return _internal_n_samples();
+inline ::uint32_t DumpSpyBuffersRequest::numberofsamples() const {
+  // @@protoc_insertion_point(field_get:DumpSpyBuffersRequest.numberOfSamples)
+  return _internal_numberofsamples();
 }
-inline void DumpSpyBuffersRequest::set_n_samples(::uint32_t value) {
-  _internal_set_n_samples(value);
+inline void DumpSpyBuffersRequest::set_numberofsamples(::uint32_t value) {
+  _internal_set_numberofsamples(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:DumpSpyBuffersRequest.n_samples)
+  // @@protoc_insertion_point(field_set:DumpSpyBuffersRequest.numberOfSamples)
 }
-inline ::uint32_t DumpSpyBuffersRequest::_internal_n_samples() const {
+inline ::uint32_t DumpSpyBuffersRequest::_internal_numberofsamples() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.n_samples_;
+  return _impl_.numberofsamples_;
 }
-inline void DumpSpyBuffersRequest::_internal_set_n_samples(::uint32_t value) {
+inline void DumpSpyBuffersRequest::_internal_set_numberofsamples(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.n_samples_ = value;
+  _impl_.numberofsamples_ = value;
 }
 
 // -------------------------------------------------------------------
@@ -6731,7 +6715,7 @@ inline void DumpSpyBuffersRequest::_internal_set_n_samples(::uint32_t value) {
 inline void DumpSpyBuffersResponse::clear_success() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.success_ = false;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool DumpSpyBuffersResponse::success() const {
   // @@protoc_insertion_point(field_get:DumpSpyBuffersResponse.success)
@@ -6739,7 +6723,7 @@ inline bool DumpSpyBuffersResponse::success() const {
 }
 inline void DumpSpyBuffersResponse::set_success(bool value) {
   _internal_set_success(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_._has_bits_[0] |= 0x00000002u;
   // @@protoc_insertion_point(field_set:DumpSpyBuffersResponse.success)
 }
 inline bool DumpSpyBuffersResponse::_internal_success() const {
@@ -6751,76 +6735,105 @@ inline void DumpSpyBuffersResponse::_internal_set_success(bool value) {
   _impl_.success_ = value;
 }
 
-// string file_path = 2;
-inline void DumpSpyBuffersResponse::clear_file_path() {
+// uint32 channel = 2;
+inline void DumpSpyBuffersResponse::clear_channel() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.file_path_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_.channel_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
-inline const std::string& DumpSpyBuffersResponse::file_path() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:DumpSpyBuffersResponse.file_path)
-  return _internal_file_path();
+inline ::uint32_t DumpSpyBuffersResponse::channel() const {
+  // @@protoc_insertion_point(field_get:DumpSpyBuffersResponse.channel)
+  return _internal_channel();
 }
-template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void DumpSpyBuffersResponse::set_file_path(Arg_&& arg, Args_... args) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.file_path_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:DumpSpyBuffersResponse.file_path)
+inline void DumpSpyBuffersResponse::set_channel(::uint32_t value) {
+  _internal_set_channel(value);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:DumpSpyBuffersResponse.channel)
 }
-inline std::string* PROTOBUF_NONNULL DumpSpyBuffersResponse::mutable_file_path()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  std::string* _s = _internal_mutable_file_path();
-  // @@protoc_insertion_point(field_mutable:DumpSpyBuffersResponse.file_path)
-  return _s;
-}
-inline const std::string& DumpSpyBuffersResponse::_internal_file_path() const {
+inline ::uint32_t DumpSpyBuffersResponse::_internal_channel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.file_path_.Get();
+  return _impl_.channel_;
 }
-inline void DumpSpyBuffersResponse::_internal_set_file_path(const std::string& value) {
+inline void DumpSpyBuffersResponse::_internal_set_channel(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  _impl_.file_path_.Set(value, GetArena());
-}
-inline std::string* PROTOBUF_NONNULL DumpSpyBuffersResponse::_internal_mutable_file_path() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  return _impl_.file_path_.Mutable( GetArena());
-}
-inline std::string* PROTOBUF_NULLABLE DumpSpyBuffersResponse::release_file_path() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:DumpSpyBuffersResponse.file_path)
-  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
-    return nullptr;
-  }
-  _impl_._has_bits_[0] &= ~0x00000001u;
-  auto* released = _impl_.file_path_.Release();
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
-    _impl_.file_path_.Set("", GetArena());
-  }
-  return released;
-}
-inline void DumpSpyBuffersResponse::set_allocated_file_path(std::string* PROTOBUF_NULLABLE value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000001u;
-  } else {
-    _impl_._has_bits_[0] &= ~0x00000001u;
-  }
-  _impl_.file_path_.SetAllocated(value, GetArena());
-  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.file_path_.IsDefault()) {
-    _impl_.file_path_.Set("", GetArena());
-  }
-  // @@protoc_insertion_point(field_set_allocated:DumpSpyBuffersResponse.file_path)
+  _impl_.channel_ = value;
 }
 
-// string message = 3;
+// uint32 numberOfSamples = 3;
+inline void DumpSpyBuffersResponse::clear_numberofsamples() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.numberofsamples_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline ::uint32_t DumpSpyBuffersResponse::numberofsamples() const {
+  // @@protoc_insertion_point(field_get:DumpSpyBuffersResponse.numberOfSamples)
+  return _internal_numberofsamples();
+}
+inline void DumpSpyBuffersResponse::set_numberofsamples(::uint32_t value) {
+  _internal_set_numberofsamples(value);
+  _impl_._has_bits_[0] |= 0x00000008u;
+  // @@protoc_insertion_point(field_set:DumpSpyBuffersResponse.numberOfSamples)
+}
+inline ::uint32_t DumpSpyBuffersResponse::_internal_numberofsamples() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.numberofsamples_;
+}
+inline void DumpSpyBuffersResponse::_internal_set_numberofsamples(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.numberofsamples_ = value;
+}
+
+// repeated uint32 data = 4;
+inline int DumpSpyBuffersResponse::_internal_data_size() const {
+  return _internal_data().size();
+}
+inline int DumpSpyBuffersResponse::data_size() const {
+  return _internal_data_size();
+}
+inline void DumpSpyBuffersResponse::clear_data() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.data_.Clear();
+}
+inline ::uint32_t DumpSpyBuffersResponse::data(int index) const {
+  // @@protoc_insertion_point(field_get:DumpSpyBuffersResponse.data)
+  return _internal_data().Get(index);
+}
+inline void DumpSpyBuffersResponse::set_data(int index, ::uint32_t value) {
+  _internal_mutable_data()->Set(index, value);
+  // @@protoc_insertion_point(field_set:DumpSpyBuffersResponse.data)
+}
+inline void DumpSpyBuffersResponse::add_data(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _internal_mutable_data()->Add(value);
+  // @@protoc_insertion_point(field_add:DumpSpyBuffersResponse.data)
+}
+inline const ::google::protobuf::RepeatedField<::uint32_t>& DumpSpyBuffersResponse::data() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:DumpSpyBuffersResponse.data)
+  return _internal_data();
+}
+inline ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL DumpSpyBuffersResponse::mutable_data()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:DumpSpyBuffersResponse.data)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_data();
+}
+inline const ::google::protobuf::RepeatedField<::uint32_t>&
+DumpSpyBuffersResponse::_internal_data() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.data_;
+}
+inline ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL
+DumpSpyBuffersResponse::_internal_mutable_data() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.data_;
+}
+
+// string message = 5;
 inline void DumpSpyBuffersResponse::clear_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.message_.ClearToEmpty();
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& DumpSpyBuffersResponse::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
@@ -6830,7 +6843,7 @@ inline const std::string& DumpSpyBuffersResponse::message() const
 template <typename Arg_, typename... Args_>
 PROTOBUF_ALWAYS_INLINE void DumpSpyBuffersResponse::set_message(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
   // @@protoc_insertion_point(field_set:DumpSpyBuffersResponse.message)
 }
@@ -6846,21 +6859,21 @@ inline const std::string& DumpSpyBuffersResponse::_internal_message() const {
 }
 inline void DumpSpyBuffersResponse::_internal_set_message(const std::string& value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(value, GetArena());
 }
 inline std::string* PROTOBUF_NONNULL DumpSpyBuffersResponse::_internal_mutable_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000001u;
   return _impl_.message_.Mutable( GetArena());
 }
 inline std::string* PROTOBUF_NULLABLE DumpSpyBuffersResponse::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   // @@protoc_insertion_point(field_release:DumpSpyBuffersResponse.message)
-  if ((_impl_._has_bits_[0] & 0x00000002u) == 0) {
+  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000001u;
   auto* released = _impl_.message_.Release();
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
     _impl_.message_.Set("", GetArena());
@@ -6870,9 +6883,9 @@ inline std::string* PROTOBUF_NULLABLE DumpSpyBuffersResponse::release_message() 
 inline void DumpSpyBuffersResponse::set_allocated_message(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
-    _impl_._has_bits_[0] |= 0x00000002u;
+    _impl_._has_bits_[0] |= 0x00000001u;
   } else {
-    _impl_._has_bits_[0] &= ~0x00000002u;
+    _impl_._has_bits_[0] &= ~0x00000001u;
   }
   _impl_.message_.SetAllocated(value, GetArena());
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
@@ -7605,54 +7618,54 @@ inline void GeneralInfo::_internal_set_temperature(double value) {
 
 // -------------------------------------------------------------------
 
-// WriteRegisterRequest
+// WriteMultipleRegisterRequest
 
 // repeated .WriteRegister writes = 1;
-inline int WriteRegisterRequest::_internal_writes_size() const {
+inline int WriteMultipleRegisterRequest::_internal_writes_size() const {
   return _internal_writes().size();
 }
-inline int WriteRegisterRequest::writes_size() const {
+inline int WriteMultipleRegisterRequest::writes_size() const {
   return _internal_writes_size();
 }
-inline void WriteRegisterRequest::clear_writes() {
+inline void WriteMultipleRegisterRequest::clear_writes() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.writes_.Clear();
 }
-inline ::WriteRegister* PROTOBUF_NONNULL WriteRegisterRequest::mutable_writes(int index)
+inline ::WriteRegister* PROTOBUF_NONNULL WriteMultipleRegisterRequest::mutable_writes(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:WriteRegisterRequest.writes)
+  // @@protoc_insertion_point(field_mutable:WriteMultipleRegisterRequest.writes)
   return _internal_mutable_writes()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::WriteRegister>* PROTOBUF_NONNULL WriteRegisterRequest::mutable_writes()
+inline ::google::protobuf::RepeatedPtrField<::WriteRegister>* PROTOBUF_NONNULL WriteMultipleRegisterRequest::mutable_writes()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:WriteRegisterRequest.writes)
+  // @@protoc_insertion_point(field_mutable_list:WriteMultipleRegisterRequest.writes)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_writes();
 }
-inline const ::WriteRegister& WriteRegisterRequest::writes(int index) const
+inline const ::WriteRegister& WriteMultipleRegisterRequest::writes(int index) const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:WriteRegisterRequest.writes)
+  // @@protoc_insertion_point(field_get:WriteMultipleRegisterRequest.writes)
   return _internal_writes().Get(index);
 }
-inline ::WriteRegister* PROTOBUF_NONNULL WriteRegisterRequest::add_writes()
+inline ::WriteRegister* PROTOBUF_NONNULL WriteMultipleRegisterRequest::add_writes()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::WriteRegister* _add = _internal_mutable_writes()->Add();
-  // @@protoc_insertion_point(field_add:WriteRegisterRequest.writes)
+  // @@protoc_insertion_point(field_add:WriteMultipleRegisterRequest.writes)
   return _add;
 }
-inline const ::google::protobuf::RepeatedPtrField<::WriteRegister>& WriteRegisterRequest::writes() const
+inline const ::google::protobuf::RepeatedPtrField<::WriteRegister>& WriteMultipleRegisterRequest::writes() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:WriteRegisterRequest.writes)
+  // @@protoc_insertion_point(field_list:WriteMultipleRegisterRequest.writes)
   return _internal_writes();
 }
 inline const ::google::protobuf::RepeatedPtrField<::WriteRegister>&
-WriteRegisterRequest::_internal_writes() const {
+WriteMultipleRegisterRequest::_internal_writes() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.writes_;
 }
 inline ::google::protobuf::RepeatedPtrField<::WriteRegister>* PROTOBUF_NONNULL
-WriteRegisterRequest::_internal_mutable_writes() {
+WriteMultipleRegisterRequest::_internal_mutable_writes() {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return &_impl_.writes_;
 }

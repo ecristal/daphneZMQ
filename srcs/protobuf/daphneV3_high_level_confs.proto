@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-service DaphneController {
-  rpc ConfigureCLKs(ConfigureCLKsRequest) returns (ConfigureCLKsResponse);
-  rpc Configure(ConfigureRequest) returns (ConfigureResponse);
-  rpc Scrap(ScrapRequest) returns (ScrapResponse);
-  rpc DumpSpyBuffers(DumpSpyBuffersRequest) returns (DumpSpyBuffersResponse);
-  rpc GetInfo(InfoRequest) returns (InfoResponse);
-  rpc WriteRegister(WriteRegisterRequest) returns (WriteRegisterResponse);
-}
+//service DaphneController {
+// rpc ConfigureCLKs(ConfigureCLKsRequest) returns (ConfigureCLKsResponse);
+//  rpc Configure(ConfigureRequest) returns (ConfigureResponse);
+//  rpc Scrap(ScrapRequest) returns (ScrapResponse);
+//  rpc DumpSpyBuffers(DumpSpyBuffersRequest) returns (DumpSpyBuffersResponse);
+//  rpc GetInfo(InfoRequest) returns (InfoResponse);
+//  rpc WriteRegister(WriteRegisterRequest) returns (WriteRegisterResponse);
+//}
 
 message ConfigureCLKsRequest {
   uint32 id = 1;
@@ -85,14 +85,16 @@ message ScrapResponse {
 
 
 message DumpSpyBuffersRequest {
-  string directory = 1;
-  uint32 n_samples = 2;
+  uint32 channel = 1;
+  uint32 numberOfSamples = 2;
 }
 
 message DumpSpyBuffersResponse {
   bool success = 1;
-  string file_path = 2;
-  string message = 3;
+  uint32 channel = 2;
+  uint32 numberOfSamples = 3;
+  repeated uint32 data = 4;
+  string message = 5;
 }
 
 
@@ -134,7 +136,7 @@ message GeneralInfo {
   double temperature = 9;
 }
 
-message WriteRegisterRequest {
+message WriteMultipleRegisterRequest {
   repeated WriteRegister writes = 1;
 }
 
@@ -150,35 +152,37 @@ message WriteRegisterResponse {
 
 enum MessageType {
   UNKNOWN = 0;
-  CONFIGURE_CLKS = 1; //to be implemented
-  CONFIGURE_FE = 2; // implemented but needs testing
+  CONFIGURE_CLKS = 1;
+  CONFIGURE_FE = 2;
   //Legacy DAPHNE V2 commands
-  WRITE_AFE_REG = 3; // implemented 
-  WRITE_AFE_VGAIN = 4; // implemented 
-  WRITE_AFE_BIAS_SET = 5; // implemented 
-  WRITE_TRIM_ALL_CH = 6; // to be implemented
-  WRITE_TRIM_ALL_AFE = 7; // to be implemented
-  WRITE_TRIM_CH = 8; // implemented 
-  WRITE_OFFSET_ALL_CH = 9; // to be implemented
-  WRITE_OFFSET_ALL_AFE = 10; // to be implemented
-  WRITE_OFFSET_CH = 11; // to be implemented
-  WRITE_VBIAS_CONTROL = 12; // to be implemented
-  READ_AFE_REG = 13; // to be implemented
-  READ_AFE_VGAIN = 14; // to be implemented 
-  READ_AFE_BIAS_SET = 15; // to be implemented 
-  READ_TRIM_ALL_CH = 16; // to be implemented 
-  READ_TRIM_ALL_AFE = 17; // to be implemented
-  READ_TRIM_CH = 18; // to be implemented
-  READ_OFFSET_ALL_CH = 19; // to be implemented
-  READ_OFFSET_ALL_AFE = 20; // to be implemented
-  READ_OFFSET_CH = 21; // to be implemented
-  READ_VBIAS_CONTROL = 22; // to be implemented
-  READ_CURRENT_MONITOR = 23; // to be implemented
-  READ_BIAS_VOLTAGE_MONITOR = 24; // to be implemented
-  SET_AFE_RESET = 25; // to be implemented
-  SET_AFE_POWERDOWN = 26; // to be implemented
+  WRITE_AFE_REG = 3;
+  WRITE_AFE_VGAIN = 4;
+  WRITE_AFE_BIAS_SET = 5;
+  WRITE_TRIM_ALL_CH = 6;
+  WRITE_TRIM_ALL_AFE = 7;
+  WRITE_TRIM_CH = 8;
+  WRITE_OFFSET_ALL_CH = 9;
+  WRITE_OFFSET_ALL_AFE = 10;
+  WRITE_OFFSET_CH = 11;
+  WRITE_VBIAS_CONTROL = 12;
+  READ_AFE_REG = 13;
+  READ_AFE_VGAIN = 14;
+  READ_AFE_BIAS_SET = 15;
+  READ_TRIM_ALL_CH = 16;
+  READ_TRIM_ALL_AFE = 17;
+  READ_TRIM_CH = 18;
+  READ_OFFSET_ALL_CH = 19;
+  READ_OFFSET_ALL_AFE = 20;
+  READ_OFFSET_CH = 21;
+  READ_VBIAS_CONTROL = 22;
+  READ_CURRENT_MONITOR = 23;
+  READ_BIAS_VOLTAGE_MONITOR = 24;
+  SET_AFE_RESET = 25;
+  SET_AFE_POWERDOWN = 26;
   // DAPHNE V3 low-level commands
-  WRITE_AFE_ATTENUATION = 27; // to be implemented
+  WRITE_AFE_ATTENUATION = 27;
+  DUMP_SPYBUFFER = 28;
+  ALIGN_AFE = 29;
 }
 
 message ControlEnvelope {
