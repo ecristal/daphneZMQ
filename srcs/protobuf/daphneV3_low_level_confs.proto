@@ -182,8 +182,8 @@ message cmd_readTrim_allChannels {
 
 message cmd_readTrim_allChannels_response {
 	bool   success = 1;
-	string message = 2; //Here trim value should be a vector of trim values for all channels
-	repeated uint32 trimValues = 3; // This is a repeated field to hold trim values for all channels
+	string message = 2;
+	repeated uint32 trimValues = 3;
 }
 
 message cmd_readTrim_allAFE {
@@ -194,7 +194,7 @@ message cmd_readTrim_allAFE_response {
 	bool   success = 1;
 	string message = 2;
 	uint32 afeBlock = 3;
-	repeated uint32 trimValues = 4; // This is a repeated field to hold trim values for all channels
+	repeated uint32 trimValues = 4;
 }
 
 message cmd_readTrim_singleChannel {
@@ -213,8 +213,8 @@ message cmd_readOffset_allChannels {
 
 message cmd_readOffset_allChannels_response {
 	bool   success = 1;
-	string message = 2; //Here offset value should be a vector of offset values for all channels
-	repeated uint32 offsetValues = 3; // This is a repeated field to hold offset values for all channels
+	string message = 2;
+	repeated uint32 offsetValues = 3;
 }
 
 message cmd_readOffset_allAFE {
@@ -225,7 +225,7 @@ message cmd_readOffset_allAFE_response {
 	bool   success = 1;
 	string message = 2;
 	uint32 afeBlock = 3;
-	repeated uint32 offsetValues = 4; // This is a repeated field to hold offset values for all channels
+	repeated uint32 offsetValues = 4;
 }
 
 message cmd_readOffset_singleChannel {
@@ -256,7 +256,7 @@ message cmd_readCurrentMonitor_response {
 	bool   success = 1;
 	string message = 2;
 	uint32 currentMonitorChannel = 3;
-	uint32 currentValue = 4; // The current value read from the monitor
+	uint32 currentValue = 4;
 }
 
 message cmd_readBiasVoltageMonitor {
@@ -267,40 +267,70 @@ message cmd_readBiasVoltageMonitor_response {
 	bool   success = 1;
 	string message = 2;
 	uint32 afeBlock = 3;
-	uint32 biasVoltageValue = 4; // The bias voltage value read from the monitor
+	uint32 biasVoltageValue = 4;
 }
 
 message cmd_setAFEReset {
-	uint32 afeBlock = 1;
+	bool resetValue = 1;
 }
 
 message cmd_setAFEReset_response {
 	bool success = 1;
 	string message = 2;
-	uint32 afeBlock = 3;
+	bool resetValue = 3;
 }
 
-message cmd_setAFEPowerDown {
+message cmd_doAFEReset {
+}
+
+message cmd_doAFEReset_response {
+	bool success = 1;
+	string message = 2;
+}
+
+message cmd_setAFEPowerState {
+	bool powerState = 1;
+}
+
+message cmd_setAFEPowerState_response {
+	bool success = 1;
+	string message = 2;
+	uint32 powerState = 3;
+}
+
+message cmd_alignAFE {
+  	uint32 afe = 1;
+}
+
+message cmd_alignAFE_response {
+	bool success = 1;
+	uint32 afe = 2;
+	uint32 delay = 3;
+	uint32 bitslip = 4;
+	string message = 5;
+}
+
+message cmd_writeAFEFunction {
 	uint32 afeBlock = 1;
-	bool pwrState = 2;
+	string function = 2;
+	uint32 configValue = 3;
 }
 
-message cmd_setAFEPowerDown_response {
+message cmd_writeAFEFunction_response {
 	bool success = 1;
 	string message = 2;
 	uint32 afeBlock = 3;
+	string function = 4;
+	uint32 configValue = 5;
 }
 
-message cmd_alignAFE{
-  uint32 afe = 1;
+message cmd_doSoftwareTrigger {
+
 }
 
-message cmd_alignAFE_response{
-  bool success = 1;
-  uint32 afe = 2;
-  uint32 delay = 3;
-  uint32 bitslip = 4;
-  string message = 5;
+message cmd_doSoftwareTrigger_response {
+	bool success = 1;
+	string message = 2;
 }
 
 

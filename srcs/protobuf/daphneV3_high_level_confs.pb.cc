@@ -1079,7 +1079,7 @@ const char descriptor_table_protodef_daphneV3_5fhigh_5flevel_5fconfs_2eproto[] A
     "ue\030\002 \001(\004\"9\n\025WriteRegisterResponse\022\017\n\007suc"
     "cess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\">\n\017ControlEn"
     "velope\022\032\n\004type\030\001 \001(\0162\014.MessageType\022\017\n\007pa"
-    "yload\030\002 \001(\014*\235\005\n\013MessageType\022\013\n\007UNKNOWN\020\000"
+    "yload\030\002 \001(\014*\341\005\n\013MessageType\022\013\n\007UNKNOWN\020\000"
     "\022\022\n\016CONFIGURE_CLKS\020\001\022\020\n\014CONFIGURE_FE\020\002\022\021"
     "\n\rWRITE_AFE_REG\020\003\022\023\n\017WRITE_AFE_VGAIN\020\004\022\026"
     "\n\022WRITE_AFE_BIAS_SET\020\005\022\025\n\021WRITE_TRIM_ALL"
@@ -1093,16 +1093,17 @@ const char descriptor_table_protodef_daphneV3_5fhigh_5flevel_5fconfs_2eproto[] A
     "FSET_ALL_CH\020\023\022\027\n\023READ_OFFSET_ALL_AFE\020\024\022\022"
     "\n\016READ_OFFSET_CH\020\025\022\026\n\022READ_VBIAS_CONTROL"
     "\020\026\022\030\n\024READ_CURRENT_MONITOR\020\027\022\035\n\031READ_BIA"
-    "S_VOLTAGE_MONITOR\020\030\022\021\n\rSET_AFE_RESET\020\031\022\025"
-    "\n\021SET_AFE_POWERDOWN\020\032\022\031\n\025WRITE_AFE_ATTEN"
-    "UATION\020\033\022\022\n\016DUMP_SPYBUFFER\020\034\022\r\n\tALIGN_AF"
-    "E\020\035b\006proto3"
+    "S_VOLTAGE_MONITOR\020\030\022\021\n\rSET_AFE_RESET\020\031\022\020"
+    "\n\014DO_AFE_RESET\020\032\022\026\n\022SET_AFE_POWERSTATE\020\033"
+    "\022\031\n\025WRITE_AFE_ATTENUATION\020\034\022\022\n\016DUMP_SPYB"
+    "UFFER\020\035\022\r\n\tALIGN_AFE\020\036\022\026\n\022WRITE_AFE_FUNC"
+    "TION\020\037\022\027\n\023DO_SOFTWARE_TRIGGER\020 b\006proto3"
 };
 static ::absl::once_flag descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto = {
     false,
     false,
-    2731,
+    2799,
     descriptor_table_protodef_daphneV3_5fhigh_5flevel_5fconfs_2eproto,
     "daphneV3_high_level_confs.proto",
     &descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto_once,
@@ -1120,7 +1121,7 @@ const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL MessageType_descripto
   return file_level_enum_descriptors_daphneV3_5fhigh_5flevel_5fconfs_2eproto[0];
 }
 PROTOBUF_CONSTINIT const uint32_t MessageType_internal_data_[] = {
-    1966080u, 0u, };
+    2162688u, 0u, };
 // ===================================================================
 
 class ConfigureCLKsRequest::_Internal {

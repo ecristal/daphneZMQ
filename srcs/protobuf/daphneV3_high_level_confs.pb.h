@@ -179,10 +179,13 @@ enum MessageType : int {
   READ_CURRENT_MONITOR = 23,
   READ_BIAS_VOLTAGE_MONITOR = 24,
   SET_AFE_RESET = 25,
-  SET_AFE_POWERDOWN = 26,
-  WRITE_AFE_ATTENUATION = 27,
-  DUMP_SPYBUFFER = 28,
-  ALIGN_AFE = 29,
+  DO_AFE_RESET = 26,
+  SET_AFE_POWERSTATE = 27,
+  WRITE_AFE_ATTENUATION = 28,
+  DUMP_SPYBUFFER = 29,
+  ALIGN_AFE = 30,
+  WRITE_AFE_FUNCTION = 31,
+  DO_SOFTWARE_TRIGGER = 32,
   MessageType_INT_MIN_SENTINEL_DO_NOT_USE_ =
       std::numeric_limits<::int32_t>::min(),
   MessageType_INT_MAX_SENTINEL_DO_NOT_USE_ =
@@ -193,11 +196,11 @@ extern const uint32_t MessageType_internal_data_[];
 inline constexpr MessageType MessageType_MIN =
     static_cast<MessageType>(0);
 inline constexpr MessageType MessageType_MAX =
-    static_cast<MessageType>(29);
+    static_cast<MessageType>(32);
 inline bool MessageType_IsValid(int value) {
-  return 0 <= value && value <= 29;
+  return 0 <= value && value <= 32;
 }
-inline constexpr int MessageType_ARRAYSIZE = 29 + 1;
+inline constexpr int MessageType_ARRAYSIZE = 32 + 1;
 const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL MessageType_descriptor();
 template <typename T>
 const std::string& MessageType_Name(T value) {
@@ -208,7 +211,7 @@ const std::string& MessageType_Name(T value) {
 }
 template <>
 inline const std::string& MessageType_Name(MessageType value) {
-  return ::google::protobuf::internal::NameOfDenseEnum<MessageType_descriptor, 0, 29>(
+  return ::google::protobuf::internal::NameOfDenseEnum<MessageType_descriptor, 0, 32>(
       static_cast<int>(value));
 }
 inline bool MessageType_Parse(

@@ -19,16 +19,16 @@ uint32_t Afe::doReset(){
 	return value;
 }
 
-uint32_t Afe::setPowerdown(const uint32_t& powerdown){
+uint32_t Afe::setPowerState(const uint32_t& powerstate){
 
-	uint32_t value = this->spi->getFpgaReg()->setBits("afeGlobalControl", "POWERDOWN", ~powerdown);
+	uint32_t value = this->spi->getFpgaReg()->setBits("afeGlobalControl", "POWERSTATE", powerstate);
 	std::this_thread::sleep_for(std::chrono::microseconds(5000));
 	return value;
 }
 
-uint32_t Afe::getPowerdown(){
+uint32_t Afe::getPowerState(){
 
-	return this->spi->getFpgaReg()->getBits("afeGlobalControl", "POWERDOWN");
+	return this->spi->getFpgaReg()->getBits("afeGlobalControl", "POWERSTATE");
 }
 
 uint32_t Afe::setRegister(const uint32_t& afe, const uint32_t& register_, const uint32_t& value){

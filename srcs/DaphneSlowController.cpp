@@ -261,11 +261,79 @@ bool alignAFE(const cmd_alignAFE &request, cmd_alignAFE_response &response, Daph
         uint32_t bitslip = daphne.getFrontEnd()->getBitslip(afe);
         response.set_delay(delay);
         response.set_bitslip(bitslip);
-        response_str = "AFE number " + std::to_string(afe) + " correctly.\n" +
+        response_str = "AFE number " + std::to_string(afe) + " aligned correctly.\n" +
                         "DELAY: " + std::to_string(delay) + "\n" + 
                         "BITSLIP: " + std::to_string(bitslip);
     } catch (std::exception &e) {
         response_str = "Error aligning AFE: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
+bool writeAFEFunction(const cmd_writeAFEFunction &request, cmd_writeAFEFunction_response &response, Daphne &daphne, std::string &response_str){
+    try {
+        uint32_t afeBlock = request.afeblock();
+        std::string afeFunctionName = request.function();
+        uint32_t confValue = request.configvalue();
+        uint32_t returnedConfValue = daphne.getAfe()->setAFEFunction(afeBlock, afeFunctionName, confValue);
+        response.set_function(afeFunctionName);
+        response.set_configvalue(returnedConfValue);
+        response.set_afeblock(afeBlock);
+        response_str = "Function " + afeFunctionName + " in AFE " + std::to_string(afeBlock) + " configured correctly.\n"
+                       + "Returned value: " + std::to_string(returnedConfValue);  
+    } catch (std::exception &e) {
+        response_str = "Error writting AFE function: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
+bool setAFEReset(const cmd_setAFEReset &request, cmd_setAFEReset_response &response, Daphne &daphne, std::string &response_str){
+    try{
+        bool resetValue = request.resetvalue();
+        uint32_t returnedResetValue = daphne.getAfe()->setReset((uint32_t)resetValue);
+        response.set_resetvalue(returnedResetValue);
+        response_str = "AFEs reset register with value " + std::to_string(resetValue) + ".\n"
+                     + "Returned value: " + std::to_string(returnedResetValue);
+    }catch(std::exception &e){
+        response_str = "Error reseting AFEs: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
+bool doAFEReset(const cmd_doAFEReset &request, cmd_doAFEReset_response &response, Daphne &daphne, std::string &response_str){
+    try{
+        uint32_t returnedResetValue = daphne.getAfe()->doReset();
+        response_str = "AFEs doreset command successful.\n";
+    }catch(std::exception &e){
+        response_str = "Error reseting AFEs: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
+bool setAFEPowerState(const cmd_setAFEPowerState &request, cmd_setAFEPowerState_response &response, Daphne &daphne, std::string &response_str){
+    try{
+        bool powerStateValue = request.powerstate();
+        uint32_t returnedPowerStateValue = daphne.getAfe()->setPowerState((uint32_t)powerStateValue);
+        response.set_powerstate(returnedPowerStateValue);
+        response_str = "AFEs reset register with value " + std::to_string(powerStateValue) + ".\n"
+                     + "Returned value: " + std::to_string(returnedPowerStateValue);
+    }catch(std::exception &e){
+        response_str = "Error setting AFEs power state: " + std::string(e.what());
+        return false;
+    }
+    return true;
+}
+
+bool doSoftwareTrigger(const cmd_doSoftwareTrigger &request, cmd_doSoftwareTrigger_response &response, Daphne &daphne, std::string &response_str){
+    try{
+        daphne.getFrontEnd()->doTrigger();
+        response_str = "Software reset command successful.\n";
+    }catch(std::exception &e){
+        response_str = "Error reseting AFEs: " + std::string(e.what());
         return false;
     }
     return true;
@@ -277,63 +345,7 @@ void process_request(const std::string& request_str, std::string& response_str, 
     // so the issue is to see if it really contains the substring. 
     // Apparently it does not!!!
     ControlEnvelope request_envelope, response_envelope;
-    ConfigureCLKsRequest clk_request;
-    ConfigureCLKsResponse clk_response;
-    ConfigureRequest cfg_request;
-    ConfigureResponse cfg_response;
-    DumpSpyBuffersRequest dump_spybuffer_request;
-    DumpSpyBuffersResponse dump_spybuffer_response;
-    // DAPHNE V2 Legacy commands
-    cmd_writeAFEReg write_afe_reg_request;
-    cmd_writeAFEReg_response write_afe_reg_response;
-    cmd_writeAFEVGAIN write_afe_vgain_request;
-    cmd_writeAFEVgain_response write_afe_vgain_response;
-    cmd_writeAFEBiasSet write_afe_biasset_request;
-    cmd_writeAFEBiasSet_response write_afe_biasset_response;
-    cmd_writeTRIM_allChannels write_trim_allchannels_request;
-    cmd_writeTRIM_allChannels_response write_trim_allchannels_response;
-    cmd_writeTrim_allAFE write_trim_allafe_request;
-    cmd_writeTrim_allAFE_response write_trim_allafe_response;
-    cmd_writeTrim_singleChannel write_trim_singlechannel_request;
-    cmd_writeTrim_singleChannel_response write_trim_singlechannel_response;
-    cmd_writeOFFSET_allChannels write_offset_allchannels_request;
-    cmd_writeOFFSET_allChannels_response write_offset_allchannels_response;
-    cmd_writeOFFSET_allAFE write_offset_allafe_request;
-    cmd_writeOFFSET_allAFE_response write_offset_allafe_response;
-    cmd_writeOFFSET_singleChannel write_offset_singlechannel_request;
-    cmd_writeOFFSET_singleChannel_response write_offset_singlechannel_response;
-    cmd_writeVbiasControl write_vbias_control_request;
-    cmd_writeVbiasControl_response write_vbias_control_response;
-    cmd_readAFEReg read_afe_reg_request;
-    cmd_readAFEReg_response read_afe_reg_response;
-    cmd_readAFEVgain read_afe_vgain_request;
-    cmd_readAFEVgain_response read_afe_vgain_response;
-    cmd_readAFEBiasSet read_afe_biasset_request;
-    cmd_readAFEBiasSet_response read_afe_biasset_response;
-    cmd_readTrim_allChannels read_trim_allchannels_request;
-    cmd_readTrim_allChannels_response read_trim_allchannels_response;
-    cmd_readTrim_allAFE read_trim_allafe_request;
-    cmd_readTrim_allAFE_response read_trim_allafe_response;
-    cmd_readTrim_singleChannel read_trim_singlechannel_request;
-    cmd_readTrim_singleChannel_response read_trim_singlechannel_response;
-    cmd_readOffset_allChannels read_offset_allchannels_request;
-    cmd_readOffset_allChannels_response read_offset_allchannels_response;
-    cmd_readOffset_allAFE read_offset_allafe_request;
-    cmd_readOffset_allAFE_response read_offset_allafe_response;
-    cmd_readOffset_singleChannel read_offset_singlechannel_request;
-    cmd_readOffset_singleChannel_response read_offset_singlechannel_response;
-    cmd_readVbiasControl read_vbias_control_request;
-    cmd_readVbiasControl_response read_vbias_control_response;
-    cmd_readCurrentMonitor read_current_monitor_request;
-    cmd_readCurrentMonitor_response read_current_monitor_response;
-    cmd_readBiasVoltageMonitor read_bias_voltage_monitor_request;
-    cmd_readBiasVoltageMonitor_response read_bias_voltage_monitor_response;
-    cmd_setAFEReset set_afe_reset_request;
-    cmd_setAFEReset_response set_afe_reset_response;
-    cmd_setAFEPowerDown set_afe_powerdown_request;
-    cmd_setAFEPowerDown_response set_afe_powerdown_response;
-    cmd_alignAFE alignAFE_request;
-    cmd_alignAFE_response alignAFE_response;
+
     if(!request_envelope.ParseFromString(request_str)){
         response_str = "Request not recognized";
         return;
@@ -341,6 +353,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
 
     switch(request_envelope.type()){
         case CONFIGURE_CLKS: { // to be implemented
+            ConfigureCLKsRequest clk_request;
+            ConfigureCLKsResponse clk_response;
             std::cout << "The request is a ConfigureCLKsRequest" << std::endl;
             if(clk_request.ParseFromString(request_envelope.payload())){
                 clk_response.set_success(true);
@@ -359,6 +373,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case CONFIGURE_FE: {
+            ConfigureRequest cfg_request;
+            ConfigureResponse cfg_response;
             std::cout << "The request is a ConfigureRequest" << std::endl;
             if(cfg_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
@@ -379,6 +395,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case WRITE_AFE_REG: {
+            cmd_writeAFEReg write_afe_reg_request;
+            cmd_writeAFEReg_response write_afe_reg_response;
             std::cout << "The request is a WriteAfeRegRequest" << std::endl;
             if(write_afe_reg_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
@@ -403,6 +421,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case WRITE_AFE_VGAIN: {
+            cmd_writeAFEVGAIN write_afe_vgain_request;
+            cmd_writeAFEVgain_response write_afe_vgain_response;
             std::cout << "The request is a WriteAfeVgainRequest" << std::endl;
             if(write_afe_vgain_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
@@ -426,6 +446,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case WRITE_AFE_BIAS_SET: {
+            cmd_writeAFEBiasSet write_afe_biasset_request;
+            cmd_writeAFEBiasSet_response write_afe_biasset_response;
             std::cout << "The request is a WriteAfeBiasSetRequest" << std::endl;
             if(write_afe_biasset_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
@@ -449,6 +471,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case WRITE_TRIM_ALL_CH: { // to be implemented
+            cmd_writeTRIM_allChannels write_trim_allchannels_request;
+            cmd_writeTRIM_allChannels_response write_trim_allchannels_response;
             std::cout << "The request is a WriteTrimAllChannelsRequest" << std::endl;
             if(write_trim_allchannels_request.ParseFromString(request_envelope.payload())){
                 write_trim_allchannels_response.set_success(true);
@@ -467,6 +491,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case WRITE_TRIM_ALL_AFE: { // to be implemented
+            cmd_writeTrim_allAFE write_trim_allafe_request;
+            cmd_writeTrim_allAFE_response write_trim_allafe_response;
             std::cout << "The request is a WriteTrimAllAfeRequest" << std::endl;
             if(write_trim_allafe_request.ParseFromString(request_envelope.payload())){
                 write_trim_allafe_response.set_success(true);
@@ -485,6 +511,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case WRITE_TRIM_CH: { //Verified in DAPHNE V3
+            cmd_writeTrim_singleChannel write_trim_singlechannel_request;
+            cmd_writeTrim_singleChannel_response write_trim_singlechannel_response;
             std::cout << "The request is a WriteTrimSingleChannelRequest" << std::endl;
             if(write_trim_singlechannel_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
@@ -509,6 +537,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case WRITE_OFFSET_ALL_CH: { // to be implemented
+            cmd_writeOFFSET_allChannels write_offset_allchannels_request;
+            cmd_writeOFFSET_allChannels_response write_offset_allchannels_response;
             std::cout << "The request is a WriteOffsetAllChannelsRequest" << std::endl;
             if(write_offset_allchannels_request.ParseFromString(request_envelope.payload())){
                 write_offset_allchannels_response.set_success(true);
@@ -527,6 +557,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case WRITE_OFFSET_ALL_AFE: { // to be implemented
+            cmd_writeOFFSET_allAFE write_offset_allafe_request;
+            cmd_writeOFFSET_allAFE_response write_offset_allafe_response;
             std::cout << "The request is a WriteOffsetAllAfeRequest" << std::endl;
             if(write_offset_allafe_request.ParseFromString(request_envelope.payload())){
                 write_offset_allafe_response.set_success(true);
@@ -545,6 +577,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case WRITE_OFFSET_CH: { //Verified in DAPHNE V3
+            cmd_writeOFFSET_singleChannel write_offset_singlechannel_request;
+            cmd_writeOFFSET_singleChannel_response write_offset_singlechannel_response;
             std::cout << "The request is a WriteOffsetSingleChannelRequest" << std::endl;
             if(write_offset_singlechannel_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
@@ -571,6 +605,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case WRITE_VBIAS_CONTROL: {
+            cmd_writeVbiasControl write_vbias_control_request;
+            cmd_writeVbiasControl_response write_vbias_control_response;
             std::cout << "The request is a WriteVbiasControlRequest" << std::endl;
             if(write_vbias_control_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
@@ -593,6 +629,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case READ_AFE_REG: { // to be implemented
+            cmd_readAFEReg read_afe_reg_request;
+            cmd_readAFEReg_response read_afe_reg_response;
             std::cout << "The request is a ReadAfeRegRequest" << std::endl;
             if(read_afe_reg_request.ParseFromString(request_envelope.payload())){
                 read_afe_reg_response.set_success(true);
@@ -611,6 +649,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case READ_AFE_VGAIN: { // to be implemented
+            cmd_readAFEVgain read_afe_vgain_request;
+            cmd_readAFEVgain_response read_afe_vgain_response;
             std::cout << "The request is a ReadAfeVgainRequest" << std::endl;
             if(read_afe_vgain_request.ParseFromString(request_envelope.payload())){
                 read_afe_vgain_response.set_success(true);
@@ -629,6 +669,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case READ_AFE_BIAS_SET: { // to be implemented
+            cmd_readAFEBiasSet read_afe_biasset_request;
+            cmd_readAFEBiasSet_response read_afe_biasset_response;
             std::cout << "The request is a ReadAfeBiasSetRequest" << std::endl;
             if(read_afe_biasset_request.ParseFromString(request_envelope.payload())){
                 read_afe_biasset_response.set_success(true);
@@ -647,6 +689,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case READ_TRIM_ALL_CH: { // to be implemented
+            cmd_readTrim_allChannels read_trim_allchannels_request;
+            cmd_readTrim_allChannels_response read_trim_allchannels_response;
             std::cout << "The request is a ReadTrimAllChannelsRequest" << std::endl;
             if(read_trim_allchannels_request.ParseFromString(request_envelope.payload())){
                 read_trim_allchannels_response.set_success(true);
@@ -665,6 +709,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case READ_TRIM_ALL_AFE: { // to be implemented
+            cmd_readTrim_allAFE read_trim_allafe_request;
+            cmd_readTrim_allAFE_response read_trim_allafe_response;
             std::cout << "The request is a ReadTrimAllAfeRequest" << std::endl;
             if(read_trim_allafe_request.ParseFromString(request_envelope.payload())){
                 read_trim_allafe_response.set_success(true);
@@ -683,6 +729,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case READ_TRIM_CH: { // to be implemented
+            cmd_readTrim_singleChannel read_trim_singlechannel_request;
+            cmd_readTrim_singleChannel_response read_trim_singlechannel_response;
             std::cout << "The request is a ReadTrimSingleChannelRequest" << std::endl;
             if(read_trim_singlechannel_request.ParseFromString(request_envelope.payload())){
                 read_trim_singlechannel_response.set_success(true);
@@ -701,6 +749,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case READ_OFFSET_ALL_CH: { // to be implemented
+            cmd_readOffset_allChannels read_offset_allchannels_request;
+            cmd_readOffset_allChannels_response read_offset_allchannels_response;
             std::cout << "The request is a ReadOffsetAllChannelsRequest" << std::endl;
             if(read_offset_allchannels_request.ParseFromString(request_envelope.payload())){
                 read_offset_allchannels_response.set_success(true);
@@ -719,6 +769,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case READ_OFFSET_ALL_AFE: { // to be implemented
+            cmd_readOffset_allAFE read_offset_allafe_request;
+            cmd_readOffset_allAFE_response read_offset_allafe_response;
             std::cout << "The request is a ReadOffsetAllAfeRequest" << std::endl;
             if(read_offset_allafe_request.ParseFromString(request_envelope.payload())){
                 read_offset_allafe_response.set_success(true);
@@ -737,6 +789,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case READ_OFFSET_CH: { // to be implemented
+            cmd_readOffset_singleChannel read_offset_singlechannel_request;
+            cmd_readOffset_singleChannel_response read_offset_singlechannel_response;
             std::cout << "The request is a ReadOffsetSingleChannelRequest" << std::endl;
             if(read_offset_singlechannel_request.ParseFromString(request_envelope.payload())){
                 read_offset_singlechannel_response.set_success(true);
@@ -755,6 +809,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case READ_VBIAS_CONTROL: { // to be implemented
+            cmd_readVbiasControl read_vbias_control_request;
+            cmd_readVbiasControl_response read_vbias_control_response;
             std::cout << "The request is a ReadVbiasControlRequest" << std::endl;
             if(read_vbias_control_request.ParseFromString(request_envelope.payload())){
                 read_vbias_control_response.set_success(true);
@@ -773,6 +829,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case READ_CURRENT_MONITOR: { // to be implemented
+            cmd_readCurrentMonitor read_current_monitor_request;
+            cmd_readCurrentMonitor_response read_current_monitor_response;
             std::cout << "The request is a ReadCurrentMonitorRequest" << std::endl;
             if(read_current_monitor_request.ParseFromString(request_envelope.payload())){
                 read_current_monitor_response.set_success(true);
@@ -791,6 +849,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
             }
         }
         case READ_BIAS_VOLTAGE_MONITOR: { // to be implemented
+            cmd_readBiasVoltageMonitor read_bias_voltage_monitor_request;
+            cmd_readBiasVoltageMonitor_response read_bias_voltage_monitor_response;
             std::cout << "The request is a ReadBiasVoltageMonitorRequest" << std::endl;
             if(read_bias_voltage_monitor_request.ParseFromString(request_envelope.payload())){
                 read_bias_voltage_monitor_response.set_success(true);
@@ -808,11 +868,15 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 return;
             }
         }
-        case SET_AFE_RESET: { // to be implemented
+        case SET_AFE_RESET: {
+            cmd_setAFEReset set_afe_reset_request;
+            cmd_setAFEReset_response set_afe_reset_response;
             std::cout << "The request is a SetAfeResetRequest" << std::endl;
             if(set_afe_reset_request.ParseFromString(request_envelope.payload())){
-                set_afe_reset_response.set_success(true);
-                set_afe_reset_response.set_message("AFE reset set successfully");
+                std::string configure_message;
+                bool is_success = setAFEReset(set_afe_reset_request, set_afe_reset_response, daphne, configure_message);
+                set_afe_reset_response.set_success(is_success);
+                set_afe_reset_response.set_message(configure_message);
                 response_envelope.set_type(SET_AFE_RESET);
                 response_envelope.set_payload(set_afe_reset_response.SerializeAsString());
                 response_envelope.SerializeToString(&response_str);
@@ -826,26 +890,52 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 return;
             }
         }
-        case SET_AFE_POWERDOWN: { // to be implemented
-            std::cout << "The request is a SetAfePowerDownRequest" << std::endl;
-            if(set_afe_powerdown_request.ParseFromString(request_envelope.payload())){
-                set_afe_powerdown_response.set_success(true);
-                set_afe_powerdown_response.set_message("AFE power down set successfully");
-                response_envelope.set_type(SET_AFE_POWERDOWN);
-                response_envelope.set_payload(set_afe_powerdown_response.SerializeAsString());
+        case DO_AFE_RESET: {
+            cmd_doAFEReset do_afe_reset_request;
+            cmd_doAFEReset_response do_afe_reset_response;
+            std::cout << "The request is a DoAfeResetRequest" << std::endl;
+            if(do_afe_reset_request.ParseFromString(request_envelope.payload())){
+                std::string configure_message;
+                bool is_succes = doAFEReset(do_afe_reset_request, do_afe_reset_response, daphne, configure_message);
+                do_afe_reset_response.set_success(is_succes);
+                do_afe_reset_response.set_message(configure_message);
+                response_envelope.set_type(DO_AFE_RESET);
+                response_envelope.set_payload(do_afe_reset_response.SerializeAsString());
                 response_envelope.SerializeToString(&response_str);
                 return;
             }else{
-                set_afe_powerdown_response.set_success(false);
-                set_afe_powerdown_response.set_message("Payload not recognized");
-                response_envelope.set_type(SET_AFE_POWERDOWN);
-                response_envelope.set_payload(set_afe_powerdown_response.SerializeAsString());
+                do_afe_reset_response.set_success(false);
+                do_afe_reset_response.set_message("Payload not recognized");
+                response_envelope.set_type(DO_AFE_RESET);
+                response_envelope.set_payload(do_afe_reset_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+        case SET_AFE_POWERSTATE: { // to be implemented
+            cmd_setAFEPowerState set_afe_powerstate_request;
+            cmd_setAFEPowerState_response set_afe_powerstate_response;
+            std::cout << "The request is a SetAfePowerStateRequest" << std::endl;
+            if(set_afe_powerstate_request.ParseFromString(request_envelope.payload())){
+                set_afe_powerstate_response.set_success(true);
+                set_afe_powerstate_response.set_message("AFE power down set successfully");
+                response_envelope.set_type(SET_AFE_POWERSTATE);
+                response_envelope.set_payload(set_afe_powerstate_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                set_afe_powerstate_response.set_success(false);
+                set_afe_powerstate_response.set_message("Payload not recognized");
+                response_envelope.set_type(SET_AFE_POWERSTATE);
+                response_envelope.set_payload(set_afe_powerstate_response.SerializeAsString());
                 response_envelope.SerializeToString(&response_str);
                 return;
             }
         }
 
         case DUMP_SPYBUFFER: {
+            DumpSpyBuffersRequest dump_spybuffer_request;
+            DumpSpyBuffersResponse dump_spybuffer_response;
             std::cout << "The request is a DumpSpyBuffersRequest" << std::endl;
             if(dump_spybuffer_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
@@ -867,6 +957,8 @@ void process_request(const std::string& request_str, std::string& response_str, 
         }
 
         case ALIGN_AFE: {
+            cmd_alignAFE alignAFE_request;
+            cmd_alignAFE_response alignAFE_response;
             std::cout << "The request is a cmd_alignAFE" << std::endl;
             if(alignAFE_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
@@ -886,6 +978,53 @@ void process_request(const std::string& request_str, std::string& response_str, 
                 return;
             }
         }
+
+        case WRITE_AFE_FUNCTION: {
+            cmd_writeAFEFunction write_AFE_function_request;
+            cmd_writeAFEFunction_response write_AFE_function_response;
+            std::cout << "The request is a cmd_writeAFEFunction" << std::endl;
+            if(write_AFE_function_request.ParseFromString(request_envelope.payload())){
+                std::string configure_message;
+                bool is_success = writeAFEFunction(write_AFE_function_request, write_AFE_function_response, daphne, configure_message);
+                write_AFE_function_response.set_success(is_success);
+                write_AFE_function_response.set_message(configure_message);
+                response_envelope.set_type(WRITE_AFE_FUNCTION);
+                response_envelope.set_payload(write_AFE_function_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                write_AFE_function_response.set_success(false);
+                write_AFE_function_response.set_message("Payload not recognized");
+                response_envelope.set_type(ALIGN_AFE);
+                response_envelope.set_payload(write_AFE_function_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+
+        case DO_SOFTWARE_TRIGGER: {
+            cmd_doSoftwareTrigger do_software_trigger_request;
+            cmd_doSoftwareTrigger_response do_software_trigger_response;
+            std::cout << "The request is a DoSoftwareTriggerRequest" << std::endl;
+            if(do_software_trigger_request.ParseFromString(request_envelope.payload())){
+                std::string configure_message;
+                bool is_success = doSoftwareTrigger(do_software_trigger_request, do_software_trigger_response, daphne, configure_message);
+                do_software_trigger_response.set_success(is_success);
+                do_software_trigger_response.set_message(configure_message);
+                response_envelope.set_type(DO_SOFTWARE_TRIGGER);
+                response_envelope.set_payload(do_software_trigger_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }else{
+                do_software_trigger_response.set_success(false);
+                do_software_trigger_response.set_message("Payload not recognized");
+                response_envelope.set_type(DO_SOFTWARE_TRIGGER);
+                response_envelope.set_payload(do_software_trigger_response.SerializeAsString());
+                response_envelope.SerializeToString(&response_str);
+                return;
+            }
+        }
+
         default: {
             response_str = "Request not recognized";
             return;
@@ -965,6 +1104,7 @@ int main(int argc, char* argv[]) {
     std::string socket_ip_address = "tcp://" + ip_address + ":" + std::to_string(port); 
     try {
         socket.bind(socket_ip_address.c_str());
+        std::cout << "DAPHNE V3/Mezz Slow Controls V0.01.01" << std::endl;
         std::cout << "ZMQ Reply socket initialized in " << socket_ip_address << std::endl;
     } catch (std::exception &e){
         std::cerr << "Error initializing ZMQ socket: " << e.what() << std::endl;

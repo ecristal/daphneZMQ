@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
     //daphne.getAfe()->doReset();
     std::cout<< "Reseting AFEs ...done" << std::endl;
     std::cout<< "Powerdown AFEs" << std::endl;
-    daphne.getAfe()->setPowerdown(1);
+    daphne.getAfe()->setPowerState(0);
     std::cout<< "Powerdown AFEs ...done" << std::endl;
 
     std::vector<uint32_t> afeList = {0, 1, 2, 3, 4};
@@ -90,7 +90,7 @@ int main(int argc, char* argv[]) {
        daphne.getAfe()->initAFE(afe,afeRegDict);
     }
 
-    daphne.getAfe()->setPowerdown(0);
+    daphne.getAfe()->setPowerState(1);
     daphne.getFrontEnd()->doResetDelayCtrl();
     daphne.getFrontEnd()->doResetSerDesCtrl();
     daphne.getFrontEnd()->setEnableDelayVtc(0);

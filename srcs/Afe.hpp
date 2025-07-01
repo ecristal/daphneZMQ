@@ -27,8 +27,8 @@ public:
     
     uint32_t setReset(const uint32_t& reset);
     uint32_t doReset();
-    uint32_t setPowerdown(const uint32_t& powerdown);
-    uint32_t getPowerdown();
+    uint32_t setPowerState(const uint32_t& powerstate);
+    uint32_t getPowerState();
     uint32_t setRegister(const uint32_t& afe, const uint32_t& register_, const uint32_t& value);
     uint32_t getRegister(const uint32_t& afe, const uint32_t& register_);
     uint32_t initAFE(const uint32_t& afe, const std::unordered_map<uint32_t, uint32_t> &regDict);

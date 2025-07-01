@@ -4,7 +4,7 @@ FpgaRegDict::FpgaRegDict(){
 
 	BitField afeGlobalControl_bits = {
             {"RESET", {0, 0}},
-            {"POWERDOWN", {1, 1}},
+            {"POWERSTATE", {1, 1}},
             {"BUSY", {2, 4}},
             {"BUSY_AFE0", {2, 2}},
             {"BUSY_AFE12", {3, 3}},
