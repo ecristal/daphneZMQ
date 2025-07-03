@@ -36,7 +36,7 @@ for offsetCH in range(40):
         print("Message:", response.message)
     socket.close()
 
-for afe in range(1):
+for afe in range(5):
     request = pb_low.cmd_writeAFEVGAIN()
     request.afeBlock = afe
     request.vgainValue = 1990#500*(afe+1)
@@ -62,10 +62,10 @@ for afe in range(1):
         print("Message:", response.message)
     socket.close()
 
-request = pb_low.cmd_alignAFE()
-request.afe = 0
+request = pb_low.cmd_setAFEPowerState()
+request.powerState = True
 envelope = pb_high.ControlEnvelope()
-envelope.type = pb_high.ALIGN_AFE
+envelope.type = pb_high.SET_AFE_POWERSTATE
 envelope.payload = request.SerializeToString()
 
 # Send via ZMQ
@@ -79,15 +79,279 @@ response_bytes = socket.recv()
 responseEnvelope = pb_high.ControlEnvelope()
 responseEnvelope.ParseFromString(response_bytes)
 
-if responseEnvelope.type == pb_high.ALIGN_AFE:
-    response = pb_low.cmd_alignAFE_response()
+if responseEnvelope.type == pb_high.SET_AFE_POWERSTATE:
+    response = pb_low.cmd_setAFEPowerState_response()
+    response.ParseFromString(responseEnvelope.payload)
+    print("Success:", response.success)
+    print("Message:", response.message)
+socket.close()
+
+for afe in range(5):
+    request = pb_low.cmd_writeAFEFunction()
+    request.afeBlock = afe
+    request.function = 'LPF_PROGRAMMABILITY'
+    request.configValue = 3
+    envelope = pb_high.ControlEnvelope()
+    envelope.type = pb_high.WRITE_AFE_FUNCTION
+    envelope.payload = request.SerializeToString()
+
+    # Send via ZMQ
+    context = zmq.Context()
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://193.206.157.36:9000")
+    socket.send(envelope.SerializeToString())
+
+    # Receive response
+    response_bytes = socket.recv()
+    responseEnvelope = pb_high.ControlEnvelope()
+    responseEnvelope.ParseFromString(response_bytes)
+
+    if responseEnvelope.type == pb_high.WRITE_AFE_FUNCTION:
+        response = pb_low.cmd_writeAFEFunction_response()
+        response.ParseFromString(responseEnvelope.payload)
+        print("Success:", response.success)
+        print("Message:", response.message)
+    socket.close()
+    #---------------------------------------
+    #---------------------------------------
+    request = pb_low.cmd_writeAFEFunction()
+    request.afeBlock = afe
+    request.function = 'PGA_INTEGRATOR_DISABLE'
+    request.configValue = 1
+    envelope = pb_high.ControlEnvelope()
+    envelope.type = pb_high.WRITE_AFE_FUNCTION
+    envelope.payload = request.SerializeToString()
+
+    # Send via ZMQ
+    context = zmq.Context()
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://193.206.157.36:9000")
+    socket.send(envelope.SerializeToString())
+
+    # Receive response
+    response_bytes = socket.recv()
+    responseEnvelope = pb_high.ControlEnvelope()
+    responseEnvelope.ParseFromString(response_bytes)
+
+    if responseEnvelope.type == pb_high.WRITE_AFE_FUNCTION:
+        response = pb_low.cmd_writeAFEFunction_response()
+        response.ParseFromString(responseEnvelope.payload)
+        print("Success:", response.success)
+        print("Message:", response.message)
+    socket.close()
+    #---------------------------------------
+    #---------------------------------------
+    request = pb_low.cmd_writeAFEFunction()
+    request.afeBlock = afe
+    request.function = 'PGA_CLAMP_LEVEL'
+    request.configValue = 2
+    envelope = pb_high.ControlEnvelope()
+    envelope.type = pb_high.WRITE_AFE_FUNCTION
+    envelope.payload = request.SerializeToString()
+
+    # Send via ZMQ
+    context = zmq.Context()
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://193.206.157.36:9000")
+    socket.send(envelope.SerializeToString())
+
+    # Receive response
+    response_bytes = socket.recv()
+    responseEnvelope = pb_high.ControlEnvelope()
+    responseEnvelope.ParseFromString(response_bytes)
+
+    if responseEnvelope.type == pb_high.WRITE_AFE_FUNCTION:
+        response = pb_low.cmd_writeAFEFunction_response()
+        response.ParseFromString(responseEnvelope.payload)
+        print("Success:", response.success)
+        print("Message:", response.message)
+    socket.close()
+    #---------------------------------------
+    #---------------------------------------
+    request = pb_low.cmd_writeAFEFunction()
+    request.afeBlock = afe
+    request.function = 'PGA_CLAMP_LEVEL'
+    request.configValue = 2
+    envelope = pb_high.ControlEnvelope()
+    envelope.type = pb_high.WRITE_AFE_FUNCTION
+    envelope.payload = request.SerializeToString()
+
+    # Send via ZMQ
+    context = zmq.Context()
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://193.206.157.36:9000")
+    socket.send(envelope.SerializeToString())
+
+    # Receive response
+    response_bytes = socket.recv()
+    responseEnvelope = pb_high.ControlEnvelope()
+    responseEnvelope.ParseFromString(response_bytes)
+
+    if responseEnvelope.type == pb_high.WRITE_AFE_FUNCTION:
+        response = pb_low.cmd_writeAFEFunction_response()
+        response.ParseFromString(responseEnvelope.payload)
+        print("Success:", response.success)
+        print("Message:", response.message)
+    socket.close()
+    #---------------------------------------
+    #---------------------------------------
+    request = pb_low.cmd_writeAFEFunction()
+    request.afeBlock = afe
+    request.function = 'ACTIVE_TERMINATION_ENABLE'
+    request.configValue = 0
+    envelope = pb_high.ControlEnvelope()
+    envelope.type = pb_high.WRITE_AFE_FUNCTION
+    envelope.payload = request.SerializeToString()
+
+    # Send via ZMQ
+    context = zmq.Context()
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://193.206.157.36:9000")
+    socket.send(envelope.SerializeToString())
+
+    # Receive response
+    response_bytes = socket.recv()
+    responseEnvelope = pb_high.ControlEnvelope()
+    responseEnvelope.ParseFromString(response_bytes)
+
+    if responseEnvelope.type == pb_high.WRITE_AFE_FUNCTION:
+        response = pb_low.cmd_writeAFEFunction_response()
+        response.ParseFromString(responseEnvelope.payload)
+        print("Success:", response.success)
+        print("Message:", response.message)
+    socket.close()
+    #---------------------------------------
+    #---------------------------------------
+    request = pb_low.cmd_writeAFEFunction()
+    request.afeBlock = afe
+    request.function = 'LNA_INPUT_CLAMP_SETTING'
+    request.configValue = 2
+    envelope = pb_high.ControlEnvelope()
+    envelope.type = pb_high.WRITE_AFE_FUNCTION
+    envelope.payload = request.SerializeToString()
+
+    # Send via ZMQ
+    context = zmq.Context()
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://193.206.157.36:9000")
+    socket.send(envelope.SerializeToString())
+
+    # Receive response
+    response_bytes = socket.recv()
+    responseEnvelope = pb_high.ControlEnvelope()
+    responseEnvelope.ParseFromString(response_bytes)
+
+    if responseEnvelope.type == pb_high.WRITE_AFE_FUNCTION:
+        response = pb_low.cmd_writeAFEFunction_response()
+        response.ParseFromString(responseEnvelope.payload)
+        print("Success:", response.success)
+        print("Message:", response.message)
+    socket.close()
+    #---------------------------------------
+    #---------------------------------------
+    request = pb_low.cmd_writeAFEFunction()
+    request.afeBlock = afe
+    request.function = 'LNA_INTEGRATOR_DISABLE'
+    request.configValue = 1
+    envelope = pb_high.ControlEnvelope()
+    envelope.type = pb_high.WRITE_AFE_FUNCTION
+    envelope.payload = request.SerializeToString()
+
+    # Send via ZMQ
+    context = zmq.Context()
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://193.206.157.36:9000")
+    socket.send(envelope.SerializeToString())
+
+    # Receive response
+    response_bytes = socket.recv()
+    responseEnvelope = pb_high.ControlEnvelope()
+    responseEnvelope.ParseFromString(response_bytes)
+
+    if responseEnvelope.type == pb_high.WRITE_AFE_FUNCTION:
+        response = pb_low.cmd_writeAFEFunction_response()
+        response.ParseFromString(responseEnvelope.payload)
+        print("Success:", response.success)
+        print("Message:", response.message)
+    socket.close()
+    #---------------------------------------
+    #---------------------------------------
+    request = pb_low.cmd_writeAFEFunction()
+    request.afeBlock = afe
+    request.function = 'LNA_GAIN'
+    request.configValue = 2
+    envelope = pb_high.ControlEnvelope()
+    envelope.type = pb_high.WRITE_AFE_FUNCTION
+    envelope.payload = request.SerializeToString()
+
+    # Send via ZMQ
+    context = zmq.Context()
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://193.206.157.36:9000")
+    socket.send(envelope.SerializeToString())
+
+    # Receive response
+    response_bytes = socket.recv()
+    responseEnvelope = pb_high.ControlEnvelope()
+    responseEnvelope.ParseFromString(response_bytes)
+
+    if responseEnvelope.type == pb_high.WRITE_AFE_FUNCTION:
+        response = pb_low.cmd_writeAFEFunction_response()
+        response.ParseFromString(responseEnvelope.payload)
+        print("Success:", response.success)
+        print("Message:", response.message)
+    socket.close()
+
+for afe in range(5):
+    request = pb_low.cmd_alignAFE()
+    request.afe = afe
+    envelope = pb_high.ControlEnvelope()
+    envelope.type = pb_high.ALIGN_AFE
+    envelope.payload = request.SerializeToString()
+
+    # Send via ZMQ
+    context = zmq.Context()
+    socket = context.socket(zmq.REQ)
+    socket.connect("tcp://193.206.157.36:9000")
+    socket.send(envelope.SerializeToString())
+
+    # Receive response
+    response_bytes = socket.recv()
+    responseEnvelope = pb_high.ControlEnvelope()
+    responseEnvelope.ParseFromString(response_bytes)
+
+    if responseEnvelope.type == pb_high.ALIGN_AFE:
+        response = pb_low.cmd_alignAFE_response()
+        response.ParseFromString(responseEnvelope.payload)
+        print("Success:", response.success)
+        print("Message:", response.message)
+    socket.close()
+
+request = pb_low.cmd_doSoftwareTrigger()
+envelope = pb_high.ControlEnvelope()
+envelope.type = pb_high.DO_SOFTWARE_TRIGGER
+envelope.payload = request.SerializeToString()
+
+# Send via ZMQ
+context = zmq.Context()
+socket = context.socket(zmq.REQ)
+socket.connect("tcp://193.206.157.36:9000")
+socket.send(envelope.SerializeToString())
+
+# Receive response
+response_bytes = socket.recv()
+responseEnvelope = pb_high.ControlEnvelope()
+responseEnvelope.ParseFromString(response_bytes)
+
+if responseEnvelope.type == pb_high.DO_SOFTWARE_TRIGGER:
+    response = pb_low.cmd_doSoftwareTrigger_response()
     response.ParseFromString(responseEnvelope.payload)
     print("Success:", response.success)
     print("Message:", response.message)
 socket.close()
 
 request = pb_high.DumpSpyBuffersRequest()
-request.channel = 0
+request.channel = 1
 request.numberOfSamples = 2048#500*(afe+1)
 envelope = pb_high.ControlEnvelope()
 envelope.type = pb_high.DUMP_SPYBUFFER

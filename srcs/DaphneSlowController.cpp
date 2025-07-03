@@ -319,7 +319,7 @@ bool setAFEPowerState(const cmd_setAFEPowerState &request, cmd_setAFEPowerState_
         bool powerStateValue = request.powerstate();
         uint32_t returnedPowerStateValue = daphne.getAfe()->setPowerState((uint32_t)powerStateValue);
         response.set_powerstate(returnedPowerStateValue);
-        response_str = "AFEs reset register with value " + std::to_string(powerStateValue) + ".\n"
+        response_str = "AFEs powerstate register with value " + std::to_string(powerStateValue) + ".\n"
                      + "Returned value: " + std::to_string(returnedPowerStateValue);
     }catch(std::exception &e){
         response_str = "Error setting AFEs power state: " + std::string(e.what());
@@ -331,7 +331,7 @@ bool setAFEPowerState(const cmd_setAFEPowerState &request, cmd_setAFEPowerState_
 bool doSoftwareTrigger(const cmd_doSoftwareTrigger &request, cmd_doSoftwareTrigger_response &response, Daphne &daphne, std::string &response_str){
     try{
         daphne.getFrontEnd()->doTrigger();
-        response_str = "Software reset command successful.\n";
+        response_str = "Software doSoftwareTrigger command successful.\n";
     }catch(std::exception &e){
         response_str = "Error reseting AFEs: " + std::string(e.what());
         return false;
@@ -917,8 +917,10 @@ void process_request(const std::string& request_str, std::string& response_str, 
             cmd_setAFEPowerState_response set_afe_powerstate_response;
             std::cout << "The request is a SetAfePowerStateRequest" << std::endl;
             if(set_afe_powerstate_request.ParseFromString(request_envelope.payload())){
-                set_afe_powerstate_response.set_success(true);
-                set_afe_powerstate_response.set_message("AFE power down set successfully");
+                std::string configure_message;
+                bool is_success = setAFEPowerState(set_afe_powerstate_request, set_afe_powerstate_response, daphne, configure_message);
+                set_afe_powerstate_response.set_success(is_success);
+                set_afe_powerstate_response.set_message(configure_message);
                 response_envelope.set_type(SET_AFE_POWERSTATE);
                 response_envelope.set_payload(set_afe_powerstate_response.SerializeAsString());
                 response_envelope.SerializeToString(&response_str);
@@ -1052,7 +1054,7 @@ int main(int argc, char* argv[]) {
         std::cout << "IP Address: " << ip_address << std::endl;
     } else if(args.find("--config_file") == args.end()) {
         std::cerr << "Error: Missing -ip parameter.\n";
-        std::cerr << "Usage: ./DaphneSlowController -ip <IP_ADDRESS> -port <PORT>\n";
+        std::cerr << "Usage: ./DaphneSlowController --ip <IP_ADDRESS> --port <PORT>\n";
         return 1;
     }
 
@@ -1069,8 +1071,8 @@ int main(int argc, char* argv[]) {
             return 1;
         }
     } else if(args.find("--config_file") == args.end()){
-        std::cerr << "Error: Missing -port parameter.\n";
-        std::cerr << "Usage: ./DaphneSlowController -ip <IP_ADDRESS> -port <PORT>\n";
+        std::cerr << "Error: Missing --port parameter.\n";
+        std::cerr << "Usage: ./DaphneSlowController --ip <IP_ADDRESS> --port <PORT>\n";
         return 1;
     }
 
@@ -1084,7 +1086,7 @@ int main(int argc, char* argv[]) {
         }
     } else if (args.find("--port") == args.end() && args.find("-ip") == args.end() && (args.find("--help") == args.end() || args.find("-h") == args.end())) {
         std::cerr << "Error: Missing parameters.\n";
-        std::cerr << "Usage: ./DaphneSlowController -config_file <CONFIG_FILE> \n";
+        std::cerr << "Usage: ./DaphneSlowController --config_file <CONFIG_FILE> \n";
         return 1;
     }
 
@@ -1104,7 +1106,7 @@ int main(int argc, char* argv[]) {
     std::string socket_ip_address = "tcp://" + ip_address + ":" + std::to_string(port); 
     try {
         socket.bind(socket_ip_address.c_str());
-        std::cout << "DAPHNE V3/Mezz Slow Controls V0.01.01" << std::endl;
+        std::cout << "DAPHNE V3/Mezz Slow Controls V0.01.04" << std::endl;
         std::cout << "ZMQ Reply socket initialized in " << socket_ip_address << std::endl;
     } catch (std::exception &e){
         std::cerr << "Error initializing ZMQ socket: " << e.what() << std::endl;
