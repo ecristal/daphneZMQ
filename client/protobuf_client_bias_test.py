@@ -18,7 +18,7 @@ def biasVolts2DAC(volts):
 def biasControlVolts2DAC(volts):
     return (1.0/74.0)*volts*1000.0
 
-biasAFE_Volts = [10.0, 20.0, 30.0, 40.0, 50.0]
+biasAFE_Volts = [0.0, 0.0, 0.0, 0.0, 31.5]
 biasAFE_DAC = biasVolts2DAC(biasAFE_Volts)
 biasControlVolts = 55.0
 biasControlDAC = int(biasControlVolts2DAC(biasControlVolts))

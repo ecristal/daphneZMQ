@@ -77,24 +77,34 @@ set(SOURCES
 )
 
 # Executables
-add_executable(publisher srcs/publisher.cpp srcs/DevMem.cpp)
-target_link_libraries(publisher PRIVATE cppzmq)
+# add_executable(publisher srcs/publisher.cpp srcs/DevMem.cpp)
+# target_link_libraries(publisher PRIVATE cppzmq)
 
-add_executable(subscriber srcs/subscriber.cpp srcs/DevMem.cpp)
-target_link_libraries(subscriber PRIVATE cppzmq)
+# add_executable(subscriber srcs/subscriber.cpp srcs/DevMem.cpp)
+# target_link_libraries(subscriber PRIVATE cppzmq)
 
-add_executable(srv srcs/srv.cpp ${SOURCES})
-target_link_libraries(srv PRIVATE cppzmq)
+# add_executable(srv srcs/srv.cpp ${SOURCES})
+# target_link_libraries(srv PRIVATE cppzmq)
 
-add_executable(srv_reg srcs/srv_reg.cpp ${SOURCES})
-target_link_libraries(srv_reg PRIVATE cppzmq)
+# add_executable(srv_reg srcs/srv_reg.cpp ${SOURCES})
+# target_link_libraries(srv_reg PRIVATE cppzmq)
 
-add_executable(daphne_test
-    srcs/daphne_test.cpp
-    ${SOURCES}
-    ${PROTO_SRCS}
-    ${PROTO_HDRS}
-)
+# add_executable(daphne_test
+#     srcs/daphne_test.cpp
+#     ${SOURCES}
+#     ${PROTO_SRCS}
+#     ${PROTO_HDRS}
+# )
+# target_link_libraries(daphne_test
+#     PRIVATE
+#     cppzmq
+#     protobuf::libprotobuf
+#     absl::base
+#     absl::log_severity
+#     absl::raw_logging_internal
+#     absl::log_internal_check_op
+#     absl::log_internal_message
+# )
 
 add_executable(DaphneSlowController
     srcs/DaphneSlowController.cpp
@@ -102,18 +112,6 @@ add_executable(DaphneSlowController
     ${PROTO_SRCS}
     ${PROTO_HDRS}
 )
-
-target_link_libraries(daphne_test
-    PRIVATE
-    cppzmq
-    protobuf::libprotobuf
-    absl::base
-    absl::log_severity
-    absl::raw_logging_internal
-    absl::log_internal_check_op
-    absl::log_internal_message
-)
-
 target_link_libraries(DaphneSlowController
     PRIVATE
     cppzmq
@@ -129,3 +127,49 @@ target_link_libraries(DaphneSlowController
 message(STATUS "Protobuf version: ${Protobuf_VERSION}")
 message(STATUS "Abseil include: ${absl_INCLUDE_DIRS}")
 message(STATUS "Abseil libs: ${absl_LIBRARIES}")
+
+# Deployment and installation 
+
+set(APP_NAME "DaphneSlowController")
+set(APP_EXEC "${APP_NAME}")
+set(APP_VERSION "V0_01_06")
+set(APP_ICON "daphe_slow_controller_logo")
+set(APP_COMMENT "Slow Control Interface for DAPHNE V3")
+set(APPDIR "${CMAKE_BINARY_DIR}/${APP_NAME}_${APP_VERSION}")
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/DaphneSlowController.desktop.in
+               ${CMAKE_CURRENT_BINARY_DIR}/DaphneSlowController.desktop @ONLY)
+
+# Install your executable
+install(TARGETS ${APP_NAME}
+        RUNTIME DESTINATION bin)
+
+# Install dependencies (if needed explicitly)
+# install(FILES <other_files> DESTINATION <destination>)
+
+# --- Deployment Target using linuxdeploy ---
+find_program(LINUXDEPLOY_EXECUTABLE linuxdeploy REQUIRED)
+
+add_custom_target(deploy
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${APPDIR}
+    COMMAND ${LINUXDEPLOY_EXECUTABLE}
+            --appdir=${APPDIR}
+            --executable=$<TARGET_FILE:${APP_NAME}>
+            --desktop-file=${CMAKE_CURRENT_BINARY_DIR}/${APP_NAME}.desktop
+            --icon-file=${CMAKE_CURRENT_SOURCE_DIR}/icons/daphe_slow_controller_logo.png
+            #--output appimage # too much lib requirements
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Deploying application ${APP_NAME} ${APP_VERSION}"
+    VERBATIM)
+
+# Ensure desktop file is generated before deployment
+add_dependencies(deploy ${APP_NAME})
+
+add_custom_target(package_tarball
+    COMMAND ${CMAKE_COMMAND} -E tar "cfvz"
+            ${CMAKE_BINARY_DIR}/${APP_NAME}_${APP_VERSION}.tar.gz
+            ${APPDIR}
+    DEPENDS deploy
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    COMMENT "Compressing AppDir to tarball ${APP_NAME}_${APP_VERSION}.tar.gz"
+)

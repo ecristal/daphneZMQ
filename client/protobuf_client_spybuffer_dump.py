@@ -39,7 +39,7 @@ for offsetCH in range(40):
 for afe in range(5):
     request = pb_low.cmd_writeAFEVGAIN()
     request.afeBlock = afe
-    request.vgainValue = 1990#500*(afe+1)
+    request.vgainValue = 0#500*(afe+1)
     envelope = pb_high.ControlEnvelope()
     envelope.type = pb_high.WRITE_AFE_VGAIN
     envelope.payload = request.SerializeToString()
@@ -90,7 +90,7 @@ for afe in range(5):
     request = pb_low.cmd_writeAFEFunction()
     request.afeBlock = afe
     request.function = 'LPF_PROGRAMMABILITY'
-    request.configValue = 3
+    request.configValue = 4
     envelope = pb_high.ControlEnvelope()
     envelope.type = pb_high.WRITE_AFE_FUNCTION
     envelope.payload = request.SerializeToString()
@@ -351,7 +351,7 @@ if responseEnvelope.type == pb_high.DO_SOFTWARE_TRIGGER:
 socket.close()
 
 request = pb_high.DumpSpyBuffersRequest()
-request.channel = 1
+request.channel = 0
 request.numberOfSamples = 2048#500*(afe+1)
 envelope = pb_high.ControlEnvelope()
 envelope.type = pb_high.DUMP_SPYBUFFER
