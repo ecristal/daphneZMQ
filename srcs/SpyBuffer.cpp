@@ -10,24 +10,30 @@ uint32_t SpyBuffer::getFrameClock(const uint32_t& afe, const uint32_t& sample){
 	return this->fpgaReg->getBits("spyBuffer_" + std::to_string(afe) + "_8", "DATA", sample*4);
 }
 
-uint32_t SpyBuffer::getData(const uint32_t& afe, const uint32_t& ch, const uint32_t& sample){
+uint32_t SpyBuffer::getData(const uint32_t& sample){
     
-    std::string bitStr = "";
+	bool bitEndianess;
 	if(sample % 2 ){
-		bitStr = "DATAH";
+		//bitStr = "DATAH";
+		bitEndianess = true;
 	}else{
-		bitStr = "DATAL";
+		//bitStr = "DATAL";
+		bitEndianess = false;
 	}
-	//std::cout << "Sample: " << (uint32_t)((double)sample/2) << std::endl;
-	return this->fpgaReg->getBits("spyBuffer_" + std::to_string(afe) + "_" + std::to_string(ch), bitStr, (uint32_t)(((double)sample)/2.0));
+	return this->fpgaReg->getBitsFast((uint32_t)(((double)sample)/2.0), bitEndianess);
 }
 
-double SpyBuffer::getOutputVoltage(const uint32_t& afe, const uint32_t& ch, const uint32_t& sample){
+double SpyBuffer::getOutputVoltage(const uint32_t& sample){
 
 	double vRef = 1.0;
-	uint32_t value = this->getData(afe,ch,sample);
+	uint32_t value = this->getData(sample);
 	double value_d = (double) value;
 	value_d = ((value_d - 8192.0)/8192.0)*vRef;
 	//std:: cout << "data: " << value_d << std::endl;
 	return value_d;
+}
+
+void SpyBuffer::cacheSpyBufferRegister(const uint32_t& afe, const uint32_t& ch){
+	
+	this->fpgaReg->getRegisterAndCacheData("spyBuffer_" + std::to_string(afe) + "_" + std::to_string(ch));
 }

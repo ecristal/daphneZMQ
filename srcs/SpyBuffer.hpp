@@ -22,8 +22,9 @@ public:
     ~SpyBuffer();
 
     uint32_t getFrameClock(const uint32_t& afe, const uint32_t& sample = 0);
-    uint32_t getData(const uint32_t& afe, const uint32_t& ch, const uint32_t& sample = 0);
-    double getOutputVoltage(const uint32_t& afe, const uint32_t& ch, const uint32_t& sample = 0);
+    uint32_t getData(const uint32_t& sample = 0);
+    void cacheSpyBufferRegister(const uint32_t& afe, const uint32_t& ch);
+    double getOutputVoltage(const uint32_t& sample = 0);
     
 private:
     std::unique_ptr<FpgaReg> fpgaReg;

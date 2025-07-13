@@ -16,6 +16,17 @@ uint32_t FpgaReg::setBits(const std::string &regName, const std::string &bitName
 }
 
 uint32_t FpgaReg::getBits(const std::string &regName, const std::string &bitName, const uint32_t &offset){
+
 	uint32_t offset_ = offset*(sizeof(uint32_t));
 	return this->fpgaMem->ReadBits(regName, bitName, offset_);
+}
+
+uint32_t FpgaReg::getBitsFast(const uint32_t &offset, const bool& bitEndianess){
+
+	uint32_t offset_ = offset*(sizeof(uint32_t));
+	return this->fpgaMem->ReadBitsFast(offset_, bitEndianess);
+}
+
+void FpgaReg::getRegisterAndCacheData(const std::string &regName){
+	this->fpgaMem->GetFieldMeta(regName);
 }

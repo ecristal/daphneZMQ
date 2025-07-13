@@ -79,20 +79,36 @@ uint32_t reg::ReadBits(const std::string &RegName, const std::string &BitName, c
 		uint32_t RegAddr_ = std::get<0>(RegAddr);
 		int BitRangeL = std::get<2>(RegAddr);
 		int BitRangeH = std::get<1>(RegAddr);
-		//this->RegMem->changeBaseAddr(RegAddr_ + Offset,this->MemLen);
-		std::vector<uint32_t> value = this->RegMem->read(RegAddr_ + Offset, 1);
-		//std::cout << "Offset: " << std::hex << Offset << "BitRangeL: " << std::dec << BitRangeL << "BitRangeH: " << BitRangeH << std::endl;
-		//std::cout << "value read 1 = " << std::hex << value[0] << std::endl;
-		uint32_t Mask;
-		if((BitRangeH - BitRangeL + 1) == 32){ // Uknown behaviour
-			Mask = 0xFFFFFFFF;
-		}else{
-			Mask = (1U << (BitRangeH - BitRangeL + 1)) - 1;
-		}
-		value[0] = (value[0] & (Mask << BitRangeL)) >> BitRangeL;
-		//std::cout << "value read 2 = " << std::hex << value[0] << std::endl;
-		return value[0];
+		
+		const uint32_t* value_ptr = this->RegMem->get_read_ptr((size_t)(RegAddr_ + Offset), 1);
+		uint32_t value = *value_ptr;
+
+		uint32_t Mask = (BitRangeH - BitRangeL + 1 == 32)
+			? 0xFFFFFFFF
+			: (1U << (BitRangeH - BitRangeL + 1)) - 1;
+
+		return (value >> BitRangeL) & Mask;
 	}
+}
+
+uint32_t reg::ReadBitsFast(const uint32_t &Offset, const bool& bitEndianess){
+	
+	const uint32_t* value_ptr = this->RegMem->get_read_ptr((size_t)(this->bitFieldMetadata.addr + Offset), 1);
+	uint32_t value = *value_ptr;
+
+	if(bitEndianess){
+		//bitStr = "DATAH";
+		this->bitFieldMetadata = this->bitFieldMetadata_high;
+	}else{
+		//bitStr = "DATAL";
+		this->bitFieldMetadata = this->bitFieldMetadata_low;
+	}
+
+	uint32_t Mask = (this->bitFieldMetadata.high_bit - this->bitFieldMetadata.low_bit + 1 == 32)
+		? 0xFFFFFFFF
+		: (1U << (this->bitFieldMetadata.high_bit - this->bitFieldMetadata.low_bit + 1)) - 1;
+
+	return (value >> this->bitFieldMetadata.low_bit) & Mask;
 }
 
 
@@ -154,4 +170,37 @@ std::unordered_map<std::string, uint32_t> reg::LoadRegisterList(const std::unord
 		}
     }
     return register_values;
+}
+
+void reg::GetFieldMeta_(const std::string& regName, const std::string& bitName) {
+    if (!this->regDict.hasKey(regName)) {
+        throw std::invalid_argument("Register name not found: " + regName);
+    }
+
+    const auto& regMap = this->regDict.getRegisterMap();
+    auto regIt = regMap.find(regName);
+    if (regIt == regMap.end()) {
+        throw std::invalid_argument("Register mapping not found for: " + regName);
+    }
+
+    const auto& bitFieldMap = regIt->second.second;
+    auto bitIt = bitFieldMap.find(bitName);
+    if (bitIt == bitFieldMap.end()) {
+        throw std::invalid_argument("Bit field not found: " + bitName);
+    }
+
+    BitFieldMeta meta;
+    meta.addr = regIt->second.first;
+    meta.low_bit = static_cast<uint8_t>(bitIt->second.first);
+    meta.high_bit = static_cast<uint8_t>(bitIt->second.second);
+	if(bitName.compare("DATAH")){
+    	this->bitFieldMetadata_high = meta;
+	}else if(bitName.compare("DATAL")){
+		this->bitFieldMetadata_low = meta;
+	}
+}
+
+void reg::GetFieldMeta(const std::string& regName) {
+	this->GetFieldMeta_(regName, "DATAH");
+	this->GetFieldMeta_(regName, "DATAL");
 }

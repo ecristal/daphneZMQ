@@ -19,6 +19,7 @@ public:
 
     // Read words
     std::vector<uint32_t> read(size_t offset, size_t num_words);
+    const uint32_t* get_read_ptr(size_t offset, size_t num_words);
 
     // Write words
     void write(size_t offset, const std::vector<uint32_t>& data);

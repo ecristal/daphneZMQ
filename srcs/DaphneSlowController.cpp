@@ -233,8 +233,9 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse 
         if(channel > 39) throw std::invalid_argument("The channel value " + std::to_string(channel) + " is out of range. Range 0-39");
         if(numberOfSamples > 4096 || numberOfSamples < 1) throw std::invalid_argument("The number of samples value " + std::to_string(numberOfSamples) + " is out of range. Range 1-4096");
         response.mutable_data()->Resize(numberOfSamples, 0); // This line allocates the required number of Data 
+        daphne.getSpyBuffer()->cacheSpyBufferRegister(channel / 8, channel % 8);
         for(int i=0; i<numberOfSamples; i++){
-            response.set_data(i, daphne.getSpyBuffer()->getData(channel / 8, channel % 8, i));
+            response.set_data(i, daphne.getSpyBuffer()->getData(i));
         }
         response.set_channel(channel);
         response.set_numberofsamples(numberOfSamples);
@@ -1106,7 +1107,7 @@ int main(int argc, char* argv[]) {
     std::string socket_ip_address = "tcp://" + ip_address + ":" + std::to_string(port); 
     try {
         socket.bind(socket_ip_address.c_str());
-        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_06" << std::endl;
+        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_08" << std::endl;
         std::cout << "ZMQ Reply socket initialized in " << socket_ip_address << std::endl;
     } catch (std::exception &e){
         std::cerr << "Error initializing ZMQ socket: " << e.what() << std::endl;

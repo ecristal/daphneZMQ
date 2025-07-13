@@ -23,6 +23,8 @@ public:
 
     uint32_t setBits(const std::string &regName, const std::string &bitName, const uint32_t &Data);
     uint32_t getBits(const std::string &regName, const std::string &bitName, const uint32_t &offset = 0);
+    uint32_t getBitsFast(const uint32_t &offset = 0, const bool& bitEndianess = false);
+    void getRegisterAndCacheData(const std::string &regName);
     
 private:
     FpgaRegDict fpgaRegDict;

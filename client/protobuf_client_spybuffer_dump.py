@@ -12,7 +12,7 @@ from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
 for offsetCH in range(40):
     request = pb_low.cmd_writeOFFSET_singleChannel()
     request.offsetChannel = offsetCH
-    request.offsetValue = 2250
+    request.offsetValue = 2275
     request.offsetGain = False
     envelope = pb_high.ControlEnvelope()
     envelope.type = pb_high.WRITE_OFFSET_CH
@@ -39,7 +39,7 @@ for offsetCH in range(40):
 for afe in range(5):
     request = pb_low.cmd_writeAFEVGAIN()
     request.afeBlock = afe
-    request.vgainValue = 0#500*(afe+1)
+    request.vgainValue = 1600#500*(afe+1)
     envelope = pb_high.ControlEnvelope()
     envelope.type = pb_high.WRITE_AFE_VGAIN
     envelope.payload = request.SerializeToString()
@@ -118,33 +118,6 @@ for afe in range(5):
     request.afeBlock = afe
     request.function = 'PGA_INTEGRATOR_DISABLE'
     request.configValue = 1
-    envelope = pb_high.ControlEnvelope()
-    envelope.type = pb_high.WRITE_AFE_FUNCTION
-    envelope.payload = request.SerializeToString()
-
-    # Send via ZMQ
-    context = zmq.Context()
-    socket = context.socket(zmq.REQ)
-    socket.connect("tcp://193.206.157.36:9000")
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
-    responseEnvelope = pb_high.ControlEnvelope()
-    responseEnvelope.ParseFromString(response_bytes)
-
-    if responseEnvelope.type == pb_high.WRITE_AFE_FUNCTION:
-        response = pb_low.cmd_writeAFEFunction_response()
-        response.ParseFromString(responseEnvelope.payload)
-        print("Success:", response.success)
-        print("Message:", response.message)
-    socket.close()
-    #---------------------------------------
-    #---------------------------------------
-    request = pb_low.cmd_writeAFEFunction()
-    request.afeBlock = afe
-    request.function = 'PGA_CLAMP_LEVEL'
-    request.configValue = 2
     envelope = pb_high.ControlEnvelope()
     envelope.type = pb_high.WRITE_AFE_FUNCTION
     envelope.payload = request.SerializeToString()

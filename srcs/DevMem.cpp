@@ -78,6 +78,12 @@ std::vector<uint32_t> DevMem::read(size_t offset, size_t num_words) {
     return data;
 }
 
+const uint32_t* DevMem::get_read_ptr(size_t offset, size_t num_words){
+    validate_offset(offset, num_words);
+    auto* mem_ptr = static_cast<uint32_t*>(mem_);
+    return mem_ptr + (offset_ + offset) / word_size;
+}
+
 // Write words
 void DevMem::write(size_t offset, const std::vector<uint32_t>& data) {
     validate_offset(offset, data.size());
