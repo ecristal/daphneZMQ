@@ -1056,54 +1056,55 @@ const char descriptor_table_protodef_daphneV3_5fhigh_5flevel_5fconfs_2eproto[] A
     "equest\"1\n\rScrapResponse\022\017\n\007success\030\001 \001(\010"
     "\022\017\n\007message\030\002 \001(\t\"A\n\025DumpSpyBuffersReque"
     "st\022\017\n\007channel\030\001 \001(\r\022\027\n\017numberOfSamples\030\002"
-    " \001(\r\"r\n\026DumpSpyBuffersResponse\022\017\n\007succes"
+    " \001(\r\"v\n\026DumpSpyBuffersResponse\022\017\n\007succes"
     "s\030\001 \001(\010\022\017\n\007channel\030\002 \001(\r\022\027\n\017numberOfSamp"
-    "les\030\003 \001(\r\022\014\n\004data\030\004 \003(\r\022\017\n\007message\030\005 \001(\t"
-    "\"\034\n\013InfoRequest\022\r\n\005level\030\001 \001(\r\"t\n\014InfoRe"
-    "sponse\022 \n\013stream_info\030\001 \001(\0132\013.StreamInfo"
-    "\022\036\n\010channels\030\002 \003(\0132\014.ChannelInfo\022\"\n\014gene"
-    "ral_info\030\003 \001(\0132\014.GeneralInfo\"t\n\nStreamIn"
-    "fo\022\025\n\rtotal_packets\030\001 \001(\004\022\023\n\013new_packets"
-    "\030\002 \001(\004\022\035\n\025total_dropped_packets\030\003 \001(\004\022\033\n"
-    "\023new_dropped_packets\030\004 \001(\004\"s\n\013ChannelInf"
-    "o\022\n\n\002id\030\001 \001(\r\022\026\n\016total_triggers\030\002 \001(\004\022\024\n"
-    "\014new_triggers\030\003 \001(\004\022\025\n\rtotal_packets\030\004 \001"
-    "(\004\022\023\n\013new_packets\030\005 \001(\004\"\275\001\n\013GeneralInfo\022"
-    "\020\n\010v_bias_0\030\001 \001(\001\022\020\n\010v_bias_1\030\002 \001(\001\022\020\n\010v"
-    "_bias_2\030\003 \001(\001\022\020\n\010v_bias_3\030\004 \001(\001\022\020\n\010v_bia"
-    "s_4\030\005 \001(\001\022\025\n\rpower_minus5v\030\006 \001(\001\022\026\n\016powe"
-    "r_plus2p5v\030\007 \001(\001\022\020\n\010power_ce\030\010 \001(\001\022\023\n\013te"
-    "mperature\030\t \001(\001\">\n\034WriteMultipleRegister"
-    "Request\022\036\n\006writes\030\001 \003(\0132\016.WriteRegister\""
-    "/\n\rWriteRegister\022\017\n\007address\030\001 \001(\004\022\r\n\005val"
-    "ue\030\002 \001(\004\"9\n\025WriteRegisterResponse\022\017\n\007suc"
-    "cess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\">\n\017ControlEn"
-    "velope\022\032\n\004type\030\001 \001(\0162\014.MessageType\022\017\n\007pa"
-    "yload\030\002 \001(\014*\341\005\n\013MessageType\022\013\n\007UNKNOWN\020\000"
-    "\022\022\n\016CONFIGURE_CLKS\020\001\022\020\n\014CONFIGURE_FE\020\002\022\021"
-    "\n\rWRITE_AFE_REG\020\003\022\023\n\017WRITE_AFE_VGAIN\020\004\022\026"
-    "\n\022WRITE_AFE_BIAS_SET\020\005\022\025\n\021WRITE_TRIM_ALL"
-    "_CH\020\006\022\026\n\022WRITE_TRIM_ALL_AFE\020\007\022\021\n\rWRITE_T"
-    "RIM_CH\020\010\022\027\n\023WRITE_OFFSET_ALL_CH\020\t\022\030\n\024WRI"
-    "TE_OFFSET_ALL_AFE\020\n\022\023\n\017WRITE_OFFSET_CH\020\013"
-    "\022\027\n\023WRITE_VBIAS_CONTROL\020\014\022\020\n\014READ_AFE_RE"
-    "G\020\r\022\022\n\016READ_AFE_VGAIN\020\016\022\025\n\021READ_AFE_BIAS"
-    "_SET\020\017\022\024\n\020READ_TRIM_ALL_CH\020\020\022\025\n\021READ_TRI"
-    "M_ALL_AFE\020\021\022\020\n\014READ_TRIM_CH\020\022\022\026\n\022READ_OF"
-    "FSET_ALL_CH\020\023\022\027\n\023READ_OFFSET_ALL_AFE\020\024\022\022"
-    "\n\016READ_OFFSET_CH\020\025\022\026\n\022READ_VBIAS_CONTROL"
-    "\020\026\022\030\n\024READ_CURRENT_MONITOR\020\027\022\035\n\031READ_BIA"
-    "S_VOLTAGE_MONITOR\020\030\022\021\n\rSET_AFE_RESET\020\031\022\020"
-    "\n\014DO_AFE_RESET\020\032\022\026\n\022SET_AFE_POWERSTATE\020\033"
-    "\022\031\n\025WRITE_AFE_ATTENUATION\020\034\022\022\n\016DUMP_SPYB"
-    "UFFER\020\035\022\r\n\tALIGN_AFE\020\036\022\026\n\022WRITE_AFE_FUNC"
-    "TION\020\037\022\027\n\023DO_SOFTWARE_TRIGGER\020 b\006proto3"
+    "les\030\003 \001(\r\022\020\n\004data\030\004 \003(\rB\002\020\001\022\017\n\007message\030\005"
+    " \001(\t\"\034\n\013InfoRequest\022\r\n\005level\030\001 \001(\r\"t\n\014In"
+    "foResponse\022 \n\013stream_info\030\001 \001(\0132\013.Stream"
+    "Info\022\036\n\010channels\030\002 \003(\0132\014.ChannelInfo\022\"\n\014"
+    "general_info\030\003 \001(\0132\014.GeneralInfo\"t\n\nStre"
+    "amInfo\022\025\n\rtotal_packets\030\001 \001(\004\022\023\n\013new_pac"
+    "kets\030\002 \001(\004\022\035\n\025total_dropped_packets\030\003 \001("
+    "\004\022\033\n\023new_dropped_packets\030\004 \001(\004\"s\n\013Channe"
+    "lInfo\022\n\n\002id\030\001 \001(\r\022\026\n\016total_triggers\030\002 \001("
+    "\004\022\024\n\014new_triggers\030\003 \001(\004\022\025\n\rtotal_packets"
+    "\030\004 \001(\004\022\023\n\013new_packets\030\005 \001(\004\"\275\001\n\013GeneralI"
+    "nfo\022\020\n\010v_bias_0\030\001 \001(\001\022\020\n\010v_bias_1\030\002 \001(\001\022"
+    "\020\n\010v_bias_2\030\003 \001(\001\022\020\n\010v_bias_3\030\004 \001(\001\022\020\n\010v"
+    "_bias_4\030\005 \001(\001\022\025\n\rpower_minus5v\030\006 \001(\001\022\026\n\016"
+    "power_plus2p5v\030\007 \001(\001\022\020\n\010power_ce\030\010 \001(\001\022\023"
+    "\n\013temperature\030\t \001(\001\">\n\034WriteMultipleRegi"
+    "sterRequest\022\036\n\006writes\030\001 \003(\0132\016.WriteRegis"
+    "ter\"/\n\rWriteRegister\022\017\n\007address\030\001 \001(\004\022\r\n"
+    "\005value\030\002 \001(\004\"9\n\025WriteRegisterResponse\022\017\n"
+    "\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\">\n\017Contr"
+    "olEnvelope\022\032\n\004type\030\001 \001(\0162\014.MessageType\022\017"
+    "\n\007payload\030\002 \001(\014*\341\005\n\013MessageType\022\013\n\007UNKNO"
+    "WN\020\000\022\022\n\016CONFIGURE_CLKS\020\001\022\020\n\014CONFIGURE_FE"
+    "\020\002\022\021\n\rWRITE_AFE_REG\020\003\022\023\n\017WRITE_AFE_VGAIN"
+    "\020\004\022\026\n\022WRITE_AFE_BIAS_SET\020\005\022\025\n\021WRITE_TRIM"
+    "_ALL_CH\020\006\022\026\n\022WRITE_TRIM_ALL_AFE\020\007\022\021\n\rWRI"
+    "TE_TRIM_CH\020\010\022\027\n\023WRITE_OFFSET_ALL_CH\020\t\022\030\n"
+    "\024WRITE_OFFSET_ALL_AFE\020\n\022\023\n\017WRITE_OFFSET_"
+    "CH\020\013\022\027\n\023WRITE_VBIAS_CONTROL\020\014\022\020\n\014READ_AF"
+    "E_REG\020\r\022\022\n\016READ_AFE_VGAIN\020\016\022\025\n\021READ_AFE_"
+    "BIAS_SET\020\017\022\024\n\020READ_TRIM_ALL_CH\020\020\022\025\n\021READ"
+    "_TRIM_ALL_AFE\020\021\022\020\n\014READ_TRIM_CH\020\022\022\026\n\022REA"
+    "D_OFFSET_ALL_CH\020\023\022\027\n\023READ_OFFSET_ALL_AFE"
+    "\020\024\022\022\n\016READ_OFFSET_CH\020\025\022\026\n\022READ_VBIAS_CON"
+    "TROL\020\026\022\030\n\024READ_CURRENT_MONITOR\020\027\022\035\n\031READ"
+    "_BIAS_VOLTAGE_MONITOR\020\030\022\021\n\rSET_AFE_RESET"
+    "\020\031\022\020\n\014DO_AFE_RESET\020\032\022\026\n\022SET_AFE_POWERSTA"
+    "TE\020\033\022\031\n\025WRITE_AFE_ATTENUATION\020\034\022\022\n\016DUMP_"
+    "SPYBUFFER\020\035\022\r\n\tALIGN_AFE\020\036\022\026\n\022WRITE_AFE_"
+    "FUNCTION\020\037\022\027\n\023DO_SOFTWARE_TRIGGER\020 b\006pro"
+    "to3"
 };
 static ::absl::once_flag descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto = {
     false,
     false,
-    2799,
+    2803,
     descriptor_table_protodef_daphneV3_5fhigh_5flevel_5fconfs_2eproto,
     "daphneV3_high_level_confs.proto",
     &descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto_once,
@@ -5206,7 +5207,7 @@ DumpSpyBuffersResponse::_table_ = {
     // uint32 numberOfSamples = 3;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersResponse, _impl_.numberofsamples_), 3>(),
      {24, 3, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.numberofsamples_)}},
-    // repeated uint32 data = 4;
+    // repeated uint32 data = 4 [packed = true];
     {::_pbi::TcParser::FastV32P1,
      {34, 63, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.data_)}},
     // string message = 5;
@@ -5226,7 +5227,7 @@ DumpSpyBuffersResponse::_table_ = {
     // uint32 numberOfSamples = 3;
     {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.numberofsamples_), _Internal::kHasBitsOffset + 3, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // repeated uint32 data = 4;
+    // repeated uint32 data = 4 [packed = true];
     {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.data_), -1, 0,
     (0 | ::_fl::kFcRepeated | ::_fl::kPackedUInt32)},
     // string message = 5;
@@ -5303,7 +5304,7 @@ PROTOBUF_NOINLINE void DumpSpyBuffersResponse::Clear() {
     }
   }
 
-  // repeated uint32 data = 4;
+  // repeated uint32 data = 4 [packed = true];
   {
     int byte_size = this_._impl_._data_cached_byte_size_.Get();
     if (byte_size > 0) {
@@ -5347,7 +5348,7 @@ PROTOBUF_NOINLINE void DumpSpyBuffersResponse::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
    {
-    // repeated uint32 data = 4;
+    // repeated uint32 data = 4 [packed = true];
     {
       total_size +=
           ::_pbi::WireFormatLite::UInt32SizeWithPackedTagSize(

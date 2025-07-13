@@ -2274,7 +2274,7 @@ class DumpSpyBuffersResponse final : public ::google::protobuf::Message
     kChannelFieldNumber = 2,
     kNumberOfSamplesFieldNumber = 3,
   };
-  // repeated uint32 data = 4;
+  // repeated uint32 data = 4 [packed = true];
   int data_size() const;
   private:
   int _internal_data_size() const;
@@ -6786,7 +6786,7 @@ inline void DumpSpyBuffersResponse::_internal_set_numberofsamples(::uint32_t val
   _impl_.numberofsamples_ = value;
 }
 
-// repeated uint32 data = 4;
+// repeated uint32 data = 4 [packed = true];
 inline int DumpSpyBuffersResponse::_internal_data_size() const {
   return _internal_data().size();
 }
