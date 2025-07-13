@@ -231,7 +231,7 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse 
         uint32_t channel = request.channel();
         uint32_t numberOfSamples = request.numberofsamples();
         if(channel > 39) throw std::invalid_argument("The channel value " + std::to_string(channel) + " is out of range. Range 0-39");
-        if(numberOfSamples > 4096 || numberOfSamples < 1) throw std::invalid_argument("The number of samples value " + std::to_string(numberOfSamples) + " is out of range. Range 1-4096");
+        if(numberOfSamples > 2048 || numberOfSamples < 1) throw std::invalid_argument("The number of samples value " + std::to_string(numberOfSamples) + " is out of range. Range 1-4096");
         response.mutable_data()->Resize(numberOfSamples, 0); // This line allocates the required number of Data 
         daphne.getSpyBuffer()->cacheSpyBufferRegister(channel / 8, channel % 8);
         for(int i=0; i<numberOfSamples; i++){
@@ -239,8 +239,9 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse 
         }
         response.set_channel(channel);
         response.set_numberofsamples(numberOfSamples);
-        response_str = "Spybuffer channel " + std::to_string(channel) + " dumped correctly."
-                       + " Number of samples: " + std::to_string(numberOfSamples);
+        //response_str = "Spybuffer channel " + std::to_string(channel) + " dumped correctly."
+        //               + " Number of samples: " + std::to_string(numberOfSamples);
+        response_str = "OK";
     } catch (std::exception &e) {
         response_str = "Error dumping spybuffer: " + std::string(e.what());
         return false;
@@ -1107,7 +1108,7 @@ int main(int argc, char* argv[]) {
     std::string socket_ip_address = "tcp://" + ip_address + ":" + std::to_string(port); 
     try {
         socket.bind(socket_ip_address.c_str());
-        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_09" << std::endl;
+        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_10" << std::endl;
         std::cout << "ZMQ Reply socket initialized in " << socket_ip_address << std::endl;
     } catch (std::exception &e){
         std::cerr << "Error initializing ZMQ socket: " << e.what() << std::endl;
