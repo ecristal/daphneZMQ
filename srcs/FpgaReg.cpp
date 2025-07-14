@@ -21,6 +21,12 @@ uint32_t FpgaReg::getBits(const std::string &regName, const std::string &bitName
 	return this->fpgaMem->ReadBits(regName, bitName, offset_);
 }
 
+const uint32_t* FpgaReg::getRegisterPointer(const std::string &regName, const std::string &bitName, const uint32_t &offset){
+
+	uint32_t offset_ = offset*(sizeof(uint32_t));
+	return this->fpgaMem->getRegisterPointer(regName, bitName, offset_);
+}
+
 uint32_t FpgaReg::getBitsFast(const uint32_t &offset, const bool& bitEndianess){
 
 	uint32_t offset_ = offset*(sizeof(uint32_t));

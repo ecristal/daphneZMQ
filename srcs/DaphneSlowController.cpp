@@ -8,6 +8,19 @@
 #include "protobuf/daphneV3_high_level_confs.pb.h"
 #include "protobuf/daphneV3_low_level_confs.pb.h"
 
+template <typename payloadMsg> void fill_zmq_message(payloadMsg& payload_message, MessageType message_type, ControlEnvelope& response_envelope, zmq::message_t& zmq_response){
+    std::string payload;
+    payload.resize(payload_message.ByteSizeLong());
+    payload_message.SerializeToArray(payload.data(), payload.size());
+    response_envelope.set_type(message_type);
+    response_envelope.set_payload(std::move(payload));
+
+    size_t envelope_size = response_envelope.ByteSizeLong();
+    zmq_response.rebuild(envelope_size);
+    response_envelope.SerializeToArray(zmq_response.data(), envelope_size);
+
+}
+
 bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std::string &response_str) {
     try{
         response_str = "Configuring Daphne with IP : " + requested_cfg.daphne_address() + "\n";
@@ -232,10 +245,14 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse 
         uint32_t numberOfSamples = request.numberofsamples();
         if(channel > 39) throw std::invalid_argument("The channel value " + std::to_string(channel) + " is out of range. Range 0-39");
         if(numberOfSamples > 2048 || numberOfSamples < 1) throw std::invalid_argument("The number of samples value " + std::to_string(numberOfSamples) + " is out of range. Range 1-4096");
-        response.mutable_data()->Resize(numberOfSamples, 0); // This line allocates the required number of Data 
-        daphne.getSpyBuffer()->cacheSpyBufferRegister(channel / 8, channel % 8);
-        for(int i=0; i<numberOfSamples; i++){
-            response.set_data(i, daphne.getSpyBuffer()->getData(i));
+        
+        response.mutable_data()->Resize(numberOfSamples, 0);
+        google::protobuf::RepeatedField<uint32_t>* data_field = response.mutable_data();
+        uint32_t* data_ptr = data_field->mutable_data();
+        
+        daphne.getSpyBuffer()->setCurrentMappedChannelIndex(channel);
+        for(int i=0; i<numberOfSamples; ++i){
+            data_ptr[i] = daphne.getSpyBuffer()->getMappedData(i);
         }
         response.set_channel(channel);
         response.set_numberofsamples(numberOfSamples);
@@ -341,7 +358,7 @@ bool doSoftwareTrigger(const cmd_doSoftwareTrigger &request, cmd_doSoftwareTrigg
     return true;
 }
 
-void process_request(const std::string& request_str, std::string& response_str, Daphne &daphne) {
+void process_request(const std::string& request_str, zmq::message_t& zmq_response, Daphne &daphne) {
     // Identify the message type
     // Here the not equal to std::npos is used to check if the string contains the substring
     // so the issue is to see if it really contains the substring. 
@@ -349,688 +366,502 @@ void process_request(const std::string& request_str, std::string& response_str, 
     ControlEnvelope request_envelope, response_envelope;
 
     if(!request_envelope.ParseFromString(request_str)){
-        response_str = "Request not recognized";
         return;
     }
 
     switch(request_envelope.type()){
         case CONFIGURE_CLKS: { // to be implemented
-            ConfigureCLKsRequest clk_request;
-            ConfigureCLKsResponse clk_response;
+            ConfigureCLKsRequest cmd_request;
+            ConfigureCLKsResponse cmd_response;
             //std::cout << "The request is a ConfigureCLKsRequest" << std::endl;
-            if(clk_request.ParseFromString(request_envelope.payload())){
-                clk_response.set_success(true);
-                clk_response.set_message("CLKs configured successfully");
-                response_envelope.set_type(CONFIGURE_CLKS);
-                response_envelope.set_payload(clk_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("CLKs configured successfully");
             }else{
-                clk_response.set_success(false);
-                clk_response.set_message("Payload not recognized");
-                response_envelope.set_type(CONFIGURE_CLKS);
-                response_envelope.set_payload(clk_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case CONFIGURE_FE: {
-            ConfigureRequest cfg_request;
-            ConfigureResponse cfg_response;
+            ConfigureRequest cmd_request;
+            ConfigureResponse cmd_response;
             //std::cout << "The request is a ConfigureRequest" << std::endl;
-            if(cfg_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
-                bool is_success = configureDaphne(cfg_request, daphne, configure_message);
-                cfg_response.set_success(is_success);
-                cfg_response.set_message(configure_message);
-                response_envelope.set_type(CONFIGURE_FE);
-                response_envelope.set_payload(cfg_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_success = configureDaphne(cmd_request, daphne, configure_message);
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
             }else{
-                cfg_response.set_success(false);
-                cfg_response.set_message("Payload not recognized");
-                response_envelope.set_type(CONFIGURE_FE);
-                response_envelope.set_payload(cfg_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case WRITE_AFE_REG: {
-            cmd_writeAFEReg write_afe_reg_request;
-            cmd_writeAFEReg_response write_afe_reg_response;
+            cmd_writeAFEReg cmd_request;
+            cmd_writeAFEReg_response cmd_response;
             //std::cout << "The request is a WriteAfeRegRequest" << std::endl;
-            if(write_afe_reg_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
                 uint32_t returned_value;
-                bool is_success = writeAFERegister(write_afe_reg_request, daphne, configure_message, returned_value);
-                write_afe_reg_response.set_success(is_success);
-                write_afe_reg_response.set_message(configure_message);
-                write_afe_reg_response.set_afeblock(write_afe_reg_request.afeblock());
-                write_afe_reg_response.set_regaddress(write_afe_reg_request.regaddress());
-                write_afe_reg_response.set_regvalue(returned_value);
-                response_envelope.set_type(WRITE_AFE_REG);
-                response_envelope.set_payload(write_afe_reg_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_success = writeAFERegister(cmd_request, daphne, configure_message, returned_value);
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
+                cmd_response.set_afeblock(cmd_request.afeblock());
+                cmd_response.set_regaddress(cmd_request.regaddress());
+                cmd_response.set_regvalue(returned_value);
             }else{
-                write_afe_reg_response.set_success(false);
-                write_afe_reg_response.set_message("WRITE_AFE_REG: Payload not recognized");
-                response_envelope.set_type(WRITE_AFE_REG);
-                response_envelope.set_payload(write_afe_reg_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case WRITE_AFE_VGAIN: {
-            cmd_writeAFEVGAIN write_afe_vgain_request;
-            cmd_writeAFEVgain_response write_afe_vgain_response;
+            cmd_writeAFEVGAIN cmd_request;
+            cmd_writeAFEVgain_response cmd_response;
             //std::cout << "The request is a WriteAfeVgainRequest" << std::endl;
-            if(write_afe_vgain_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
                 uint32_t returned_value;
-                bool is_success = writeAFEVgain(write_afe_vgain_request, daphne, configure_message, returned_value);
-                write_afe_vgain_response.set_success(is_success);
-                write_afe_vgain_response.set_message(configure_message);
-                write_afe_vgain_response.set_afeblock(write_afe_vgain_request.afeblock());
-                write_afe_vgain_response.set_vgainvalue(returned_value);
-                response_envelope.set_type(WRITE_AFE_VGAIN);
-                response_envelope.set_payload(write_afe_vgain_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_success = writeAFEVgain(cmd_request, daphne, configure_message, returned_value);
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
+                cmd_response.set_afeblock(cmd_request.afeblock());
+                cmd_response.set_vgainvalue(returned_value);
             }else{
-                write_afe_vgain_response.set_success(false);
-                write_afe_vgain_response.set_message("Payload not recognized");
-                response_envelope.set_type(WRITE_AFE_VGAIN);
-                response_envelope.set_payload(write_afe_vgain_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case WRITE_AFE_BIAS_SET: {
-            cmd_writeAFEBiasSet write_afe_biasset_request;
-            cmd_writeAFEBiasSet_response write_afe_biasset_response;
+            cmd_writeAFEBiasSet cmd_request;
+            cmd_writeAFEBiasSet_response cmd_response;
             //std::cout << "The request is a WriteAfeBiasSetRequest" << std::endl;
-            if(write_afe_biasset_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
                 uint32_t returned_value;
-                bool is_success = writeAFEBiasVoltage(write_afe_biasset_request, daphne, configure_message, returned_value);
-                write_afe_biasset_response.set_success(is_success);
-                write_afe_biasset_response.set_message(configure_message);
-                write_afe_biasset_response.set_afeblock(write_afe_biasset_request.afeblock());
-                write_afe_biasset_response.set_biasvalue(returned_value);
-                response_envelope.set_type(WRITE_AFE_BIAS_SET);
-                response_envelope.set_payload(write_afe_biasset_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_success = writeAFEBiasVoltage(cmd_request, daphne, configure_message, returned_value);
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
+                cmd_response.set_afeblock(cmd_request.afeblock());
+                cmd_response.set_biasvalue(returned_value);
             }else{
-                write_afe_biasset_response.set_success(false);
-                write_afe_biasset_response.set_message("Payload not recognized");
-                response_envelope.set_type(WRITE_AFE_BIAS_SET);
-                response_envelope.set_payload(write_afe_biasset_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case WRITE_TRIM_ALL_CH: { // to be implemented
-            cmd_writeTRIM_allChannels write_trim_allchannels_request;
-            cmd_writeTRIM_allChannels_response write_trim_allchannels_response;
+            cmd_writeTRIM_allChannels cmd_request;
+            cmd_writeTRIM_allChannels_response cmd_response;
             //std::cout << "The request is a WriteTrimAllChannelsRequest" << std::endl;
-            if(write_trim_allchannels_request.ParseFromString(request_envelope.payload())){
-                write_trim_allchannels_response.set_success(true);
-                write_trim_allchannels_response.set_message("All channel trims written successfully");
-                response_envelope.set_type(WRITE_TRIM_ALL_CH);
-                response_envelope.set_payload(write_trim_allchannels_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("All channel trims written successfully");
             }else{
-                write_trim_allchannels_response.set_success(false);
-                write_trim_allchannels_response.set_message("Payload not recognized");
-                response_envelope.set_type(WRITE_TRIM_ALL_CH);
-                response_envelope.set_payload(write_trim_allchannels_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case WRITE_TRIM_ALL_AFE: { // to be implemented
-            cmd_writeTrim_allAFE write_trim_allafe_request;
-            cmd_writeTrim_allAFE_response write_trim_allafe_response;
+            cmd_writeTrim_allAFE cmd_request;
+            cmd_writeTrim_allAFE_response cmd_response;
             //std::cout << "The request is a WriteTrimAllAfeRequest" << std::endl;
-            if(write_trim_allafe_request.ParseFromString(request_envelope.payload())){
-                write_trim_allafe_response.set_success(true);
-                write_trim_allafe_response.set_message("All AFE trims written successfully");
-                response_envelope.set_type(WRITE_TRIM_ALL_AFE);
-                response_envelope.set_payload(write_trim_allafe_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("All AFE trims written successfully");
             }else{
-                write_trim_allafe_response.set_success(false);
-                write_trim_allafe_response.set_message("Payload not recognized");
-                response_envelope.set_type(WRITE_TRIM_ALL_AFE);
-                response_envelope.set_payload(write_trim_allafe_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case WRITE_TRIM_CH: { //Verified in DAPHNE V3
-            cmd_writeTrim_singleChannel write_trim_singlechannel_request;
-            cmd_writeTrim_singleChannel_response write_trim_singlechannel_response;
+            cmd_writeTrim_singleChannel cmd_request;
+            cmd_writeTrim_singleChannel_response cmd_response;
             //std::cout << "The request is a WriteTrimSingleChannelRequest" << std::endl;
-            if(write_trim_singlechannel_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
                 uint32_t returned_value;
-                bool is_success = writeChannelTrim(write_trim_singlechannel_request, daphne, configure_message, returned_value);
-                write_trim_singlechannel_response.set_success(is_success);
-                write_trim_singlechannel_response.set_message(configure_message);
-                write_trim_singlechannel_response.set_trimchannel(write_trim_singlechannel_request.trimchannel());
-                write_trim_singlechannel_response.set_trimvalue(returned_value);
-                write_trim_singlechannel_response.set_trimgain(write_trim_singlechannel_request.trimgain());
-                response_envelope.set_type(WRITE_TRIM_CH);
-                response_envelope.set_payload(write_trim_singlechannel_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_success = writeChannelTrim(cmd_request, daphne, configure_message, returned_value);
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
+                cmd_response.set_trimchannel(cmd_request.trimchannel());
+                cmd_response.set_trimvalue(returned_value);
+                cmd_response.set_trimgain(cmd_request.trimgain());
             }else{
-                write_trim_singlechannel_response.set_success(false);
-                write_trim_singlechannel_response.set_message("Payload not recognized");
-                response_envelope.set_type(WRITE_TRIM_CH);
-                response_envelope.set_payload(write_trim_singlechannel_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case WRITE_OFFSET_ALL_CH: { // to be implemented
-            cmd_writeOFFSET_allChannels write_offset_allchannels_request;
-            cmd_writeOFFSET_allChannels_response write_offset_allchannels_response;
+            cmd_writeOFFSET_allChannels cmd_request;
+            cmd_writeOFFSET_allChannels_response cmd_response;
             //std::cout << "The request is a WriteOffsetAllChannelsRequest" << std::endl;
-            if(write_offset_allchannels_request.ParseFromString(request_envelope.payload())){
-                write_offset_allchannels_response.set_success(true);
-                write_offset_allchannels_response.set_message("All channel offsets written successfully");
-                response_envelope.set_type(WRITE_OFFSET_ALL_CH);
-                response_envelope.set_payload(write_offset_allchannels_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("All channel offsets written successfully");
                 return;
             }else{
-                write_offset_allchannels_response.set_success(false);
-                write_offset_allchannels_response.set_message("Payload not recognized");
-                response_envelope.set_type(WRITE_OFFSET_ALL_CH);
-                response_envelope.set_payload(write_offset_allchannels_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
                 return;
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case WRITE_OFFSET_ALL_AFE: { // to be implemented
-            cmd_writeOFFSET_allAFE write_offset_allafe_request;
-            cmd_writeOFFSET_allAFE_response write_offset_allafe_response;
+            cmd_writeOFFSET_allAFE cmd_request;
+            cmd_writeOFFSET_allAFE_response cmd_response;
             //std::cout << "The request is a WriteOffsetAllAfeRequest" << std::endl;
-            if(write_offset_allafe_request.ParseFromString(request_envelope.payload())){
-                write_offset_allafe_response.set_success(true);
-                write_offset_allafe_response.set_message("All AFE offsets written successfully");
-                response_envelope.set_type(WRITE_OFFSET_ALL_AFE);
-                response_envelope.set_payload(write_offset_allafe_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("All AFE offsets written successfully");
             }else{
-                write_offset_allafe_response.set_success(false);
-                write_offset_allafe_response.set_message("Payload not recognized");
-                response_envelope.set_type(WRITE_OFFSET_ALL_AFE);
-                response_envelope.set_payload(write_offset_allafe_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
         }
         case WRITE_OFFSET_CH: { //Verified in DAPHNE V3
-            cmd_writeOFFSET_singleChannel write_offset_singlechannel_request;
-            cmd_writeOFFSET_singleChannel_response write_offset_singlechannel_response;
+            cmd_writeOFFSET_singleChannel cmd_request;
+            cmd_writeOFFSET_singleChannel_response cmd_response;
             //std::cout << "The request is a WriteOffsetSingleChannelRequest" << std::endl;
-            if(write_offset_singlechannel_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
                 uint32_t returned_value;
-                bool is_success = writeChannelOffset(write_offset_singlechannel_request, daphne, configure_message, returned_value);
-                write_offset_singlechannel_response.set_success(is_success);
-                write_offset_singlechannel_response.set_message(configure_message);
-                write_offset_singlechannel_response.set_offsetchannel(write_offset_singlechannel_request.offsetchannel());
-                write_offset_singlechannel_response.set_offsetvalue(returned_value);
-                write_offset_singlechannel_response.set_offsetgain(write_offset_singlechannel_request.offsetgain());
-                write_offset_singlechannel_response.set_success(is_success);
-                write_offset_singlechannel_response.set_message(configure_message);
-                response_envelope.set_type(WRITE_OFFSET_CH);
-                response_envelope.set_payload(write_offset_singlechannel_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_success = writeChannelOffset(cmd_request, daphne, configure_message, returned_value);
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
+                cmd_response.set_offsetchannel(cmd_request.offsetchannel());
+                cmd_response.set_offsetvalue(returned_value);
+                cmd_response.set_offsetgain(cmd_request.offsetgain());
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
             }else{
-                write_offset_singlechannel_response.set_success(false);
-                write_offset_singlechannel_response.set_message("Payload not recognized");
-                response_envelope.set_type(WRITE_OFFSET_CH);
-                response_envelope.set_payload(write_offset_singlechannel_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case WRITE_VBIAS_CONTROL: {
-            cmd_writeVbiasControl write_vbias_control_request;
-            cmd_writeVbiasControl_response write_vbias_control_response;
+            cmd_writeVbiasControl cmd_request;
+            cmd_writeVbiasControl_response cmd_response;
             //std::cout << "The request is a WriteVbiasControlRequest" << std::endl;
-            if(write_vbias_control_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
                 uint32_t returned_value;
-                bool is_success = writeBiasVoltageControl(write_vbias_control_request, daphne, configure_message, returned_value);
-                write_vbias_control_response.set_vbiascontrolvalue(returned_value);
-                write_vbias_control_response.set_success(is_success);
-                write_vbias_control_response.set_message(configure_message);
-                response_envelope.set_type(WRITE_VBIAS_CONTROL);
-                response_envelope.set_payload(write_vbias_control_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_success = writeBiasVoltageControl(cmd_request, daphne, configure_message, returned_value);
+                cmd_response.set_vbiascontrolvalue(returned_value);
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
             }else{
-                write_vbias_control_response.set_success(false);
-                write_vbias_control_response.set_message("Payload not recognized");
-                response_envelope.set_type(WRITE_VBIAS_CONTROL);
-                response_envelope.set_payload(write_vbias_control_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case READ_AFE_REG: { // to be implemented
-            cmd_readAFEReg read_afe_reg_request;
-            cmd_readAFEReg_response read_afe_reg_response;
+            cmd_readAFEReg cmd_request;
+            cmd_readAFEReg_response cmd_response;
             //std::cout << "The request is a ReadAfeRegRequest" << std::endl;
-            if(read_afe_reg_request.ParseFromString(request_envelope.payload())){
-                read_afe_reg_response.set_success(true);
-                read_afe_reg_response.set_message("AFE register read successfully");
-                response_envelope.set_type(READ_AFE_REG);
-                response_envelope.set_payload(read_afe_reg_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("AFE register read successfully");
             }else{
-                read_afe_reg_response.set_success(false);
-                read_afe_reg_response.set_message("Payload not recognized");
-                response_envelope.set_type(READ_AFE_REG);
-                response_envelope.set_payload(read_afe_reg_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case READ_AFE_VGAIN: { // to be implemented
-            cmd_readAFEVgain read_afe_vgain_request;
-            cmd_readAFEVgain_response read_afe_vgain_response;
+            cmd_readAFEVgain cmd_request;
+            cmd_readAFEVgain_response cmd_response;
             //std::cout << "The request is a ReadAfeVgainRequest" << std::endl;
-            if(read_afe_vgain_request.ParseFromString(request_envelope.payload())){
-                read_afe_vgain_response.set_success(true);
-                read_afe_vgain_response.set_message("AFE VGAIN read successfully");
-                response_envelope.set_type(READ_AFE_VGAIN);
-                response_envelope.set_payload(read_afe_vgain_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("AFE VGAIN read successfully");
             }else{
-                read_afe_vgain_response.set_success(false);
-                read_afe_vgain_response.set_message("Payload not recognized");
-                response_envelope.set_type(READ_AFE_VGAIN);
-                response_envelope.set_payload(read_afe_vgain_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case READ_AFE_BIAS_SET: { // to be implemented
-            cmd_readAFEBiasSet read_afe_biasset_request;
-            cmd_readAFEBiasSet_response read_afe_biasset_response;
+            cmd_readAFEBiasSet cmd_request;
+            cmd_readAFEBiasSet_response cmd_response;
             //std::cout << "The request is a ReadAfeBiasSetRequest" << std::endl;
-            if(read_afe_biasset_request.ParseFromString(request_envelope.payload())){
-                read_afe_biasset_response.set_success(true);
-                read_afe_biasset_response.set_message("AFE Bias Set read successfully");
-                response_envelope.set_type(READ_AFE_BIAS_SET);
-                response_envelope.set_payload(read_afe_biasset_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("AFE Bias Set read successfully");
             }else{
-                read_afe_biasset_response.set_success(false);
-                read_afe_biasset_response.set_message("Payload not recognized");
-                response_envelope.set_type(READ_AFE_BIAS_SET);
-                response_envelope.set_payload(read_afe_biasset_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case READ_TRIM_ALL_CH: { // to be implemented
-            cmd_readTrim_allChannels read_trim_allchannels_request;
-            cmd_readTrim_allChannels_response read_trim_allchannels_response;
+            cmd_readTrim_allChannels cmd_request;
+            cmd_readTrim_allChannels_response cmd_response;
             //std::cout << "The request is a ReadTrimAllChannelsRequest" << std::endl;
-            if(read_trim_allchannels_request.ParseFromString(request_envelope.payload())){
-                read_trim_allchannels_response.set_success(true);
-                read_trim_allchannels_response.set_message("All channel trims read successfully");
-                response_envelope.set_type(READ_TRIM_ALL_CH);
-                response_envelope.set_payload(read_trim_allchannels_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("All channel trims read successfully");
             }else{
-                read_trim_allchannels_response.set_success(false);
-                read_trim_allchannels_response.set_message("Payload not recognized");
-                response_envelope.set_type(READ_TRIM_ALL_CH);
-                response_envelope.set_payload(read_trim_allchannels_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case READ_TRIM_ALL_AFE: { // to be implemented
-            cmd_readTrim_allAFE read_trim_allafe_request;
-            cmd_readTrim_allAFE_response read_trim_allafe_response;
+            cmd_readTrim_allAFE cmd_request;
+            cmd_readTrim_allAFE_response cmd_response;
             //std::cout << "The request is a ReadTrimAllAfeRequest" << std::endl;
-            if(read_trim_allafe_request.ParseFromString(request_envelope.payload())){
-                read_trim_allafe_response.set_success(true);
-                read_trim_allafe_response.set_message("All AFE trims read successfully");
-                response_envelope.set_type(READ_TRIM_ALL_AFE);
-                response_envelope.set_payload(read_trim_allafe_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("All AFE trims read successfully");
             }else{
-                read_trim_allafe_response.set_success(false);
-                read_trim_allafe_response.set_message("Payload not recognized");
-                response_envelope.set_type(READ_TRIM_ALL_AFE);
-                response_envelope.set_payload(read_trim_allafe_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case READ_TRIM_CH: { // to be implemented
-            cmd_readTrim_singleChannel read_trim_singlechannel_request;
-            cmd_readTrim_singleChannel_response read_trim_singlechannel_response;
+            cmd_readTrim_singleChannel cmd_request;
+            cmd_readTrim_singleChannel_response cmd_response;
             //std::cout << "The request is a ReadTrimSingleChannelRequest" << std::endl;
-            if(read_trim_singlechannel_request.ParseFromString(request_envelope.payload())){
-                read_trim_singlechannel_response.set_success(true);
-                read_trim_singlechannel_response.set_message("Single channel trim read successfully");
-                response_envelope.set_type(READ_TRIM_CH);
-                response_envelope.set_payload(read_trim_singlechannel_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("Single channel trim read successfully");
                 return;
             }else{
-                read_trim_singlechannel_response.set_success(false);
-                read_trim_singlechannel_response.set_message("Payload not recognized");
-                response_envelope.set_type(READ_TRIM_CH);
-                response_envelope.set_payload(read_trim_singlechannel_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case READ_OFFSET_ALL_CH: { // to be implemented
-            cmd_readOffset_allChannels read_offset_allchannels_request;
-            cmd_readOffset_allChannels_response read_offset_allchannels_response;
+            cmd_readOffset_allChannels cmd_request;
+            cmd_readOffset_allChannels_response cmd_response;
             //std::cout << "The request is a ReadOffsetAllChannelsRequest" << std::endl;
-            if(read_offset_allchannels_request.ParseFromString(request_envelope.payload())){
-                read_offset_allchannels_response.set_success(true);
-                read_offset_allchannels_response.set_message("All channel offsets read successfully");
-                response_envelope.set_type(READ_OFFSET_ALL_CH);
-                response_envelope.set_payload(read_offset_allchannels_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("All channel offsets read successfully");
             }else{
-                read_offset_allchannels_response.set_success(false);
-                read_offset_allchannels_response.set_message("Payload not recognized");
-                response_envelope.set_type(READ_OFFSET_ALL_CH);
-                response_envelope.set_payload(read_offset_allchannels_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case READ_OFFSET_ALL_AFE: { // to be implemented
-            cmd_readOffset_allAFE read_offset_allafe_request;
-            cmd_readOffset_allAFE_response read_offset_allafe_response;
+            cmd_readOffset_allAFE cmd_request;
+            cmd_readOffset_allAFE_response cmd_response;
             //std::cout << "The request is a ReadOffsetAllAfeRequest" << std::endl;
-            if(read_offset_allafe_request.ParseFromString(request_envelope.payload())){
-                read_offset_allafe_response.set_success(true);
-                read_offset_allafe_response.set_message("All AFE offsets read successfully");
-                response_envelope.set_type(READ_OFFSET_ALL_AFE);
-                response_envelope.set_payload(read_offset_allafe_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("All AFE offsets read successfully");
             }else{
-                read_offset_allafe_response.set_success(false);
-                read_offset_allafe_response.set_message("Payload not recognized");
-                response_envelope.set_type(READ_OFFSET_ALL_AFE);
-                response_envelope.set_payload(read_offset_allafe_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case READ_OFFSET_CH: { // to be implemented
-            cmd_readOffset_singleChannel read_offset_singlechannel_request;
-            cmd_readOffset_singleChannel_response read_offset_singlechannel_response;
+            cmd_readOffset_singleChannel cmd_request;
+            cmd_readOffset_singleChannel_response cmd_response;
             //std::cout << "The request is a ReadOffsetSingleChannelRequest" << std::endl;
-            if(read_offset_singlechannel_request.ParseFromString(request_envelope.payload())){
-                read_offset_singlechannel_response.set_success(true);
-                read_offset_singlechannel_response.set_message("Single channel offset read successfully");
-                response_envelope.set_type(READ_OFFSET_CH);
-                response_envelope.set_payload(read_offset_singlechannel_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("Single channel offset read successfully");
             }else{
-                read_offset_singlechannel_response.set_success(false);
-                read_offset_singlechannel_response.set_message("Payload not recognized");
-                response_envelope.set_type(READ_OFFSET_CH);
-                response_envelope.set_payload(read_offset_singlechannel_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case READ_VBIAS_CONTROL: { // to be implemented
-            cmd_readVbiasControl read_vbias_control_request;
-            cmd_readVbiasControl_response read_vbias_control_response;
+            cmd_readVbiasControl cmd_request;
+            cmd_readVbiasControl_response cmd_response;
             //std::cout << "The request is a ReadVbiasControlRequest" << std::endl;
-            if(read_vbias_control_request.ParseFromString(request_envelope.payload())){
-                read_vbias_control_response.set_success(true);
-                read_vbias_control_response.set_message("Vbias control read successfully");
-                response_envelope.set_type(READ_VBIAS_CONTROL);
-                response_envelope.set_payload(read_vbias_control_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_response.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("Vbias control read successfully");
             }else{
-                read_vbias_control_response.set_success(false);
-                read_vbias_control_response.set_message("Payload not recognized");
-                response_envelope.set_type(READ_VBIAS_CONTROL);
-                response_envelope.set_payload(read_vbias_control_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case READ_CURRENT_MONITOR: { // to be implemented
-            cmd_readCurrentMonitor read_current_monitor_request;
-            cmd_readCurrentMonitor_response read_current_monitor_response;
+            cmd_readCurrentMonitor cmd_request;
+            cmd_readCurrentMonitor_response cmd_response;
             //std::cout << "The request is a ReadCurrentMonitorRequest" << std::endl;
-            if(read_current_monitor_request.ParseFromString(request_envelope.payload())){
-                read_current_monitor_response.set_success(true);
-                read_current_monitor_response.set_message("Current monitor read successfully");
-                response_envelope.set_type(READ_CURRENT_MONITOR);
-                response_envelope.set_payload(read_current_monitor_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("Current monitor read successfully");
             }else{
-                read_current_monitor_response.set_success(false);
-                read_current_monitor_response.set_message("Payload not recognized");
-                response_envelope.set_type(READ_CURRENT_MONITOR);
-                response_envelope.set_payload(read_current_monitor_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case READ_BIAS_VOLTAGE_MONITOR: { // to be implemented
-            cmd_readBiasVoltageMonitor read_bias_voltage_monitor_request;
-            cmd_readBiasVoltageMonitor_response read_bias_voltage_monitor_response;
+            cmd_readBiasVoltageMonitor cmd_request;
+            cmd_readBiasVoltageMonitor_response cmd_response;
             //std::cout << "The request is a ReadBiasVoltageMonitorRequest" << std::endl;
-            if(read_bias_voltage_monitor_request.ParseFromString(request_envelope.payload())){
-                read_bias_voltage_monitor_response.set_success(true);
-                read_bias_voltage_monitor_response.set_message("Bias voltage monitor read successfully");
-                response_envelope.set_type(READ_BIAS_VOLTAGE_MONITOR);
-                response_envelope.set_payload(read_bias_voltage_monitor_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+            if(cmd_request.ParseFromString(request_envelope.payload())){
+                cmd_response.set_success(true);
+                cmd_response.set_message("Bias voltage monitor read successfully");
             }else{
-                read_bias_voltage_monitor_response.set_success(false);
-                read_bias_voltage_monitor_response.set_message("Payload not recognized");
-                response_envelope.set_type(READ_BIAS_VOLTAGE_MONITOR);
-                response_envelope.set_payload(read_bias_voltage_monitor_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case SET_AFE_RESET: {
-            cmd_setAFEReset set_afe_reset_request;
-            cmd_setAFEReset_response set_afe_reset_response;
+            cmd_setAFEReset cmd_request;
+            cmd_setAFEReset_response cmd_response;
             //std::cout << "The request is a SetAfeResetRequest" << std::endl;
-            if(set_afe_reset_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
-                bool is_success = setAFEReset(set_afe_reset_request, set_afe_reset_response, daphne, configure_message);
-                set_afe_reset_response.set_success(is_success);
-                set_afe_reset_response.set_message(configure_message);
-                response_envelope.set_type(SET_AFE_RESET);
-                response_envelope.set_payload(set_afe_reset_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_success = setAFEReset(cmd_request, cmd_response, daphne, configure_message);
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
             }else{
-                set_afe_reset_response.set_success(false);
-                set_afe_reset_response.set_message("Payload not recognized");
-                response_envelope.set_type(SET_AFE_RESET);
-                response_envelope.set_payload(set_afe_reset_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case DO_AFE_RESET: {
-            cmd_doAFEReset do_afe_reset_request;
-            cmd_doAFEReset_response do_afe_reset_response;
+            cmd_doAFEReset cmd_request;
+            cmd_doAFEReset_response cmd_response;
             //std::cout << "The request is a DoAfeResetRequest" << std::endl;
-            if(do_afe_reset_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
-                bool is_succes = doAFEReset(do_afe_reset_request, do_afe_reset_response, daphne, configure_message);
-                do_afe_reset_response.set_success(is_succes);
-                do_afe_reset_response.set_message(configure_message);
-                response_envelope.set_type(DO_AFE_RESET);
-                response_envelope.set_payload(do_afe_reset_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_succes = doAFEReset(cmd_request, cmd_response, daphne, configure_message);
+                cmd_response.set_success(is_succes);
+                cmd_response.set_message(configure_message);
             }else{
-                do_afe_reset_response.set_success(false);
-                do_afe_reset_response.set_message("Payload not recognized");
-                response_envelope.set_type(DO_AFE_RESET);
-                response_envelope.set_payload(do_afe_reset_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case SET_AFE_POWERSTATE: { // to be implemented
-            cmd_setAFEPowerState set_afe_powerstate_request;
-            cmd_setAFEPowerState_response set_afe_powerstate_response;
+            cmd_setAFEPowerState cmd_request;
+            cmd_setAFEPowerState_response cmd_response;
             //std::cout << "The request is a SetAfePowerStateRequest" << std::endl;
-            if(set_afe_powerstate_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
-                bool is_success = setAFEPowerState(set_afe_powerstate_request, set_afe_powerstate_response, daphne, configure_message);
-                set_afe_powerstate_response.set_success(is_success);
-                set_afe_powerstate_response.set_message(configure_message);
-                response_envelope.set_type(SET_AFE_POWERSTATE);
-                response_envelope.set_payload(set_afe_powerstate_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_success = setAFEPowerState(cmd_request, cmd_response, daphne, configure_message);
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
             }else{
-                set_afe_powerstate_response.set_success(false);
-                set_afe_powerstate_response.set_message("Payload not recognized");
-                response_envelope.set_type(SET_AFE_POWERSTATE);
-                response_envelope.set_payload(set_afe_powerstate_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
 
         case DUMP_SPYBUFFER: {
-            DumpSpyBuffersRequest dump_spybuffer_request;
-            DumpSpyBuffersResponse dump_spybuffer_response;
+            DumpSpyBuffersRequest cmd_request;
+            DumpSpyBuffersResponse cmd_response;
             //std::cout << "The request is a DumpSpyBuffersRequest" << std::endl;
-            if(dump_spybuffer_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
-                bool is_success = dumpSpybuffer(dump_spybuffer_request, dump_spybuffer_response, daphne, configure_message);
-                dump_spybuffer_response.set_success(is_success);
-                dump_spybuffer_response.set_message(configure_message);
-                response_envelope.set_type(DUMP_SPYBUFFER);
-                response_envelope.set_payload(dump_spybuffer_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_success = dumpSpybuffer(cmd_request, cmd_response, daphne, configure_message);
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
             }else{
-                dump_spybuffer_response.set_success(false);
-                dump_spybuffer_response.set_message("Payload not recognized");
-                response_envelope.set_type(DUMP_SPYBUFFER);
-                response_envelope.set_payload(dump_spybuffer_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
 
         case ALIGN_AFE: {
-            cmd_alignAFE alignAFE_request;
-            cmd_alignAFE_response alignAFE_response;
+            cmd_alignAFE cmd_request;
+            cmd_alignAFE_response cmd_response;
             //std::cout << "The request is a cmd_alignAFE" << std::endl;
-            if(alignAFE_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
-                bool is_success = alignAFE(alignAFE_request, alignAFE_response, daphne, configure_message);
-                alignAFE_response.set_success(is_success);
-                alignAFE_response.set_message(configure_message);
-                response_envelope.set_type(ALIGN_AFE);
-                response_envelope.set_payload(alignAFE_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_success = alignAFE(cmd_request, cmd_response, daphne, configure_message);
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
             }else{
-                alignAFE_response.set_success(false);
-                alignAFE_response.set_message("Payload not recognized");
-                response_envelope.set_type(ALIGN_AFE);
-                response_envelope.set_payload(alignAFE_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
 
         case WRITE_AFE_FUNCTION: {
-            cmd_writeAFEFunction write_AFE_function_request;
-            cmd_writeAFEFunction_response write_AFE_function_response;
+            cmd_writeAFEFunction cmd_request;
+            cmd_writeAFEFunction_response cmd_response;
             //std::cout << "The request is a cmd_writeAFEFunction" << std::endl;
-            if(write_AFE_function_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
-                bool is_success = writeAFEFunction(write_AFE_function_request, write_AFE_function_response, daphne, configure_message);
-                write_AFE_function_response.set_success(is_success);
-                write_AFE_function_response.set_message(configure_message);
-                response_envelope.set_type(WRITE_AFE_FUNCTION);
-                response_envelope.set_payload(write_AFE_function_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_success = writeAFEFunction(cmd_request, cmd_response, daphne, configure_message);
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
             }else{
-                write_AFE_function_response.set_success(false);
-                write_AFE_function_response.set_message("Payload not recognized");
-                response_envelope.set_type(ALIGN_AFE);
-                response_envelope.set_payload(write_AFE_function_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
 
         case DO_SOFTWARE_TRIGGER: {
-            cmd_doSoftwareTrigger do_software_trigger_request;
-            cmd_doSoftwareTrigger_response do_software_trigger_response;
+            cmd_doSoftwareTrigger cmd_request;
+            cmd_doSoftwareTrigger_response cmd_response;
             //std::cout << "The request is a DoSoftwareTriggerRequest" << std::endl;
-            if(do_software_trigger_request.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
-                bool is_success = doSoftwareTrigger(do_software_trigger_request, do_software_trigger_response, daphne, configure_message);
-                do_software_trigger_response.set_success(is_success);
-                do_software_trigger_response.set_message(configure_message);
-                response_envelope.set_type(DO_SOFTWARE_TRIGGER);
-                response_envelope.set_payload(do_software_trigger_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                bool is_success = doSoftwareTrigger(cmd_request, cmd_response, daphne, configure_message);
+                cmd_response.set_success(is_success);
+                cmd_response.set_message(configure_message);
             }else{
-                do_software_trigger_response.set_success(false);
-                do_software_trigger_response.set_message("Payload not recognized");
-                response_envelope.set_type(DO_SOFTWARE_TRIGGER);
-                response_envelope.set_payload(do_software_trigger_response.SerializeAsString());
-                response_envelope.SerializeToString(&response_str);
-                return;
+                cmd_response.set_success(false);
+                cmd_response.set_message("Payload not recognized");
             }
+            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
 
         default: {
-            response_str = "Request not recognized";
             return;
         }
     }
@@ -1108,7 +939,7 @@ int main(int argc, char* argv[]) {
     std::string socket_ip_address = "tcp://" + ip_address + ":" + std::to_string(port); 
     try {
         socket.bind(socket_ip_address.c_str());
-        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_10" << std::endl;
+        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_15" << std::endl;
         std::cout << "ZMQ Reply socket initialized in " << socket_ip_address << std::endl;
     } catch (std::exception &e){
         std::cerr << "Error initializing ZMQ socket: " << e.what() << std::endl;
@@ -1124,13 +955,12 @@ int main(int argc, char* argv[]) {
         }
         
         std::string request_str(static_cast<char*>(request.data()), request.size());
-        std::string response_str;
+        //std::string response_str;
+        zmq::message_t zmq_response;
         
-        process_request(request_str, response_str, daphne);
+        process_request(request_str, zmq_response, daphne);
         
-        zmq::message_t response(response_str.size());
-        memcpy(response.data(), response_str.data(), response_str.size());
-        socket.send(response, zmq::send_flags::none);
+        socket.send(zmq_response, zmq::send_flags::none);
     }
     return 0;
 }

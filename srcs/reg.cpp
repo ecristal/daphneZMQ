@@ -91,10 +91,19 @@ uint32_t reg::ReadBits(const std::string &RegName, const std::string &BitName, c
 	}
 }
 
-uint32_t reg::ReadBitsFast(const uint32_t &Offset, const bool& bitEndianess){
+const uint32_t* reg::getRegisterPointer(const std::string &RegName, const std::string &BitName, const uint32_t &Offset){
 	
-	const uint32_t* value_ptr = this->RegMem->get_read_ptr((size_t)(this->bitFieldMetadata.addr + Offset), 1);
-	uint32_t value = *value_ptr;
+	auto RegAddr = this->GetRegister(RegName, BitName);
+	if(std::get<0>(RegAddr) == 0xdeadbeef){
+		std::cout << "deadbeef" << std::endl;
+		return NULL;
+	}else{
+		uint32_t RegAddr_ = std::get<0>(RegAddr);
+		return this->RegMem->get_read_ptr((size_t)(RegAddr_ + Offset), 1);
+	}
+}
+
+uint32_t reg::ReadBitsFast(const uint32_t &Offset, const bool& bitEndianess){
 
 	if(bitEndianess){
 		//bitStr = "DATAH";
@@ -103,6 +112,9 @@ uint32_t reg::ReadBitsFast(const uint32_t &Offset, const bool& bitEndianess){
 		//bitStr = "DATAL";
 		this->bitFieldMetadata = this->bitFieldMetadata_low;
 	}
+	
+	const uint32_t* value_ptr = this->RegMem->get_read_ptr((size_t)(this->bitFieldMetadata.addr + Offset), 1);
+	uint32_t value = *value_ptr;
 
 	uint32_t Mask = (this->bitFieldMetadata.high_bit - this->bitFieldMetadata.low_bit + 1 == 32)
 		? 0xFFFFFFFF
