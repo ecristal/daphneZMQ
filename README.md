@@ -16,7 +16,19 @@ These commands are defined in the following files:
   - srcs/protobuf/daphneV3_high_level_confs.proto
   - srcs/protobuf/daphneV3_low_level_confs.proto
 
-# Installation procedure and application execution
+# Installation and usage for Users
+## Deploy DAPHNE SlowControl Application 
+Go to this repository realese page https://github.com/ecristal/daphneZMQ/releases and download the latest pre-release tarball. Then, secure copy the tarball to your DAPHNE V3/Mezz and untar it to your desired location. Navigate to the binary folder and execute the application:
+```sh
+cd /path/to/app/DaphneSlowController_V0_01_16/usr/bin
+sudo ./DaphneSlowController -ip <IP-ADDRESS> -port <PORT>
+#example: sudo ./DaphneSlowController -ip 193.206.157.36 -port 9000
+```
+
+## Use client side python scripts 
+
+
+# Installation procedure and application execution for developers
 ## Installation
 
 To start developing in a DAPHNE V3/Mezz, follow this procedure to install the required libraries:
@@ -80,7 +92,7 @@ sudo ./DaphneSlowController -ip <IP-ADDRESS> -port <PORT>
 ## Usage and examples
 To be able to send commands, the user must develop a client software using C++ or Python. The python client is recommended for it's ease of develop. The protobuf library of the high and low level commands are available in the srcs/protobuf/ folder. 
 
-The python protobuf package is requires and can be installed with the following command:
+The python protobuf package is required and can be installed with the following command:
 ```sh
 pip install protobuf
 ```
