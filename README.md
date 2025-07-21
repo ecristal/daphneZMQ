@@ -32,15 +32,16 @@ To create a virtual environment in Windows, open a PowerShell and execute the fo
 ```powershell
 python -m venv C:\desired\virtual\env_path\python_venvs\daphneZMQ
 ```
-The activate the environment:
+Then activate the environment:
 ```powershell
 C:\desired\virtual\env_path\python_venvs\daphneZMQ\Scripts\Activate.ps1
 ```
 ### Creating a virtual environment in Linux
+To create a virtual environment in Linux, open a terminal and execute the following commands:
 ```sh
 python -m venv /desired/virtual/env_path/python_venvs/daphneZMQ
 ```
-The activate the environment:
+Then activate the environment:
 ```sh
 source /desired/virtual/env_path/python_venvs/daphneZMQ/bin/activate
 ```
@@ -145,10 +146,10 @@ To be able to send commands, the user must develop a client software using C++ o
 
 The python protobuf package is required and can be installed with the following command:
 ```sh
-pip install protobuf
+pip install pyzmq protobuf numpy matplotlib tqdm
 ```
 
-## Example 1: Configure the bias control and AFE Bias Voltage
+## Example: Configure the bias control and AFE Bias Voltage
 In this example, this small client is executed in the ./client folder in the repository. The protobuf libraries are imported as `pb_high` and `pb_low`. The client configures:
 
   - Bias Control: The Bias Control value is the configurable maximum voltage output.
