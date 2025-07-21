@@ -25,8 +25,59 @@ sudo ./DaphneSlowController -ip <IP-ADDRESS> -port <PORT>
 #example: sudo ./DaphneSlowController -ip 193.206.157.36 -port 9000
 ```
 
-## Use client side python scripts 
-
+## Client side python scripts 
+All client scripts are written in python and can be found in the client folder. To use these scripts, the best way to proceed is to create a python virtual environment and install all required packages using pip.
+### Creating a virtual environment in Windows
+To create a virtual environment in Windows, open a PowerShell and execute the following commands:
+```powershell
+python -m venv C:\desired\virtual\env_path\python_venvs\daphneZMQ
+```
+The activate the environment:
+```powershell
+C:\desired\virtual\env_path\python_venvs\daphneZMQ\Scripts\Activate.ps1
+```
+### Creating a virtual environment in Linux
+```sh
+python -m venv /desired/virtual/env_path/python_venvs/daphneZMQ
+```
+The activate the environment:
+```sh
+source /desired/virtual/env_path/python_venvs/daphneZMQ/bin/activate
+```
+### Installing the required python packages
+After activating the virtual environment, install the required python packages to run the client scripts. This step has to be done only once:
+```
+pip install pyzmq protobuf numpy matplotlib tqdm
+```
+After installing the python packages via pip, the scripts can be executed. 
+### Configuring DAPHNE
+The first step is to configure DAPHNE. To do so execute the script `protobuf_configure_daphne.py`. Example:
+```
+python .\protobuf_configure_daphne.py -ip 193.206.157.36 -port 9000 -vgain 1600 -ch_offset 2275 -align_afes -lpf_cutoff 10 -pga_clamp_level '0 dBFS' -pga_gain_control '24 dB' -lna_gain_control '12 dB' -lna_input_clamp auto
+```
+This script will configure all 40 channel and 5 AFEs with the provided arguments. For more information about the possible arguments execute:
+```
+python .\protobuf_configure_daphne.py -help
+```
+### Oscilloscope
+The oscilloscope script creates a window where the selected channel is plotted live. Execute the script `protobuf_oscilloscope.py` to open an osciloscope window. Example:
+```
+python .\protobuf_oscilloscope.py -ip 193.206.157.36 -port 9000 -channel 39 -L 2048 -software_trigger 
+```
+Do not supply the `-software_trigger` flag when using an external trigger. For more information about the possible arguments execute:
+```
+python .\protobuf_oscilloscope.py -help
+```
+### Acquire channel data
+To acquire and save an specific channel data. Execute the script `protobuf_acquire_channel.py` to open an osciloscope window. Example:
+```
+python .\protobuf_acquire_channel.py -ip 193.206.157.36 -port 9000 -channel 0 -L 2048 -N 10000 -filename channel_0_ext_power_vgain_900_30mhz.dat -software_trigger  
+```
+Do not supply the `-software_trigger` flag when using an external trigger. For more information about the possible arguments execute:
+```
+python .\protobuf_acquire_channel.py -help
+```
+This script will save a binary file containing `N` uint16 concatenated waveforms of length `L`.
 
 # Installation procedure and application execution for developers
 ## Installation
