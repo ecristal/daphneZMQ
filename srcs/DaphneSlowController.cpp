@@ -280,6 +280,8 @@ bool alignAFE(const cmd_alignAFEs &request, cmd_alignAFEs_response &response, Da
         for(int afe = 0; afe < afeNum; afe++){
             daphne.setBestDelay(afe);
             daphne.setBestBitslip(afe);
+        }
+        for(int afe = 0; afe < afeNum; afe++){
             delay[afe] = daphne.getFrontEnd()->getDelay(afe);
             bitslip[afe] = daphne.getFrontEnd()->getBitslip(afe);
             response_str_ = response_str_ +

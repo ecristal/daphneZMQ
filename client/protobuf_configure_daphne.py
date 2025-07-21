@@ -90,9 +90,28 @@ for afe in range(5):
         print("Success:", response.success)
         print("Message:", response.message)
     
+request = pb_low.cmd_doAFEReset()
+envelope = pb_high.ControlEnvelope()
+envelope.type = pb_high.DO_AFE_RESET
+envelope.payload = request.SerializeToString()
+
+socket.send(envelope.SerializeToString())
+
+# Receive response
+response_bytes = socket.recv()
+responseEnvelope = pb_high.ControlEnvelope()
+responseEnvelope.ParseFromString(response_bytes)
+
+if responseEnvelope.type == pb_high.DO_AFE_RESET:
+    response = pb_low.cmd_doAFEReset_response()
+    response.ParseFromString(responseEnvelope.payload)
+    print("Success:", response.success)
+    print("Message:", response.message)
+
+#---------------------------------------
 
 request = pb_low.cmd_setAFEPowerState()
-request.powerState = True
+request.powerState = False
 envelope = pb_high.ControlEnvelope()
 envelope.type = pb_high.SET_AFE_POWERSTATE
 envelope.payload = request.SerializeToString()
@@ -112,6 +131,53 @@ if responseEnvelope.type == pb_high.SET_AFE_POWERSTATE:
 
 
 for afe in range(5):
+
+    request = pb_low.cmd_writeAFEFunction()
+    request.afeBlock = afe
+    request.function = 'SERIALIZED_DATA_RATE'
+    request.configValue = 1
+    envelope = pb_high.ControlEnvelope()
+    envelope.type = pb_high.WRITE_AFE_FUNCTION
+    envelope.payload = request.SerializeToString()
+
+    socket.send(envelope.SerializeToString())
+
+    # Receive response
+    response_bytes = socket.recv()
+    responseEnvelope = pb_high.ControlEnvelope()
+    responseEnvelope.ParseFromString(response_bytes)
+
+    if responseEnvelope.type == pb_high.WRITE_AFE_FUNCTION:
+        response = pb_low.cmd_writeAFEFunction_response()
+        response.ParseFromString(responseEnvelope.payload)
+        print("Success:", response.success)
+        print("Message:", response.message)
+
+    #---------------------------------------
+
+    request = pb_low.cmd_writeAFEFunction()
+    request.afeBlock = afe
+    request.function = 'ADC_OUTPUT_FORMAT'
+    request.configValue = 1
+    envelope = pb_high.ControlEnvelope()
+    envelope.type = pb_high.WRITE_AFE_FUNCTION
+    envelope.payload = request.SerializeToString()
+
+    socket.send(envelope.SerializeToString())
+
+    # Receive response
+    response_bytes = socket.recv()
+    responseEnvelope = pb_high.ControlEnvelope()
+    responseEnvelope.ParseFromString(response_bytes)
+
+    if responseEnvelope.type == pb_high.WRITE_AFE_FUNCTION:
+        response = pb_low.cmd_writeAFEFunction_response()
+        response.ParseFromString(responseEnvelope.payload)
+        print("Success:", response.success)
+        print("Message:", response.message)
+
+    #---------------------------------------
+
     request = pb_low.cmd_writeAFEFunction()
     request.afeBlock = afe
     request.function = 'LPF_PROGRAMMABILITY'
@@ -278,6 +344,24 @@ for afe in range(5):
         print("Success:", response.success)
         print("Message:", response.message)
     
+request = pb_low.cmd_setAFEPowerState()
+request.powerState = True
+envelope = pb_high.ControlEnvelope()
+envelope.type = pb_high.SET_AFE_POWERSTATE
+envelope.payload = request.SerializeToString()
+
+socket.send(envelope.SerializeToString())
+
+# Receive response
+response_bytes = socket.recv()
+responseEnvelope = pb_high.ControlEnvelope()
+responseEnvelope.ParseFromString(response_bytes)
+
+if responseEnvelope.type == pb_high.SET_AFE_POWERSTATE:
+    response = pb_low.cmd_setAFEPowerState_response()
+    response.ParseFromString(responseEnvelope.payload)
+    print("Success:", response.success)
+    print("Message:", response.message)
 
 if align_afes:
     request = pb_low.cmd_alignAFEs()

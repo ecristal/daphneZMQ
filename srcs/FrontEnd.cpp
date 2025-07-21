@@ -8,12 +8,16 @@ FrontEnd::~FrontEnd(){}
 uint32_t FrontEnd::doResetDelayCtrl(){
 
 	this->fpgaReg->setBits("frontendControl", "DELAYCTRL_RESET", 1);
+	// add delay to ensure the reset is applied
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
     return this->fpgaReg->setBits("frontendControl", "DELAYCTRL_RESET", 0);
 }
 
 uint32_t FrontEnd::doResetSerDesCtrl(){
 
 	this->fpgaReg->setBits("frontendControl", "SERDES_RESET", 1);
+	// add delay to ensure the reset is applied
+	std::this_thread::sleep_for(std::chrono::milliseconds(10));
     return this->fpgaReg->setBits("frontendControl", "SERDES_RESET", 0);
 }
 

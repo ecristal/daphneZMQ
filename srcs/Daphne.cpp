@@ -119,7 +119,7 @@ int Daphne::findIndex(const std::vector<T>& data, const T& target){
 uint32_t Daphne::setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps){
 
 	std::vector<uint32_t> data = this->scanGeneric( afe,
-												   "delay",
+												   "bitslip",
 												    bitslipTaps,
 												    [this](const uint32_t& a, const uint32_t& b) { return this->frontend->setBitslip(a, b);}
 												    );
