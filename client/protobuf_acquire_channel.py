@@ -15,11 +15,13 @@ from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
 from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
 
 parser = argparse.ArgumentParser(description="Acquisition of waveforms.")
+parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
+parser.add_argument("-port", type=int, required=False, default=9000, help="Port number of DAPHNE.")
 parser.add_argument("-channel", type=int, required=True, help="0-39")
 parser.add_argument("-filename", type=str, required=True, help="File location")
 parser.add_argument("-N", type=int, required=True, help="Number of waveform")
 parser.add_argument("-L", type=int, required=True, help="Length of waveform")
-parser.add_argument("-software_trigger", type=bool, required=False, help="Enables software trigger.")
+parser.add_argument("-software_trigger", action='store_true', help="Enables software trigger.")
 
 # Parse arguments
 args = parser.parse_args()
@@ -32,7 +34,8 @@ fig, ax = plt.subplots()
 y = np.zeros(args.L)
 
 socket = context.socket(zmq.REQ)
-socket.connect("tcp://193.206.157.36:9000")
+ip_addr = "tcp://{}:{}".format(args.ip, args.port)
+socket.connect(ip_addr)
 channel = args.channel
 filename = args.filename
 number_of_waveforms = args.N
