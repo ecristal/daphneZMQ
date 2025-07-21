@@ -53,14 +53,14 @@ struct TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto {
 extern "C" {
 extern const ::google::protobuf::internal::DescriptorTable descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto;
 }  // extern "C"
-class cmd_alignAFE;
-struct cmd_alignAFEDefaultTypeInternal;
-extern cmd_alignAFEDefaultTypeInternal _cmd_alignAFE_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull cmd_alignAFE_class_data_;
-class cmd_alignAFE_response;
-struct cmd_alignAFE_responseDefaultTypeInternal;
-extern cmd_alignAFE_responseDefaultTypeInternal _cmd_alignAFE_response_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull cmd_alignAFE_response_class_data_;
+class cmd_alignAFEs;
+struct cmd_alignAFEsDefaultTypeInternal;
+extern cmd_alignAFEsDefaultTypeInternal _cmd_alignAFEs_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull cmd_alignAFEs_class_data_;
+class cmd_alignAFEs_response;
+struct cmd_alignAFEs_responseDefaultTypeInternal;
+extern cmd_alignAFEs_responseDefaultTypeInternal _cmd_alignAFEs_response_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull cmd_alignAFEs_response_class_data_;
 class cmd_doAFEReset;
 struct cmd_doAFEResetDefaultTypeInternal;
 extern cmd_doAFEResetDefaultTypeInternal _cmd_doAFEReset_default_instance_;
@@ -12165,30 +12165,30 @@ class cmd_doAFEReset final : public ::google::protobuf::internal::ZeroFieldsBase
 extern const ::google::protobuf::internal::ClassDataFull cmd_doAFEReset_class_data_;
 // -------------------------------------------------------------------
 
-class cmd_alignAFE_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_alignAFE_response) */ {
+class cmd_alignAFEs_response final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:cmd_alignAFEs_response) */ {
  public:
-  inline cmd_alignAFE_response() : cmd_alignAFE_response(nullptr) {}
-  ~cmd_alignAFE_response() PROTOBUF_FINAL;
+  inline cmd_alignAFEs_response() : cmd_alignAFEs_response(nullptr) {}
+  ~cmd_alignAFEs_response() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(cmd_alignAFE_response* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+  void operator delete(cmd_alignAFEs_response* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(cmd_alignAFE_response));
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(cmd_alignAFEs_response));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR cmd_alignAFE_response(::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR cmd_alignAFEs_response(::google::protobuf::internal::ConstantInitialized);
 
-  inline cmd_alignAFE_response(const cmd_alignAFE_response& from) : cmd_alignAFE_response(nullptr, from) {}
-  inline cmd_alignAFE_response(cmd_alignAFE_response&& from) noexcept
-      : cmd_alignAFE_response(nullptr, std::move(from)) {}
-  inline cmd_alignAFE_response& operator=(const cmd_alignAFE_response& from) {
+  inline cmd_alignAFEs_response(const cmd_alignAFEs_response& from) : cmd_alignAFEs_response(nullptr, from) {}
+  inline cmd_alignAFEs_response(cmd_alignAFEs_response&& from) noexcept
+      : cmd_alignAFEs_response(nullptr, std::move(from)) {}
+  inline cmd_alignAFEs_response& operator=(const cmd_alignAFEs_response& from) {
     CopyFrom(from);
     return *this;
   }
-  inline cmd_alignAFE_response& operator=(cmd_alignAFE_response&& from) noexcept {
+  inline cmd_alignAFEs_response& operator=(cmd_alignAFEs_response&& from) noexcept {
     if (this == &from) return *this;
     if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
       InternalSwap(&from);
@@ -12216,13 +12216,13 @@ class cmd_alignAFE_response final : public ::google::protobuf::Message
   static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const cmd_alignAFE_response& default_instance() {
-    return *reinterpret_cast<const cmd_alignAFE_response*>(
-        &_cmd_alignAFE_response_default_instance_);
+  static const cmd_alignAFEs_response& default_instance() {
+    return *reinterpret_cast<const cmd_alignAFEs_response*>(
+        &_cmd_alignAFEs_response_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 53;
-  friend void swap(cmd_alignAFE_response& a, cmd_alignAFE_response& b) { a.Swap(&b); }
-  inline void Swap(cmd_alignAFE_response* PROTOBUF_NONNULL other) {
+  friend void swap(cmd_alignAFEs_response& a, cmd_alignAFEs_response& b) { a.Swap(&b); }
+  inline void Swap(cmd_alignAFEs_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -12230,7 +12230,7 @@ class cmd_alignAFE_response final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(cmd_alignAFE_response* PROTOBUF_NONNULL other) {
+  void UnsafeArenaSwap(cmd_alignAFEs_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -12238,13 +12238,13 @@ class cmd_alignAFE_response final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  cmd_alignAFE_response* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<cmd_alignAFE_response>(arena);
+  cmd_alignAFEs_response* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<cmd_alignAFEs_response>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const cmd_alignAFE_response& from);
+  void CopyFrom(const cmd_alignAFEs_response& from);
   using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const cmd_alignAFE_response& from) { cmd_alignAFE_response::MergeImpl(*this, from); }
+  void MergeFrom(const cmd_alignAFEs_response& from) { cmd_alignAFEs_response::MergeImpl(*this, from); }
 
   private:
   static void MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -12280,18 +12280,18 @@ class cmd_alignAFE_response final : public ::google::protobuf::Message
   private:
   void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(cmd_alignAFE_response* PROTOBUF_NONNULL other);
+  void InternalSwap(cmd_alignAFEs_response* PROTOBUF_NONNULL other);
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_alignAFE_response"; }
+  static ::absl::string_view FullMessageName() { return "cmd_alignAFEs_response"; }
 
  protected:
-  explicit cmd_alignAFE_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  cmd_alignAFE_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_alignAFE_response& from);
-  cmd_alignAFE_response(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, cmd_alignAFE_response&& from) noexcept
-      : cmd_alignAFE_response(arena) {
+  explicit cmd_alignAFEs_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  cmd_alignAFEs_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_alignAFEs_response& from);
+  cmd_alignAFEs_response(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, cmd_alignAFEs_response&& from) noexcept
+      : cmd_alignAFEs_response(arena) {
     *this = ::std::move(from);
   }
   const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
@@ -12308,13 +12308,48 @@ class cmd_alignAFE_response final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kMessageFieldNumber = 5,
+    kDelayFieldNumber = 2,
+    kBitslipFieldNumber = 3,
+    kMessageFieldNumber = 4,
     kSuccessFieldNumber = 1,
-    kAfeFieldNumber = 2,
-    kDelayFieldNumber = 3,
-    kBitslipFieldNumber = 4,
   };
-  // string message = 5;
+  // repeated uint32 delay = 2;
+  int delay_size() const;
+  private:
+  int _internal_delay_size() const;
+
+  public:
+  void clear_delay() ;
+  ::uint32_t delay(int index) const;
+  void set_delay(int index, ::uint32_t value);
+  void add_delay(::uint32_t value);
+  const ::google::protobuf::RepeatedField<::uint32_t>& delay() const;
+  ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL mutable_delay();
+
+  private:
+  const ::google::protobuf::RepeatedField<::uint32_t>& _internal_delay() const;
+  ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL _internal_mutable_delay();
+
+  public:
+  // repeated uint32 bitslip = 3;
+  int bitslip_size() const;
+  private:
+  int _internal_bitslip_size() const;
+
+  public:
+  void clear_bitslip() ;
+  ::uint32_t bitslip(int index) const;
+  void set_bitslip(int index, ::uint32_t value);
+  void add_bitslip(::uint32_t value);
+  const ::google::protobuf::RepeatedField<::uint32_t>& bitslip() const;
+  ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL mutable_bitslip();
+
+  private:
+  const ::google::protobuf::RepeatedField<::uint32_t>& _internal_bitslip() const;
+  ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL _internal_mutable_bitslip();
+
+  public:
+  // string message = 4;
   void clear_message() ;
   const std::string& message() const;
   template <typename Arg_ = const std::string&, typename... Args_>
@@ -12339,42 +12374,12 @@ class cmd_alignAFE_response final : public ::google::protobuf::Message
   void _internal_set_success(bool value);
 
   public:
-  // uint32 afe = 2;
-  void clear_afe() ;
-  ::uint32_t afe() const;
-  void set_afe(::uint32_t value);
-
-  private:
-  ::uint32_t _internal_afe() const;
-  void _internal_set_afe(::uint32_t value);
-
-  public:
-  // uint32 delay = 3;
-  void clear_delay() ;
-  ::uint32_t delay() const;
-  void set_delay(::uint32_t value);
-
-  private:
-  ::uint32_t _internal_delay() const;
-  void _internal_set_delay(::uint32_t value);
-
-  public:
-  // uint32 bitslip = 4;
-  void clear_bitslip() ;
-  ::uint32_t bitslip() const;
-  void set_bitslip(::uint32_t value);
-
-  private:
-  ::uint32_t _internal_bitslip() const;
-  void _internal_set_bitslip(::uint32_t value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:cmd_alignAFE_response)
+  // @@protoc_insertion_point(class_scope:cmd_alignAFEs_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<3, 5,
-                                   0, 37,
+  static const ::google::protobuf::internal::TcParseTable<2, 4,
+                                   0, 38,
                                    2>
       _table_;
 
@@ -12392,47 +12397,47 @@ class cmd_alignAFE_response final : public ::google::protobuf::Message
     inline explicit Impl_(
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const cmd_alignAFE_response& from_msg);
+        const cmd_alignAFEs_response& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::RepeatedField<::uint32_t> delay_;
+    ::google::protobuf::internal::CachedSize _delay_cached_byte_size_;
+    ::google::protobuf::RepeatedField<::uint32_t> bitslip_;
+    ::google::protobuf::internal::CachedSize _bitslip_cached_byte_size_;
     ::google::protobuf::internal::ArenaStringPtr message_;
     bool success_;
-    ::uint32_t afe_;
-    ::uint32_t delay_;
-    ::uint32_t bitslip_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
   friend struct ::TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto;
 };
 
-extern const ::google::protobuf::internal::ClassDataFull cmd_alignAFE_response_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull cmd_alignAFEs_response_class_data_;
 // -------------------------------------------------------------------
 
-class cmd_alignAFE final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_alignAFE) */ {
+class cmd_alignAFEs final : public ::google::protobuf::internal::ZeroFieldsBase
+/* @@protoc_insertion_point(class_definition:cmd_alignAFEs) */ {
  public:
-  inline cmd_alignAFE() : cmd_alignAFE(nullptr) {}
-  ~cmd_alignAFE() PROTOBUF_FINAL;
+  inline cmd_alignAFEs() : cmd_alignAFEs(nullptr) {}
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(cmd_alignAFE* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+  void operator delete(cmd_alignAFEs* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(cmd_alignAFE));
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(cmd_alignAFEs));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR cmd_alignAFE(::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR cmd_alignAFEs(::google::protobuf::internal::ConstantInitialized);
 
-  inline cmd_alignAFE(const cmd_alignAFE& from) : cmd_alignAFE(nullptr, from) {}
-  inline cmd_alignAFE(cmd_alignAFE&& from) noexcept
-      : cmd_alignAFE(nullptr, std::move(from)) {}
-  inline cmd_alignAFE& operator=(const cmd_alignAFE& from) {
+  inline cmd_alignAFEs(const cmd_alignAFEs& from) : cmd_alignAFEs(nullptr, from) {}
+  inline cmd_alignAFEs(cmd_alignAFEs&& from) noexcept
+      : cmd_alignAFEs(nullptr, std::move(from)) {}
+  inline cmd_alignAFEs& operator=(const cmd_alignAFEs& from) {
     CopyFrom(from);
     return *this;
   }
-  inline cmd_alignAFE& operator=(cmd_alignAFE&& from) noexcept {
+  inline cmd_alignAFEs& operator=(cmd_alignAFEs&& from) noexcept {
     if (this == &from) return *this;
     if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
       InternalSwap(&from);
@@ -12460,13 +12465,13 @@ class cmd_alignAFE final : public ::google::protobuf::Message
   static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const cmd_alignAFE& default_instance() {
-    return *reinterpret_cast<const cmd_alignAFE*>(
-        &_cmd_alignAFE_default_instance_);
+  static const cmd_alignAFEs& default_instance() {
+    return *reinterpret_cast<const cmd_alignAFEs*>(
+        &_cmd_alignAFEs_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 52;
-  friend void swap(cmd_alignAFE& a, cmd_alignAFE& b) { a.Swap(&b); }
-  inline void Swap(cmd_alignAFE* PROTOBUF_NONNULL other) {
+  friend void swap(cmd_alignAFEs& a, cmd_alignAFEs& b) { a.Swap(&b); }
+  inline void Swap(cmd_alignAFEs* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -12474,7 +12479,7 @@ class cmd_alignAFE final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(cmd_alignAFE* PROTOBUF_NONNULL other) {
+  void UnsafeArenaSwap(cmd_alignAFEs* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -12482,60 +12487,33 @@ class cmd_alignAFE final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  cmd_alignAFE* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<cmd_alignAFE>(arena);
+  cmd_alignAFEs* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::internal::ZeroFieldsBase::DefaultConstruct<cmd_alignAFEs>(arena);
   }
-  using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const cmd_alignAFE& from);
-  using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const cmd_alignAFE& from) { cmd_alignAFE::MergeImpl(*this, from); }
-
-  private:
-  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
-                        const ::google::protobuf::MessageLite& from_msg);
+  using ::google::protobuf::internal::ZeroFieldsBase::CopyFrom;
+  inline void CopyFrom(const cmd_alignAFEs& from) {
+    ::google::protobuf::internal::ZeroFieldsBase::CopyImpl(*this, from);
+  }
+  using ::google::protobuf::internal::ZeroFieldsBase::MergeFrom;
+  void MergeFrom(const cmd_alignAFEs& from) {
+    ::google::protobuf::internal::ZeroFieldsBase::MergeImpl(*this, from);
+  }
 
   public:
   bool IsInitialized() const {
     return true;
   }
-  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
-  #if defined(PROTOBUF_CUSTOM_VTABLE)
-  private:
-  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
-  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
-
-  public:
-  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-    return _InternalSerialize(*this, target, stream);
-  }
-  #else   // PROTOBUF_CUSTOM_VTABLE
-  ::size_t ByteSizeLong() const final;
-  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
-      ::uint8_t* PROTOBUF_NONNULL target,
-      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
-  #endif  // PROTOBUF_CUSTOM_VTABLE
-  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
-
-  private:
-  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  static void SharedDtor(MessageLite& self);
-  void InternalSwap(cmd_alignAFE* PROTOBUF_NONNULL other);
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_alignAFE"; }
+  static ::absl::string_view FullMessageName() { return "cmd_alignAFEs"; }
 
  protected:
-  explicit cmd_alignAFE(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  cmd_alignAFE(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_alignAFE& from);
-  cmd_alignAFE(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, cmd_alignAFE&& from) noexcept
-      : cmd_alignAFE(arena) {
+  explicit cmd_alignAFEs(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  cmd_alignAFEs(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_alignAFEs& from);
+  cmd_alignAFEs(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, cmd_alignAFEs&& from) noexcept
+      : cmd_alignAFEs(arena) {
     *this = ::std::move(from);
   }
   const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
@@ -12551,24 +12529,11 @@ class cmd_alignAFE final : public ::google::protobuf::Message
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
-  enum : int {
-    kAfeFieldNumber = 1,
-  };
-  // uint32 afe = 1;
-  void clear_afe() ;
-  ::uint32_t afe() const;
-  void set_afe(::uint32_t value);
-
-  private:
-  ::uint32_t _internal_afe() const;
-  void _internal_set_afe(::uint32_t value);
-
-  public:
-  // @@protoc_insertion_point(class_scope:cmd_alignAFE)
+  // @@protoc_insertion_point(class_scope:cmd_alignAFEs)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
+  static const ::google::protobuf::internal::TcParseTable<0, 0,
                                    0, 0,
                                    2>
       _table_;
@@ -12587,17 +12552,13 @@ class cmd_alignAFE final : public ::google::protobuf::Message
     inline explicit Impl_(
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const cmd_alignAFE& from_msg);
-    ::google::protobuf::internal::HasBits<1> _has_bits_;
-    ::google::protobuf::internal::CachedSize _cached_size_;
-    ::uint32_t afe_;
+        const cmd_alignAFEs& from_msg);
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
-  union { Impl_ _impl_; };
   friend struct ::TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto;
 };
 
-extern const ::google::protobuf::internal::ClassDataFull cmd_alignAFE_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull cmd_alignAFEs_class_data_;
 
 // ===================================================================
 
@@ -17383,173 +17344,169 @@ inline void cmd_setAFEPowerState_response::_internal_set_powerstate(::uint32_t v
 
 // -------------------------------------------------------------------
 
-// cmd_alignAFE
-
-// uint32 afe = 1;
-inline void cmd_alignAFE::clear_afe() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.afe_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
-}
-inline ::uint32_t cmd_alignAFE::afe() const {
-  // @@protoc_insertion_point(field_get:cmd_alignAFE.afe)
-  return _internal_afe();
-}
-inline void cmd_alignAFE::set_afe(::uint32_t value) {
-  _internal_set_afe(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_alignAFE.afe)
-}
-inline ::uint32_t cmd_alignAFE::_internal_afe() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.afe_;
-}
-inline void cmd_alignAFE::_internal_set_afe(::uint32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.afe_ = value;
-}
+// cmd_alignAFEs
 
 // -------------------------------------------------------------------
 
-// cmd_alignAFE_response
+// cmd_alignAFEs_response
 
 // bool success = 1;
-inline void cmd_alignAFE_response::clear_success() {
+inline void cmd_alignAFEs_response::clear_success() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.success_ = false;
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
-inline bool cmd_alignAFE_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_alignAFE_response.success)
+inline bool cmd_alignAFEs_response::success() const {
+  // @@protoc_insertion_point(field_get:cmd_alignAFEs_response.success)
   return _internal_success();
 }
-inline void cmd_alignAFE_response::set_success(bool value) {
+inline void cmd_alignAFEs_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_alignAFE_response.success)
+  // @@protoc_insertion_point(field_set:cmd_alignAFEs_response.success)
 }
-inline bool cmd_alignAFE_response::_internal_success() const {
+inline bool cmd_alignAFEs_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.success_;
 }
-inline void cmd_alignAFE_response::_internal_set_success(bool value) {
+inline void cmd_alignAFEs_response::_internal_set_success(bool value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.success_ = value;
 }
 
-// uint32 afe = 2;
-inline void cmd_alignAFE_response::clear_afe() {
+// repeated uint32 delay = 2;
+inline int cmd_alignAFEs_response::_internal_delay_size() const {
+  return _internal_delay().size();
+}
+inline int cmd_alignAFEs_response::delay_size() const {
+  return _internal_delay_size();
+}
+inline void cmd_alignAFEs_response::clear_delay() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.afe_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_.delay_.Clear();
 }
-inline ::uint32_t cmd_alignAFE_response::afe() const {
-  // @@protoc_insertion_point(field_get:cmd_alignAFE_response.afe)
-  return _internal_afe();
+inline ::uint32_t cmd_alignAFEs_response::delay(int index) const {
+  // @@protoc_insertion_point(field_get:cmd_alignAFEs_response.delay)
+  return _internal_delay().Get(index);
 }
-inline void cmd_alignAFE_response::set_afe(::uint32_t value) {
-  _internal_set_afe(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_alignAFE_response.afe)
+inline void cmd_alignAFEs_response::set_delay(int index, ::uint32_t value) {
+  _internal_mutable_delay()->Set(index, value);
+  // @@protoc_insertion_point(field_set:cmd_alignAFEs_response.delay)
 }
-inline ::uint32_t cmd_alignAFE_response::_internal_afe() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.afe_;
-}
-inline void cmd_alignAFE_response::_internal_set_afe(::uint32_t value) {
+inline void cmd_alignAFEs_response::add_delay(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.afe_ = value;
+  _internal_mutable_delay()->Add(value);
+  // @@protoc_insertion_point(field_add:cmd_alignAFEs_response.delay)
 }
-
-// uint32 delay = 3;
-inline void cmd_alignAFE_response::clear_delay() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.delay_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000008u;
-}
-inline ::uint32_t cmd_alignAFE_response::delay() const {
-  // @@protoc_insertion_point(field_get:cmd_alignAFE_response.delay)
+inline const ::google::protobuf::RepeatedField<::uint32_t>& cmd_alignAFEs_response::delay() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:cmd_alignAFEs_response.delay)
   return _internal_delay();
 }
-inline void cmd_alignAFE_response::set_delay(::uint32_t value) {
-  _internal_set_delay(value);
-  _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_alignAFE_response.delay)
+inline ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL cmd_alignAFEs_response::mutable_delay()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:cmd_alignAFEs_response.delay)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_delay();
 }
-inline ::uint32_t cmd_alignAFE_response::_internal_delay() const {
+inline const ::google::protobuf::RepeatedField<::uint32_t>&
+cmd_alignAFEs_response::_internal_delay() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.delay_;
 }
-inline void cmd_alignAFE_response::_internal_set_delay(::uint32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.delay_ = value;
+inline ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL
+cmd_alignAFEs_response::_internal_mutable_delay() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.delay_;
 }
 
-// uint32 bitslip = 4;
-inline void cmd_alignAFE_response::clear_bitslip() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.bitslip_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000010u;
+// repeated uint32 bitslip = 3;
+inline int cmd_alignAFEs_response::_internal_bitslip_size() const {
+  return _internal_bitslip().size();
 }
-inline ::uint32_t cmd_alignAFE_response::bitslip() const {
-  // @@protoc_insertion_point(field_get:cmd_alignAFE_response.bitslip)
+inline int cmd_alignAFEs_response::bitslip_size() const {
+  return _internal_bitslip_size();
+}
+inline void cmd_alignAFEs_response::clear_bitslip() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.bitslip_.Clear();
+}
+inline ::uint32_t cmd_alignAFEs_response::bitslip(int index) const {
+  // @@protoc_insertion_point(field_get:cmd_alignAFEs_response.bitslip)
+  return _internal_bitslip().Get(index);
+}
+inline void cmd_alignAFEs_response::set_bitslip(int index, ::uint32_t value) {
+  _internal_mutable_bitslip()->Set(index, value);
+  // @@protoc_insertion_point(field_set:cmd_alignAFEs_response.bitslip)
+}
+inline void cmd_alignAFEs_response::add_bitslip(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _internal_mutable_bitslip()->Add(value);
+  // @@protoc_insertion_point(field_add:cmd_alignAFEs_response.bitslip)
+}
+inline const ::google::protobuf::RepeatedField<::uint32_t>& cmd_alignAFEs_response::bitslip() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_list:cmd_alignAFEs_response.bitslip)
   return _internal_bitslip();
 }
-inline void cmd_alignAFE_response::set_bitslip(::uint32_t value) {
-  _internal_set_bitslip(value);
-  _impl_._has_bits_[0] |= 0x00000010u;
-  // @@protoc_insertion_point(field_set:cmd_alignAFE_response.bitslip)
+inline ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL cmd_alignAFEs_response::mutable_bitslip()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_mutable_list:cmd_alignAFEs_response.bitslip)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _internal_mutable_bitslip();
 }
-inline ::uint32_t cmd_alignAFE_response::_internal_bitslip() const {
+inline const ::google::protobuf::RepeatedField<::uint32_t>&
+cmd_alignAFEs_response::_internal_bitslip() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.bitslip_;
 }
-inline void cmd_alignAFE_response::_internal_set_bitslip(::uint32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.bitslip_ = value;
+inline ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL
+cmd_alignAFEs_response::_internal_mutable_bitslip() {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return &_impl_.bitslip_;
 }
 
-// string message = 5;
-inline void cmd_alignAFE_response::clear_message() {
+// string message = 4;
+inline void cmd_alignAFEs_response::clear_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.message_.ClearToEmpty();
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string& cmd_alignAFE_response::message() const
+inline const std::string& cmd_alignAFEs_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_alignAFE_response.message)
+  // @@protoc_insertion_point(field_get:cmd_alignAFEs_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void cmd_alignAFE_response::set_message(Arg_&& arg, Args_... args) {
+PROTOBUF_ALWAYS_INLINE void cmd_alignAFEs_response::set_message(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_alignAFE_response.message)
+  // @@protoc_insertion_point(field_set:cmd_alignAFEs_response.message)
 }
-inline std::string* PROTOBUF_NONNULL cmd_alignAFE_response::mutable_message()
+inline std::string* PROTOBUF_NONNULL cmd_alignAFEs_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_alignAFE_response.message)
+  // @@protoc_insertion_point(field_mutable:cmd_alignAFEs_response.message)
   return _s;
 }
-inline const std::string& cmd_alignAFE_response::_internal_message() const {
+inline const std::string& cmd_alignAFEs_response::_internal_message() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.message_.Get();
 }
-inline void cmd_alignAFE_response::_internal_set_message(const std::string& value) {
+inline void cmd_alignAFEs_response::_internal_set_message(const std::string& value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(value, GetArena());
 }
-inline std::string* PROTOBUF_NONNULL cmd_alignAFE_response::_internal_mutable_message() {
+inline std::string* PROTOBUF_NONNULL cmd_alignAFEs_response::_internal_mutable_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   return _impl_.message_.Mutable( GetArena());
 }
-inline std::string* PROTOBUF_NULLABLE cmd_alignAFE_response::release_message() {
+inline std::string* PROTOBUF_NULLABLE cmd_alignAFEs_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_alignAFE_response.message)
+  // @@protoc_insertion_point(field_release:cmd_alignAFEs_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -17560,7 +17517,7 @@ inline std::string* PROTOBUF_NULLABLE cmd_alignAFE_response::release_message() {
   }
   return released;
 }
-inline void cmd_alignAFE_response::set_allocated_message(std::string* PROTOBUF_NULLABLE value) {
+inline void cmd_alignAFEs_response::set_allocated_message(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
@@ -17571,7 +17528,7 @@ inline void cmd_alignAFE_response::set_allocated_message(std::string* PROTOBUF_N
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_alignAFE_response.message)
+  // @@protoc_insertion_point(field_set_allocated:cmd_alignAFEs_response.message)
 }
 
 // -------------------------------------------------------------------

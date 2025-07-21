@@ -79,6 +79,7 @@ uint32_t reg::ReadBits(const std::string &RegName, const std::string &BitName, c
 		uint32_t RegAddr_ = std::get<0>(RegAddr);
 		int BitRangeL = std::get<2>(RegAddr);
 		int BitRangeH = std::get<1>(RegAddr);
+		//std::cout << "Reading " << RegName << std::hex << " Addr: 0x" << 0x80000000+RegAddr_+Offset << std::endl;
 		
 		const uint32_t* value_ptr = this->RegMem->get_read_ptr((size_t)(RegAddr_ + Offset), 1);
 		uint32_t value = *value_ptr;

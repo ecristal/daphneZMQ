@@ -56,3 +56,12 @@ uint32_t FrontEnd::getBitslip(const uint8_t& afe){
 
 	return this->fpgaReg->getBits("frontendBitslip_" + std::to_string(afe), "BITSLIP");
 }
+
+uint32_t FrontEnd::resetDelayCtrlValues(){
+	int afeNum = 5;
+	for(int afe = 0; afe < afeNum; afe++){
+		this->setBitslip(afe, 0);
+		this->setDelay(afe, 0);
+	}
+	return 0;
+}

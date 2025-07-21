@@ -275,30 +275,30 @@ for afe in range(5):
         print("Message:", response.message)
     socket.close()
 
-for afe in range(5):
-    request = pb_low.cmd_alignAFE()
-    request.afe = afe
-    envelope = pb_high.ControlEnvelope()
-    envelope.type = pb_high.ALIGN_AFE
-    envelope.payload = request.SerializeToString()
 
-    # Send via ZMQ
-    context = zmq.Context()
-    socket = context.socket(zmq.REQ)
-    socket.connect("tcp://193.206.157.36:9000")
-    socket.send(envelope.SerializeToString())
+request = pb_low.cmd_alignAFEs()
+#request.afe = afe
+envelope = pb_high.ControlEnvelope()
+envelope.type = pb_high.ALIGN_AFE
+envelope.payload = request.SerializeToString()
 
-    # Receive response
-    response_bytes = socket.recv()
-    responseEnvelope = pb_high.ControlEnvelope()
-    responseEnvelope.ParseFromString(response_bytes)
+# Send via ZMQ
+context = zmq.Context()
+socket = context.socket(zmq.REQ)
+socket.connect("tcp://193.206.157.36:9000")
+socket.send(envelope.SerializeToString())
 
-    if responseEnvelope.type == pb_high.ALIGN_AFE:
-        response = pb_low.cmd_alignAFE_response()
-        response.ParseFromString(responseEnvelope.payload)
-        print("Success:", response.success)
-        print("Message:", response.message)
-    socket.close()
+# Receive response
+response_bytes = socket.recv()
+responseEnvelope = pb_high.ControlEnvelope()
+responseEnvelope.ParseFromString(response_bytes)
+
+if responseEnvelope.type == pb_high.ALIGN_AFE:
+    response = pb_low.cmd_alignAFEs_response()
+    response.ParseFromString(responseEnvelope.payload)
+    print("Success:", response.success)
+    print("Message:", response.message)
+socket.close()
 
 request = pb_low.cmd_doSoftwareTrigger()
 envelope = pb_high.ControlEnvelope()

@@ -92,7 +92,7 @@ uint32_t Afe::setAFEFunction(const uint32_t& afe, const std::string& functionNam
 	int len_options = available_options.size();
 	if(len_options == 2){
 		if(value >= available_options[0] && value <= available_options[1]){
-			std::cout << "Value is in range." << std::endl;
+			//std::cout << "Value is in range." << std::endl;
 		}else{
 			throw std::invalid_argument("Invalid value " + std::to_string(value) + " for AFE function name " + functionName + 
 			                            ".\nThe expected range is " + std::to_string(available_options[0]) + " - " + std::to_string(available_options[1]));

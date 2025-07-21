@@ -9,7 +9,7 @@ SpyBuffer::~SpyBuffer(){}
 
 uint32_t SpyBuffer::getFrameClock(const uint32_t& afe, const uint32_t& sample){
 
-	return this->fpgaReg->getBits("spyBuffer_" + std::to_string(afe) + "_8", "DATA", sample*4);
+	return this->fpgaReg->getBits("spyBuffer_" + std::to_string(afe) + "_8", "DATA", sample);
 }
 
 uint32_t SpyBuffer::getData(const uint32_t& sample) const{

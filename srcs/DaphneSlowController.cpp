@@ -266,23 +266,31 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse 
     return true;
 }
 
-bool alignAFE(const cmd_alignAFE &request, cmd_alignAFE_response &response, Daphne &daphne, std::string &response_str){
+bool alignAFE(const cmd_alignAFEs &request, cmd_alignAFEs_response &response, Daphne &daphne, std::string &response_str){
     try {
-        uint32_t afe = request.afe();
-        if(afe > 4) throw std::invalid_argument("The AFE value " + std::to_string(afe) + " is out of range. Range 0-4");
+        uint32_t afeNum = 5;
+        std::vector<uint32_t> delay = {0, 0, 0, 0, 0};
+        std::vector<uint32_t> bitslip = {0, 0, 0, 0, 0};
+        std::string response_str_ = "";
+        //if(afe > 4) throw std::invalid_argument("The AFE value " + std::to_string(afe) + " is out of range. Range 0-4");
+        daphne.getFrontEnd()->resetDelayCtrlValues();
         daphne.getFrontEnd()->doResetDelayCtrl();
         daphne.getFrontEnd()->doResetSerDesCtrl();
         daphne.getFrontEnd()->setEnableDelayVtc(0);
-        daphne.setBestDelay(afe);
-        daphne.setBestBitslip(afe);
+        for(int afe = 0; afe < afeNum; afe++){
+            daphne.setBestDelay(afe);
+            daphne.setBestBitslip(afe);
+            delay[afe] = daphne.getFrontEnd()->getDelay(afe);
+            bitslip[afe] = daphne.getFrontEnd()->getBitslip(afe);
+            response_str_ = response_str_ +
+                            "AFE_" + std::to_string(afe) + "\n" 
+                            "DELAY: " + std::to_string(delay[afe]) + "\n" + 
+                            "BITSLIP: " + std::to_string(bitslip[afe]) + "\n";
+        }
         daphne.getFrontEnd()->setEnableDelayVtc(1);
-        uint32_t delay = daphne.getFrontEnd()->getDelay(afe);
-        uint32_t bitslip = daphne.getFrontEnd()->getBitslip(afe);
-        response.set_delay(delay);
-        response.set_bitslip(bitslip);
-        response_str = "AFE number " + std::to_string(afe) + " aligned correctly.\n" +
-                        "DELAY: " + std::to_string(delay) + "\n" + 
-                        "BITSLIP: " + std::to_string(bitslip);
+        //response.set_delay(delay);
+        //response.set_bitslip(bitslip);
+        response_str = "AFEs alignAFE command executed correctly.\n" + response_str_;
     } catch (std::exception &e) {
         response_str = "Error aligning AFE: " + std::string(e.what());
         return false;
@@ -811,9 +819,9 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
         }
 
         case ALIGN_AFE: {
-            cmd_alignAFE cmd_request;
-            cmd_alignAFE_response cmd_response;
-            //std::cout << "The request is a cmd_alignAFE" << std::endl;
+            cmd_alignAFEs cmd_request;
+            cmd_alignAFEs_response cmd_response;
+            //std::cout << "The request is a cmd_alignAFEs" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
                 bool is_success = alignAFE(cmd_request, cmd_response, daphne, configure_message);
@@ -939,7 +947,7 @@ int main(int argc, char* argv[]) {
     std::string socket_ip_address = "tcp://" + ip_address + ":" + std::to_string(port); 
     try {
         socket.bind(socket_ip_address.c_str());
-        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_15" << std::endl;
+        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_16" << std::endl;
         std::cout << "ZMQ Reply socket initialized in " << socket_ip_address << std::endl;
     } catch (std::exception &e){
         std::cerr << "Error initializing ZMQ socket: " << e.what() << std::endl;

@@ -38,7 +38,7 @@ std::optional<std::pair<uint32_t, uint32_t>> Daphne::longestIdenticalSubsequence
 
 	uint32_t maxLength = 1;
 	uint32_t maxStartIndex = 0;
-	uint32_t currentLength = 0;
+	uint32_t currentLength = 1;
 	uint32_t currentStartIndex = 0;
 
 	for(int i = 1; i < nums.size(); i++){
@@ -70,7 +70,7 @@ std::optional<std::pair<uint32_t, uint32_t>> Daphne::longestIdenticalSubsequence
 
 std::vector<uint32_t> Daphne::scanGeneric(const uint32_t& afe,const std::string& what,const uint32_t& taps, std::function<uint32_t(const uint32_t&, const uint32_t&)> setFunc){
 
-	std::cout << "Scanning " + what << std::endl;
+	//std::cout << "Scanning " + what << std::endl;
 	std::vector<uint32_t> data(taps);
 	for(uint32_t i = 0; i < taps; i++){
 
@@ -92,15 +92,15 @@ uint32_t Daphne::setBestDelay(const uint32_t& afe, const size_t& delayTaps){
 												    );
 
 	std::optional<std::pair<uint32_t, uint32_t>> delays = this->longestIdenticalSubsequenceIndices(data);
-	uint32_t firstDelay = 0;
-	uint32_t lastDelay = 0;
+	float firstDelay = 0.0;
+	float lastDelay = 0.0;
 	if(delays.has_value()){
-		firstDelay = delays.value().first;
-		lastDelay = delays.value().second;
+		firstDelay = (float)delays.value().first;
+		lastDelay = (float)delays.value().second;
 	}else{
 		throw std::runtime_error("No delays available!");
 	}
-	uint32_t bestDelay = (uint32_t)(firstDelay + (lastDelay - firstDelay) / 2);
+	uint32_t bestDelay = (uint32_t)(firstDelay + ((lastDelay - firstDelay)/2.0));
 	return this->frontend->setDelay(afe, bestDelay);
 }
 
@@ -127,11 +127,11 @@ uint32_t Daphne::setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps){
 	if(bestBitslip == -1)
 		return 0;
 		//throw std::runtime_error("Failed to find best bitslip");
-	std::cout << "Optimun bitslip: 0x" << std::hex << bestBitslip << std::endl;
+	//std::cout << "Optimun bitslip: 0x" << std::hex << bestBitslip << std::endl;
 	this->frontend->setBitslip(afe, (uint32_t)bestBitslip);
 	this->frontend->doTrigger();
 	uint32_t value = this->spyBuffer->getFrameClock(afe, 8);
-	std::cout << "Read opt bitslip: 0x" << std::hex << value << std::endl;
+	//std::cout << "Read opt bitslip: 0x" << std::hex << value << std::endl;
 	return value;
 }
 

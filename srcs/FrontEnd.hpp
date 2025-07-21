@@ -32,6 +32,7 @@ public:
     uint32_t getDelay(const uint8_t& afe);
     uint32_t setBitslip(const uint8_t& afe,const uint32_t& bitslip);
     uint32_t getBitslip(const uint8_t& afe);
+    uint32_t resetDelayCtrlValues();
 
 private:
     std::unique_ptr<FpgaReg> fpgaReg;

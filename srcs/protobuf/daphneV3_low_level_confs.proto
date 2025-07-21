@@ -298,16 +298,13 @@ message cmd_setAFEPowerState_response {
 	uint32 powerState = 3;
 }
 
-message cmd_alignAFE {
-  	uint32 afe = 1;
-}
+message cmd_alignAFEs {}
 
-message cmd_alignAFE_response {
+message cmd_alignAFEs_response {
 	bool success = 1;
-	uint32 afe = 2;
-	uint32 delay = 3;
-	uint32 bitslip = 4;
-	string message = 5;
+	repeated uint32 delay = 2;
+	repeated uint32 bitslip = 3;
+	string message = 4;
 }
 
 message cmd_writeAFEFunction {
