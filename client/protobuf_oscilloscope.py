@@ -105,7 +105,7 @@ while True:
 
     # DUMP SPYBUFFER
     request = pb_high.DumpSpyBuffersRequest()
-    request.channel = channel
+    request.channelList.append(channel)
     request.numberOfWaveforms = 1
     if software_trigger:
         request.softwareTrigger = True

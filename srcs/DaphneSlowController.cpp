@@ -241,37 +241,51 @@ bool writeBiasVoltageControl(const cmd_writeVbiasControl &request, Daphne &daphn
 
 bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse &response, Daphne &daphne, std::string &response_str){
     try {
-        uint32_t channel = request.channel();
+        
         uint32_t numberOfSamples = request.numberofsamples();
         uint32_t numberOfWaveforms = request.numberofwaveforms();
+        auto channelList = request.channellist();
+
+        for(int i=0; i<channelList.size(); ++i){
+            if(channelList[i] > 39) throw std::invalid_argument("The channel value " + std::to_string(channelList[i]) + " is out of range. Range 0-39");
+        }
+
         bool softwareTrigger = request.softwaretrigger();
-        if(channel > 39) throw std::invalid_argument("The channel value " + std::to_string(channel) + " is out of range. Range 0-39");
         if(numberOfSamples > 2048 || numberOfSamples < 1) throw std::invalid_argument("The number of samples value " + std::to_string(numberOfSamples) + " is out of range. Range 1-4096");
         
         auto* spyBuffer = daphne.getSpyBuffer();
         auto* frontEnd = daphne.getFrontEnd();
-        
-        response.mutable_data()->Resize(numberOfSamples*numberOfWaveforms, 0);
+
+        response.mutable_data()->Resize(numberOfSamples*numberOfWaveforms*channelList.size(), 0);
         google::protobuf::RepeatedField<uint32_t>* data_field = response.mutable_data();
         uint32_t* data_ptr = data_field->mutable_data();
         
-        daphne.getSpyBuffer()->setCurrentMappedChannelIndex(channel);
+        //daphne.getSpyBuffer()->setCurrentMappedChannelIndex(channel);
         // Let's calculate how much does it take to exxecute
         // the software trigger
-        std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+        //std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
         for(int j=0; j<numberOfWaveforms; ++j){
             if(softwareTrigger) {
                 frontEnd->doTrigger();
             }
-            uint32_t* waveform_start = data_ptr + j * numberOfSamples;
-            //spyBuffer->extractMappedDataBulk(waveform_start, numberOfSamples);
-            spyBuffer->extractMappedDataBulkSIMD(waveform_start, numberOfSamples);
-
+            for(int i=0; i<channelList.size(); ++i){
+                uint32_t channel = channelList[i];
+                spyBuffer->setCurrentMappedChannelIndex(channel);
+                //uint32_t* waveform_start = data_ptr + j*numberOfSamples*channelList.size() + i*numberOfSamples;
+                uint32_t* waveform_start = data_ptr + numberOfSamples*(j*channelList.size() + i);
+                spyBuffer->extractMappedDataBulkSIMD(waveform_start, numberOfSamples);
+            }
         }
-        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-        std::chrono::duration<double> elapsed = end - start;
-        std::cout << "Time taken to dump spybuffer: " << elapsed.count() << " seconds." << std::endl;
-        response.set_channel(channel);
+        //std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        //std::chrono::duration<double> elapsed = end - start;
+        //std::cout << "Time taken to dump spybuffer: " << elapsed.count() << " seconds." << std::endl;
+        auto* resp_channel_list = response.mutable_channellist();
+        resp_channel_list->Clear(); // ensure it's empty
+        resp_channel_list->Reserve(channelList.size()); // reserve space for speed (optional)
+        for(int i = 0; i < channelList.size(); ++i){
+            resp_channel_list->Add(channelList[i]);
+        }
+        
         response.set_numberofsamples(numberOfSamples);
         response.set_numberofwaveforms(numberOfWaveforms);
         //response_str = "Spybuffer channel " + std::to_string(channel) + " dumped correctly."
@@ -967,7 +981,7 @@ int main(int argc, char* argv[]) {
     std::string socket_ip_address = "tcp://" + ip_address + ":" + std::to_string(port); 
     try {
         socket.bind(socket_ip_address.c_str());
-        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_18" << std::endl;
+        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_20" << std::endl;
         std::cout << "ZMQ Reply socket initialized in " << socket_ip_address << std::endl;
     } catch (std::exception &e){
         std::cerr << "Error initializing ZMQ socket: " << e.what() << std::endl;

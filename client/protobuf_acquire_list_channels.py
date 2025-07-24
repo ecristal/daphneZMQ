@@ -17,8 +17,7 @@ from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
 parser = argparse.ArgumentParser(description="Acquisition of waveforms.")
 parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
 parser.add_argument("-port", type=int, required=False, default=9000, help="Port number of DAPHNE.")
-parser.add_argument("-channel", type=int, choices=range(0, 40), required=True, help="0-39")
-parser.add_argument("-filename", type=str, required=True, help="File location")
+parser.add_argument("-channel_list", type=int, nargs='+', choices=range(0, 40), required=True, help="List of channels (0-39). Example: 0 1 2 3")
 parser.add_argument("-N", type=int, required=True, help="Number of waveform")
 parser.add_argument("-L", type=int, required=True, help="Length of waveform")
 parser.add_argument("-software_trigger", action='store_true', help="Enables software trigger.")
@@ -38,14 +37,13 @@ y = np.zeros(args.L)
 socket = context.socket(zmq.REQ)
 ip_addr = "tcp://{}:{}".format(args.ip, args.port)
 socket.connect(ip_addr)
-channel = args.channel
-filename = args.filename
+channel_list = args.channel_list
 number_of_waveforms = args.N
 length_of_waveforms = args.L
 software_trigger = args.software_trigger
 
 if args.debug:
-    print(f"IP: {args.ip}, Port: {args.port}, Channel: {channel}, Filename: {filename}, N: {number_of_waveforms}, L: {length_of_waveforms}, Software Trigger: {software_trigger}")
+    print(f"IP: {args.ip}, Port: {args.port}, Channel: {channel_list}, N: {number_of_waveforms}, L: {length_of_waveforms}, Software Trigger: {software_trigger}")
     # Print execution time
     start_time = time.time()
 
@@ -71,7 +69,7 @@ if args.debug:
 
 # DUMP SPYBUFFER
 request = pb_high.DumpSpyBuffersRequest()
-request.channelList.append(channel)
+request.channelList.extend(channel_list)
 request.numberOfWaveforms = args.N
 if software_trigger:
     request.softwareTrigger = True
@@ -84,7 +82,7 @@ envelope.type = pb_high.DUMP_SPYBUFFER
 envelope.payload = request.SerializeToString()
 
 socket.send(envelope.SerializeToString())
-print(f"Request sent to DAPHNE to acquire {args.N} waveforms of length {length_of_waveforms} on channel {channel}. Software trigger: {software_trigger}")
+print(f"Request sent to DAPHNE to acquire {args.N} waveforms of length {length_of_waveforms} on channels {channel_list}. Software trigger: {software_trigger}")
 print("Waiting for response...")
 
 response_bytes = socket.recv()
@@ -104,9 +102,17 @@ if responseEnvelope.type == pb_high.DUMP_SPYBUFFER:
     # print("Message:", response.message)
 
 y = np.array(response.data, dtype='uint32')
+# y contains data from all channels in the order it was requested
+# [channel1_wave0[0:L], channel2_wave0[0:L], ..., channel39_wave0[0:L] .... channel0_waveN[0:L], channel1_waveN[0:L], ..., channel39_waveN[0:L]]
+# Reshape y to have channel1_wave0[0:L], channel1_wave1[0:L] ...
+y = y.reshape((number_of_waveforms, len(channel_list), length_of_waveforms))
 mode = 'ab' if args.append_data else 'wb'
-with open(filename, mode) as data_file:
-    y.astype('uint16').tofile(data_file)
-data_file.close()
-
+for i, channel in enumerate(channel_list):
+    filename = f"channel_{channel}.dat"
+    if args.debug:
+        print(f"Saving data for channel {channel} to {filename}")
+    # Save each channel's waveforms to a separate file
+    with open(filename, mode) as data_file:
+        # To get each channel as a flat vector of all its samples across all waveforms:
+        y[:, i, :].astype('uint16').tofile(data_file)
 

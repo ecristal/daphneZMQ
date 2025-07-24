@@ -85,7 +85,7 @@ message ScrapResponse {
 
 
 message DumpSpyBuffersRequest {
-  uint32 channel = 1;
+  repeated uint32 channelList = 1;
   uint32 numberOfSamples = 2;
   uint32 numberOfWaveforms = 3;
   bool softwareTrigger = 4;
@@ -93,7 +93,7 @@ message DumpSpyBuffersRequest {
 
 message DumpSpyBuffersResponse {
   bool success = 1;
-  uint32 channel = 2;
+  repeated uint32 channelList = 2;
   uint32 numberOfSamples = 3;
   uint32 numberOfWaveforms = 4;
   bool softwareTrigger = 5;
