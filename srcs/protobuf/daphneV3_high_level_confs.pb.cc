@@ -273,9 +273,11 @@ inline constexpr DumpSpyBuffersResponse::Impl_::Impl_(
         message_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
-        success_{false},
         channel_{0u},
-        numberofsamples_{0u} {}
+        numberofsamples_{0u},
+        success_{false},
+        softwaretrigger_{false},
+        numberofwaveforms_{0u} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR DumpSpyBuffersResponse::DumpSpyBuffersResponse(::_pbi::ConstantInitialized)
@@ -301,7 +303,9 @@ inline constexpr DumpSpyBuffersRequest::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
         channel_{0u},
-        numberofsamples_{0u} {}
+        numberofsamples_{0u},
+        numberofwaveforms_{0u},
+        softwaretrigger_{false} {}
 
 template <typename>
 PROTOBUF_CONSTEXPR DumpSpyBuffersRequest::DumpSpyBuffersRequest(::_pbi::ConstantInitialized)
@@ -826,8 +830,12 @@ const ::uint32_t
         ~0u,  // no sizeof(Split)
         PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersRequest, _impl_.channel_),
         PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersRequest, _impl_.numberofsamples_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersRequest, _impl_.numberofwaveforms_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersRequest, _impl_.softwaretrigger_),
         0,
         1,
+        2,
+        3,
         PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersResponse, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersResponse, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -839,11 +847,15 @@ const ::uint32_t
         PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersResponse, _impl_.success_),
         PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersResponse, _impl_.channel_),
         PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersResponse, _impl_.numberofsamples_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersResponse, _impl_.numberofwaveforms_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersResponse, _impl_.softwaretrigger_),
         PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersResponse, _impl_.data_),
         PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersResponse, _impl_.message_),
+        3,
         1,
         2,
-        3,
+        5,
+        4,
         ~0u,
         0,
         PROTOBUF_FIELD_OFFSET(::InfoRequest, _impl_._has_bits_),
@@ -990,17 +1002,17 @@ static const ::_pbi::MigrationSchema
         {138, 148, -1, sizeof(::ConfigureResponse)},
         {150, -1, -1, sizeof(::ScrapRequest)},
         {158, 168, -1, sizeof(::ScrapResponse)},
-        {170, 180, -1, sizeof(::DumpSpyBuffersRequest)},
-        {182, 195, -1, sizeof(::DumpSpyBuffersResponse)},
-        {200, 209, -1, sizeof(::InfoRequest)},
-        {210, 221, -1, sizeof(::InfoResponse)},
-        {224, 236, -1, sizeof(::StreamInfo)},
-        {240, 253, -1, sizeof(::ChannelInfo)},
-        {258, 275, -1, sizeof(::GeneralInfo)},
-        {284, -1, -1, sizeof(::WriteMultipleRegisterRequest)},
-        {293, 303, -1, sizeof(::WriteRegister)},
-        {305, 315, -1, sizeof(::WriteRegisterResponse)},
-        {317, 327, -1, sizeof(::ControlEnvelope)},
+        {170, 182, -1, sizeof(::DumpSpyBuffersRequest)},
+        {186, 201, -1, sizeof(::DumpSpyBuffersResponse)},
+        {208, 217, -1, sizeof(::InfoRequest)},
+        {218, 229, -1, sizeof(::InfoResponse)},
+        {232, 244, -1, sizeof(::StreamInfo)},
+        {248, 261, -1, sizeof(::ChannelInfo)},
+        {266, 283, -1, sizeof(::GeneralInfo)},
+        {292, -1, -1, sizeof(::WriteMultipleRegisterRequest)},
+        {301, 311, -1, sizeof(::WriteRegister)},
+        {313, 323, -1, sizeof(::WriteRegisterResponse)},
+        {325, 335, -1, sizeof(::ControlEnvelope)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::_ConfigureCLKsRequest_default_instance_._instance,
@@ -1054,57 +1066,59 @@ const char descriptor_table_protodef_daphneV3_5fhigh_5flevel_5fconfs_2eproto[] A
     "r_disable\030\003 \001(\010\"5\n\021ConfigureResponse\022\017\n\007"
     "success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\"\016\n\014ScrapR"
     "equest\"1\n\rScrapResponse\022\017\n\007success\030\001 \001(\010"
-    "\022\017\n\007message\030\002 \001(\t\"A\n\025DumpSpyBuffersReque"
+    "\022\017\n\007message\030\002 \001(\t\"u\n\025DumpSpyBuffersReque"
     "st\022\017\n\007channel\030\001 \001(\r\022\027\n\017numberOfSamples\030\002"
-    " \001(\r\"v\n\026DumpSpyBuffersResponse\022\017\n\007succes"
-    "s\030\001 \001(\010\022\017\n\007channel\030\002 \001(\r\022\027\n\017numberOfSamp"
-    "les\030\003 \001(\r\022\020\n\004data\030\004 \003(\rB\002\020\001\022\017\n\007message\030\005"
-    " \001(\t\"\034\n\013InfoRequest\022\r\n\005level\030\001 \001(\r\"t\n\014In"
-    "foResponse\022 \n\013stream_info\030\001 \001(\0132\013.Stream"
-    "Info\022\036\n\010channels\030\002 \003(\0132\014.ChannelInfo\022\"\n\014"
-    "general_info\030\003 \001(\0132\014.GeneralInfo\"t\n\nStre"
-    "amInfo\022\025\n\rtotal_packets\030\001 \001(\004\022\023\n\013new_pac"
-    "kets\030\002 \001(\004\022\035\n\025total_dropped_packets\030\003 \001("
-    "\004\022\033\n\023new_dropped_packets\030\004 \001(\004\"s\n\013Channe"
-    "lInfo\022\n\n\002id\030\001 \001(\r\022\026\n\016total_triggers\030\002 \001("
-    "\004\022\024\n\014new_triggers\030\003 \001(\004\022\025\n\rtotal_packets"
-    "\030\004 \001(\004\022\023\n\013new_packets\030\005 \001(\004\"\275\001\n\013GeneralI"
-    "nfo\022\020\n\010v_bias_0\030\001 \001(\001\022\020\n\010v_bias_1\030\002 \001(\001\022"
-    "\020\n\010v_bias_2\030\003 \001(\001\022\020\n\010v_bias_3\030\004 \001(\001\022\020\n\010v"
-    "_bias_4\030\005 \001(\001\022\025\n\rpower_minus5v\030\006 \001(\001\022\026\n\016"
-    "power_plus2p5v\030\007 \001(\001\022\020\n\010power_ce\030\010 \001(\001\022\023"
-    "\n\013temperature\030\t \001(\001\">\n\034WriteMultipleRegi"
-    "sterRequest\022\036\n\006writes\030\001 \003(\0132\016.WriteRegis"
-    "ter\"/\n\rWriteRegister\022\017\n\007address\030\001 \001(\004\022\r\n"
-    "\005value\030\002 \001(\004\"9\n\025WriteRegisterResponse\022\017\n"
-    "\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\">\n\017Contr"
-    "olEnvelope\022\032\n\004type\030\001 \001(\0162\014.MessageType\022\017"
-    "\n\007payload\030\002 \001(\014*\341\005\n\013MessageType\022\013\n\007UNKNO"
-    "WN\020\000\022\022\n\016CONFIGURE_CLKS\020\001\022\020\n\014CONFIGURE_FE"
-    "\020\002\022\021\n\rWRITE_AFE_REG\020\003\022\023\n\017WRITE_AFE_VGAIN"
-    "\020\004\022\026\n\022WRITE_AFE_BIAS_SET\020\005\022\025\n\021WRITE_TRIM"
-    "_ALL_CH\020\006\022\026\n\022WRITE_TRIM_ALL_AFE\020\007\022\021\n\rWRI"
-    "TE_TRIM_CH\020\010\022\027\n\023WRITE_OFFSET_ALL_CH\020\t\022\030\n"
-    "\024WRITE_OFFSET_ALL_AFE\020\n\022\023\n\017WRITE_OFFSET_"
-    "CH\020\013\022\027\n\023WRITE_VBIAS_CONTROL\020\014\022\020\n\014READ_AF"
-    "E_REG\020\r\022\022\n\016READ_AFE_VGAIN\020\016\022\025\n\021READ_AFE_"
-    "BIAS_SET\020\017\022\024\n\020READ_TRIM_ALL_CH\020\020\022\025\n\021READ"
-    "_TRIM_ALL_AFE\020\021\022\020\n\014READ_TRIM_CH\020\022\022\026\n\022REA"
-    "D_OFFSET_ALL_CH\020\023\022\027\n\023READ_OFFSET_ALL_AFE"
-    "\020\024\022\022\n\016READ_OFFSET_CH\020\025\022\026\n\022READ_VBIAS_CON"
-    "TROL\020\026\022\030\n\024READ_CURRENT_MONITOR\020\027\022\035\n\031READ"
-    "_BIAS_VOLTAGE_MONITOR\020\030\022\021\n\rSET_AFE_RESET"
-    "\020\031\022\020\n\014DO_AFE_RESET\020\032\022\026\n\022SET_AFE_POWERSTA"
-    "TE\020\033\022\031\n\025WRITE_AFE_ATTENUATION\020\034\022\022\n\016DUMP_"
-    "SPYBUFFER\020\035\022\r\n\tALIGN_AFE\020\036\022\026\n\022WRITE_AFE_"
-    "FUNCTION\020\037\022\027\n\023DO_SOFTWARE_TRIGGER\020 b\006pro"
-    "to3"
+    " \001(\r\022\031\n\021numberOfWaveforms\030\003 \001(\r\022\027\n\017softw"
+    "areTrigger\030\004 \001(\010\"\252\001\n\026DumpSpyBuffersRespo"
+    "nse\022\017\n\007success\030\001 \001(\010\022\017\n\007channel\030\002 \001(\r\022\027\n"
+    "\017numberOfSamples\030\003 \001(\r\022\031\n\021numberOfWavefo"
+    "rms\030\004 \001(\r\022\027\n\017softwareTrigger\030\005 \001(\010\022\020\n\004da"
+    "ta\030\006 \003(\rB\002\020\001\022\017\n\007message\030\007 \001(\t\"\034\n\013InfoReq"
+    "uest\022\r\n\005level\030\001 \001(\r\"t\n\014InfoResponse\022 \n\013s"
+    "tream_info\030\001 \001(\0132\013.StreamInfo\022\036\n\010channel"
+    "s\030\002 \003(\0132\014.ChannelInfo\022\"\n\014general_info\030\003 "
+    "\001(\0132\014.GeneralInfo\"t\n\nStreamInfo\022\025\n\rtotal"
+    "_packets\030\001 \001(\004\022\023\n\013new_packets\030\002 \001(\004\022\035\n\025t"
+    "otal_dropped_packets\030\003 \001(\004\022\033\n\023new_droppe"
+    "d_packets\030\004 \001(\004\"s\n\013ChannelInfo\022\n\n\002id\030\001 \001"
+    "(\r\022\026\n\016total_triggers\030\002 \001(\004\022\024\n\014new_trigge"
+    "rs\030\003 \001(\004\022\025\n\rtotal_packets\030\004 \001(\004\022\023\n\013new_p"
+    "ackets\030\005 \001(\004\"\275\001\n\013GeneralInfo\022\020\n\010v_bias_0"
+    "\030\001 \001(\001\022\020\n\010v_bias_1\030\002 \001(\001\022\020\n\010v_bias_2\030\003 \001"
+    "(\001\022\020\n\010v_bias_3\030\004 \001(\001\022\020\n\010v_bias_4\030\005 \001(\001\022\025"
+    "\n\rpower_minus5v\030\006 \001(\001\022\026\n\016power_plus2p5v\030"
+    "\007 \001(\001\022\020\n\010power_ce\030\010 \001(\001\022\023\n\013temperature\030\t"
+    " \001(\001\">\n\034WriteMultipleRegisterRequest\022\036\n\006"
+    "writes\030\001 \003(\0132\016.WriteRegister\"/\n\rWriteReg"
+    "ister\022\017\n\007address\030\001 \001(\004\022\r\n\005value\030\002 \001(\004\"9\n"
+    "\025WriteRegisterResponse\022\017\n\007success\030\001 \001(\010\022"
+    "\017\n\007message\030\002 \001(\t\">\n\017ControlEnvelope\022\032\n\004t"
+    "ype\030\001 \001(\0162\014.MessageType\022\017\n\007payload\030\002 \001(\014"
+    "*\341\005\n\013MessageType\022\013\n\007UNKNOWN\020\000\022\022\n\016CONFIGU"
+    "RE_CLKS\020\001\022\020\n\014CONFIGURE_FE\020\002\022\021\n\rWRITE_AFE"
+    "_REG\020\003\022\023\n\017WRITE_AFE_VGAIN\020\004\022\026\n\022WRITE_AFE"
+    "_BIAS_SET\020\005\022\025\n\021WRITE_TRIM_ALL_CH\020\006\022\026\n\022WR"
+    "ITE_TRIM_ALL_AFE\020\007\022\021\n\rWRITE_TRIM_CH\020\010\022\027\n"
+    "\023WRITE_OFFSET_ALL_CH\020\t\022\030\n\024WRITE_OFFSET_A"
+    "LL_AFE\020\n\022\023\n\017WRITE_OFFSET_CH\020\013\022\027\n\023WRITE_V"
+    "BIAS_CONTROL\020\014\022\020\n\014READ_AFE_REG\020\r\022\022\n\016READ"
+    "_AFE_VGAIN\020\016\022\025\n\021READ_AFE_BIAS_SET\020\017\022\024\n\020R"
+    "EAD_TRIM_ALL_CH\020\020\022\025\n\021READ_TRIM_ALL_AFE\020\021"
+    "\022\020\n\014READ_TRIM_CH\020\022\022\026\n\022READ_OFFSET_ALL_CH"
+    "\020\023\022\027\n\023READ_OFFSET_ALL_AFE\020\024\022\022\n\016READ_OFFS"
+    "ET_CH\020\025\022\026\n\022READ_VBIAS_CONTROL\020\026\022\030\n\024READ_"
+    "CURRENT_MONITOR\020\027\022\035\n\031READ_BIAS_VOLTAGE_M"
+    "ONITOR\020\030\022\021\n\rSET_AFE_RESET\020\031\022\020\n\014DO_AFE_RE"
+    "SET\020\032\022\026\n\022SET_AFE_POWERSTATE\020\033\022\031\n\025WRITE_A"
+    "FE_ATTENUATION\020\034\022\022\n\016DUMP_SPYBUFFER\020\035\022\r\n\t"
+    "ALIGN_AFE\020\036\022\026\n\022WRITE_AFE_FUNCTION\020\037\022\027\n\023D"
+    "O_SOFTWARE_TRIGGER\020 b\006proto3"
 };
 static ::absl::once_flag descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto = {
     false,
     false,
-    2803,
+    2908,
     descriptor_table_protodef_daphneV3_5fhigh_5flevel_5fconfs_2eproto,
     "daphneV3_high_level_confs.proto",
     &descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto_once,
@@ -4802,9 +4816,9 @@ inline void DumpSpyBuffersRequest::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE ar
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, channel_),
            0,
-           offsetof(Impl_, numberofsamples_) -
+           offsetof(Impl_, softwaretrigger_) -
                offsetof(Impl_, channel_) +
-               sizeof(Impl_::numberofsamples_));
+               sizeof(Impl_::softwaretrigger_));
 }
 DumpSpyBuffersRequest::~DumpSpyBuffersRequest() {
   // @@protoc_insertion_point(destructor:DumpSpyBuffersRequest)
@@ -4860,16 +4874,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL DumpSpyBuffersRe
   return DumpSpyBuffersRequest_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 0, 2>
 DumpSpyBuffersRequest::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(DumpSpyBuffersRequest, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967280,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    4,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     DumpSpyBuffersRequest_class_data_.base(),
@@ -4879,12 +4893,18 @@ DumpSpyBuffersRequest::_table_ = {
     ::_pbi::TcParser::GetTable<::DumpSpyBuffersRequest>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 numberOfSamples = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersRequest, _impl_.numberofsamples_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersRequest, _impl_.numberofsamples_)}},
+    // bool softwareTrigger = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(DumpSpyBuffersRequest, _impl_.softwaretrigger_), 3>(),
+     {32, 3, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersRequest, _impl_.softwaretrigger_)}},
     // uint32 channel = 1;
     {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersRequest, _impl_.channel_), 0>(),
      {8, 0, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersRequest, _impl_.channel_)}},
+    // uint32 numberOfSamples = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersRequest, _impl_.numberofsamples_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersRequest, _impl_.numberofsamples_)}},
+    // uint32 numberOfWaveforms = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersRequest, _impl_.numberofwaveforms_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersRequest, _impl_.numberofwaveforms_)}},
   }}, {{
     65535, 65535
   }}, {{
@@ -4894,6 +4914,12 @@ DumpSpyBuffersRequest::_table_ = {
     // uint32 numberOfSamples = 2;
     {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersRequest, _impl_.numberofsamples_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 numberOfWaveforms = 3;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersRequest, _impl_.numberofwaveforms_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool softwareTrigger = 4;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersRequest, _impl_.softwaretrigger_), _Internal::kHasBitsOffset + 3, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
   {{
@@ -4907,10 +4933,10 @@ PROTOBUF_NOINLINE void DumpSpyBuffersRequest::Clear() {
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     ::memset(&_impl_.channel_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.numberofsamples_) -
-        reinterpret_cast<char*>(&_impl_.channel_)) + sizeof(_impl_.numberofsamples_));
+        reinterpret_cast<char*>(&_impl_.softwaretrigger_) -
+        reinterpret_cast<char*>(&_impl_.channel_)) + sizeof(_impl_.softwaretrigger_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -4949,6 +4975,24 @@ PROTOBUF_NOINLINE void DumpSpyBuffersRequest::Clear() {
     }
   }
 
+  // uint32 numberOfWaveforms = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (this_._internal_numberofwaveforms() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          3, this_._internal_numberofwaveforms(), target);
+    }
+  }
+
+  // bool softwareTrigger = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+    if (this_._internal_softwaretrigger() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          4, this_._internal_softwaretrigger(), target);
+    }
+  }
+
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -4974,7 +5018,7 @@ PROTOBUF_NOINLINE void DumpSpyBuffersRequest::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     // uint32 channel = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (this_._internal_channel() != 0) {
@@ -4987,6 +5031,19 @@ PROTOBUF_NOINLINE void DumpSpyBuffersRequest::Clear() {
       if (this_._internal_numberofsamples() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_numberofsamples());
+      }
+    }
+    // uint32 numberOfWaveforms = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_numberofwaveforms() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_numberofwaveforms());
+      }
+    }
+    // bool softwareTrigger = 4;
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (this_._internal_softwaretrigger() != 0) {
+        total_size += 2;
       }
     }
   }
@@ -5003,7 +5060,7 @@ void DumpSpyBuffersRequest::MergeImpl(::google::protobuf::MessageLite& to_msg, c
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (from._internal_channel() != 0) {
         _this->_impl_.channel_ = from._impl_.channel_;
@@ -5012,6 +5069,16 @@ void DumpSpyBuffersRequest::MergeImpl(::google::protobuf::MessageLite& to_msg, c
     if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_numberofsamples() != 0) {
         _this->_impl_.numberofsamples_ = from._impl_.numberofsamples_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_numberofwaveforms() != 0) {
+        _this->_impl_.numberofwaveforms_ = from._impl_.numberofwaveforms_;
+      }
+    }
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (from._internal_softwaretrigger() != 0) {
+        _this->_impl_.softwaretrigger_ = from._impl_.softwaretrigger_;
       }
     }
   }
@@ -5032,8 +5099,8 @@ void DumpSpyBuffersRequest::InternalSwap(DumpSpyBuffersRequest* PROTOBUF_RESTRIC
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(DumpSpyBuffersRequest, _impl_.numberofsamples_)
-      + sizeof(DumpSpyBuffersRequest::_impl_.numberofsamples_)
+      PROTOBUF_FIELD_OFFSET(DumpSpyBuffersRequest, _impl_.softwaretrigger_)
+      + sizeof(DumpSpyBuffersRequest::_impl_.softwaretrigger_)
       - PROTOBUF_FIELD_OFFSET(DumpSpyBuffersRequest, _impl_.channel_)>(
           reinterpret_cast<char*>(&_impl_.channel_),
           reinterpret_cast<char*>(&other->_impl_.channel_));
@@ -5085,12 +5152,12 @@ DumpSpyBuffersResponse::DumpSpyBuffersResponse(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::memcpy(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, channel_),
            reinterpret_cast<const char *>(&from._impl_) +
-               offsetof(Impl_, success_),
-           offsetof(Impl_, numberofsamples_) -
-               offsetof(Impl_, success_) +
-               sizeof(Impl_::numberofsamples_));
+               offsetof(Impl_, channel_),
+           offsetof(Impl_, numberofwaveforms_) -
+               offsetof(Impl_, channel_) +
+               sizeof(Impl_::numberofwaveforms_));
 
   // @@protoc_insertion_point(copy_constructor:DumpSpyBuffersResponse)
 }
@@ -5105,11 +5172,11 @@ PROTOBUF_NDEBUG_INLINE DumpSpyBuffersResponse::Impl_::Impl_(
 inline void DumpSpyBuffersResponse::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, success_),
+               offsetof(Impl_, channel_),
            0,
-           offsetof(Impl_, numberofsamples_) -
-               offsetof(Impl_, success_) +
-               sizeof(Impl_::numberofsamples_));
+           offsetof(Impl_, numberofwaveforms_) -
+               offsetof(Impl_, channel_) +
+               sizeof(Impl_::numberofwaveforms_));
 }
 DumpSpyBuffersResponse::~DumpSpyBuffersResponse() {
   // @@protoc_insertion_point(destructor:DumpSpyBuffersResponse)
@@ -5178,16 +5245,16 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL DumpSpyBuffersRe
   return DumpSpyBuffersResponse_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 5, 0, 38, 2>
+const ::_pbi::TcParseTable<3, 7, 0, 38, 2>
 DumpSpyBuffersResponse::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_._has_bits_),
     0, // no _extensions_
-    5, 56,  // max_field_number, fast_idx_mask
+    7, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967264,  // skipmap
+    4294967168,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    5,  // num_field_entries
+    7,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     DumpSpyBuffersResponse_class_data_.base(),
@@ -5199,44 +5266,54 @@ DumpSpyBuffersResponse::_table_ = {
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
     // bool success = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(DumpSpyBuffersResponse, _impl_.success_), 1>(),
-     {8, 1, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.success_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(DumpSpyBuffersResponse, _impl_.success_), 3>(),
+     {8, 3, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.success_)}},
     // uint32 channel = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersResponse, _impl_.channel_), 2>(),
-     {16, 2, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.channel_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersResponse, _impl_.channel_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.channel_)}},
     // uint32 numberOfSamples = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersResponse, _impl_.numberofsamples_), 3>(),
-     {24, 3, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.numberofsamples_)}},
-    // repeated uint32 data = 4 [packed = true];
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersResponse, _impl_.numberofsamples_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.numberofsamples_)}},
+    // uint32 numberOfWaveforms = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersResponse, _impl_.numberofwaveforms_), 5>(),
+     {32, 5, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.numberofwaveforms_)}},
+    // bool softwareTrigger = 5;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(DumpSpyBuffersResponse, _impl_.softwaretrigger_), 4>(),
+     {40, 4, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.softwaretrigger_)}},
+    // repeated uint32 data = 6 [packed = true];
     {::_pbi::TcParser::FastV32P1,
-     {34, 63, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.data_)}},
-    // string message = 5;
+     {50, 63, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.data_)}},
+    // string message = 7;
     {::_pbi::TcParser::FastUS1,
-     {42, 0, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.message_)}},
-    {::_pbi::TcParser::MiniParse, {}},
-    {::_pbi::TcParser::MiniParse, {}},
+     {58, 0, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.message_)}},
   }}, {{
     65535, 65535
   }}, {{
     // bool success = 1;
-    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.success_), _Internal::kHasBitsOffset + 1, 0,
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.success_), _Internal::kHasBitsOffset + 3, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
     // uint32 channel = 2;
-    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.channel_), _Internal::kHasBitsOffset + 2, 0,
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.channel_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
     // uint32 numberOfSamples = 3;
-    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.numberofsamples_), _Internal::kHasBitsOffset + 3, 0,
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.numberofsamples_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // repeated uint32 data = 4 [packed = true];
+    // uint32 numberOfWaveforms = 4;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.numberofwaveforms_), _Internal::kHasBitsOffset + 5, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool softwareTrigger = 5;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.softwaretrigger_), _Internal::kHasBitsOffset + 4, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
+    // repeated uint32 data = 6 [packed = true];
     {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.data_), -1, 0,
     (0 | ::_fl::kFcRepeated | ::_fl::kPackedUInt32)},
-    // string message = 5;
+    // string message = 7;
     {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.message_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
   }},
   // no aux_entries
   {{
-    "\26\0\0\0\0\7\0\0"
+    "\26\0\0\0\0\0\0\7"
     "DumpSpyBuffersResponse"
     "message"
   }},
@@ -5253,10 +5330,10 @@ PROTOBUF_NOINLINE void DumpSpyBuffersResponse::Clear() {
   if ((cached_has_bits & 0x00000001u) != 0) {
     _impl_.message_.ClearNonDefaultToEmpty();
   }
-  if ((cached_has_bits & 0x0000000eu) != 0) {
-    ::memset(&_impl_.success_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.numberofsamples_) -
-        reinterpret_cast<char*>(&_impl_.success_)) + sizeof(_impl_.numberofsamples_));
+  if ((cached_has_bits & 0x0000003eu) != 0) {
+    ::memset(&_impl_.channel_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.numberofwaveforms_) -
+        reinterpret_cast<char*>(&_impl_.channel_)) + sizeof(_impl_.numberofwaveforms_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -5278,7 +5355,7 @@ PROTOBUF_NOINLINE void DumpSpyBuffersResponse::Clear() {
   (void)cached_has_bits;
 
   // bool success = 1;
-  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
     if (this_._internal_success() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
@@ -5287,7 +5364,7 @@ PROTOBUF_NOINLINE void DumpSpyBuffersResponse::Clear() {
   }
 
   // uint32 channel = 2;
-  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_channel() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
@@ -5296,7 +5373,7 @@ PROTOBUF_NOINLINE void DumpSpyBuffersResponse::Clear() {
   }
 
   // uint32 numberOfSamples = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_numberofsamples() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
@@ -5304,22 +5381,40 @@ PROTOBUF_NOINLINE void DumpSpyBuffersResponse::Clear() {
     }
   }
 
-  // repeated uint32 data = 4 [packed = true];
+  // uint32 numberOfWaveforms = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000020u) != 0) {
+    if (this_._internal_numberofwaveforms() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          4, this_._internal_numberofwaveforms(), target);
+    }
+  }
+
+  // bool softwareTrigger = 5;
+  if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
+    if (this_._internal_softwaretrigger() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          5, this_._internal_softwaretrigger(), target);
+    }
+  }
+
+  // repeated uint32 data = 6 [packed = true];
   {
     int byte_size = this_._impl_._data_cached_byte_size_.Get();
     if (byte_size > 0) {
       target = stream->WriteUInt32Packed(
-          4, this_._internal_data(), byte_size, target);
+          6, this_._internal_data(), byte_size, target);
     }
   }
 
-  // string message = 5;
+  // string message = 7;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
           _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "DumpSpyBuffersResponse.message");
-      target = stream->WriteStringMaybeAliased(5, _s, target);
+      target = stream->WriteStringMaybeAliased(7, _s, target);
     }
   }
 
@@ -5348,7 +5443,7 @@ PROTOBUF_NOINLINE void DumpSpyBuffersResponse::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
    {
-    // repeated uint32 data = 4 [packed = true];
+    // repeated uint32 data = 6 [packed = true];
     {
       total_size +=
           ::_pbi::WireFormatLite::UInt32SizeWithPackedTagSize(
@@ -5357,32 +5452,45 @@ PROTOBUF_NOINLINE void DumpSpyBuffersResponse::Clear() {
     }
   }
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000000fu) != 0) {
-    // string message = 5;
+  if ((cached_has_bits & 0x0000003fu) != 0) {
+    // string message = 7;
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!this_._internal_message().empty()) {
         total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
                                         this_._internal_message());
       }
     }
-    // bool success = 1;
-    if ((cached_has_bits & 0x00000002u) != 0) {
-      if (this_._internal_success() != 0) {
-        total_size += 2;
-      }
-    }
     // uint32 channel = 2;
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_channel() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_channel());
       }
     }
     // uint32 numberOfSamples = 3;
-    if ((cached_has_bits & 0x00000008u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (this_._internal_numberofsamples() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_numberofsamples());
+      }
+    }
+    // bool success = 1;
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (this_._internal_success() != 0) {
+        total_size += 2;
+      }
+    }
+    // bool softwareTrigger = 5;
+    if ((cached_has_bits & 0x00000010u) != 0) {
+      if (this_._internal_softwaretrigger() != 0) {
+        total_size += 2;
+      }
+    }
+    // uint32 numberOfWaveforms = 4;
+    if ((cached_has_bits & 0x00000020u) != 0) {
+      if (this_._internal_numberofwaveforms() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_numberofwaveforms());
       }
     }
   }
@@ -5400,7 +5508,7 @@ void DumpSpyBuffersResponse::MergeImpl(::google::protobuf::MessageLite& to_msg, 
 
   _this->_internal_mutable_data()->MergeFrom(from._internal_data());
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x0000000fu) != 0) {
+  if ((cached_has_bits & 0x0000003fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
       if (!from._internal_message().empty()) {
         _this->_internal_set_message(from._internal_message());
@@ -5411,18 +5519,28 @@ void DumpSpyBuffersResponse::MergeImpl(::google::protobuf::MessageLite& to_msg, 
       }
     }
     if ((cached_has_bits & 0x00000002u) != 0) {
-      if (from._internal_success() != 0) {
-        _this->_impl_.success_ = from._impl_.success_;
-      }
-    }
-    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_channel() != 0) {
         _this->_impl_.channel_ = from._impl_.channel_;
       }
     }
-    if ((cached_has_bits & 0x00000008u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_numberofsamples() != 0) {
         _this->_impl_.numberofsamples_ = from._impl_.numberofsamples_;
+      }
+    }
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (from._internal_success() != 0) {
+        _this->_impl_.success_ = from._impl_.success_;
+      }
+    }
+    if ((cached_has_bits & 0x00000010u) != 0) {
+      if (from._internal_softwaretrigger() != 0) {
+        _this->_impl_.softwaretrigger_ = from._impl_.softwaretrigger_;
+      }
+    }
+    if ((cached_has_bits & 0x00000020u) != 0) {
+      if (from._internal_numberofwaveforms() != 0) {
+        _this->_impl_.numberofwaveforms_ = from._impl_.numberofwaveforms_;
       }
     }
   }
@@ -5447,11 +5565,11 @@ void DumpSpyBuffersResponse::InternalSwap(DumpSpyBuffersResponse* PROTOBUF_RESTR
   _impl_.data_.InternalSwap(&other->_impl_.data_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.message_, &other->_impl_.message_, arena);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.numberofsamples_)
-      + sizeof(DumpSpyBuffersResponse::_impl_.numberofsamples_)
-      - PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.success_)>(
-          reinterpret_cast<char*>(&_impl_.success_),
-          reinterpret_cast<char*>(&other->_impl_.success_));
+      PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.numberofwaveforms_)
+      + sizeof(DumpSpyBuffersResponse::_impl_.numberofwaveforms_)
+      - PROTOBUF_FIELD_OFFSET(DumpSpyBuffersResponse, _impl_.channel_)>(
+          reinterpret_cast<char*>(&_impl_.channel_),
+          reinterpret_cast<char*>(&other->_impl_.channel_));
 }
 
 ::google::protobuf::Metadata DumpSpyBuffersResponse::GetMetadata() const {

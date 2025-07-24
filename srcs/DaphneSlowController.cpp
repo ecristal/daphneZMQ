@@ -243,19 +243,37 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse 
     try {
         uint32_t channel = request.channel();
         uint32_t numberOfSamples = request.numberofsamples();
+        uint32_t numberOfWaveforms = request.numberofwaveforms();
+        bool softwareTrigger = request.softwaretrigger();
         if(channel > 39) throw std::invalid_argument("The channel value " + std::to_string(channel) + " is out of range. Range 0-39");
         if(numberOfSamples > 2048 || numberOfSamples < 1) throw std::invalid_argument("The number of samples value " + std::to_string(numberOfSamples) + " is out of range. Range 1-4096");
         
-        response.mutable_data()->Resize(numberOfSamples, 0);
+        auto* spyBuffer = daphne.getSpyBuffer();
+        auto* frontEnd = daphne.getFrontEnd();
+        
+        response.mutable_data()->Resize(numberOfSamples*numberOfWaveforms, 0);
         google::protobuf::RepeatedField<uint32_t>* data_field = response.mutable_data();
         uint32_t* data_ptr = data_field->mutable_data();
         
         daphne.getSpyBuffer()->setCurrentMappedChannelIndex(channel);
-        for(int i=0; i<numberOfSamples; ++i){
-            data_ptr[i] = daphne.getSpyBuffer()->getMappedData(i);
+        // Let's calculate how much does it take to exxecute
+        // the software trigger
+        std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+        for(int j=0; j<numberOfWaveforms; ++j){
+            if(softwareTrigger) {
+                frontEnd->doTrigger();
+            }
+            uint32_t* waveform_start = data_ptr + j * numberOfSamples;
+            //spyBuffer->extractMappedDataBulk(waveform_start, numberOfSamples);
+            spyBuffer->extractMappedDataBulkSIMD(waveform_start, numberOfSamples);
+
         }
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        std::chrono::duration<double> elapsed = end - start;
+        std::cout << "Time taken to dump spybuffer: " << elapsed.count() << " seconds." << std::endl;
         response.set_channel(channel);
         response.set_numberofsamples(numberOfSamples);
+        response.set_numberofwaveforms(numberOfWaveforms);
         //response_str = "Spybuffer channel " + std::to_string(channel) + " dumped correctly."
         //               + " Number of samples: " + std::to_string(numberOfSamples);
         response_str = "OK";
@@ -949,7 +967,7 @@ int main(int argc, char* argv[]) {
     std::string socket_ip_address = "tcp://" + ip_address + ":" + std::to_string(port); 
     try {
         socket.bind(socket_ip_address.c_str());
-        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_16" << std::endl;
+        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_18" << std::endl;
         std::cout << "ZMQ Reply socket initialized in " << socket_ip_address << std::endl;
     } catch (std::exception &e){
         std::cerr << "Error initializing ZMQ socket: " << e.what() << std::endl;

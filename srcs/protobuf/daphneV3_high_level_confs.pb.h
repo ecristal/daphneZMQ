@@ -2268,13 +2268,15 @@ class DumpSpyBuffersResponse final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kDataFieldNumber = 4,
-    kMessageFieldNumber = 5,
-    kSuccessFieldNumber = 1,
+    kDataFieldNumber = 6,
+    kMessageFieldNumber = 7,
     kChannelFieldNumber = 2,
     kNumberOfSamplesFieldNumber = 3,
+    kSuccessFieldNumber = 1,
+    kSoftwareTriggerFieldNumber = 5,
+    kNumberOfWaveformsFieldNumber = 4,
   };
-  // repeated uint32 data = 4 [packed = true];
+  // repeated uint32 data = 6 [packed = true];
   int data_size() const;
   private:
   int _internal_data_size() const;
@@ -2292,7 +2294,7 @@ class DumpSpyBuffersResponse final : public ::google::protobuf::Message
   ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL _internal_mutable_data();
 
   public:
-  // string message = 5;
+  // string message = 7;
   void clear_message() ;
   const std::string& message() const;
   template <typename Arg_ = const std::string&, typename... Args_>
@@ -2305,16 +2307,6 @@ class DumpSpyBuffersResponse final : public ::google::protobuf::Message
   const std::string& _internal_message() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_message(const std::string& value);
   std::string* PROTOBUF_NONNULL _internal_mutable_message();
-
-  public:
-  // bool success = 1;
-  void clear_success() ;
-  bool success() const;
-  void set_success(bool value);
-
-  private:
-  bool _internal_success() const;
-  void _internal_set_success(bool value);
 
   public:
   // uint32 channel = 2;
@@ -2337,11 +2329,41 @@ class DumpSpyBuffersResponse final : public ::google::protobuf::Message
   void _internal_set_numberofsamples(::uint32_t value);
 
   public:
+  // bool success = 1;
+  void clear_success() ;
+  bool success() const;
+  void set_success(bool value);
+
+  private:
+  bool _internal_success() const;
+  void _internal_set_success(bool value);
+
+  public:
+  // bool softwareTrigger = 5;
+  void clear_softwaretrigger() ;
+  bool softwaretrigger() const;
+  void set_softwaretrigger(bool value);
+
+  private:
+  bool _internal_softwaretrigger() const;
+  void _internal_set_softwaretrigger(bool value);
+
+  public:
+  // uint32 numberOfWaveforms = 4;
+  void clear_numberofwaveforms() ;
+  ::uint32_t numberofwaveforms() const;
+  void set_numberofwaveforms(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_numberofwaveforms() const;
+  void _internal_set_numberofwaveforms(::uint32_t value);
+
+  public:
   // @@protoc_insertion_point(class_scope:DumpSpyBuffersResponse)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<3, 5,
+  static const ::google::protobuf::internal::TcParseTable<3, 7,
                                    0, 38,
                                    2>
       _table_;
@@ -2366,9 +2388,11 @@ class DumpSpyBuffersResponse final : public ::google::protobuf::Message
     ::google::protobuf::RepeatedField<::uint32_t> data_;
     ::google::protobuf::internal::CachedSize _data_cached_byte_size_;
     ::google::protobuf::internal::ArenaStringPtr message_;
-    bool success_;
     ::uint32_t channel_;
     ::uint32_t numberofsamples_;
+    bool success_;
+    bool softwaretrigger_;
+    ::uint32_t numberofwaveforms_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -2523,6 +2547,8 @@ class DumpSpyBuffersRequest final : public ::google::protobuf::Message
   enum : int {
     kChannelFieldNumber = 1,
     kNumberOfSamplesFieldNumber = 2,
+    kNumberOfWaveformsFieldNumber = 3,
+    kSoftwareTriggerFieldNumber = 4,
   };
   // uint32 channel = 1;
   void clear_channel() ;
@@ -2544,11 +2570,31 @@ class DumpSpyBuffersRequest final : public ::google::protobuf::Message
   void _internal_set_numberofsamples(::uint32_t value);
 
   public:
+  // uint32 numberOfWaveforms = 3;
+  void clear_numberofwaveforms() ;
+  ::uint32_t numberofwaveforms() const;
+  void set_numberofwaveforms(::uint32_t value);
+
+  private:
+  ::uint32_t _internal_numberofwaveforms() const;
+  void _internal_set_numberofwaveforms(::uint32_t value);
+
+  public:
+  // bool softwareTrigger = 4;
+  void clear_softwaretrigger() ;
+  bool softwaretrigger() const;
+  void set_softwaretrigger(bool value);
+
+  private:
+  bool _internal_softwaretrigger() const;
+  void _internal_set_softwaretrigger(bool value);
+
+  public:
   // @@protoc_insertion_point(class_scope:DumpSpyBuffersRequest)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 4,
                                    0, 0,
                                    2>
       _table_;
@@ -2572,6 +2618,8 @@ class DumpSpyBuffersRequest final : public ::google::protobuf::Message
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t channel_;
     ::uint32_t numberofsamples_;
+    ::uint32_t numberofwaveforms_;
+    bool softwaretrigger_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -6710,6 +6758,54 @@ inline void DumpSpyBuffersRequest::_internal_set_numberofsamples(::uint32_t valu
   _impl_.numberofsamples_ = value;
 }
 
+// uint32 numberOfWaveforms = 3;
+inline void DumpSpyBuffersRequest::clear_numberofwaveforms() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.numberofwaveforms_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
+}
+inline ::uint32_t DumpSpyBuffersRequest::numberofwaveforms() const {
+  // @@protoc_insertion_point(field_get:DumpSpyBuffersRequest.numberOfWaveforms)
+  return _internal_numberofwaveforms();
+}
+inline void DumpSpyBuffersRequest::set_numberofwaveforms(::uint32_t value) {
+  _internal_set_numberofwaveforms(value);
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:DumpSpyBuffersRequest.numberOfWaveforms)
+}
+inline ::uint32_t DumpSpyBuffersRequest::_internal_numberofwaveforms() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.numberofwaveforms_;
+}
+inline void DumpSpyBuffersRequest::_internal_set_numberofwaveforms(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.numberofwaveforms_ = value;
+}
+
+// bool softwareTrigger = 4;
+inline void DumpSpyBuffersRequest::clear_softwaretrigger() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.softwaretrigger_ = false;
+  _impl_._has_bits_[0] &= ~0x00000008u;
+}
+inline bool DumpSpyBuffersRequest::softwaretrigger() const {
+  // @@protoc_insertion_point(field_get:DumpSpyBuffersRequest.softwareTrigger)
+  return _internal_softwaretrigger();
+}
+inline void DumpSpyBuffersRequest::set_softwaretrigger(bool value) {
+  _internal_set_softwaretrigger(value);
+  _impl_._has_bits_[0] |= 0x00000008u;
+  // @@protoc_insertion_point(field_set:DumpSpyBuffersRequest.softwareTrigger)
+}
+inline bool DumpSpyBuffersRequest::_internal_softwaretrigger() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.softwaretrigger_;
+}
+inline void DumpSpyBuffersRequest::_internal_set_softwaretrigger(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.softwaretrigger_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // DumpSpyBuffersResponse
@@ -6718,7 +6814,7 @@ inline void DumpSpyBuffersRequest::_internal_set_numberofsamples(::uint32_t valu
 inline void DumpSpyBuffersResponse::clear_success() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.success_ = false;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline bool DumpSpyBuffersResponse::success() const {
   // @@protoc_insertion_point(field_get:DumpSpyBuffersResponse.success)
@@ -6726,7 +6822,7 @@ inline bool DumpSpyBuffersResponse::success() const {
 }
 inline void DumpSpyBuffersResponse::set_success(bool value) {
   _internal_set_success(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
+  _impl_._has_bits_[0] |= 0x00000008u;
   // @@protoc_insertion_point(field_set:DumpSpyBuffersResponse.success)
 }
 inline bool DumpSpyBuffersResponse::_internal_success() const {
@@ -6742,7 +6838,7 @@ inline void DumpSpyBuffersResponse::_internal_set_success(bool value) {
 inline void DumpSpyBuffersResponse::clear_channel() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.channel_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t DumpSpyBuffersResponse::channel() const {
   // @@protoc_insertion_point(field_get:DumpSpyBuffersResponse.channel)
@@ -6750,7 +6846,7 @@ inline ::uint32_t DumpSpyBuffersResponse::channel() const {
 }
 inline void DumpSpyBuffersResponse::set_channel(::uint32_t value) {
   _internal_set_channel(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
+  _impl_._has_bits_[0] |= 0x00000002u;
   // @@protoc_insertion_point(field_set:DumpSpyBuffersResponse.channel)
 }
 inline ::uint32_t DumpSpyBuffersResponse::_internal_channel() const {
@@ -6766,7 +6862,7 @@ inline void DumpSpyBuffersResponse::_internal_set_channel(::uint32_t value) {
 inline void DumpSpyBuffersResponse::clear_numberofsamples() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.numberofsamples_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000008u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t DumpSpyBuffersResponse::numberofsamples() const {
   // @@protoc_insertion_point(field_get:DumpSpyBuffersResponse.numberOfSamples)
@@ -6774,7 +6870,7 @@ inline ::uint32_t DumpSpyBuffersResponse::numberofsamples() const {
 }
 inline void DumpSpyBuffersResponse::set_numberofsamples(::uint32_t value) {
   _internal_set_numberofsamples(value);
-  _impl_._has_bits_[0] |= 0x00000008u;
+  _impl_._has_bits_[0] |= 0x00000004u;
   // @@protoc_insertion_point(field_set:DumpSpyBuffersResponse.numberOfSamples)
 }
 inline ::uint32_t DumpSpyBuffersResponse::_internal_numberofsamples() const {
@@ -6786,7 +6882,55 @@ inline void DumpSpyBuffersResponse::_internal_set_numberofsamples(::uint32_t val
   _impl_.numberofsamples_ = value;
 }
 
-// repeated uint32 data = 4 [packed = true];
+// uint32 numberOfWaveforms = 4;
+inline void DumpSpyBuffersResponse::clear_numberofwaveforms() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.numberofwaveforms_ = 0u;
+  _impl_._has_bits_[0] &= ~0x00000020u;
+}
+inline ::uint32_t DumpSpyBuffersResponse::numberofwaveforms() const {
+  // @@protoc_insertion_point(field_get:DumpSpyBuffersResponse.numberOfWaveforms)
+  return _internal_numberofwaveforms();
+}
+inline void DumpSpyBuffersResponse::set_numberofwaveforms(::uint32_t value) {
+  _internal_set_numberofwaveforms(value);
+  _impl_._has_bits_[0] |= 0x00000020u;
+  // @@protoc_insertion_point(field_set:DumpSpyBuffersResponse.numberOfWaveforms)
+}
+inline ::uint32_t DumpSpyBuffersResponse::_internal_numberofwaveforms() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.numberofwaveforms_;
+}
+inline void DumpSpyBuffersResponse::_internal_set_numberofwaveforms(::uint32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.numberofwaveforms_ = value;
+}
+
+// bool softwareTrigger = 5;
+inline void DumpSpyBuffersResponse::clear_softwaretrigger() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.softwaretrigger_ = false;
+  _impl_._has_bits_[0] &= ~0x00000010u;
+}
+inline bool DumpSpyBuffersResponse::softwaretrigger() const {
+  // @@protoc_insertion_point(field_get:DumpSpyBuffersResponse.softwareTrigger)
+  return _internal_softwaretrigger();
+}
+inline void DumpSpyBuffersResponse::set_softwaretrigger(bool value) {
+  _internal_set_softwaretrigger(value);
+  _impl_._has_bits_[0] |= 0x00000010u;
+  // @@protoc_insertion_point(field_set:DumpSpyBuffersResponse.softwareTrigger)
+}
+inline bool DumpSpyBuffersResponse::_internal_softwaretrigger() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.softwaretrigger_;
+}
+inline void DumpSpyBuffersResponse::_internal_set_softwaretrigger(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.softwaretrigger_ = value;
+}
+
+// repeated uint32 data = 6 [packed = true];
 inline int DumpSpyBuffersResponse::_internal_data_size() const {
   return _internal_data().size();
 }
@@ -6832,7 +6976,7 @@ DumpSpyBuffersResponse::_internal_mutable_data() {
   return &_impl_.data_;
 }
 
-// string message = 5;
+// string message = 7;
 inline void DumpSpyBuffersResponse::clear_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.message_.ClearToEmpty();

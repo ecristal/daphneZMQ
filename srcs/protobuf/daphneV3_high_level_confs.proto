@@ -87,14 +87,18 @@ message ScrapResponse {
 message DumpSpyBuffersRequest {
   uint32 channel = 1;
   uint32 numberOfSamples = 2;
+  uint32 numberOfWaveforms = 3;
+  bool softwareTrigger = 4;
 }
 
 message DumpSpyBuffersResponse {
   bool success = 1;
   uint32 channel = 2;
   uint32 numberOfSamples = 3;
-  repeated uint32 data = 4 [packed = true];
-  string message = 5;
+  uint32 numberOfWaveforms = 4;
+  bool softwareTrigger = 5;
+  repeated uint32 data = 6 [packed = true];
+  string message = 7;
 }
 
 

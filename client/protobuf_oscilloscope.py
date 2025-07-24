@@ -32,7 +32,7 @@ context = zmq.Context()
 
 # Create the figure and line once
 fig, ax = plt.subplots()
-x = np.arange(2048)
+x = np.arange(args.L)
 y = np.zeros_like(x)
 line, = ax.plot(x, y)
 ax.set_ylim(5000, 10000)  # Adjust to your expected signal range
@@ -85,27 +85,32 @@ acquired_wave_number = 0
 
 while True:
     # DO SOFTWARE TRIGGER
-    if(software_trigger):
-        request = pb_low.cmd_doSoftwareTrigger()
-        envelope = pb_high.ControlEnvelope()
-        envelope.type = pb_high.DO_SOFTWARE_TRIGGER
-        envelope.payload = request.SerializeToString()
+    # if(software_trigger):
+    #     request = pb_low.cmd_doSoftwareTrigger()
+    #     envelope = pb_high.ControlEnvelope()
+    #     envelope.type = pb_high.DO_SOFTWARE_TRIGGER
+    #     envelope.payload = request.SerializeToString()
 
-        socket.send(envelope.SerializeToString())
-        response_bytes = socket.recv()
+    #     socket.send(envelope.SerializeToString())
+    #     response_bytes = socket.recv()
 
-        responseEnvelope = pb_high.ControlEnvelope()
-        responseEnvelope.ParseFromString(response_bytes)
+    #     responseEnvelope = pb_high.ControlEnvelope()
+    #     responseEnvelope.ParseFromString(response_bytes)
 
-        if responseEnvelope.type == pb_high.DO_SOFTWARE_TRIGGER:
-            response = pb_low.cmd_doSoftwareTrigger_response()
-            response.ParseFromString(responseEnvelope.payload)
-        # print("Success:", response.success)
-        # print("Message:", response.message)
+    #     if responseEnvelope.type == pb_high.DO_SOFTWARE_TRIGGER:
+    #         response = pb_low.cmd_doSoftwareTrigger_response()
+    #         response.ParseFromString(responseEnvelope.payload)
+    #     # print("Success:", response.success)
+    #     # print("Message:", response.message)
 
     # DUMP SPYBUFFER
     request = pb_high.DumpSpyBuffersRequest()
     request.channel = channel
+    request.numberOfWaveforms = 1
+    if software_trigger:
+        request.softwareTrigger = True
+    else:
+        request.softwareTrigger = False
     request.numberOfSamples = length_of_waveforms
 
     envelope = pb_high.ControlEnvelope()
@@ -124,7 +129,7 @@ while True:
         # print("Success:", response.success)
         # print("Message:", response.message)
 
-    y = np.array(response.data)
+    y = np.array(response.data, dtype='uint32')
 
     # get max and min values for y and their indices
     max_y = np.max(y)
