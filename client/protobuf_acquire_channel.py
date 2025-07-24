@@ -17,7 +17,7 @@ from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
 parser = argparse.ArgumentParser(description="Acquisition of waveforms.")
 parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
 parser.add_argument("-port", type=int, required=False, default=9000, help="Port number of DAPHNE.")
-parser.add_argument("-channel", type=int, required=True, help="0-39")
+parser.add_argument("-channel", type=int, choices=range(0, 40), required=True, help="0-39")
 parser.add_argument("-filename", type=str, required=True, help="File location")
 parser.add_argument("-N", type=int, required=True, help="Number of waveform")
 parser.add_argument("-L", type=int, required=True, help="Length of waveform")
