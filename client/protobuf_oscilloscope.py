@@ -23,7 +23,7 @@ parser.add_argument("-software_trigger", action='store_true', help="Enables soft
 parser.add_argument("-enable_info", action='store_true', required=False, help="Enables information display (RMS, Peak-to-Peak).")
 parser.add_argument("-enable_fft", action='store_true', required=False, help="Opens a second windows for live FFT display.")
 parser.add_argument("-fft_avg_waves", type=int, required=False, default=100, help="Sets the number of averaged waveforms for FFT display. Default 10.")
-parser.add_argument("-fft_window_function", type=str, required=False, default="BLACKMAN-HARRIS", choices=["NONE","HANNING", "HAMMING", "BLACKMAN", "BLACKMAN-HARRIS", "TUKEY"], help="Sets the window function for FFT display. Default HANNING.")
+parser.add_argument("-fft_window_function", type=str, required=False, default="BLACKMAN-HARRIS", choices=["NONE","HANNING", "HAMMING", "BLACKMAN", "BLACKMAN-HARRIS", "TUKEY"], help="Sets the window function for FFT display. Default BLACKMAN-HARRIS.")
 
 # Parse arguments
 args = parser.parse_args()
