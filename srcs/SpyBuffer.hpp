@@ -37,8 +37,10 @@ public:
     double getOutputVoltage(const uint32_t& sample = 0);
     void setCurrentMappedChannelIndex(uint32_t index);
     const uint32_t* getCurrentChannelDataPointer() const;
+    const uint32_t* getChannelDataPointer(uint32_t index) const;
     void extractMappedDataBulk(uint32_t* output, uint32_t numberOfSamples) const;
     void extractMappedDataBulkSIMD(uint32_t* dst, uint32_t nSamples);
+    void extractMappedDataBulkSIMD(uint32_t* dst, uint32_t nSamples, uint32_t channel_index);
 
 private:
     std::unique_ptr<FpgaReg> fpgaReg;
