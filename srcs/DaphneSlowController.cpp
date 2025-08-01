@@ -276,7 +276,7 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse 
             // Parallelize across channels for each waveform
             for (int j = 0; j < numberOfWaveforms; ++j) {
                 if (softwareTrigger) frontEnd->doTrigger();
-                #pragma omp parallel for
+                //#pragma omp parallel for
                 for (int i = 0; i < channelList.size(); ++i) {
                     uint32_t channel = channelList[i];
                     uint32_t* waveform_start = data_ptr + numberOfSamples * (j * channelList.size() + i);
@@ -989,7 +989,7 @@ int main(int argc, char* argv[]) {
     std::string socket_ip_address = "tcp://" + ip_address + ":" + std::to_string(port); 
     try {
         socket.bind(socket_ip_address.c_str());
-        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_21" << std::endl;
+        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_22" << std::endl;
         std::cout << "ZMQ Reply socket initialized in " << socket_ip_address << std::endl;
     } catch (std::exception &e){
         std::cerr << "Error initializing ZMQ socket: " << e.what() << std::endl;
