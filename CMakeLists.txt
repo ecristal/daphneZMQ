@@ -140,7 +140,7 @@ message(STATUS "Abseil libs: ${absl_LIBRARIES}")
 
 set(APP_NAME "DaphneSlowController")
 set(APP_EXEC "${APP_NAME}")
-set(APP_VERSION "V0_01_26")
+set(APP_VERSION "V0_01_27")
 set(APP_ICON "daphe_slow_controller_logo")
 set(APP_COMMENT "Slow Control Interface for DAPHNE V3")
 set(APPDIR "${CMAKE_BINARY_DIR}/${APP_NAME}_${APP_VERSION}")

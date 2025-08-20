@@ -329,6 +329,80 @@ struct DumpSpyBuffersRequestDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DumpSpyBuffersRequestDefaultTypeInternal _DumpSpyBuffersRequest_default_instance_;
 
+inline constexpr DumpSpyBuffersChunkResponse::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        channellist_{},
+        _channellist_cached_byte_size_{0},
+        data_{},
+        _data_cached_byte_size_{0},
+        requestid_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        message_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        success_{false},
+        isfinal_{false},
+        chunkseq_{0u},
+        waveformstart_{0u},
+        waveformcount_{0u},
+        requesttotalwaveforms_{0u},
+        numberofsamples_{0u} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR DumpSpyBuffersChunkResponse::DumpSpyBuffersChunkResponse(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(DumpSpyBuffersChunkResponse_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct DumpSpyBuffersChunkResponseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DumpSpyBuffersChunkResponseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DumpSpyBuffersChunkResponseDefaultTypeInternal() {}
+  union {
+    DumpSpyBuffersChunkResponse _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DumpSpyBuffersChunkResponseDefaultTypeInternal _DumpSpyBuffersChunkResponse_default_instance_;
+
+inline constexpr DumpSpyBuffersChunkRequest::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        channellist_{},
+        _channellist_cached_byte_size_{0},
+        requestid_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        numberofsamples_{0u},
+        numberofwaveforms_{0u},
+        softwaretrigger_{false},
+        chunksize_{0u} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR DumpSpyBuffersChunkRequest::DumpSpyBuffersChunkRequest(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(DumpSpyBuffersChunkRequest_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct DumpSpyBuffersChunkRequestDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR DumpSpyBuffersChunkRequestDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~DumpSpyBuffersChunkRequestDefaultTypeInternal() {}
+  union {
+    DumpSpyBuffersChunkRequest _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 DumpSpyBuffersChunkRequestDefaultTypeInternal _DumpSpyBuffersChunkRequest_default_instance_;
+
 inline constexpr ControlEnvelope::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
@@ -860,6 +934,56 @@ const ::uint32_t
         3,
         ~0u,
         0,
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkRequest, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkRequest, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkRequest, _impl_.channellist_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkRequest, _impl_.numberofsamples_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkRequest, _impl_.numberofwaveforms_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkRequest, _impl_.softwaretrigger_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkRequest, _impl_.requestid_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkRequest, _impl_.chunksize_),
+        ~0u,
+        1,
+        2,
+        3,
+        0,
+        4,
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkResponse, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkResponse, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkResponse, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkResponse, _impl_.requestid_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkResponse, _impl_.chunkseq_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkResponse, _impl_.isfinal_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkResponse, _impl_.waveformstart_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkResponse, _impl_.waveformcount_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkResponse, _impl_.requesttotalwaveforms_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkResponse, _impl_.numberofsamples_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkResponse, _impl_.channellist_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkResponse, _impl_.data_),
+        PROTOBUF_FIELD_OFFSET(::DumpSpyBuffersChunkResponse, _impl_.message_),
+        2,
+        0,
+        4,
+        3,
+        5,
+        6,
+        7,
+        8,
+        ~0u,
+        ~0u,
+        1,
         PROTOBUF_FIELD_OFFSET(::InfoRequest, _impl_._has_bits_),
         PROTOBUF_FIELD_OFFSET(::InfoRequest, _internal_metadata_),
         ~0u,  // no _extensions_
@@ -1006,15 +1130,17 @@ static const ::_pbi::MigrationSchema
         {158, 168, -1, sizeof(::ScrapResponse)},
         {170, 182, -1, sizeof(::DumpSpyBuffersRequest)},
         {186, 201, -1, sizeof(::DumpSpyBuffersResponse)},
-        {208, 217, -1, sizeof(::InfoRequest)},
-        {218, 229, -1, sizeof(::InfoResponse)},
-        {232, 244, -1, sizeof(::StreamInfo)},
-        {248, 261, -1, sizeof(::ChannelInfo)},
-        {266, 283, -1, sizeof(::GeneralInfo)},
-        {292, -1, -1, sizeof(::WriteMultipleRegisterRequest)},
-        {301, 311, -1, sizeof(::WriteRegister)},
-        {313, 323, -1, sizeof(::WriteRegisterResponse)},
-        {325, 335, -1, sizeof(::ControlEnvelope)},
+        {208, 222, -1, sizeof(::DumpSpyBuffersChunkRequest)},
+        {228, 247, -1, sizeof(::DumpSpyBuffersChunkResponse)},
+        {258, 267, -1, sizeof(::InfoRequest)},
+        {268, 279, -1, sizeof(::InfoResponse)},
+        {282, 294, -1, sizeof(::StreamInfo)},
+        {298, 311, -1, sizeof(::ChannelInfo)},
+        {316, 333, -1, sizeof(::GeneralInfo)},
+        {342, -1, -1, sizeof(::WriteMultipleRegisterRequest)},
+        {351, 361, -1, sizeof(::WriteRegister)},
+        {363, 373, -1, sizeof(::WriteRegisterResponse)},
+        {375, 385, -1, sizeof(::ControlEnvelope)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::_ConfigureCLKsRequest_default_instance_._instance,
@@ -1030,6 +1156,8 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::_ScrapResponse_default_instance_._instance,
     &::_DumpSpyBuffersRequest_default_instance_._instance,
     &::_DumpSpyBuffersResponse_default_instance_._instance,
+    &::_DumpSpyBuffersChunkRequest_default_instance_._instance,
+    &::_DumpSpyBuffersChunkResponse_default_instance_._instance,
     &::_InfoRequest_default_instance_._instance,
     &::_InfoResponse_default_instance_._instance,
     &::_StreamInfo_default_instance_._instance,
@@ -1075,58 +1203,70 @@ const char descriptor_table_protodef_daphneV3_5fhigh_5flevel_5fconfs_2eproto[] A
     "esponse\022\017\n\007success\030\001 \001(\010\022\023\n\013channelList\030"
     "\002 \003(\r\022\027\n\017numberOfSamples\030\003 \001(\r\022\031\n\021number"
     "OfWaveforms\030\004 \001(\r\022\027\n\017softwareTrigger\030\005 \001"
-    "(\010\022\020\n\004data\030\006 \003(\rB\002\020\001\022\017\n\007message\030\007 \001(\t\"\034\n"
-    "\013InfoRequest\022\r\n\005level\030\001 \001(\r\"t\n\014InfoRespo"
-    "nse\022 \n\013stream_info\030\001 \001(\0132\013.StreamInfo\022\036\n"
-    "\010channels\030\002 \003(\0132\014.ChannelInfo\022\"\n\014general"
-    "_info\030\003 \001(\0132\014.GeneralInfo\"t\n\nStreamInfo\022"
-    "\025\n\rtotal_packets\030\001 \001(\004\022\023\n\013new_packets\030\002 "
-    "\001(\004\022\035\n\025total_dropped_packets\030\003 \001(\004\022\033\n\023ne"
-    "w_dropped_packets\030\004 \001(\004\"s\n\013ChannelInfo\022\n"
-    "\n\002id\030\001 \001(\r\022\026\n\016total_triggers\030\002 \001(\004\022\024\n\014ne"
-    "w_triggers\030\003 \001(\004\022\025\n\rtotal_packets\030\004 \001(\004\022"
-    "\023\n\013new_packets\030\005 \001(\004\"\275\001\n\013GeneralInfo\022\020\n\010"
-    "v_bias_0\030\001 \001(\001\022\020\n\010v_bias_1\030\002 \001(\001\022\020\n\010v_bi"
-    "as_2\030\003 \001(\001\022\020\n\010v_bias_3\030\004 \001(\001\022\020\n\010v_bias_4"
-    "\030\005 \001(\001\022\025\n\rpower_minus5v\030\006 \001(\001\022\026\n\016power_p"
-    "lus2p5v\030\007 \001(\001\022\020\n\010power_ce\030\010 \001(\001\022\023\n\013tempe"
-    "rature\030\t \001(\001\">\n\034WriteMultipleRegisterReq"
-    "uest\022\036\n\006writes\030\001 \003(\0132\016.WriteRegister\"/\n\r"
-    "WriteRegister\022\017\n\007address\030\001 \001(\004\022\r\n\005value\030"
-    "\002 \001(\004\"9\n\025WriteRegisterResponse\022\017\n\007succes"
-    "s\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\">\n\017ControlEnvel"
-    "ope\022\032\n\004type\030\001 \001(\0162\014.MessageType\022\017\n\007paylo"
-    "ad\030\002 \001(\014*\341\005\n\013MessageType\022\013\n\007UNKNOWN\020\000\022\022\n"
-    "\016CONFIGURE_CLKS\020\001\022\020\n\014CONFIGURE_FE\020\002\022\021\n\rW"
-    "RITE_AFE_REG\020\003\022\023\n\017WRITE_AFE_VGAIN\020\004\022\026\n\022W"
-    "RITE_AFE_BIAS_SET\020\005\022\025\n\021WRITE_TRIM_ALL_CH"
-    "\020\006\022\026\n\022WRITE_TRIM_ALL_AFE\020\007\022\021\n\rWRITE_TRIM"
-    "_CH\020\010\022\027\n\023WRITE_OFFSET_ALL_CH\020\t\022\030\n\024WRITE_"
-    "OFFSET_ALL_AFE\020\n\022\023\n\017WRITE_OFFSET_CH\020\013\022\027\n"
-    "\023WRITE_VBIAS_CONTROL\020\014\022\020\n\014READ_AFE_REG\020\r"
-    "\022\022\n\016READ_AFE_VGAIN\020\016\022\025\n\021READ_AFE_BIAS_SE"
-    "T\020\017\022\024\n\020READ_TRIM_ALL_CH\020\020\022\025\n\021READ_TRIM_A"
-    "LL_AFE\020\021\022\020\n\014READ_TRIM_CH\020\022\022\026\n\022READ_OFFSE"
-    "T_ALL_CH\020\023\022\027\n\023READ_OFFSET_ALL_AFE\020\024\022\022\n\016R"
-    "EAD_OFFSET_CH\020\025\022\026\n\022READ_VBIAS_CONTROL\020\026\022"
-    "\030\n\024READ_CURRENT_MONITOR\020\027\022\035\n\031READ_BIAS_V"
-    "OLTAGE_MONITOR\020\030\022\021\n\rSET_AFE_RESET\020\031\022\020\n\014D"
-    "O_AFE_RESET\020\032\022\026\n\022SET_AFE_POWERSTATE\020\033\022\031\n"
-    "\025WRITE_AFE_ATTENUATION\020\034\022\022\n\016DUMP_SPYBUFF"
-    "ER\020\035\022\r\n\tALIGN_AFE\020\036\022\026\n\022WRITE_AFE_FUNCTIO"
-    "N\020\037\022\027\n\023DO_SOFTWARE_TRIGGER\020 b\006proto3"
+    "(\010\022\020\n\004data\030\006 \003(\rB\002\020\001\022\017\n\007message\030\007 \001(\t\"\244\001"
+    "\n\032DumpSpyBuffersChunkRequest\022\023\n\013channelL"
+    "ist\030\001 \003(\r\022\027\n\017numberOfSamples\030\002 \001(\r\022\031\n\021nu"
+    "mberOfWaveforms\030\003 \001(\r\022\027\n\017softwareTrigger"
+    "\030\004 \001(\010\022\021\n\trequestID\030\005 \001(\t\022\021\n\tchunkSize\030\006"
+    " \001(\r\"\376\001\n\033DumpSpyBuffersChunkResponse\022\017\n\007"
+    "success\030\001 \001(\010\022\021\n\trequestID\030\002 \001(\t\022\020\n\010chun"
+    "kseq\030\003 \001(\r\022\017\n\007isFinal\030\004 \001(\010\022\025\n\rwaveformS"
+    "tart\030\005 \001(\r\022\025\n\rwaveformCount\030\006 \001(\r\022\035\n\025req"
+    "uestTotalWaveforms\030\007 \001(\r\022\027\n\017numberOfSamp"
+    "les\030\010 \001(\r\022\023\n\013channelList\030\t \003(\r\022\014\n\004data\030\n"
+    " \003(\r\022\017\n\007message\030\013 \001(\t\"\034\n\013InfoRequest\022\r\n\005"
+    "level\030\001 \001(\r\"t\n\014InfoResponse\022 \n\013stream_in"
+    "fo\030\001 \001(\0132\013.StreamInfo\022\036\n\010channels\030\002 \003(\0132"
+    "\014.ChannelInfo\022\"\n\014general_info\030\003 \001(\0132\014.Ge"
+    "neralInfo\"t\n\nStreamInfo\022\025\n\rtotal_packets"
+    "\030\001 \001(\004\022\023\n\013new_packets\030\002 \001(\004\022\035\n\025total_dro"
+    "pped_packets\030\003 \001(\004\022\033\n\023new_dropped_packet"
+    "s\030\004 \001(\004\"s\n\013ChannelInfo\022\n\n\002id\030\001 \001(\r\022\026\n\016to"
+    "tal_triggers\030\002 \001(\004\022\024\n\014new_triggers\030\003 \001(\004"
+    "\022\025\n\rtotal_packets\030\004 \001(\004\022\023\n\013new_packets\030\005"
+    " \001(\004\"\275\001\n\013GeneralInfo\022\020\n\010v_bias_0\030\001 \001(\001\022\020"
+    "\n\010v_bias_1\030\002 \001(\001\022\020\n\010v_bias_2\030\003 \001(\001\022\020\n\010v_"
+    "bias_3\030\004 \001(\001\022\020\n\010v_bias_4\030\005 \001(\001\022\025\n\rpower_"
+    "minus5v\030\006 \001(\001\022\026\n\016power_plus2p5v\030\007 \001(\001\022\020\n"
+    "\010power_ce\030\010 \001(\001\022\023\n\013temperature\030\t \001(\001\">\n\034"
+    "WriteMultipleRegisterRequest\022\036\n\006writes\030\001"
+    " \003(\0132\016.WriteRegister\"/\n\rWriteRegister\022\017\n"
+    "\007address\030\001 \001(\004\022\r\n\005value\030\002 \001(\004\"9\n\025WriteRe"
+    "gisterResponse\022\017\n\007success\030\001 \001(\010\022\017\n\007messa"
+    "ge\030\002 \001(\t\">\n\017ControlEnvelope\022\032\n\004type\030\001 \001("
+    "\0162\014.MessageType\022\017\n\007payload\030\002 \001(\014*\373\005\n\013Mes"
+    "sageType\022\013\n\007UNKNOWN\020\000\022\022\n\016CONFIGURE_CLKS\020"
+    "\001\022\020\n\014CONFIGURE_FE\020\002\022\021\n\rWRITE_AFE_REG\020\003\022\023"
+    "\n\017WRITE_AFE_VGAIN\020\004\022\026\n\022WRITE_AFE_BIAS_SE"
+    "T\020\005\022\025\n\021WRITE_TRIM_ALL_CH\020\006\022\026\n\022WRITE_TRIM"
+    "_ALL_AFE\020\007\022\021\n\rWRITE_TRIM_CH\020\010\022\027\n\023WRITE_O"
+    "FFSET_ALL_CH\020\t\022\030\n\024WRITE_OFFSET_ALL_AFE\020\n"
+    "\022\023\n\017WRITE_OFFSET_CH\020\013\022\027\n\023WRITE_VBIAS_CON"
+    "TROL\020\014\022\020\n\014READ_AFE_REG\020\r\022\022\n\016READ_AFE_VGA"
+    "IN\020\016\022\025\n\021READ_AFE_BIAS_SET\020\017\022\024\n\020READ_TRIM"
+    "_ALL_CH\020\020\022\025\n\021READ_TRIM_ALL_AFE\020\021\022\020\n\014READ"
+    "_TRIM_CH\020\022\022\026\n\022READ_OFFSET_ALL_CH\020\023\022\027\n\023RE"
+    "AD_OFFSET_ALL_AFE\020\024\022\022\n\016READ_OFFSET_CH\020\025\022"
+    "\026\n\022READ_VBIAS_CONTROL\020\026\022\030\n\024READ_CURRENT_"
+    "MONITOR\020\027\022\035\n\031READ_BIAS_VOLTAGE_MONITOR\020\030"
+    "\022\021\n\rSET_AFE_RESET\020\031\022\020\n\014DO_AFE_RESET\020\032\022\026\n"
+    "\022SET_AFE_POWERSTATE\020\033\022\031\n\025WRITE_AFE_ATTEN"
+    "UATION\020\034\022\022\n\016DUMP_SPYBUFFER\020\035\022\r\n\tALIGN_AF"
+    "E\020\036\022\026\n\022WRITE_AFE_FUNCTION\020\037\022\027\n\023DO_SOFTWA"
+    "RE_TRIGGER\020 \022\030\n\024DUMP_SPYBUFFER_CHUNK\020db\006"
+    "proto3"
 };
 static ::absl::once_flag descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto = {
     false,
     false,
-    2916,
+    3366,
     descriptor_table_protodef_daphneV3_5fhigh_5flevel_5fconfs_2eproto,
     "daphneV3_high_level_confs.proto",
     &descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto_once,
     nullptr,
     0,
-    22,
+    24,
     schemas,
     file_default_instances,
     TableStruct_daphneV3_5fhigh_5flevel_5fconfs_2eproto::offsets,
@@ -1138,7 +1278,7 @@ const ::google::protobuf::EnumDescriptor* PROTOBUF_NONNULL MessageType_descripto
   return file_level_enum_descriptors_daphneV3_5fhigh_5flevel_5fconfs_2eproto[0];
 }
 PROTOBUF_CONSTINIT const uint32_t MessageType_internal_data_[] = {
-    2162688u, 0u, };
+    2162688u, 65536u, 100u, };
 // ===================================================================
 
 class ConfigureCLKsRequest::_Internal {
@@ -5616,6 +5756,1049 @@ void DumpSpyBuffersResponse::InternalSwap(DumpSpyBuffersResponse* PROTOBUF_RESTR
 }
 
 ::google::protobuf::Metadata DumpSpyBuffersResponse::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class DumpSpyBuffersChunkRequest::_Internal {
+ public:
+  using HasBits =
+      decltype(std::declval<DumpSpyBuffersChunkRequest>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_._has_bits_);
+};
+
+DumpSpyBuffersChunkRequest::DumpSpyBuffersChunkRequest(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, DumpSpyBuffersChunkRequest_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:DumpSpyBuffersChunkRequest)
+}
+PROTOBUF_NDEBUG_INLINE DumpSpyBuffersChunkRequest::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::DumpSpyBuffersChunkRequest& from_msg)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        channellist_{visibility, arena, from.channellist_},
+        _channellist_cached_byte_size_{0},
+        requestid_(arena, from.requestid_) {}
+
+DumpSpyBuffersChunkRequest::DumpSpyBuffersChunkRequest(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const DumpSpyBuffersChunkRequest& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, DumpSpyBuffersChunkRequest_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  DumpSpyBuffersChunkRequest* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  ::memcpy(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, numberofsamples_),
+           reinterpret_cast<const char *>(&from._impl_) +
+               offsetof(Impl_, numberofsamples_),
+           offsetof(Impl_, chunksize_) -
+               offsetof(Impl_, numberofsamples_) +
+               sizeof(Impl_::chunksize_));
+
+  // @@protoc_insertion_point(copy_constructor:DumpSpyBuffersChunkRequest)
+}
+PROTOBUF_NDEBUG_INLINE DumpSpyBuffersChunkRequest::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0},
+        channellist_{visibility, arena},
+        _channellist_cached_byte_size_{0},
+        requestid_(arena) {}
+
+inline void DumpSpyBuffersChunkRequest::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, numberofsamples_),
+           0,
+           offsetof(Impl_, chunksize_) -
+               offsetof(Impl_, numberofsamples_) +
+               sizeof(Impl_::chunksize_));
+}
+DumpSpyBuffersChunkRequest::~DumpSpyBuffersChunkRequest() {
+  // @@protoc_insertion_point(destructor:DumpSpyBuffersChunkRequest)
+  SharedDtor(*this);
+}
+inline void DumpSpyBuffersChunkRequest::SharedDtor(MessageLite& self) {
+  DumpSpyBuffersChunkRequest& this_ = static_cast<DumpSpyBuffersChunkRequest&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.requestid_.Destroy();
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL DumpSpyBuffersChunkRequest::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) DumpSpyBuffersChunkRequest(arena);
+}
+constexpr auto DumpSpyBuffersChunkRequest::InternalNewImpl_() {
+  constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
+      PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.channellist_) +
+          decltype(DumpSpyBuffersChunkRequest::_impl_.channellist_)::
+              InternalGetArenaOffset(
+                  ::google::protobuf::Message::internal_visibility()),
+  });
+  if (arena_bits.has_value()) {
+    return ::google::protobuf::internal::MessageCreator::CopyInit(
+        sizeof(DumpSpyBuffersChunkRequest), alignof(DumpSpyBuffersChunkRequest), *arena_bits);
+  } else {
+    return ::google::protobuf::internal::MessageCreator(&DumpSpyBuffersChunkRequest::PlacementNew_,
+                                 sizeof(DumpSpyBuffersChunkRequest),
+                                 alignof(DumpSpyBuffersChunkRequest));
+  }
+}
+constexpr auto DumpSpyBuffersChunkRequest::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_DumpSpyBuffersChunkRequest_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &DumpSpyBuffersChunkRequest::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<DumpSpyBuffersChunkRequest>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &DumpSpyBuffersChunkRequest::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<DumpSpyBuffersChunkRequest>(), &DumpSpyBuffersChunkRequest::ByteSizeLong,
+              &DumpSpyBuffersChunkRequest::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_._cached_size_),
+          false,
+      },
+      &DumpSpyBuffersChunkRequest::kDescriptorMethods,
+      &descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const ::google::protobuf::internal::ClassDataFull
+        DumpSpyBuffersChunkRequest_class_data_ =
+            DumpSpyBuffersChunkRequest::InternalGenerateClassData_();
+
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL DumpSpyBuffersChunkRequest::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&DumpSpyBuffersChunkRequest_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(DumpSpyBuffersChunkRequest_class_data_.tc_table);
+  return DumpSpyBuffersChunkRequest_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<3, 6, 0, 44, 2>
+DumpSpyBuffersChunkRequest::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_._has_bits_),
+    0, // no _extensions_
+    6, 56,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967232,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    6,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    DumpSpyBuffersChunkRequest_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::DumpSpyBuffersChunkRequest>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+    // repeated uint32 channelList = 1;
+    {::_pbi::TcParser::FastV32P1,
+     {10, 63, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.channellist_)}},
+    // uint32 numberOfSamples = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersChunkRequest, _impl_.numberofsamples_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.numberofsamples_)}},
+    // uint32 numberOfWaveforms = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersChunkRequest, _impl_.numberofwaveforms_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.numberofwaveforms_)}},
+    // bool softwareTrigger = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(DumpSpyBuffersChunkRequest, _impl_.softwaretrigger_), 3>(),
+     {32, 3, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.softwaretrigger_)}},
+    // string requestID = 5;
+    {::_pbi::TcParser::FastUS1,
+     {42, 0, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.requestid_)}},
+    // uint32 chunkSize = 6;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersChunkRequest, _impl_.chunksize_), 4>(),
+     {48, 4, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.chunksize_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // repeated uint32 channelList = 1;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.channellist_), -1, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kPackedUInt32)},
+    // uint32 numberOfSamples = 2;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.numberofsamples_), _Internal::kHasBitsOffset + 1, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 numberOfWaveforms = 3;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.numberofwaveforms_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool softwareTrigger = 4;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.softwaretrigger_), _Internal::kHasBitsOffset + 3, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
+    // string requestID = 5;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.requestid_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // uint32 chunkSize = 6;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.chunksize_), _Internal::kHasBitsOffset + 4, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+  }},
+  // no aux_entries
+  {{
+    "\32\0\0\0\0\11\0\0"
+    "DumpSpyBuffersChunkRequest"
+    "requestID"
+  }},
+};
+PROTOBUF_NOINLINE void DumpSpyBuffersChunkRequest::Clear() {
+// @@protoc_insertion_point(message_clear_start:DumpSpyBuffersChunkRequest)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.channellist_.Clear();
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    _impl_.requestid_.ClearNonDefaultToEmpty();
+  }
+  if ((cached_has_bits & 0x0000001eu) != 0) {
+    ::memset(&_impl_.numberofsamples_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.chunksize_) -
+        reinterpret_cast<char*>(&_impl_.numberofsamples_)) + sizeof(_impl_.chunksize_));
+  }
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL DumpSpyBuffersChunkRequest::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const DumpSpyBuffersChunkRequest& this_ = static_cast<const DumpSpyBuffersChunkRequest&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL DumpSpyBuffersChunkRequest::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const DumpSpyBuffersChunkRequest& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(serialize_to_array_start:DumpSpyBuffersChunkRequest)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // repeated uint32 channelList = 1;
+  {
+    int byte_size = this_._impl_._channellist_cached_byte_size_.Get();
+    if (byte_size > 0) {
+      target = stream->WriteUInt32Packed(
+          1, this_._internal_channellist(), byte_size, target);
+    }
+  }
+
+  // uint32 numberOfSamples = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_numberofsamples() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          2, this_._internal_numberofsamples(), target);
+    }
+  }
+
+  // uint32 numberOfWaveforms = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (this_._internal_numberofwaveforms() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          3, this_._internal_numberofwaveforms(), target);
+    }
+  }
+
+  // bool softwareTrigger = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+    if (this_._internal_softwaretrigger() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          4, this_._internal_softwaretrigger(), target);
+    }
+  }
+
+  // string requestID = 5;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (!this_._internal_requestid().empty()) {
+      const std::string& _s = this_._internal_requestid();
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "DumpSpyBuffersChunkRequest.requestID");
+      target = stream->WriteStringMaybeAliased(5, _s, target);
+    }
+  }
+
+  // uint32 chunkSize = 6;
+  if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
+    if (this_._internal_chunksize() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          6, this_._internal_chunksize(), target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:DumpSpyBuffersChunkRequest)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t DumpSpyBuffersChunkRequest::ByteSizeLong(const MessageLite& base) {
+  const DumpSpyBuffersChunkRequest& this_ = static_cast<const DumpSpyBuffersChunkRequest&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t DumpSpyBuffersChunkRequest::ByteSizeLong() const {
+  const DumpSpyBuffersChunkRequest& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:DumpSpyBuffersChunkRequest)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+   {
+    // repeated uint32 channelList = 1;
+    {
+      total_size +=
+          ::_pbi::WireFormatLite::UInt32SizeWithPackedTagSize(
+              this_._internal_channellist(), 1,
+              this_._impl_._channellist_cached_byte_size_);
+    }
+  }
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x0000001fu) != 0) {
+    // string requestID = 5;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!this_._internal_requestid().empty()) {
+        total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                        this_._internal_requestid());
+      }
+    }
+    // uint32 numberOfSamples = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (this_._internal_numberofsamples() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_numberofsamples());
+      }
+    }
+    // uint32 numberOfWaveforms = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_numberofwaveforms() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_numberofwaveforms());
+      }
+    }
+    // bool softwareTrigger = 4;
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (this_._internal_softwaretrigger() != 0) {
+        total_size += 2;
+      }
+    }
+    // uint32 chunkSize = 6;
+    if ((cached_has_bits & 0x00000010u) != 0) {
+      if (this_._internal_chunksize() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_chunksize());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void DumpSpyBuffersChunkRequest::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<DumpSpyBuffersChunkRequest*>(&to_msg);
+  auto& from = static_cast<const DumpSpyBuffersChunkRequest&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:DumpSpyBuffersChunkRequest)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_internal_mutable_channellist()->MergeFrom(from._internal_channellist());
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x0000001fu) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!from._internal_requestid().empty()) {
+        _this->_internal_set_requestid(from._internal_requestid());
+      } else {
+        if (_this->_impl_.requestid_.IsDefault()) {
+          _this->_internal_set_requestid("");
+        }
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_numberofsamples() != 0) {
+        _this->_impl_.numberofsamples_ = from._impl_.numberofsamples_;
+      }
+    }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_numberofwaveforms() != 0) {
+        _this->_impl_.numberofwaveforms_ = from._impl_.numberofwaveforms_;
+      }
+    }
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (from._internal_softwaretrigger() != 0) {
+        _this->_impl_.softwaretrigger_ = from._impl_.softwaretrigger_;
+      }
+    }
+    if ((cached_has_bits & 0x00000010u) != 0) {
+      if (from._internal_chunksize() != 0) {
+        _this->_impl_.chunksize_ = from._impl_.chunksize_;
+      }
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void DumpSpyBuffersChunkRequest::CopyFrom(const DumpSpyBuffersChunkRequest& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:DumpSpyBuffersChunkRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void DumpSpyBuffersChunkRequest::InternalSwap(DumpSpyBuffersChunkRequest* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  _impl_.channellist_.InternalSwap(&other->_impl_.channellist_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.requestid_, &other->_impl_.requestid_, arena);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.chunksize_)
+      + sizeof(DumpSpyBuffersChunkRequest::_impl_.chunksize_)
+      - PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkRequest, _impl_.numberofsamples_)>(
+          reinterpret_cast<char*>(&_impl_.numberofsamples_),
+          reinterpret_cast<char*>(&other->_impl_.numberofsamples_));
+}
+
+::google::protobuf::Metadata DumpSpyBuffersChunkRequest::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
+class DumpSpyBuffersChunkResponse::_Internal {
+ public:
+  using HasBits =
+      decltype(std::declval<DumpSpyBuffersChunkResponse>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_._has_bits_);
+};
+
+DumpSpyBuffersChunkResponse::DumpSpyBuffersChunkResponse(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, DumpSpyBuffersChunkResponse_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:DumpSpyBuffersChunkResponse)
+}
+PROTOBUF_NDEBUG_INLINE DumpSpyBuffersChunkResponse::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::DumpSpyBuffersChunkResponse& from_msg)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        channellist_{visibility, arena, from.channellist_},
+        _channellist_cached_byte_size_{0},
+        data_{visibility, arena, from.data_},
+        _data_cached_byte_size_{0},
+        requestid_(arena, from.requestid_),
+        message_(arena, from.message_) {}
+
+DumpSpyBuffersChunkResponse::DumpSpyBuffersChunkResponse(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const DumpSpyBuffersChunkResponse& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, DumpSpyBuffersChunkResponse_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  DumpSpyBuffersChunkResponse* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  ::memcpy(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, success_),
+           reinterpret_cast<const char *>(&from._impl_) +
+               offsetof(Impl_, success_),
+           offsetof(Impl_, numberofsamples_) -
+               offsetof(Impl_, success_) +
+               sizeof(Impl_::numberofsamples_));
+
+  // @@protoc_insertion_point(copy_constructor:DumpSpyBuffersChunkResponse)
+}
+PROTOBUF_NDEBUG_INLINE DumpSpyBuffersChunkResponse::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0},
+        channellist_{visibility, arena},
+        _channellist_cached_byte_size_{0},
+        data_{visibility, arena},
+        _data_cached_byte_size_{0},
+        requestid_(arena),
+        message_(arena) {}
+
+inline void DumpSpyBuffersChunkResponse::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, success_),
+           0,
+           offsetof(Impl_, numberofsamples_) -
+               offsetof(Impl_, success_) +
+               sizeof(Impl_::numberofsamples_));
+}
+DumpSpyBuffersChunkResponse::~DumpSpyBuffersChunkResponse() {
+  // @@protoc_insertion_point(destructor:DumpSpyBuffersChunkResponse)
+  SharedDtor(*this);
+}
+inline void DumpSpyBuffersChunkResponse::SharedDtor(MessageLite& self) {
+  DumpSpyBuffersChunkResponse& this_ = static_cast<DumpSpyBuffersChunkResponse&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.requestid_.Destroy();
+  this_._impl_.message_.Destroy();
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL DumpSpyBuffersChunkResponse::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) DumpSpyBuffersChunkResponse(arena);
+}
+constexpr auto DumpSpyBuffersChunkResponse::InternalNewImpl_() {
+  constexpr auto arena_bits = ::google::protobuf::internal::EncodePlacementArenaOffsets({
+      PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.channellist_) +
+          decltype(DumpSpyBuffersChunkResponse::_impl_.channellist_)::
+              InternalGetArenaOffset(
+                  ::google::protobuf::Message::internal_visibility()),
+      PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.data_) +
+          decltype(DumpSpyBuffersChunkResponse::_impl_.data_)::
+              InternalGetArenaOffset(
+                  ::google::protobuf::Message::internal_visibility()),
+  });
+  if (arena_bits.has_value()) {
+    return ::google::protobuf::internal::MessageCreator::CopyInit(
+        sizeof(DumpSpyBuffersChunkResponse), alignof(DumpSpyBuffersChunkResponse), *arena_bits);
+  } else {
+    return ::google::protobuf::internal::MessageCreator(&DumpSpyBuffersChunkResponse::PlacementNew_,
+                                 sizeof(DumpSpyBuffersChunkResponse),
+                                 alignof(DumpSpyBuffersChunkResponse));
+  }
+}
+constexpr auto DumpSpyBuffersChunkResponse::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_DumpSpyBuffersChunkResponse_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &DumpSpyBuffersChunkResponse::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<DumpSpyBuffersChunkResponse>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &DumpSpyBuffersChunkResponse::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<DumpSpyBuffersChunkResponse>(), &DumpSpyBuffersChunkResponse::ByteSizeLong,
+              &DumpSpyBuffersChunkResponse::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_._cached_size_),
+          false,
+      },
+      &DumpSpyBuffersChunkResponse::kDescriptorMethods,
+      &descriptor_table_daphneV3_5fhigh_5flevel_5fconfs_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const ::google::protobuf::internal::ClassDataFull
+        DumpSpyBuffersChunkResponse_class_data_ =
+            DumpSpyBuffersChunkResponse::InternalGenerateClassData_();
+
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL DumpSpyBuffersChunkResponse::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&DumpSpyBuffersChunkResponse_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(DumpSpyBuffersChunkResponse_class_data_.tc_table);
+  return DumpSpyBuffersChunkResponse_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<4, 11, 0, 60, 2>
+DumpSpyBuffersChunkResponse::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_._has_bits_),
+    0, // no _extensions_
+    11, 120,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294965248,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    11,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    DumpSpyBuffersChunkResponse_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::DumpSpyBuffersChunkResponse>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    {::_pbi::TcParser::MiniParse, {}},
+    // bool success = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(DumpSpyBuffersChunkResponse, _impl_.success_), 2>(),
+     {8, 2, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.success_)}},
+    // string requestID = 2;
+    {::_pbi::TcParser::FastUS1,
+     {18, 0, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.requestid_)}},
+    // uint32 chunkseq = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersChunkResponse, _impl_.chunkseq_), 4>(),
+     {24, 4, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.chunkseq_)}},
+    // bool isFinal = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(DumpSpyBuffersChunkResponse, _impl_.isfinal_), 3>(),
+     {32, 3, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.isfinal_)}},
+    // uint32 waveformStart = 5;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersChunkResponse, _impl_.waveformstart_), 5>(),
+     {40, 5, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.waveformstart_)}},
+    // uint32 waveformCount = 6;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersChunkResponse, _impl_.waveformcount_), 6>(),
+     {48, 6, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.waveformcount_)}},
+    // uint32 requestTotalWaveforms = 7;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersChunkResponse, _impl_.requesttotalwaveforms_), 7>(),
+     {56, 7, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.requesttotalwaveforms_)}},
+    // uint32 numberOfSamples = 8;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DumpSpyBuffersChunkResponse, _impl_.numberofsamples_), 8>(),
+     {64, 8, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.numberofsamples_)}},
+    // repeated uint32 channelList = 9;
+    {::_pbi::TcParser::FastV32P1,
+     {74, 63, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.channellist_)}},
+    // repeated uint32 data = 10;
+    {::_pbi::TcParser::FastV32P1,
+     {82, 63, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.data_)}},
+    // string message = 11;
+    {::_pbi::TcParser::FastUS1,
+     {90, 1, 0, PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.message_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+    {::_pbi::TcParser::MiniParse, {}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // bool success = 1;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.success_), _Internal::kHasBitsOffset + 2, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
+    // string requestID = 2;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.requestid_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
+    // uint32 chunkseq = 3;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.chunkseq_), _Internal::kHasBitsOffset + 4, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // bool isFinal = 4;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.isfinal_), _Internal::kHasBitsOffset + 3, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
+    // uint32 waveformStart = 5;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.waveformstart_), _Internal::kHasBitsOffset + 5, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 waveformCount = 6;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.waveformcount_), _Internal::kHasBitsOffset + 6, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 requestTotalWaveforms = 7;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.requesttotalwaveforms_), _Internal::kHasBitsOffset + 7, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // uint32 numberOfSamples = 8;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.numberofsamples_), _Internal::kHasBitsOffset + 8, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+    // repeated uint32 channelList = 9;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.channellist_), -1, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kPackedUInt32)},
+    // repeated uint32 data = 10;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.data_), -1, 0,
+    (0 | ::_fl::kFcRepeated | ::_fl::kPackedUInt32)},
+    // string message = 11;
+    {PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.message_), _Internal::kHasBitsOffset + 1, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
+  }},
+  // no aux_entries
+  {{
+    "\33\0\11\0\0\0\0\0\0\0\0\7\0\0\0\0"
+    "DumpSpyBuffersChunkResponse"
+    "requestID"
+    "message"
+  }},
+};
+PROTOBUF_NOINLINE void DumpSpyBuffersChunkResponse::Clear() {
+// @@protoc_insertion_point(message_clear_start:DumpSpyBuffersChunkResponse)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.channellist_.Clear();
+  _impl_.data_.Clear();
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      _impl_.requestid_.ClearNonDefaultToEmpty();
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      _impl_.message_.ClearNonDefaultToEmpty();
+    }
+  }
+  if ((cached_has_bits & 0x000000fcu) != 0) {
+    ::memset(&_impl_.success_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.requesttotalwaveforms_) -
+        reinterpret_cast<char*>(&_impl_.success_)) + sizeof(_impl_.requesttotalwaveforms_));
+  }
+  _impl_.numberofsamples_ = 0u;
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL DumpSpyBuffersChunkResponse::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const DumpSpyBuffersChunkResponse& this_ = static_cast<const DumpSpyBuffersChunkResponse&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL DumpSpyBuffersChunkResponse::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const DumpSpyBuffersChunkResponse& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(serialize_to_array_start:DumpSpyBuffersChunkResponse)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // bool success = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+    if (this_._internal_success() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          1, this_._internal_success(), target);
+    }
+  }
+
+  // string requestID = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (!this_._internal_requestid().empty()) {
+      const std::string& _s = this_._internal_requestid();
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "DumpSpyBuffersChunkResponse.requestID");
+      target = stream->WriteStringMaybeAliased(2, _s, target);
+    }
+  }
+
+  // uint32 chunkseq = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000010u) != 0) {
+    if (this_._internal_chunkseq() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          3, this_._internal_chunkseq(), target);
+    }
+  }
+
+  // bool isFinal = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
+    if (this_._internal_isfinal() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          4, this_._internal_isfinal(), target);
+    }
+  }
+
+  // uint32 waveformStart = 5;
+  if ((this_._impl_._has_bits_[0] & 0x00000020u) != 0) {
+    if (this_._internal_waveformstart() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          5, this_._internal_waveformstart(), target);
+    }
+  }
+
+  // uint32 waveformCount = 6;
+  if ((this_._impl_._has_bits_[0] & 0x00000040u) != 0) {
+    if (this_._internal_waveformcount() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          6, this_._internal_waveformcount(), target);
+    }
+  }
+
+  // uint32 requestTotalWaveforms = 7;
+  if ((this_._impl_._has_bits_[0] & 0x00000080u) != 0) {
+    if (this_._internal_requesttotalwaveforms() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          7, this_._internal_requesttotalwaveforms(), target);
+    }
+  }
+
+  // uint32 numberOfSamples = 8;
+  if ((this_._impl_._has_bits_[0] & 0x00000100u) != 0) {
+    if (this_._internal_numberofsamples() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          8, this_._internal_numberofsamples(), target);
+    }
+  }
+
+  // repeated uint32 channelList = 9;
+  {
+    int byte_size = this_._impl_._channellist_cached_byte_size_.Get();
+    if (byte_size > 0) {
+      target = stream->WriteUInt32Packed(
+          9, this_._internal_channellist(), byte_size, target);
+    }
+  }
+
+  // repeated uint32 data = 10;
+  {
+    int byte_size = this_._impl_._data_cached_byte_size_.Get();
+    if (byte_size > 0) {
+      target = stream->WriteUInt32Packed(
+          10, this_._internal_data(), byte_size, target);
+    }
+  }
+
+  // string message = 11;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (!this_._internal_message().empty()) {
+      const std::string& _s = this_._internal_message();
+      ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "DumpSpyBuffersChunkResponse.message");
+      target = stream->WriteStringMaybeAliased(11, _s, target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:DumpSpyBuffersChunkResponse)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t DumpSpyBuffersChunkResponse::ByteSizeLong(const MessageLite& base) {
+  const DumpSpyBuffersChunkResponse& this_ = static_cast<const DumpSpyBuffersChunkResponse&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t DumpSpyBuffersChunkResponse::ByteSizeLong() const {
+  const DumpSpyBuffersChunkResponse& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:DumpSpyBuffersChunkResponse)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+   {
+    // repeated uint32 channelList = 9;
+    {
+      total_size +=
+          ::_pbi::WireFormatLite::UInt32SizeWithPackedTagSize(
+              this_._internal_channellist(), 1,
+              this_._impl_._channellist_cached_byte_size_);
+    }
+    // repeated uint32 data = 10;
+    {
+      total_size +=
+          ::_pbi::WireFormatLite::UInt32SizeWithPackedTagSize(
+              this_._internal_data(), 1,
+              this_._impl_._data_cached_byte_size_);
+    }
+  }
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x000000ffu) != 0) {
+    // string requestID = 2;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!this_._internal_requestid().empty()) {
+        total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                        this_._internal_requestid());
+      }
+    }
+    // string message = 11;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (!this_._internal_message().empty()) {
+        total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
+                                        this_._internal_message());
+      }
+    }
+    // bool success = 1;
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (this_._internal_success() != 0) {
+        total_size += 2;
+      }
+    }
+    // bool isFinal = 4;
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (this_._internal_isfinal() != 0) {
+        total_size += 2;
+      }
+    }
+    // uint32 chunkseq = 3;
+    if ((cached_has_bits & 0x00000010u) != 0) {
+      if (this_._internal_chunkseq() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_chunkseq());
+      }
+    }
+    // uint32 waveformStart = 5;
+    if ((cached_has_bits & 0x00000020u) != 0) {
+      if (this_._internal_waveformstart() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_waveformstart());
+      }
+    }
+    // uint32 waveformCount = 6;
+    if ((cached_has_bits & 0x00000040u) != 0) {
+      if (this_._internal_waveformcount() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_waveformcount());
+      }
+    }
+    // uint32 requestTotalWaveforms = 7;
+    if ((cached_has_bits & 0x00000080u) != 0) {
+      if (this_._internal_requesttotalwaveforms() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_requesttotalwaveforms());
+      }
+    }
+  }
+   {
+    // uint32 numberOfSamples = 8;
+    if ((cached_has_bits & 0x00000100u) != 0) {
+      if (this_._internal_numberofsamples() != 0) {
+        total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
+            this_._internal_numberofsamples());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void DumpSpyBuffersChunkResponse::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<DumpSpyBuffersChunkResponse*>(&to_msg);
+  auto& from = static_cast<const DumpSpyBuffersChunkResponse&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:DumpSpyBuffersChunkResponse)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  _this->_internal_mutable_channellist()->MergeFrom(from._internal_channellist());
+  _this->_internal_mutable_data()->MergeFrom(from._internal_data());
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x000000ffu) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!from._internal_requestid().empty()) {
+        _this->_internal_set_requestid(from._internal_requestid());
+      } else {
+        if (_this->_impl_.requestid_.IsDefault()) {
+          _this->_internal_set_requestid("");
+        }
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (!from._internal_message().empty()) {
+        _this->_internal_set_message(from._internal_message());
+      } else {
+        if (_this->_impl_.message_.IsDefault()) {
+          _this->_internal_set_message("");
+        }
+      }
+    }
+    if ((cached_has_bits & 0x00000004u) != 0) {
+      if (from._internal_success() != 0) {
+        _this->_impl_.success_ = from._impl_.success_;
+      }
+    }
+    if ((cached_has_bits & 0x00000008u) != 0) {
+      if (from._internal_isfinal() != 0) {
+        _this->_impl_.isfinal_ = from._impl_.isfinal_;
+      }
+    }
+    if ((cached_has_bits & 0x00000010u) != 0) {
+      if (from._internal_chunkseq() != 0) {
+        _this->_impl_.chunkseq_ = from._impl_.chunkseq_;
+      }
+    }
+    if ((cached_has_bits & 0x00000020u) != 0) {
+      if (from._internal_waveformstart() != 0) {
+        _this->_impl_.waveformstart_ = from._impl_.waveformstart_;
+      }
+    }
+    if ((cached_has_bits & 0x00000040u) != 0) {
+      if (from._internal_waveformcount() != 0) {
+        _this->_impl_.waveformcount_ = from._impl_.waveformcount_;
+      }
+    }
+    if ((cached_has_bits & 0x00000080u) != 0) {
+      if (from._internal_requesttotalwaveforms() != 0) {
+        _this->_impl_.requesttotalwaveforms_ = from._impl_.requesttotalwaveforms_;
+      }
+    }
+  }
+  if ((cached_has_bits & 0x00000100u) != 0) {
+    if (from._internal_numberofsamples() != 0) {
+      _this->_impl_.numberofsamples_ = from._impl_.numberofsamples_;
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void DumpSpyBuffersChunkResponse::CopyFrom(const DumpSpyBuffersChunkResponse& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:DumpSpyBuffersChunkResponse)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void DumpSpyBuffersChunkResponse::InternalSwap(DumpSpyBuffersChunkResponse* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  _impl_.channellist_.InternalSwap(&other->_impl_.channellist_);
+  _impl_.data_.InternalSwap(&other->_impl_.data_);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.requestid_, &other->_impl_.requestid_, arena);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.message_, &other->_impl_.message_, arena);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.numberofsamples_)
+      + sizeof(DumpSpyBuffersChunkResponse::_impl_.numberofsamples_)
+      - PROTOBUF_FIELD_OFFSET(DumpSpyBuffersChunkResponse, _impl_.success_)>(
+          reinterpret_cast<char*>(&_impl_.success_),
+          reinterpret_cast<char*>(&other->_impl_.success_));
+}
+
+::google::protobuf::Metadata DumpSpyBuffersChunkResponse::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================

@@ -5,6 +5,13 @@
 #include <optional>
 #include "CLI/CLI.hpp"
 #include <arpa/inet.h>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <queue>
+#include <atomic>
+#include <vector>
+#include <algorithm>
 
 #include "Daphne.hpp"
 #include "defines.hpp"
@@ -24,12 +31,71 @@ template <typename payloadMsg> void fill_zmq_message(payloadMsg& payload_message
 
 }
 
+static void send_enveloped_over_router(zmq::socket_t &router, const zmq::message_t &client_id, const google::protobuf::Message &payload_msg, MessageType type) {
+    // keep replies compatible with legacy clients.
+    // ROUTER must send: [id][payload] (NO empty delimiter), so REQ receives a single frame.
+    ControlEnvelope env;
+    env.set_type(type);
+    std::string payload;
+    payload_msg.SerializeToString(&payload);
+    env.set_payload(std::move(payload));
+
+
+    std::string env_bytes;
+    env.SerializeToString(&env_bytes);
+
+
+    // multipart: [id][payload] — identity consumed by ROUTER; peer sees only [payload]
+    router.send(zmq::buffer(client_id.data(), client_id.size()), zmq::send_flags::sndmore);
+    router.send(zmq::buffer(env_bytes), zmq::send_flags::none);
+}
+
 static bool is_valid_ip(const std::string& s) {
     sockaddr_in  v4{};
     sockaddr_in6 v6{};
     return inet_pton(AF_INET, s.c_str(), &v4.sin_addr) == 1 ||
            inet_pton(AF_INET6, s.c_str(), &v6.sin6_addr) == 1;
 }
+
+// this tempalte class is a bounded queue that is used to 
+// store waveforms in a thread-safe manner
+// and pipeline them to send them in chuncks
+template <class T>
+class BoundedQueue {
+private:
+    std::mutex mutex_;
+    std::condition_variable cv_not_empty_, cv_not_full_;
+    size_t capacity;
+    std::queue<T> queue_;
+    bool closed_ = false;
+public:
+    explicit BoundedQueue(size_t capacity) : capacity(capacity){}
+
+    void push(T item){
+        std::unique_lock<std::mutex> lk(mutex_);
+        cv_not_full_.wait(lk, [&]{return queue_.size() < capacity || closed_;});
+        if (closed_) return;
+        queue_.push(std::move(item));
+        cv_not_empty_.notify_one();
+    }
+
+    bool pop(T& item){
+        std::unique_lock<std::mutex> lk(mutex_);
+        cv_not_empty_.wait(lk, [&]{return !queue_.empty() || closed_;});
+        if (closed_ && queue_.empty()) return false;
+        item = std::move(queue_.front());
+        queue_.pop();
+        cv_not_full_.notify_one();
+        return true;
+    }
+
+    void close() {
+        std::lock_guard<std::mutex> lk(mutex_);
+        closed_ = true;
+        cv_not_empty_.notify_all();
+        cv_not_full_.notify_all();
+    }
+};
 
 bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std::string &response_str) {
     try{
@@ -324,6 +390,108 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse 
         return false;
     }
     return true;
+}
+
+// this function handles the unique dumpSpybuffer in chunk mode,
+// i.e. a pipelined approach to send waveforms in chunks to avoid
+// memory issues when sending large number of waveforms
+static void dumpSpyBufferChunk(const DumpSpyBuffersChunkRequest &request, Daphne &daphne, zmq::socket_t &router, const zmq::message_t &client_id){
+
+    const auto &channelList = request.channellist();
+    uint32_t numberOfSamples = request.numberofsamples();
+    uint32_t numberOfWaveforms = request.numberofwaveforms();
+    bool softwareTrigger = request.softwaretrigger();
+    std::string requestId = request.requestid();
+    uint32_t chunkSize = request.chunksize();
+
+    if (channelList.empty()) {
+        throw std::invalid_argument("Channel list is empty.");
+    }
+    if (numberOfSamples <= 0 || numberOfSamples > 2048) {
+        throw std::invalid_argument("Number of samples must be greater than zero and no greater than 2048.");
+    }
+    if(numberOfWaveforms == 0) {
+        throw std::invalid_argument("Number of waveforms must be greater than zero");
+    }
+    if(chunkSize == 0 || chunkSize > 1024) {
+        throw std::invalid_argument("Chunk size must be greater than zero and no greater than 1024.");
+    }
+    for(int i=0; i<channelList.size(); ++i){
+        if(channelList[i] > 39) throw std::invalid_argument("The channel value " + std::to_string(channelList[i]) + " is out of range. Range 0-39");
+    }
+
+    std::vector<uint32_t> mappedChannels;
+    for (const auto& channel : channelList) {
+        uint32_t afe = afe_definitions::AFE_board2PL_map.at(channel / 8);
+        uint32_t afe_channel = channel % 8;
+        mappedChannels.push_back(afe * 8 + afe_channel); // Map to PL channel index
+    }
+        
+    struct ChunkPacket {
+        uint32_t chunk_seq;
+        uint32_t wf_start;
+        uint32_t wf_count;
+        std::vector<uint32_t> data;
+    };
+    BoundedQueue<ChunkPacket> queue(10);
+    std::atomic<bool> had_error(false);
+    
+    auto* spyBuffer = daphne.getSpyBuffer();
+    auto* frontEnd = daphne.getFrontEnd();
+
+    std::thread producer([&]{
+        try{
+            uint32_t seq = 0;
+            for (uint32_t wf_start = 0; wf_start < numberOfWaveforms; wf_start += chunkSize) {
+                uint32_t wf_count = std::min(chunkSize, numberOfWaveforms - wf_start); // how many waveforms to process in this chunk. 
+                                                                                       // If wf_start + chunkSize exceeds numberOfWaveforms, 
+                                                                                       // it will take the remaining waveforms.
+                ChunkPacket packet;
+                packet.chunk_seq = seq++;
+                packet.wf_start = wf_start;
+                packet.wf_count = wf_count;
+                packet.data.resize(wf_count * numberOfSamples * mappedChannels.size(), 0);
+
+                for (uint32_t i = 0; i < wf_count; ++i) {
+                    if (softwareTrigger) frontEnd->doTrigger();
+                    for (size_t j = 0; j < mappedChannels.size(); ++j) {
+                        uint32_t channel = mappedChannels[j];
+                        uint32_t* waveform_start = packet.data.data() + (i * mappedChannels.size() + j) * numberOfSamples;
+                        spyBuffer->extractMappedDataBulkSIMD(waveform_start, numberOfSamples, channel);
+                    }
+                }
+                queue.push(std::move(packet));
+            }
+        }catch(const std::exception &e) {
+            had_error = true;
+        }
+        queue.close(); // Signal that no more packets will be produced
+    });
+    // Now, the consumer than pops the queue and sends the packets
+    ChunkPacket pack;
+    while (queue.pop(pack)) { // the while loop will continue until the queue is closed and empty
+        DumpSpyBuffersChunkResponse resp;
+        resp.set_success(!had_error);
+        resp.set_requestid(requestId);
+        resp.set_chunkseq(pack.chunk_seq);
+        resp.set_isfinal((pack.wf_start + pack.wf_count) >= numberOfWaveforms);
+        resp.set_waveformstart(pack.wf_start);
+        resp.set_waveformcount(pack.wf_count);
+        resp.set_requesttotalwaveforms(numberOfWaveforms);
+        resp.set_numberofsamples(numberOfSamples);
+        auto *out_chl = resp.mutable_channellist();
+        out_chl->Clear();
+        out_chl->Reserve(channelList.size());
+        for (auto ch : channelList){
+            out_chl->Add(ch);
+        }
+        auto *out_data = resp.mutable_data();
+        out_data->Add(pack.data.data(), pack.data.data() + pack.data.size());
+
+        send_enveloped_over_router(router, client_id, resp, DUMP_SPYBUFFER_CHUNK);
+    }
+
+    if (producer.joinable()) producer.join();
 }
 
 bool alignAFE(const cmd_alignAFEs &request, cmd_alignAFEs_response &response, Daphne &daphne, std::string &response_str){
@@ -939,6 +1107,76 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
     }
 }
 
+static bool recv_multipart_compat(zmq::socket_t &sock, std::vector<zmq::message_t> &frames) {
+    frames.clear();
+    while (true) {
+        zmq::message_t part;
+        if (!sock.recv(part, zmq::recv_flags::none)) return false;
+        frames.emplace_back(std::move(part));
+        int64_t more = 0; size_t more_size = sizeof(more);
+        sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
+        if (!more) break;
+    }
+    return true;
+}
+
+static void server_loop_router(zmq::context_t &ctx, const std::string &bind_endpoint, Daphne &daphne) {
+    zmq::socket_t router(ctx, ZMQ_ROUTER);
+
+    // int sndhwm = 2048;   // small number of chunks in-flight
+    // router.setsockopt(ZMQ_SNDHWM, &sndhwm, sizeof(sndhwm));
+    // int sndbuf = 0;   // let OS default or small cap (optional)
+    // router.setsockopt(ZMQ_SNDBUF, &sndbuf, sizeof(sndbuf));
+    // int immediate = 1; // don't queue to not-yet-connected peers
+    // router.setsockopt(ZMQ_IMMEDIATE, &immediate, sizeof(immediate));
+    router.bind(bind_endpoint);
+
+    while (true) {
+        // Accept both REQ and DEALER clients:
+        //  - REQ → ROUTER: frames = [id][payload]
+        //  - DEALER → ROUTER (or REQ/REP emulation): frames may be [id][empty][payload]
+        std::vector<zmq::message_t> frames;
+        if (!recv_multipart_compat(router, frames)) continue;
+        if (frames.size() < 2) continue; // need at least [id][payload]
+
+        zmq::message_t &id = frames[0];
+        // payload is last frame; ignore optional empty delimiter
+        zmq::message_t &payload = frames.back();
+
+        ControlEnvelope req_env;
+        if (!req_env.ParseFromArray(payload.data(), static_cast<int>(payload.size()))) {
+            DumpSpyBuffersChunkResponse err; err.set_success(false); err.set_message("Bad envelope"); err.set_isfinal(true);
+            send_enveloped_over_router(router, id, err, DUMP_SPYBUFFER_CHUNK);
+            continue;
+        }
+
+        if (req_env.type() == DUMP_SPYBUFFER_CHUNK) {
+            DumpSpyBuffersChunkRequest req;
+            if (!req.ParseFromString(req_env.payload())) {
+                DumpSpyBuffersChunkResponse err; err.set_success(false); err.set_message("Bad payload"); err.set_isfinal(true);
+                send_enveloped_over_router(router, id, err, DUMP_SPYBUFFER_CHUNK);
+                continue;
+            }
+            dumpSpyBufferChunk(req, daphne, router, id);
+            continue;
+        }
+
+        // right after parsing req_env in server_loop_router
+        // std::cerr << "RX type=" << req_env.type()
+        //  << " (" << MessageType_Name(static_cast<MessageType>(req_env.type())) << ") "
+        //  << " payload_size=" << req_env.payload().size() << "\n";
+
+
+        // Legacy/control: single reply. Reuse existing builder; wrap with [id][payload]
+        zmq::message_t one_reply;
+        process_request(std::string(static_cast<char*>(payload.data()), payload.size()), one_reply, daphne);
+        //std::cerr << "TX legacy reply bytes=" << one_reply.size() << "\n";
+        router.send(zmq::buffer(id.data(), id.size()), zmq::send_flags::sndmore);
+        router.send(std::move(one_reply), zmq::send_flags::none);
+        //std::cerr << "TX frames sent ok? id=" << (s1 ? 1 : 0) << " payload=" << (s2 ? 1 : 0) << "\n";
+    }
+}
+
 int main(int argc, char* argv[]) {
 
     CLI::App app{"Daphne Slow Controller"};
@@ -993,32 +1231,23 @@ int main(int argc, char* argv[]) {
     }
 
     zmq::context_t context(1);
-    zmq::socket_t socket(context, ZMQ_REP);
-    std::string socket_ip_address = "tcp://" + *ip_address + ":" + std::to_string(*port); 
+    std::string endpoint = "tcp://" + *ip_address + ":" + std::to_string(*port);
+
+
     try {
-        socket.bind(socket_ip_address.c_str());
-        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_26" << std::endl;
-        std::cout << "ZMQ Reply socket initialized in " << socket_ip_address << std::endl;
-    } catch (std::exception &e){
-        std::cerr << "Error initializing ZMQ socket: " << e.what() << std::endl;
-        return 1;
+    std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_27\n";
+    std::cout << "ZMQ ROUTER server binding on " << endpoint << "\n";
+    } catch (const std::exception &e) {
+    std::cerr << "Initialization error: " << e.what() << "\n";
+    return 1;
     }
 
+
     Daphne daphne;
-    while (true) {
-        zmq::message_t request;
-        auto recv_result = socket.recv(request, zmq::recv_flags::none);
-        if(!recv_result){
-            std::cerr << "socket.recv(request, zmq::recv_flags::none) failed!";
-        }
-        
-        std::string request_str(static_cast<char*>(request.data()), request.size());
-        //std::string response_str;
-        zmq::message_t zmq_response;
-        
-        process_request(request_str, zmq_response, daphne);
-        
-        socket.send(zmq_response, zmq::send_flags::none);
-    }
+
+
+    // Enters the ROUTER-based server loop. This function binds the ROUTER
+    // and handles both legacy single-reply and new chunked streaming.
+    server_loop_router(context, endpoint, daphne);
     return 0;
 }

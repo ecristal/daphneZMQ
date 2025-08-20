@@ -101,6 +101,28 @@ message DumpSpyBuffersResponse {
   string message = 7;
 }
 
+message DumpSpyBuffersChunkRequest {
+  repeated uint32 channelList = 1;
+  uint32 numberOfSamples = 2;
+  uint32 numberOfWaveforms = 3;
+  bool softwareTrigger = 4;
+  string requestID = 5;
+  uint32 chunkSize = 6;
+}
+
+message DumpSpyBuffersChunkResponse {
+  bool success = 1;
+  string requestID = 2;
+  uint32 chunkseq = 3;
+  bool isFinal = 4;
+  uint32 waveformStart = 5;
+  uint32 waveformCount = 6;
+  uint32 requestTotalWaveforms = 7;
+  uint32 numberOfSamples = 8;
+  repeated uint32 channelList = 9;
+  repeated uint32 data = 10;
+  string message = 11;
+}
 
 message InfoRequest {
   uint32 level = 1; 
@@ -190,6 +212,8 @@ enum MessageType {
   ALIGN_AFE = 30;
   WRITE_AFE_FUNCTION = 31;
   DO_SOFTWARE_TRIGGER = 32;
+
+  DUMP_SPYBUFFER_CHUNK    = 100;
 }
 
 message ControlEnvelope {

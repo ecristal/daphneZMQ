@@ -11,6 +11,19 @@ from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
 from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
 from client_dictionaries import *
 
+def send_envelope_and_get_reply(socket, envelope) -> bytes:
+    """
+    Sends a protobuf ControlEnvelope and returns the last frame of the reply.
+    Compatible with REP and ROUTER servers.
+    """
+    socket.send(envelope.SerializeToString())
+
+    frames = [socket.recv()]
+    while socket.getsockopt(zmq.RCVMORE):
+        frames.append(socket.recv())
+
+    return frames[-1]  # Payload is always in the last frame
+
 parser = argparse.ArgumentParser(description="DAPHNE Configuration.")
 parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
 parser.add_argument("-port", type=int, required=False, default=9000, help="Port number of DAPHNE. Default 9000.")
@@ -29,7 +42,8 @@ parser.add_argument("-lna_input_clamp", type=str, choices=["auto", "1.5 Vpp", "1
 args = parser.parse_args()
 # Setup ZMQ context once
 context = zmq.Context()
-socket = context.socket(zmq.REQ)
+socket = context.socket(zmq.DEALER)
+socket.setsockopt(zmq.IDENTITY, b"client-compat")
 ip_addr = "tcp://{}:{}".format(args.ip, args.port)
 socket.connect(ip_addr)
 
@@ -54,10 +68,7 @@ for offsetCH in range(40):
     envelope.payload = request.SerializeToString()
 
     # Send via ZMQ
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
@@ -77,10 +88,7 @@ for afe in range(5):
     envelope.payload = request.SerializeToString()
 
     
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
@@ -95,10 +103,7 @@ envelope = pb_high.ControlEnvelope()
 envelope.type = pb_high.DO_AFE_RESET
 envelope.payload = request.SerializeToString()
 
-socket.send(envelope.SerializeToString())
-
-# Receive response
-response_bytes = socket.recv()
+response_bytes = send_envelope_and_get_reply(socket, envelope)
 responseEnvelope = pb_high.ControlEnvelope()
 responseEnvelope.ParseFromString(response_bytes)
 
@@ -116,10 +121,7 @@ envelope = pb_high.ControlEnvelope()
 envelope.type = pb_high.SET_AFE_POWERSTATE
 envelope.payload = request.SerializeToString()
 
-socket.send(envelope.SerializeToString())
-
-# Receive response
-response_bytes = socket.recv()
+response_bytes = send_envelope_and_get_reply(socket, envelope)
 responseEnvelope = pb_high.ControlEnvelope()
 responseEnvelope.ParseFromString(response_bytes)
 
@@ -140,10 +142,7 @@ for afe in range(5):
     envelope.type = pb_high.WRITE_AFE_FUNCTION
     envelope.payload = request.SerializeToString()
 
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
@@ -163,10 +162,7 @@ for afe in range(5):
     envelope.type = pb_high.WRITE_AFE_FUNCTION
     envelope.payload = request.SerializeToString()
 
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
@@ -187,10 +183,7 @@ for afe in range(5):
     envelope.payload = request.SerializeToString()
 
     
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
@@ -211,10 +204,7 @@ for afe in range(5):
     envelope.payload = request.SerializeToString()
 
     
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
@@ -235,10 +225,7 @@ for afe in range(5):
     envelope.payload = request.SerializeToString()
 
     
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
@@ -259,10 +246,7 @@ for afe in range(5):
     envelope.payload = request.SerializeToString()
 
     
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
@@ -283,10 +267,7 @@ for afe in range(5):
     envelope.payload = request.SerializeToString()
 
     
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
@@ -307,10 +288,7 @@ for afe in range(5):
     envelope.payload = request.SerializeToString()
 
     
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
@@ -331,10 +309,7 @@ for afe in range(5):
     envelope.payload = request.SerializeToString()
 
     
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
@@ -350,10 +325,7 @@ envelope = pb_high.ControlEnvelope()
 envelope.type = pb_high.SET_AFE_POWERSTATE
 envelope.payload = request.SerializeToString()
 
-socket.send(envelope.SerializeToString())
-
-# Receive response
-response_bytes = socket.recv()
+response_bytes = send_envelope_and_get_reply(socket, envelope)
 responseEnvelope = pb_high.ControlEnvelope()
 responseEnvelope.ParseFromString(response_bytes)
 
@@ -371,10 +343,7 @@ if align_afes:
     envelope.payload = request.SerializeToString()
 
 
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
