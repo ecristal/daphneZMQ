@@ -2,6 +2,9 @@
 #include <unordered_map>
 #include <exception>
 #include <zmq.hpp>
+#include <optional>
+#include "CLI/CLI.hpp"
+#include <arpa/inet.h>
 
 #include "Daphne.hpp"
 #include "defines.hpp"
@@ -19,6 +22,13 @@ template <typename payloadMsg> void fill_zmq_message(payloadMsg& payload_message
     zmq_response.rebuild(envelope_size);
     response_envelope.SerializeToArray(zmq_response.data(), envelope_size);
 
+}
+
+static bool is_valid_ip(const std::string& s) {
+    sockaddr_in  v4{};
+    sockaddr_in6 v6{};
+    return inet_pton(AF_INET, s.c_str(), &v4.sin_addr) == 1 ||
+           inet_pton(AF_INET6, s.c_str(), &v6.sin6_addr) == 1;
 }
 
 bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std::string &response_str) {
@@ -266,20 +276,30 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse 
         //std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
         if (channelList.size() == 1) {
         // No parallel, process channel sequentially
+        uint32_t channel = channelList[0];
+        uint32_t afe = afe_definitions::AFE_board2PL_map.at(channel / 8);
+        uint32_t afe_channel = channel % 8;
+        channel = afe * 8 + afe_channel; // Map to PL channel index
         for (int j = 0; j < numberOfWaveforms; ++j) {
             if (softwareTrigger) frontEnd->doTrigger();
-            uint32_t channel = channelList[0];
             uint32_t* waveform_start = data_ptr + numberOfSamples * j;
             spyBuffer->extractMappedDataBulkSIMD(waveform_start, numberOfSamples, channel);
         }
         } else {
             // Parallelize across channels for each waveform
+            // First, we need to map the channels to their PL indices
+            std::vector<uint32_t> mappedChannels;
+            for (const auto& channel : channelList) {
+                uint32_t afe = afe_definitions::AFE_board2PL_map.at(channel / 8);
+                uint32_t afe_channel = channel % 8;
+                mappedChannels.push_back(afe * 8 + afe_channel); // Map to PL channel index
+            }
             for (int j = 0; j < numberOfWaveforms; ++j) {
                 if (softwareTrigger) frontEnd->doTrigger();
                 //#pragma omp parallel for
-                for (int i = 0; i < channelList.size(); ++i) {
-                    uint32_t channel = channelList[i];
-                    uint32_t* waveform_start = data_ptr + numberOfSamples * (j * channelList.size() + i);
+                for (int i = 0; i < mappedChannels.size(); ++i) {
+                    uint32_t channel = mappedChannels[i];
+                    uint32_t* waveform_start = data_ptr + numberOfSamples * (j * mappedChannels.size() + i);
                     spyBuffer->extractMappedDataBulkSIMD(waveform_start, numberOfSamples, channel);
                 }
             }
@@ -343,6 +363,8 @@ bool alignAFE(const cmd_alignAFEs &request, cmd_alignAFEs_response &response, Da
 bool writeAFEFunction(const cmd_writeAFEFunction &request, cmd_writeAFEFunction_response &response, Daphne &daphne, std::string &response_str){
     try {
         uint32_t afeBlock = request.afeblock();
+        afeBlock = afe_definitions::AFE_board2PL_map.at(afeBlock);
+        if(afeBlock > 4) throw std::invalid_argument("The AFE value " + std::to_string(afeBlock) + " is out of range. Range 0-4");
         std::string afeFunctionName = request.function();
         uint32_t confValue = request.configvalue();
         uint32_t returnedConfValue = daphne.getAfe()->setAFEFunction(afeBlock, afeFunctionName, confValue);
@@ -919,77 +941,63 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
 
 int main(int argc, char* argv[]) {
 
-    std::map<std::string, std::string> args;
-    std::string ip_address;
-    int port;
-    std::string config_file;
+    CLI::App app{"Daphne Slow Controller"};
 
-    // Parse arguments
-    for (int i = 1; i < argc; i += 2) {
-        if (i + 1 < argc) { // Ensure value exists
-            args[argv[i]] = argv[i + 1];
+    std::optional<std::string> ip_address;
+    std::optional<uint16_t> port;
+    std::optional<std::string> config_file;
+
+    app.add_option("-i,--ip", ip_address, "DAPHNE device IPv4 address.")
+       ->check([](const std::string& s) {
+            return is_valid_ip(s) ? std::string() : std::string("Invalid IP address");
+       });
+    app.add_option("--port", port, "Port number of the DAPHNE device.")
+        ->check(CLI::Range(1, 65535));
+    app.add_option("--config_file", config_file, "Path to the configuration file (not yet implemented).")
+        ->check(CLI::ExistingFile);
+
+
+    app.callback([&](){
+        bool mode_config = config_file.has_value();
+        bool mode_ipport = ip_address.has_value() || port.has_value();
+
+        if (mode_config && mode_ipport) {
+            throw CLI::ValidationError("Use either --config-file or (--ip AND --port), not both.");
         }
-    }
-
-    // Validate and extract -ip
-    if (args.find("--ip") != args.end()) {
-        ip_address = args["--ip"];
-        std::cout << "IP Address: " << ip_address << std::endl;
-    } else if(args.find("--config_file") == args.end()) {
-        std::cerr << "Error: Missing -ip parameter.\n";
-        std::cerr << "Usage: ./DaphneSlowController --ip <IP_ADDRESS> --port <PORT>\n";
-        return 1;
-    }
-
-    // Validate and extract -port
-    if (args.find("--port") != args.end()) {
-        try {
-            port = std::stoi(args["--port"]); // Convert string to int
-            if (port < 1 || port > 65535) { // Here I must put a real range based.
-                throw std::out_of_range("Port out of range");
-            }
-            std::cout << "Port: " << port << std::endl;
-        } catch (const std::exception& e) {
-            std::cerr << "Error: Invalid port number. " << e.what() << std::endl;
-            return 1;
+        if (!mode_config && !mode_ipport) {
+            throw CLI::ValidationError("Missing parameters. Use --config-file or (--ip --port).");
         }
-    } else if(args.find("--config_file") == args.end()){
-        std::cerr << "Error: Missing --port parameter.\n";
-        std::cerr << "Usage: ./DaphneSlowController --ip <IP_ADDRESS> --port <PORT>\n";
-        return 1;
-    }
-
-    if (args.find("--config_file") != args.end()) {
-        try {
-            config_file = args["--config_file"]; // Convert string to int
-            std::cout << "Configuration file: " << config_file << std::endl;
-        } catch (const std::exception& e) {
-            std::cerr << "Error: Invalid  number. " << e.what() << std::endl;
-            return 1;
+        if (mode_ipport && (!ip_address || !port)) {
+            throw CLI::ValidationError("Both --ip and --port are required for IP mode.");
         }
-    } else if (args.find("--port") == args.end() && args.find("-ip") == args.end() && (args.find("--help") == args.end() || args.find("-h") == args.end())) {
-        std::cerr << "Error: Missing parameters.\n";
-        std::cerr << "Usage: ./DaphneSlowController --config_file <CONFIG_FILE> \n";
-        return 1;
-    }
+    });
 
-    if (args.find("--help") != args.end() || args.find("-h") != args.end()) {
-        std::cout << "Example: " << std::endl;
-        std::cout << "\tsudo ./DaphneSlowController --ip <IP ADDRESS> --port <PORT NUMBER>" << std::endl;
-        std::cout << "\tsudo ./DaphneSlowController --config-file <CONFIG FILE>" << std::endl;
-        std::cout << "Arguments: " << std::endl;
-        std::cout << "\t--ip :\t IP address of the DAPHNE device." << std::endl;
-        std::cout << "\t--port :\t Port number." << std::endl;
-        std::cout << "\t--config_file :\t Location of the .json file used for configuring the application." << std::endl;
-        std::cout << "\t--help -h :\t Displays this help message." << std::endl;
+    try {
+        app.parse(argc, argv);
+        bool config_mode = config_file.has_value();
+        bool ip_port_mode = ip_address.has_value() || port.has_value();
+
+        if(config_mode && ip_port_mode) {
+            throw CLI::ValidationError("Use either --config_file or (--ip AND --port), not both.");
+        }else if(!config_mode && !ip_port_mode) {
+            throw CLI::ValidationError("Missing parameters. Use --config_file or (--ip and --port).");
+        }else if(ip_port_mode && (!ip_address || !port)) {
+            throw CLI::ValidationError("Both --ip and --port are required for IP mode.");
+        }
+    } catch (const CLI::CallForHelp& e) {
+        // --help was requested
+        std::cout << app.help() << "\n";
+        return 0;
+    } catch (const CLI::ParseError &e) {
+        return app.exit(e);
     }
 
     zmq::context_t context(1);
     zmq::socket_t socket(context, ZMQ_REP);
-    std::string socket_ip_address = "tcp://" + ip_address + ":" + std::to_string(port); 
+    std::string socket_ip_address = "tcp://" + *ip_address + ":" + std::to_string(*port); 
     try {
         socket.bind(socket_ip_address.c_str());
-        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_22" << std::endl;
+        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_26" << std::endl;
         std::cout << "ZMQ Reply socket initialized in " << socket_ip_address << std::endl;
     } catch (std::exception &e){
         std::cerr << "Error initializing ZMQ socket: " << e.what() << std::endl;

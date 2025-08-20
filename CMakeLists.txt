@@ -21,6 +21,7 @@ find_package(Protobuf REQUIRED)
 find_package(cppzmq REQUIRED)
 find_package(absl REQUIRED)
 find_package(Threads REQUIRED)
+find_package(CLI11 CONFIG REQUIRED)
 
 # Auto-generate protobuf files
 set(PROTO_HIGH_LEVEL_FILE "${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf/daphneV3_high_level_confs.proto")
@@ -139,7 +140,7 @@ message(STATUS "Abseil libs: ${absl_LIBRARIES}")
 
 set(APP_NAME "DaphneSlowController")
 set(APP_EXEC "${APP_NAME}")
-set(APP_VERSION "V0_01_22")
+set(APP_VERSION "V0_01_26")
 set(APP_ICON "daphe_slow_controller_logo")
 set(APP_COMMENT "Slow Control Interface for DAPHNE V3")
 set(APPDIR "${CMAKE_BINARY_DIR}/${APP_NAME}_${APP_VERSION}")
