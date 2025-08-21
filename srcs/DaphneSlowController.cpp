@@ -1123,12 +1123,12 @@ static bool recv_multipart_compat(zmq::socket_t &sock, std::vector<zmq::message_
 static void server_loop_router(zmq::context_t &ctx, const std::string &bind_endpoint, Daphne &daphne) {
     zmq::socket_t router(ctx, ZMQ_ROUTER);
 
-    // int sndhwm = 2048;   // small number of chunks in-flight
-    // router.setsockopt(ZMQ_SNDHWM, &sndhwm, sizeof(sndhwm));
-    // int sndbuf = 0;   // let OS default or small cap (optional)
-    // router.setsockopt(ZMQ_SNDBUF, &sndbuf, sizeof(sndbuf));
-    // int immediate = 1; // don't queue to not-yet-connected peers
-    // router.setsockopt(ZMQ_IMMEDIATE, &immediate, sizeof(immediate));
+    int sndhwm = 163;   // small number of chunks in-flight
+    router.setsockopt(ZMQ_SNDHWM, &sndhwm, sizeof(sndhwm));
+    int sndbuf = 0;   // let OS default or small cap (optional)
+    router.setsockopt(ZMQ_SNDBUF, &sndbuf, sizeof(sndbuf));
+    int immediate = 1; // don't queue to not-yet-connected peers
+    router.setsockopt(ZMQ_IMMEDIATE, &immediate, sizeof(immediate));
     router.bind(bind_endpoint);
 
     while (true) {
@@ -1145,7 +1145,10 @@ static void server_loop_router(zmq::context_t &ctx, const std::string &bind_endp
 
         ControlEnvelope req_env;
         if (!req_env.ParseFromArray(payload.data(), static_cast<int>(payload.size()))) {
-            DumpSpyBuffersChunkResponse err; err.set_success(false); err.set_message("Bad envelope"); err.set_isfinal(true);
+            DumpSpyBuffersChunkResponse err; 
+            err.set_success(false);
+            err.set_message("Bad envelope");
+            err.set_isfinal(true);
             send_enveloped_over_router(router, id, err, DUMP_SPYBUFFER_CHUNK);
             continue;
         }
@@ -1153,7 +1156,10 @@ static void server_loop_router(zmq::context_t &ctx, const std::string &bind_endp
         if (req_env.type() == DUMP_SPYBUFFER_CHUNK) {
             DumpSpyBuffersChunkRequest req;
             if (!req.ParseFromString(req_env.payload())) {
-                DumpSpyBuffersChunkResponse err; err.set_success(false); err.set_message("Bad payload"); err.set_isfinal(true);
+                DumpSpyBuffersChunkResponse err;
+                err.set_success(false);
+                err.set_message("Bad payload");
+                err.set_isfinal(true);
                 send_enveloped_over_router(router, id, err, DUMP_SPYBUFFER_CHUNK);
                 continue;
             }

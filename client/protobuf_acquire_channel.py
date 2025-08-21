@@ -4,6 +4,7 @@ import os
 import time
 import uuid
 from tqdm import tqdm
+from typing import Optional
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
@@ -16,7 +17,7 @@ from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
 # ZMQ helpers (compatible with REP and ROUTER servers)
 # ------------------------------------------------------------------
 
-def make_dealer(context: zmq.Context, endpoint: str, identity: bytes | None = None) -> zmq.Socket:
+def make_dealer(context: zmq.Context, endpoint: str, identity: Optional[bytes] = None) -> zmq.Socket:
     s = context.socket(zmq.DEALER)
     s.setsockopt(zmq.LINGER, 0)
     if identity is None:
@@ -64,8 +65,8 @@ parser.add_argument("-software_trigger", action='store_true', help="Enable softw
 parser.add_argument("-append_data", action='store_true', help="Append to existing file")
 parser.add_argument("-debug", action='store_true', help="Debug printout")
 # Streaming options
-parser.add_argument("--stream", action='store_true', help="Use streaming (chunked) API")
-parser.add_argument("--chunk", type=int, default=1000, help="Waveforms per chunk (hint)")
+parser.add_argument("-stream", action='store_true', help="Use streaming (chunked) API")
+parser.add_argument("-chunk", type=int, default=100, help="Waveforms per chunk (hint)")
 args = parser.parse_args()
 
 # ------------------------------------------------------------------

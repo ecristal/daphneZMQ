@@ -14,6 +14,19 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
 from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
 
+def send_envelope_and_get_reply(socket, envelope) -> bytes:
+    """
+    Sends a protobuf ControlEnvelope and returns the last frame of the reply.
+    Compatible with REP and ROUTER servers.
+    """
+    socket.send(envelope.SerializeToString())
+
+    frames = [socket.recv()]
+    while socket.getsockopt(zmq.RCVMORE):
+        frames.append(socket.recv())
+
+    return frames[-1]  # Payload is always in the last frame
+
 parser = argparse.ArgumentParser(description="Oscilloscope.")
 parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
 parser.add_argument("-port", type=int, required=False, default=9000, help="Port number of DAPHNE.")
@@ -74,7 +87,8 @@ if args.enable_fft:
     ax_fft.set_ylabel("Magnitude (dBFS)")
     plt.show()
 
-socket = context.socket(zmq.REQ)
+socket = context.socket(zmq.DEALER)
+socket.setsockopt(zmq.IDENTITY, b"client-compat")
 ip_addr = "tcp://{}:{}".format(args.ip, args.port)
 socket.connect(ip_addr)
 channel = args.channel
@@ -117,8 +131,7 @@ while True:
     envelope.type = pb_high.DUMP_SPYBUFFER
     envelope.payload = request.SerializeToString()
 
-    socket.send(envelope.SerializeToString())
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
 
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)

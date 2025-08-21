@@ -10,6 +10,19 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
 from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
 
+def send_envelope_and_get_reply(socket, envelope) -> bytes:
+    """
+    Sends a protobuf ControlEnvelope and returns the last frame of the reply.
+    Compatible with REP and ROUTER servers.
+    """
+    socket.send(envelope.SerializeToString())
+
+    frames = [socket.recv()]
+    while socket.getsockopt(zmq.RCVMORE):
+        frames.append(socket.recv())
+
+    return frames[-1]  # Payload is always in the last frame
+
 def biasVolts2DAC(volts):
     dac_values = []
     for i in range(len(volts)):
@@ -44,7 +57,8 @@ if not args.set_as_DAC:
     biasControlDAC = int(biasControlVolts2DAC(biasControlVolts))
 
 context = zmq.Context()
-socket = context.socket(zmq.REQ)
+socket = context.socket(zmq.DEALER)
+socket.setsockopt(zmq.IDENTITY, b"client-compat")
 ip_addr = "tcp://{}:{}".format(args.ip, args.port)
 socket.connect(ip_addr)
 
@@ -55,11 +69,7 @@ envelope = pb_high.ControlEnvelope()
 envelope.type = pb_high.WRITE_VBIAS_CONTROL
 envelope.payload = request.SerializeToString()
 
-# Send via ZMQ
-socket.send(envelope.SerializeToString())
-
-# Receive response
-response_bytes = socket.recv()
+response_bytes = send_envelope_and_get_reply(socket, envelope)
 responseEnvelope = pb_high.ControlEnvelope()
 responseEnvelope.ParseFromString(response_bytes)
 
@@ -77,11 +87,7 @@ for afe in range(5):
     envelope.type = pb_high.WRITE_AFE_BIAS_SET
     envelope.payload = request.SerializeToString()
 
-    # Send via ZMQ
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
+    response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
@@ -99,11 +105,7 @@ envelope = pb_high.ControlEnvelope()
 envelope.type = pb_high.WRITE_TRIM_CH
 envelope.payload = request.SerializeToString()
 
-# Send via ZMQ
-socket.send(envelope.SerializeToString())
-
-# Receive response
-response_bytes = socket.recv()
+response_bytes = send_envelope_and_get_reply(socket, envelope)
 responseEnvelope = pb_high.ControlEnvelope()
 responseEnvelope.ParseFromString(response_bytes)
 
