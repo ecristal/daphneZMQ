@@ -258,7 +258,7 @@ void Daphne::initRegDictHistory() {
     };
 
 	this->afeRegDictSetting.clear();
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < 5; i++) {
 		this->afeRegDictSetting.push_back(afeRegDict);
 	}
 	this->afeAttenuationDictSetting.clear();

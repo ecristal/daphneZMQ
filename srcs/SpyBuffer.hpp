@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <chrono>
 #include <thread>
+#include <array>
 
 #include "FpgaReg.hpp"
 

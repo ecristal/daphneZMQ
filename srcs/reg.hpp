@@ -14,6 +14,7 @@
 
 #include "FpgaRegDict.hpp"
 #include "DevMem.hpp"
+#include <memory>
 
 struct BitFieldMeta {
     uint32_t addr;

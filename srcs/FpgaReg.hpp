@@ -1,3 +1,4 @@
+#include <memory>
 #ifndef FPGAREG_HPP
 #define FPGAREG_HPP
 
