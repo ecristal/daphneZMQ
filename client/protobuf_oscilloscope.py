@@ -48,7 +48,7 @@ fig, ax = plt.subplots()
 x = np.arange(args.L)
 y = np.zeros_like(x)
 line, = ax.plot(x, y)
-ax.set_ylim(5000, 10000)  # Adjust to your expected signal range
+ax.set_ylim(0, 18000)  # Adjust to your expected signal range
 ax.grid(True)
 #set title and labels
 ax.set_title(f"Oscilloscope - Channel {args.channel}")

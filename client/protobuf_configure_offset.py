@@ -26,6 +26,9 @@ def send_envelope_and_get_reply(socket, envelope) -> bytes:
 parser = argparse.ArgumentParser(description="DAPHNE Configuration.")
 parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
 parser.add_argument("-port", type=int, required=False, default=9000, help="Port number of DAPHNE. Default 9000.")
+parser.add_argument("-channel", type=int, required=True, choices=range(40), help="Offset Channel to set. Default 0.")
+parser.add_argument("-offset_value", type=int, required=True, help="Offset Value to set. Default 0.")
+parser.add_argument("-configure_all", action='store_true', help="Configure all Offset channels with the same Offset value.")
 # Parse arguments
 args = parser.parse_args()
 
@@ -35,21 +38,26 @@ socket.setsockopt(zmq.IDENTITY, b"client-compat")
 ip_addr = "tcp://{}:{}".format(args.ip, args.port)
 socket.connect(ip_addr)
 
-for trimCH in range(40):
-    request = pb_low.cmd_writeTrim_singleChannel()
-    request.trimChannel = trimCH
-    request.trimValue = 0#(trimCH + 1)*100
-    request.trimGain = False
+if args.configure_all:
+    channels = range(40)
+else:
+    channels = [args.channel]
+
+for channel in channels:
+    request = pb_low.cmd_writeOFFSET_singleChannel()
+    request.offsetChannel = channel
+    request.offsetValue = args.offset_value
+    request.offsetGain = False
     envelope = pb_high.ControlEnvelope()
-    envelope.type = pb_high.WRITE_TRIM_CH
+    envelope.type = pb_high.WRITE_OFFSET_CH
     envelope.payload = request.SerializeToString()
 
     response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
-    if responseEnvelope.type == pb_high.WRITE_TRIM_CH:
-        response = pb_low.cmd_writeTrim_singleChannel_response()
+    if responseEnvelope.type == pb_high.WRITE_OFFSET_CH:
+        response = pb_low.cmd_writeOFFSET_singleChannel_response()
         response.ParseFromString(responseEnvelope.payload)
         print("Success:", response.success)
         print("Message:", response.message)

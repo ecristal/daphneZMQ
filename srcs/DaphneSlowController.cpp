@@ -73,7 +73,9 @@ public:
 
     void push(T item){
         std::unique_lock<std::mutex> lk(mutex_);
-        cv_not_full_.wait(lk, [&]{return queue_.size() < capacity || closed_;});
+        cv_not_full_.wait(lk, [&]{
+            return (queue_.size() < (capacity)) || closed_;
+        });
         if (closed_) return;
         queue_.push(std::move(item));
         cv_not_empty_.notify_one();
@@ -81,7 +83,9 @@ public:
 
     bool pop(T& item){
         std::unique_lock<std::mutex> lk(mutex_);
-        cv_not_empty_.wait(lk, [&]{return !queue_.empty() || closed_;});
+        cv_not_empty_.wait(lk, [&]{
+            return !queue_.empty() || closed_;
+        });
         if (closed_ && queue_.empty()) return false;
         item = std::move(queue_.front());
         queue_.pop();
@@ -180,16 +184,16 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
 
 bool writeAFERegister(const cmd_writeAFEReg &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value) {
     try {
-        uint32_t afe = request.afeblock();
-        afe = afe_definitions::AFE_board2PL_map.at(afe);
+        uint32_t afeBlock = request.afeblock();
+        afeBlock = afe_definitions::AFE_board2PL_map.at(afeBlock);
         uint32_t regAddr = request.regaddress();
         uint32_t regValue = request.regvalue();
-        returned_value = daphne.getAfe()->setRegister(afe, regAddr, regValue);
+        returned_value = daphne.getAfe()->setRegister(afeBlock, regAddr, regValue);
         response_str = "AFE Register " + std::to_string(regAddr) 
                        + " written with value " + std::to_string(regValue) 
-                       + " for AFE " + std::to_string(afe_definitions::AFE_PL2board_map.at(afe)) + ".";
+                       + " for AFE " + std::to_string(afe_definitions::AFE_PL2board_map.at(afeBlock)) + ".";
         response_str += " Returned value: " + std::to_string(returned_value) + ".";
-        daphne.setAfeRegDictValue(afe, regAddr, returned_value);
+        daphne.setAfeRegDictValue(afeBlock, regAddr, returned_value);
     } catch (std::exception &e) {
         response_str = "Error writting AFE Register: " + std::string(e.what());
         return false;
@@ -199,14 +203,14 @@ bool writeAFERegister(const cmd_writeAFEReg &request, Daphne &daphne, std::strin
 
 bool writeAFEVgain(const cmd_writeAFEVGAIN &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value) {
     try {
-        uint32_t afe = request.afeblock();
-        afe = afe_definitions::AFE_board2PL_map.at(afe);
+        uint32_t afeBlock = request.afeblock();
+        afeBlock = afe_definitions::AFE_board2PL_map.at(afeBlock);
         uint32_t vgain = request.vgainvalue();
         if(vgain > 4095) throw std::invalid_argument("The VGAIN value " + std::to_string(vgain) + " is out of range. Expected range 0-4095");
-        daphne.getDac()->setDacGain(afe, vgain);
-        daphne.setAfeAttenuationDictValue(afe,vgain);
-        returned_value = daphne.getAfeAttenuationDictValue(afe);
-        response_str = "AFE VGAIN written successfully for AFE " + std::to_string(afe_definitions::AFE_PL2board_map.at(afe)) 
+        daphne.getDac()->setDacGain(afeBlock, vgain);
+        daphne.setAfeAttenuationDictValue(afeBlock,vgain);
+        returned_value = daphne.getAfeAttenuationDictValue(afeBlock);
+        response_str = "AFE VGAIN written successfully for AFE " + std::to_string(afe_definitions::AFE_PL2board_map.at(afeBlock)) 
                        + ". VGAIN: " + std::to_string(vgain) + ".";
         response_str += " Returned value: " + std::to_string(returned_value) + ".";
     } catch (std::exception &e) {
@@ -218,15 +222,15 @@ bool writeAFEVgain(const cmd_writeAFEVGAIN &request, Daphne &daphne, std::string
 
 bool writeAFEAttenuation(const cmd_writeAFEAttenuation &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value) {
     try {
-        uint32_t afe = request.afeblock();
-        afe = afe_definitions::AFE_board2PL_map.at(afe);
+        uint32_t afeBlock = request.afeblock();
+        afeBlock = afe_definitions::AFE_board2PL_map.at(afeBlock);
         uint32_t attenuation = request.attenuation();
         if(attenuation > 4095) throw std::invalid_argument("The attenuation value " + std::to_string(attenuation) + " is out of range. Range 0-4095");
-        daphne.getDac()->setDacGain(afe, attenuation);
-        daphne.setAfeAttenuationDictValue(afe,attenuation);
-        returned_value = daphne.getAfeAttenuationDictValue(afe);
+        daphne.getDac()->setDacGain(afeBlock, attenuation);
+        daphne.setAfeAttenuationDictValue(afeBlock,attenuation);
+        returned_value = daphne.getAfeAttenuationDictValue(afeBlock);
         response_str = "AFE Attenuation written successfully for AFE " 
-                       + std::to_string(afe_definitions::AFE_PL2board_map.at(afe)) 
+                       + std::to_string(afe_definitions::AFE_PL2board_map.at(afeBlock)) 
                        + ". Attenuation: " + std::to_string(attenuation) + ".";
         response_str += " Returned value: " + std::to_string(returned_value) + ".";
     } catch (std::exception &e) {
@@ -238,15 +242,15 @@ bool writeAFEAttenuation(const cmd_writeAFEAttenuation &request, Daphne &daphne,
 
 bool writeAFEBiasVoltage(const cmd_writeAFEBiasSet &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value){
     try {
-        uint32_t afe = request.afeblock();
-        afe = afe_definitions::AFE_board2PL_map.at(afe);
+        uint32_t afeBlock = request.afeblock();
+        afeBlock = afe_definitions::AFE_board2PL_map.at(afeBlock);
         uint32_t biasValue = request.biasvalue();
         if(biasValue > 4095) throw std::invalid_argument("The BIAS value " + std::to_string(biasValue) + " is out of range. Range 0-4095");
-        daphne.getDac()->setDacBias(afe, biasValue);
-        daphne.setBiasVoltageDictValue(afe, biasValue);
-        returned_value = daphne.getBiasVoltageDictValue(afe);
+        daphne.getDac()->setDacBias(afeBlock, biasValue);
+        daphne.setBiasVoltageDictValue(afeBlock, biasValue);
+        returned_value = daphne.getBiasVoltageDictValue(afeBlock);
         response_str = "AFE bias value written successfully for AFE " 
-                       + std::to_string(afe_definitions::AFE_PL2board_map.at(afe)) 
+                       + std::to_string(afe_definitions::AFE_PL2board_map.at(afeBlock)) 
                        + ". Bias value: " + std::to_string(biasValue) + ".";
         response_str += " Returned value: " + std::to_string(returned_value) + ".";
     } catch (std::exception &e) {
@@ -263,8 +267,8 @@ bool writeChannelTrim(const cmd_writeTrim_singleChannel &request, Daphne &daphne
         uint32_t trimGain = request.trimgain();
         if(trimValue > 4095) throw std::invalid_argument("The Trim value " + std::to_string(trimValue) + " is out of range. Range 0-4095");
         if(trimCh > 39) throw std::invalid_argument("The Channel value " + std::to_string(trimCh) + " is out of range. Range 0-39");
-        uint32_t afe = afe_definitions::AFE_board2PL_map.at(trimCh / 8);
-        daphne.getDac()->setDacTrim(afe, trimCh % 8, trimValue, trimGain, false);
+        uint32_t afeBlock = afe_definitions::AFE_board2PL_map.at(trimCh / 8);
+        daphne.getDac()->setDacTrim(afeBlock, trimCh % 8, trimValue, trimGain, false);
         daphne.setChTrimDictValue(trimCh, trimValue);
         returned_value = daphne.getChTrimDictValue(trimCh);
         response_str = "Trim value written successfully for Channel " + std::to_string(trimCh) + ". Trim value: " + std::to_string(trimValue) + ".";
@@ -283,8 +287,8 @@ bool writeChannelOffset(const cmd_writeOFFSET_singleChannel &request, Daphne &da
         uint32_t offsetGain = request.offsetgain();
         if(offsetValue > 4095) throw std::invalid_argument("The Offset value " + std::to_string(offsetValue) + " is out of range. Range 0-4095");
         if(offsetCh > 39) throw std::invalid_argument("The Channel value " + std::to_string(offsetCh) + " is out of range. Range 0-39");
-        uint32_t afe = afe_definitions::AFE_board2PL_map.at(offsetCh / 8);
-        daphne.getDac()->setDacOffset(afe, offsetCh % 8, offsetValue, offsetGain, false);
+        uint32_t afeBlock = afe_definitions::AFE_board2PL_map.at(offsetCh / 8);
+        daphne.getDac()->setDacOffset(afeBlock, offsetCh % 8, offsetValue, offsetGain, false);
         daphne.setChOffsetDictValue(offsetCh, offsetValue);
         returned_value = daphne.getChOffsetDictValue(offsetCh);
         response_str = "Offset value written successfully for Channel " + std::to_string(offsetCh) + ". Offset value: " + std::to_string(offsetValue) + ".";
@@ -343,9 +347,9 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse 
         if (channelList.size() == 1) {
         // No parallel, process channel sequentially
         uint32_t channel = channelList[0];
-        uint32_t afe = afe_definitions::AFE_board2PL_map.at(channel / 8);
+        uint32_t afeBlock = afe_definitions::AFE_board2PL_map.at(channel / 8);
         uint32_t afe_channel = channel % 8;
-        channel = afe * 8 + afe_channel; // Map to PL channel index
+        channel = afeBlock * 8 + afe_channel; // Map to PL channel index
         for (int j = 0; j < numberOfWaveforms; ++j) {
             if (softwareTrigger) frontEnd->doTrigger();
             uint32_t* waveform_start = data_ptr + numberOfSamples * j;
@@ -356,9 +360,9 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse 
             // First, we need to map the channels to their PL indices
             std::vector<uint32_t> mappedChannels;
             for (const auto& channel : channelList) {
-                uint32_t afe = afe_definitions::AFE_board2PL_map.at(channel / 8);
+                uint32_t afeBlock = afe_definitions::AFE_board2PL_map.at(channel / 8);
                 uint32_t afe_channel = channel % 8;
-                mappedChannels.push_back(afe * 8 + afe_channel); // Map to PL channel index
+                mappedChannels.push_back(afeBlock * 8 + afe_channel); // Map to PL channel index
             }
             for (int j = 0; j < numberOfWaveforms; ++j) {
                 if (softwareTrigger) frontEnd->doTrigger();
@@ -422,9 +426,9 @@ static void dumpSpyBufferChunk(const DumpSpyBuffersChunkRequest &request, Daphne
 
     std::vector<uint32_t> mappedChannels;
     for (const auto& channel : channelList) {
-        uint32_t afe = afe_definitions::AFE_board2PL_map.at(channel / 8);
+        uint32_t afeBlock = afe_definitions::AFE_board2PL_map.at(channel / 8);
         uint32_t afe_channel = channel % 8;
-        mappedChannels.push_back(afe * 8 + afe_channel); // Map to PL channel index
+        mappedChannels.push_back(afeBlock * 8 + afe_channel); // Map to PL channel index
     }
         
     struct ChunkPacket {
@@ -433,7 +437,7 @@ static void dumpSpyBufferChunk(const DumpSpyBuffersChunkRequest &request, Daphne
         uint32_t wf_count;
         std::vector<uint32_t> data;
     };
-    BoundedQueue<ChunkPacket> queue(10);
+    BoundedQueue<ChunkPacket> queue(2);
     std::atomic<bool> had_error(false);
     
     auto* spyBuffer = daphne.getSpyBuffer();
@@ -451,6 +455,10 @@ static void dumpSpyBufferChunk(const DumpSpyBuffersChunkRequest &request, Daphne
                 packet.wf_start = wf_start;
                 packet.wf_count = wf_count;
                 packet.data.resize(wf_count * numberOfSamples * mappedChannels.size(), 0);
+                //std::cout << "Processing chunk " << packet.chunk_seq 
+                //          << " with waveform start " << packet.wf_start 
+                //          << " and count " << packet.wf_count
+                //          << ". Processed: " << packet.wf_start + packet.wf_count << std::endl;
 
                 for (uint32_t i = 0; i < wf_count; ++i) {
                     if (softwareTrigger) frontEnd->doTrigger();
@@ -500,22 +508,22 @@ bool alignAFE(const cmd_alignAFEs &request, cmd_alignAFEs_response &response, Da
         std::vector<uint32_t> delay = {0, 0, 0, 0, 0};
         std::vector<uint32_t> bitslip = {0, 0, 0, 0, 0};
         std::string response_str_ = "";
-        //if(afe > 4) throw std::invalid_argument("The AFE value " + std::to_string(afe) + " is out of range. Range 0-4");
+        //if(afeBlock > 4) throw std::invalid_argument("The AFE value " + std::to_string(afeBlock) + " is out of range. Range 0-4");
         daphne.getFrontEnd()->resetDelayCtrlValues();
         daphne.getFrontEnd()->doResetDelayCtrl();
         daphne.getFrontEnd()->doResetSerDesCtrl();
         daphne.getFrontEnd()->setEnableDelayVtc(0);
-        for(int afe = 0; afe < afeNum; afe++){
-            daphne.setBestDelay(afe);
-            daphne.setBestBitslip(afe);
+        for(int afeBlock = 0; afeBlock < afeNum; afeBlock++){
+            daphne.setBestDelay(afeBlock);
+            daphne.setBestBitslip(afeBlock);
         }
-        for(int afe = 0; afe < afeNum; afe++){
-            delay[afe] = daphne.getFrontEnd()->getDelay(afe);
-            bitslip[afe] = daphne.getFrontEnd()->getBitslip(afe);
+        for(int afeBlock = 0; afeBlock < afeNum; afeBlock++){
+            delay[afeBlock] = daphne.getFrontEnd()->getDelay(afeBlock);
+            bitslip[afeBlock] = daphne.getFrontEnd()->getBitslip(afeBlock);
             response_str_ = response_str_ +
-                            "AFE_" + std::to_string(afe) + "\n" 
-                            "DELAY: " + std::to_string(delay[afe]) + "\n" + 
-                            "BITSLIP: " + std::to_string(bitslip[afe]) + "\n";
+                            "AFE_" + std::to_string(afeBlock) + "\n" 
+                            "DELAY: " + std::to_string(delay[afeBlock]) + "\n" + 
+                            "BITSLIP: " + std::to_string(bitslip[afeBlock]) + "\n";
         }
         daphne.getFrontEnd()->setEnableDelayVtc(1);
         //response.set_delay(delay);
@@ -539,8 +547,8 @@ bool writeAFEFunction(const cmd_writeAFEFunction &request, cmd_writeAFEFunction_
         response.set_function(afeFunctionName);
         response.set_configvalue(returnedConfValue);
         response.set_afeblock(afeBlock);
-        response_str = "Function " + afeFunctionName + " in AFE " + std::to_string(afeBlock) + " configured correctly.\n"
-                       + "Returned value: " + std::to_string(returnedConfValue);  
+        response_str = "Function " + afeFunctionName + " in AFE " + std::to_string(afe_definitions::AFE_PL2board_map.at(afeBlock)) + " configured correctly.\n"
+                       + "Returned value: " + std::to_string(returnedConfValue);
     } catch (std::exception &e) {
         response_str = "Error writting AFE function: " + std::string(e.what());
         return false;
@@ -1113,8 +1121,7 @@ static bool recv_multipart_compat(zmq::socket_t &sock, std::vector<zmq::message_
         zmq::message_t part;
         if (!sock.recv(part, zmq::recv_flags::none)) return false;
         frames.emplace_back(std::move(part));
-        int64_t more = 0; size_t more_size = sizeof(more);
-        sock.getsockopt(ZMQ_RCVMORE, &more, &more_size);
+        bool more = sock.get(zmq::sockopt::rcvmore);
         if (!more) break;
     }
     return true;
@@ -1123,24 +1130,22 @@ static bool recv_multipart_compat(zmq::socket_t &sock, std::vector<zmq::message_
 static void server_loop_router(zmq::context_t &ctx, const std::string &bind_endpoint, Daphne &daphne) {
     zmq::socket_t router(ctx, ZMQ_ROUTER);
 
-    int sndhwm = 163;   // small number of chunks in-flight
-    router.setsockopt(ZMQ_SNDHWM, &sndhwm, sizeof(sndhwm));
-    int sndbuf = 0;   // let OS default or small cap (optional)
-    router.setsockopt(ZMQ_SNDBUF, &sndbuf, sizeof(sndbuf));
-    int immediate = 1; // don't queue to not-yet-connected peers
-    router.setsockopt(ZMQ_IMMEDIATE, &immediate, sizeof(immediate));
+    int sndhwm = 20000; 
+    router.set(zmq::sockopt::sndhwm, sndhwm);
+    int sndbuf = 4*1024*1024;  
+    router.set(zmq::sockopt::sndbuf, sndbuf);
+    int immediate = 1; 
+    router.set(zmq::sockopt::immediate, immediate);
     router.bind(bind_endpoint);
 
     while (true) {
-        // Accept both REQ and DEALER clients:
-        //  - REQ → ROUTER: frames = [id][payload]
-        //  - DEALER → ROUTER (or REQ/REP emulation): frames may be [id][empty][payload]
+        
         std::vector<zmq::message_t> frames;
         if (!recv_multipart_compat(router, frames)) continue;
-        if (frames.size() < 2) continue; // need at least [id][payload]
+        if (frames.size() < 2) continue; 
 
         zmq::message_t &id = frames[0];
-        // payload is last frame; ignore optional empty delimiter
+        
         zmq::message_t &payload = frames.back();
 
         ControlEnvelope req_env;
@@ -1167,19 +1172,12 @@ static void server_loop_router(zmq::context_t &ctx, const std::string &bind_endp
             continue;
         }
 
-        // right after parsing req_env in server_loop_router
-        // std::cerr << "RX type=" << req_env.type()
-        //  << " (" << MessageType_Name(static_cast<MessageType>(req_env.type())) << ") "
-        //  << " payload_size=" << req_env.payload().size() << "\n";
-
-
-        // Legacy/control: single reply. Reuse existing builder; wrap with [id][payload]
         zmq::message_t one_reply;
         process_request(std::string(static_cast<char*>(payload.data()), payload.size()), one_reply, daphne);
-        //std::cerr << "TX legacy reply bytes=" << one_reply.size() << "\n";
+        
         router.send(zmq::buffer(id.data(), id.size()), zmq::send_flags::sndmore);
         router.send(std::move(one_reply), zmq::send_flags::none);
-        //std::cerr << "TX frames sent ok? id=" << (s1 ? 1 : 0) << " payload=" << (s2 ? 1 : 0) << "\n";
+        
     }
 }
 
@@ -1241,7 +1239,7 @@ int main(int argc, char* argv[]) {
 
 
     try {
-    std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_27\n";
+    std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_30\n";
     std::cout << "ZMQ ROUTER server binding on " << endpoint << "\n";
     } catch (const std::exception &e) {
     std::cerr << "Initialization error: " << e.what() << "\n";

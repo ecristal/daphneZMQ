@@ -57,6 +57,7 @@ def compute_credit(numberOfSamples: int, chunkWaveform: int, nChannels: int,
 parser = argparse.ArgumentParser(description="Acquire waveforms from multiple channels (legacy or streaming).")
 parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
 parser.add_argument("-port", type=int, default=9000, help="Server port.")
+parser.add_argument("-foldername", type=str, required=True, help="Folder location to save channel data.")
 parser.add_argument("-channel_list", type=int, nargs='+', choices=range(0, 40), required=True, help="List of channels (0-39). Example: 0 1 2 3")
 parser.add_argument("-N", type=int, required=True, help="Number of waveforms.")
 parser.add_argument("-L", type=int, required=True, help="Length of each waveform.")
@@ -67,6 +68,9 @@ parser.add_argument("-debug", action='store_true', help="Debug printout.")
 parser.add_argument("-stream", action='store_true', help="Use streaming (chunked) API.")
 parser.add_argument("-chunk", type=int, default=100, help="Waveforms per chunk (hint for server).")
 parser.add_argument("-net_buffer_mb", type=int, default=128, help="Approx memory budget for in-flight chunks (MB) to compute RCVHWM.")
+parser.add_argument("-compress", action='store_true', help="Enable compression.")
+parser.add_argument("-compression_format", type=str, choices=['7z', 'tar'], default='tar', help="Compression type (7z or gz tarball).")
+parser.add_argument("-compression_level", type=int, default=1, choices=range(1, 10), help="7z compression level (1-9). Default 1.")
 args = parser.parse_args()
 
 # ----------------------------- Setup ----------------------------------
@@ -87,6 +91,12 @@ if args.debug:
     start_time = time.time()
 
 mode = 'ab' if args.append_data else 'wb'
+foldername = args.foldername
+
+#Now, filename will be in a directory /foldername/channel_<channel>.dat
+#make sure that the folder exists, if not, create it
+if not os.path.exists(foldername):
+    os.makedirs(foldername)
 
 # -------------------------- Legacy path --------------------------------
 
@@ -118,7 +128,7 @@ if not args.stream:
         raise RuntimeError(f"Data size {data.size} not compatible with (N={args.N}, C={n_channels}, L={args.L})")
 
     for idx, ch in enumerate(args.channel_list):
-        fname = f"channel_{ch}.dat"
+        fname = os.path.join(foldername, f"channel_{ch}.dat")
         if args.debug:
             print(f"Saving data for channel {ch} to {fname}")
         with open(fname, mode) as f:
@@ -146,7 +156,7 @@ env.payload = creq.SerializeToString()
 print(f"Streaming id={creq.requestID} N={args.N} L={args.L} chunk={creq.chunkSize} channels={args.channel_list} SW_TRG={args.software_trigger}")
 
 # Open all files once
-files: Dict[int, any] = {ch: open(f"channel_{ch}.dat", mode) for ch in args.channel_list}
+files: Dict[int, any] = {ch: open(os.path.join(foldername, f"channel_{ch}.dat"), mode) for ch in args.channel_list}
 wf_written = 0
 try:
     with tqdm(total=args.N, unit='wf') as pbar:
@@ -182,3 +192,32 @@ finally:
 if args.debug:
     dt = time.time() - start_time
     print(f"Done (stream). Received {wf_written}/{args.N} waveforms. Time: {dt//60:.0f}:{dt%60:.0f}")
+
+# add 7z or gzip compression
+if args.compress:
+    compression_type = args.compression_format
+    if args.debug:
+        print(f"Compressing data with {compression_type} ...")
+        start_time = time.time()
+    filenames = ''
+    filename_list = []
+    for ch in args.channel_list:
+        filename = os.path.join(foldername, f"channel_{ch}.dat")
+        filenames += f' {filename}'
+        filename_list.append(filename)
+        #delete .dat if if compression is succesful
+        #Check if 7z is installed
+    filename_c = os.path.join(foldername, "compressed_channels")
+    if os.system(f'{compression_type} --help') != 0:
+        print(f"{compression_type} is not installed. Please install it to use {compression_type} compression.")
+        sys.exit(1)
+    if compression_type == '7z':
+        os.system(f'7z a -mx={args.compression_level} {filename_c}.7z {filenames} -y')
+        if os.path.exists(f'{filename_c}.7z'):
+            for filename in filename_list:
+                os.remove(filename)
+    elif compression_type == 'tar':
+        os.system(f'tar -czvf {filename_c}.tar.gz {filenames}')
+        if os.path.exists(f'{filename_c}.tar.gz'):
+            for filename in filename_list:
+                os.remove(filename)

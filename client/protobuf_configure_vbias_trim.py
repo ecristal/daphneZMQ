@@ -79,23 +79,22 @@ if responseEnvelope.type == pb_high.WRITE_VBIAS_CONTROL:
     print("Success:", response.success)
     print("Message:", response.message)
 
-for afe in range(5):
-    request = pb_low.cmd_writeAFEBiasSet()
-    request.afeBlock = afe
-    request.biasValue = biasAFE_DAC[afe]
-    envelope = pb_high.ControlEnvelope()
-    envelope.type = pb_high.WRITE_AFE_BIAS_SET
-    envelope.payload = request.SerializeToString()
+request = pb_low.cmd_writeAFEBiasSet()
+request.afeBlock = afeNumber
+request.biasValue = biasAFE_DAC[afeNumber]
+envelope = pb_high.ControlEnvelope()
+envelope.type = pb_high.WRITE_AFE_BIAS_SET
+envelope.payload = request.SerializeToString()
 
-    response_bytes = send_envelope_and_get_reply(socket, envelope)
-    responseEnvelope = pb_high.ControlEnvelope()
-    responseEnvelope.ParseFromString(response_bytes)
+response_bytes = send_envelope_and_get_reply(socket, envelope)
+responseEnvelope = pb_high.ControlEnvelope()
+responseEnvelope.ParseFromString(response_bytes)
 
-    if responseEnvelope.type == pb_high.WRITE_AFE_BIAS_SET:
-        response = pb_low.cmd_writeAFEBiasSet_response()
-        response.ParseFromString(responseEnvelope.payload)
-        print("Success:", response.success)
-        print("Message:", response.message)
+if responseEnvelope.type == pb_high.WRITE_AFE_BIAS_SET:
+    response = pb_low.cmd_writeAFEBiasSet_response()
+    response.ParseFromString(responseEnvelope.payload)
+    print("Success:", response.success)
+    print("Message:", response.message)
 
 request = pb_low.cmd_writeTrim_singleChannel()
 request.trimChannel = channel

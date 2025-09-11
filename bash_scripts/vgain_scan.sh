@@ -88,7 +88,7 @@ for vgain in "${vgain_array[@]}"; do
     python ./../client/protobuf_configure_daphne.py -ip 193.206.157.36 -port 9000 -vgain "$vgain" -ch_offset 2275 -align_afes -lpf_cutoff 10 -pga_clamp_level '0 dBFS' -pga_gain_control '24 dB' -lna_gain_control '12 dB' -lna_input_clamp auto &> "$log_file"
     # Run the scan and save the output to the file
     echo "Running scan with vgain: $vgain"
-    python ./../client/protobuf_acquire_channel.py -ip 193.206.157.36 -channel "$channel" -L 2048 -N 10000 -filename "$output_file" -software_trigger
+    python ./../client/protobuf_acquire_channel.py -ip 193.206.157.36 -channel "$channel" -L 2048 -N 30000 -filename "$output_file" -stream -chunk 10
     # Compress the output file using 7z with mid compression level
     echo "Compressing output file: $output_file"
     # the output final should not have an extension prefix .dat and delete the original .dat file

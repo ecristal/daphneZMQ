@@ -58,12 +58,15 @@ parser = argparse.ArgumentParser(description="Acquisition of waveforms (legacy o
 parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
 parser.add_argument("-port", type=int, default=9000, help="Server port.")
 parser.add_argument("-channel", type=int, choices=range(0, 40), required=True, help="0-39")
-parser.add_argument("-filename", type=str, required=True, help="File location")
+parser.add_argument("-foldername", type=str, required=True, help="Folder location to save channel data.")
 parser.add_argument("-N", type=int, required=True, help="Number of waveforms")
 parser.add_argument("-L", type=int, required=True, help="Length of waveform")
 parser.add_argument("-software_trigger", action='store_true', help="Enable software trigger")
 parser.add_argument("-append_data", action='store_true', help="Append to existing file")
 parser.add_argument("-debug", action='store_true', help="Debug printout")
+parser.add_argument("-compress", action='store_true', help="Enable compression.")
+parser.add_argument("-compression_format", type=str, choices=['7z', 'tar'], default='tar', help="Compression type (7z or gz tarball).")
+parser.add_argument("-compression_level", type=int, default=1, choices=range(1, 10), help="7z compression level (1-9). Default 5.")
 # Streaming options
 parser.add_argument("-stream", action='store_true', help="Use streaming (chunked) API")
 parser.add_argument("-chunk", type=int, default=100, help="Waveforms per chunk (hint)")
@@ -82,10 +85,16 @@ endpoint = f"tcp://{args.ip}:{args.port}"
 socket = make_dealer(context, endpoint, identity=b"client-compat")
 
 channel = args.channel
-filename = args.filename
+foldername = args.foldername
 N = args.N
 L = args.L
 software_trigger = args.software_trigger
+
+#Now, filename will be in a directory /foldername/channel_<channel>.dat
+#make sure that the folder exists, if not, create it
+if not os.path.exists(foldername):
+    os.makedirs(foldername)
+filename = os.path.join(os.path.dirname(foldername), f"channel_{channel}.dat")
 
 if args.debug:
     print(f"Endpoint: {endpoint}")
@@ -169,3 +178,28 @@ if args.debug:
     dt = time.time() - start_time
     print(f"Done (stream). Received {wf_written}/{N} waveforms. Time: {dt//60:.0f}:{dt%60:.0f}")
 
+# add 7z compression
+compression_format = args.compression_format
+
+if args.compress:
+    if args.debug:
+        start_time = time.time()
+    #remove .dat extension if present
+    if filename.endswith('.dat'):
+        filename_c = filename[:-4]
+    #delete .dat if if compression is succesful
+    #Check if 7z is installed
+    # if os.system(f'{compression_format} --help') != 0:
+    #     print(f"{compression_format} is not installed. Please install it to use {compression_format} compression.")
+    #     sys.exit(1)
+    if compression_format == '7z':
+        os.system(f'7z a -mx={args.compression_level} {filename_c}.7z {filename} -y')
+        if os.path.exists(f'{filename_c}.7z'):
+            os.remove(filename)
+    elif compression_format == 'tar':
+        os.system(f'tar -czvf {filename_c}.tar.gz {filename}')
+        if os.path.exists(f'{filename_c}.tar.gz'):
+            os.remove(filename)
+    if args.debug:
+        dt = time.time() - start_time
+        print(f"Done. Time: {dt//60:.0f}:{dt%60:.0f}")
