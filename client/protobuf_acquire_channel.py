@@ -66,10 +66,10 @@ parser.add_argument("-append_data", action='store_true', help="Append to existin
 parser.add_argument("-debug", action='store_true', help="Debug printout")
 parser.add_argument("-compress", action='store_true', help="Enable compression.")
 parser.add_argument("-compression_format", type=str, choices=['7z', 'tar'], default='tar', help="Compression type (7z or gz tarball).")
-parser.add_argument("-compression_level", type=int, default=1, choices=range(1, 10), help="7z compression level (1-9). Default 5.")
+parser.add_argument("-compression_level", type=int, default=1, choices=range(1, 10), help="7z compression level (1-9). Default 1.")
 # Streaming options
-parser.add_argument("-stream", action='store_true', help="Use streaming (chunked) API")
-parser.add_argument("-chunk", type=int, default=100, help="Waveforms per chunk (hint)")
+parser.add_argument("-legacy", action='store_true', help="Use legacy (non-streaming) API")
+parser.add_argument("-chunk", type=int, default=10, help="Waveforms per chunk (hint)")
 args = parser.parse_args()
 
 # ------------------------------------------------------------------
@@ -98,13 +98,13 @@ filename = os.path.join(os.path.dirname(foldername), f"channel_{channel}.dat")
 
 if args.debug:
     print(f"Endpoint: {endpoint}")
-    print(f"IP: {args.ip}, Port: {args.port}, Channel: {channel}, Filename: {filename}, N: {N}, L: {L}, SW_TRG: {software_trigger}, STREAM: {args.stream}")
+    print(f"IP: {args.ip}, Port: {args.port}, Channel: {channel}, Filename: {filename}, N: {N}, L: {L}, SW_TRG: {software_trigger}, STREAM: {not args.legacy}")
     start_time = time.time()
 
 # ------------------------------------------------------------------
 # Legacy single-shot mode
 # ------------------------------------------------------------------
-if not args.stream:
+if args.legacy:
     req = pb_high.DumpSpyBuffersRequest()
     req.channelList.append(channel)
     req.numberOfWaveforms = N

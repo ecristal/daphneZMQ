@@ -65,8 +65,8 @@ parser.add_argument("-software_trigger", action='store_true', help="Enable softw
 parser.add_argument("-append_data", action='store_true', help="Append to existing per-channel files.")
 parser.add_argument("-debug", action='store_true', help="Debug printout.")
 # Streaming options
-parser.add_argument("-stream", action='store_true', help="Use streaming (chunked) API.")
-parser.add_argument("-chunk", type=int, default=100, help="Waveforms per chunk (hint for server).")
+parser.add_argument("-legacy", action='store_true', help="Use legacy (non-streaming) API.")
+parser.add_argument("-chunk", type=int, default= 5, help="Waveforms per chunk (hint for server).")
 parser.add_argument("-net_buffer_mb", type=int, default=128, help="Approx memory budget for in-flight chunks (MB) to compute RCVHWM.")
 parser.add_argument("-compress", action='store_true', help="Enable compression.")
 parser.add_argument("-compression_format", type=str, choices=['7z', 'tar'], default='tar', help="Compression type (7z or gz tarball).")
@@ -81,13 +81,13 @@ socket = make_dealer(context, endpoint, identity=b"client-compat")
 
 n_channels = len(args.channel_list)
 
-if args.stream:
+if not args.legacy:
     credit = compute_credit(args.L, min(args.chunk, args.N), n_channels, budget_mb=args.net_buffer_mb)
     socket.setsockopt(zmq.RCVHWM, credit)
 
 if args.debug:
     print(f"Endpoint: {endpoint}")
-    print(f"Channels: {args.channel_list} (n={n_channels}), N={args.N}, L={args.L}, SW_TRG={args.software_trigger}, STREAM={args.stream}, chunk={args.chunk}, RCVHWM={compute_credit(args.L, min(args.chunk, args.N), n_channels, budget_mb=args.net_buffer_mb) if args.stream else 'n/a'}")
+    print(f"Channels: {args.channel_list} (n={n_channels}), N={args.N}, L={args.L}, SW_TRG={args.software_trigger}, STREAM={not args.legacy}, chunk={args.chunk}, RCVHWM={compute_credit(args.L, min(args.chunk, args.N), n_channels, budget_mb=args.net_buffer_mb) if not args.legacy else 'n/a'}")
     start_time = time.time()
 
 mode = 'ab' if args.append_data else 'wb'
@@ -100,7 +100,7 @@ if not os.path.exists(foldername):
 
 # -------------------------- Legacy path --------------------------------
 
-if not args.stream:
+if args.legacy:
     req = pb_high.DumpSpyBuffersRequest()
     req.channelList.extend(args.channel_list)
     req.numberOfWaveforms = args.N
