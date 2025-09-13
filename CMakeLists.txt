@@ -75,6 +75,8 @@ set(SOURCES
     srcs/FpgaReg.cpp
     srcs/Spi.cpp
     srcs/SpyBuffer.cpp
+    srcs/I2CDevice.cpp
+    srcs/DaphneI2CDrivers.cpp
     srcs/Afe.cpp
     srcs/FrontEnd.cpp
     srcs/Endpoint.cpp
@@ -129,6 +131,7 @@ target_link_libraries(DaphneSlowController
     absl::log_internal_message
     Threads::Threads
     -lc
+    i2c
 )
 
 # Print useful info

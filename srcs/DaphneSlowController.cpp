@@ -1239,7 +1239,7 @@ int main(int argc, char* argv[]) {
 
 
     try {
-    std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_30\n";
+    std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_31\n";
     std::cout << "ZMQ ROUTER server binding on " << endpoint << "\n";
     } catch (const std::exception &e) {
     std::cerr << "Initialization error: " << e.what() << "\n";

@@ -4,9 +4,11 @@ Daphne::Daphne()
 	: afe(std::make_unique<Afe>()),
 	  dac(std::make_unique<Dac>()),
 	  frontend(std::make_unique<FrontEnd>()),
-	  spyBuffer(std::make_unique<SpyBuffer>()){
+	  spyBuffer(std::make_unique<SpyBuffer>()),
+	  hdmezzdriver(std::make_unique<I2CMezzDrivers::HDMezzDriver>()),
+	  regulatorsdriver(std::make_unique<I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver>()){
 		this->initRegDictHistory();
-	  }
+	}
 
 Daphne::~Daphne(){}
 
