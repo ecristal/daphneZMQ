@@ -77,20 +77,27 @@ void I2CDevice::writeSingleByte(const uint8_t &data){
     }
 }
 
-void I2CDevice::writeByte(const uint8_t &regAdress, const uint8_t &data){
-    uint8_t buffer[2] = {regAdress, data};
+void I2CDevice::writeByte(const uint8_t &regAddress, const uint8_t &data){
+    uint8_t buffer[2] = {regAddress, data};
     int result = write(fileDescriptor, buffer, 2);
     if(result != 2){
         throw std::runtime_error("Failed to write byte to I2C device at " + devicePath + " with address " + std::to_string(deviceAddress));
     }
 }
 
-void I2CDevice::writeBytes(const uint8_t &regAdress, const std::vector<uint8_t> &data){
+void I2CDevice::writeBytes(const uint8_t &regAddress, const std::vector<uint8_t> &data){
     std::vector<uint8_t> buffer(data.size() + 1);
-    buffer[0] = regAdress;
+    buffer[0] = regAddress;
     std::copy(data.begin(), data.end(), buffer.begin() + 1);
     int result = write(fileDescriptor, buffer.data(), buffer.size());
     if(result != static_cast<int>(buffer.size())){
+        throw std::runtime_error("Failed to write bytes to I2C device at " + devicePath + " with address " + std::to_string(deviceAddress));
+    }
+}
+
+void I2CDevice::writeFrame(std::vector<uint8_t> &data){
+    int result = write(fileDescriptor, data.data(), data.size());
+    if(result != static_cast<int>(data.size())){
         throw std::runtime_error("Failed to write bytes to I2C device at " + devicePath + " with address " + std::to_string(deviceAddress));
     }
 }
@@ -101,8 +108,8 @@ void I2CDevice::readSingleByte(uint8_t &data){
     }
 }
 
-void I2CDevice::readByte(const uint8_t &regAdress, uint8_t &data){
-    if (write(fileDescriptor, &regAdress, 1) != 1) {
+void I2CDevice::readByte(const uint8_t &regAddress, uint8_t &data){
+    if (write(fileDescriptor, &regAddress, 1) != 1) {
         throw std::runtime_error("Failed to write register address to I2C device at " + devicePath + " with address " + std::to_string(deviceAddress));
     }
     if (read(fileDescriptor, &data, 1) != 1) {
@@ -110,10 +117,17 @@ void I2CDevice::readByte(const uint8_t &regAdress, uint8_t &data){
     }
 }
 
-void I2CDevice::readBytes(const uint8_t &regAdress, std::vector<uint8_t> &data, const uint8_t &numBytes){
-    if (write(fileDescriptor, &regAdress, 1) != 1) {
+void I2CDevice::readBytes(const uint8_t &regAddress, std::vector<uint8_t> &data, const uint8_t &numBytes){
+    if (write(fileDescriptor, &regAddress, 1) != 1) {
         throw std::runtime_error("Failed to write register address to I2C device at " + devicePath + " with address " + std::to_string(deviceAddress));
     }
+    data.resize(numBytes);
+    if (read(fileDescriptor, data.data(), numBytes) != numBytes) {
+        throw std::runtime_error("Failed to read bytes from I2C device at " + devicePath + " with address " + std::to_string(deviceAddress));
+    }
+}
+
+void I2CDevice::readFrame(std::vector<uint8_t> &data, const uint8_t &numBytes){
     data.resize(numBytes);
     if (read(fileDescriptor, data.data(), numBytes) != numBytes) {
         throw std::runtime_error("Failed to read bytes from I2C device at " + devicePath + " with address " + std::to_string(deviceAddress));

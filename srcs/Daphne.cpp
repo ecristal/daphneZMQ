@@ -6,8 +6,53 @@ Daphne::Daphne()
 	  frontend(std::make_unique<FrontEnd>()),
 	  spyBuffer(std::make_unique<SpyBuffer>()),
 	  hdmezzdriver(std::make_unique<I2CMezzDrivers::HDMezzDriver>()),
-	  regulatorsdriver(std::make_unique<I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver>()){
+	  regulatorsdriver(std::make_unique<I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver>()),
+	  ads7138driver_addr_0x10(std::make_unique<I2CADCsDrivers::ADS7138_Driver>(0x10)),
+	  ads7138driver_addr_0x17(std::make_unique<I2CADCsDrivers::ADS7138_Driver>(0x17))
+	{
 		this->initRegDictHistory();
+		this->getADS7138_Driver_addr_0x10()->setEnabledChannels({true, true, true, true,
+		                                                         true, true, true, false});
+		this->getADS7138_Driver_addr_0x17()->setEnabledChannels({false, false, true, false,
+		                                                         false, true, false, true});
+		this->isI2C_1_device_configuring.store(false);
+		this->isI2C_2_device_configuring.store(false);
+		this->user_vbias_voltage_request.store(false);
+		this->is_vbias_voltage_monitor_reading.store(false);
+		this->HDMezz_5V_voltage_afe4.store(0.0);
+		this->HDMezz_5V_current_afe4.store(0.0);
+		this->HDMezz_3V3_voltage_afe4.store(0.0);
+		this->HDMezz_3V3_current_afe4.store(0.0);
+		this->HDMezz_5V_power_afe4.store(0.0);
+		this->HDMezz_3V3_power_afe4.store(0.0);
+
+		this->HDMezz_5V_voltage_afe3.store(0.0);
+		this->HDMezz_5V_current_afe3.store(0.0);
+		this->HDMezz_3V3_voltage_afe3.store(0.0);
+		this->HDMezz_3V3_current_afe3.store(0.0);
+		this->HDMezz_5V_power_afe3.store(0.0);
+		this->HDMezz_3V3_power_afe3.store(0.0);
+
+		this->HDMezz_5V_voltage_afe2.store(0.0);
+		this->HDMezz_5V_current_afe2.store(0.0);
+		this->HDMezz_3V3_voltage_afe2.store(0.0);
+		this->HDMezz_3V3_current_afe2.store(0.0);
+		this->HDMezz_5V_power_afe2.store(0.0);
+		this->HDMezz_3V3_power_afe2.store(0.0);
+
+		this->HDMezz_5V_voltage_afe1.store(0.0);
+		this->HDMezz_5V_current_afe1.store(0.0);
+		this->HDMezz_3V3_voltage_afe1.store(0.0);
+		this->HDMezz_3V3_current_afe1.store(0.0);
+		this->HDMezz_5V_power_afe1.store(0.0);
+		this->HDMezz_3V3_power_afe1.store(0.0);
+
+		this->HDMezz_5V_voltage_afe0.store(0.0);
+		this->HDMezz_5V_current_afe0.store(0.0);
+		this->HDMezz_3V3_voltage_afe0.store(0.0);
+		this->HDMezz_3V3_current_afe0.store(0.0);
+		this->HDMezz_5V_power_afe0.store(0.0);
+		this->HDMezz_3V3_power_afe0.store(0.0);
 	}
 
 Daphne::~Daphne(){}
@@ -30,6 +75,25 @@ FrontEnd* Daphne::getFrontEnd(){
 SpyBuffer* Daphne::getSpyBuffer(){
 
 	return this->spyBuffer.get();
+}
+
+I2CMezzDrivers::HDMezzDriver* Daphne::getHDMezzDriver(){
+
+	return this->hdmezzdriver.get();
+}
+
+I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver* Daphne::getRegulatorsDriver(){
+
+	return this->regulatorsdriver.get();
+}
+
+I2CADCsDrivers::ADS7138_Driver* Daphne::getADS7138_Driver_addr_0x10(){
+
+	return this->ads7138driver_addr_0x10.get();
+}
+
+I2CADCsDrivers::ADS7138_Driver* Daphne::getADS7138_Driver_addr_0x17(){
+	return this->ads7138driver_addr_0x17.get();
 }
 
 std::optional<std::pair<uint32_t, uint32_t>> Daphne::longestIdenticalSubsequenceIndices(const std::vector<uint32_t>& nums){

@@ -18,6 +18,7 @@
 #include <functional>
 #include <cmath>
 #include <optional>
+#include <atomic>
 
 #include "Afe.hpp"
 #include "Dac.hpp"
@@ -39,7 +40,9 @@ public:
     FrontEnd* getFrontEnd();
     SpyBuffer* getSpyBuffer();
     I2CMezzDrivers::HDMezzDriver* getHDMezzDriver();
-    I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver* getRegulatorsDriver();
+    I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver* getRegulatorsDriver();
+    I2CADCsDrivers::ADS7138_Driver* getADS7138_Driver_addr_0x10();
+    I2CADCsDrivers::ADS7138_Driver* getADS7138_Driver_addr_0x17();
 
     std::optional<std::pair<uint32_t, uint32_t>> longestIdenticalSubsequenceIndices(const std::vector<uint32_t>& nums);
     std::vector<uint32_t> scanGeneric(const uint32_t& afe,const std::string& what,const uint32_t& taps, std::function<uint32_t(const uint32_t&, const uint32_t&)> setFunc);
@@ -60,13 +63,70 @@ public:
     void setBiasControlDictValue(const uint32_t& biasControl) {this->biasControlSetting = biasControl;}
     uint32_t getBiasControlDictValue() {return this->biasControlSetting;}
 
+    //Atomic variable to share between threads
+    std::atomic<bool> isI2C_1_device_configuring;
+    std::atomic<bool> isI2C_2_device_configuring;
+    std::atomic<bool> user_vbias_voltage_request;
+    std::atomic<bool> is_vbias_voltage_monitor_reading;
+    //Atomic monitor voltages and currents
+    std::atomic<double> HDMezz_5V_voltage_afe4;
+    std::atomic<double> HDMezz_5V_current_afe4;
+    std::atomic<double> HDMezz_3V3_voltage_afe4;
+    std::atomic<double> HDMezz_3V3_current_afe4;
+    std::atomic<double> HDMezz_5V_power_afe4;
+    std::atomic<double> HDMezz_3V3_power_afe4;
+
+    std::atomic<double> HDMezz_5V_voltage_afe3;
+    std::atomic<double> HDMezz_5V_current_afe3;
+    std::atomic<double> HDMezz_3V3_voltage_afe3;
+    std::atomic<double> HDMezz_3V3_current_afe3;
+    std::atomic<double> HDMezz_5V_power_afe3;
+    std::atomic<double> HDMezz_3V3_power_afe3;
+
+    std::atomic<double> HDMezz_5V_voltage_afe2;
+    std::atomic<double> HDMezz_5V_current_afe2;
+    std::atomic<double> HDMezz_3V3_voltage_afe2;
+    std::atomic<double> HDMezz_3V3_current_afe2;
+    std::atomic<double> HDMezz_5V_power_afe2;
+    std::atomic<double> HDMezz_3V3_power_afe2;
+
+    std::atomic<double> HDMezz_5V_voltage_afe1;
+    std::atomic<double> HDMezz_5V_current_afe1;
+    std::atomic<double> HDMezz_3V3_voltage_afe1;
+    std::atomic<double> HDMezz_3V3_current_afe1;
+    std::atomic<double> HDMezz_5V_power_afe1;
+    std::atomic<double> HDMezz_3V3_power_afe1;
+
+    std::atomic<double> HDMezz_5V_voltage_afe0;
+    std::atomic<double> HDMezz_5V_current_afe0;
+    std::atomic<double> HDMezz_3V3_voltage_afe0;
+    std::atomic<double> HDMezz_3V3_current_afe0;
+    std::atomic<double> HDMezz_5V_power_afe0;
+    std::atomic<double> HDMezz_3V3_power_afe0;
+
+    std::atomic<double> _1V8A_voltage;
+    std::atomic<double> _3V3A_voltage;
+    std::atomic<double> _n5VA_voltage;
+
+    std::atomic<double> _3V3PDS_voltage;
+    std::atomic<double> _1V8PDS_voltage;
+    std::atomic<double> _VBIAS_0_voltage;
+    std::atomic<double> _VBIAS_1_voltage;
+    std::atomic<double> _VBIAS_2_voltage;
+    std::atomic<double> _VBIAS_3_voltage;
+    std::atomic<double> _VBIAS_4_voltage;
+
+
+
 private:
     std::unique_ptr<Afe> afe;
     std::unique_ptr<Dac> dac;
     std::unique_ptr<FrontEnd> frontend;
     std::unique_ptr<SpyBuffer> spyBuffer;
     std::unique_ptr<I2CMezzDrivers::HDMezzDriver> hdmezzdriver;
-    std::unique_ptr<I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver> regulatorsdriver;
+    std::unique_ptr<I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver> regulatorsdriver;
+    std::unique_ptr<I2CADCsDrivers::ADS7138_Driver> ads7138driver_addr_0x10;
+    std::unique_ptr<I2CADCsDrivers::ADS7138_Driver> ads7138driver_addr_0x17;
 
     std::unordered_map<std::string, std::vector<double>> AFE_GAIN_LUT = {
         {"VCNTL",{0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5}},

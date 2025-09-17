@@ -1,6 +1,9 @@
 #ifndef DaphneI2CDrivers_HPP
 #define DaphneI2CDrivers_HPP
 
+#include <thread>
+#include <chrono>
+
 #include "defines.hpp"
 #include "I2CDevice.hpp"
 
@@ -68,7 +71,7 @@ namespace I2CMezzDrivers{
     };
 }
 
-namespace I2CRegulartorsDrivers{
+namespace I2CRegulatorsDrivers{
     class PJT004A0X43_SRZ_Driver
     {
     public:
@@ -89,6 +92,38 @@ namespace I2CRegulartorsDrivers{
         I2CDevice REG_1VD8;
         double decodeRaw(const uint16_t &rawData, const uint16_t &exponentLSBPos, const uint16_t &mantissaMSBPos);
         double decodeRaw(const uint16_t &rawData, const int &exponent);
+    };
+}
+
+namespace I2CADCsDrivers{
+    class ADS7138_Driver
+    // For now, this class implements the bare minimum to do an Acquisition of the enabled channels.
+    {
+    public:
+        ADS7138_Driver(const uint8_t &deviceAddress);
+        ~ADS7138_Driver();
+
+        uint8_t getDeviceAddress();
+        void setDeviceAddress();
+
+        void resetDevice();
+        void configureDevice();
+        void calibrateOffsetError();
+        void setEnabledChannels(const std::vector<bool> &enabled_channels);
+        std::vector<bool> getEnabledChannels() const;
+        void writeSingleRegister(const uint8_t &registerAddress, const uint8_t &value);
+        uint8_t readSingleRegister(const uint8_t &registerAddress);
+        std::vector<double> readData(const uint8_t &numSamples);
+
+    private:
+
+        I2CDevice ADC_ADS7138;
+
+        uint8_t deviceAddress;
+        std::string operationMode = "Auto-Sequence"; // For now the only opmode is Auto-Sequence.
+        std::vector<bool> enabled_channels = {false, false, false, false,
+                                              false, false, false, false};
+        uint8_t getChannelsListByte(const std::vector<bool> &channels);
     };
 }
 #endif // DaphneI2CDrivers_HPP

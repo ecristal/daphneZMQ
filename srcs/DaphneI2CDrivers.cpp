@@ -194,7 +194,7 @@ void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(const uint8_t &afeBlo
     }
     std::string afeBlockStr = "AFE" + std::to_string(afeBlock) + "_MEZZ";
     I2C_exp_mezz.writeSingleByte(I2C_drivers_defines::HDMezzExpanderEncoder.at(afeBlockStr)); // Configuration the switch to the specific AFE block
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
     // Configure the calibration register for 5V
     // Now we need to create a local device to write to the specific HD Mezz digital devices.
     I2CDevice INA232_5V("/dev/i2c-2", I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"));
@@ -208,7 +208,7 @@ void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(const uint8_t &afeBlo
     };
 
     INA232_5V.writeBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_CALIBRATION_REG"), shunt_cal_5V_bytes);
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
 
     // maximum power register (5V)
     uint16_t max_power_5V_reg = (uint16_t)(this->max_power_5V[afeBlock] / (32*this->current_lsb_5V[afeBlock]));
@@ -217,7 +217,7 @@ void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(const uint8_t &afeBlo
         static_cast<uint8_t>(max_power_5V_reg & 0xFF)
     };
     INA232_5V.writeBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_ALERT_LIMIT_REG"), max_power_5_vector);
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
 
     //Alert flags
     std::vector<uint8_t> alert_flags_vector = {
@@ -225,7 +225,7 @@ void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(const uint8_t &afeBlo
         static_cast<uint8_t>(this->enable_alert_flags & 0xFF)
     };
     INA232_5V.writeBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_MASK_ENABLE_REG"), alert_flags_vector);
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
     
     // Now, let's configure the INA232 for 3.3V.
     // shunt calibration register
@@ -234,7 +234,7 @@ void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(const uint8_t &afeBlo
         static_cast<uint8_t>(this->shunt_cal_3V3[afeBlock] & 0xFF)
     };
     INA232_3V3.writeBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_CALIBRATION_REG"), shunt_cal_3V3_bytes);
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
 
     // maximum power register (3.3V)
     uint16_t max_power_3V3_reg = (uint16_t)(this->max_power_3V3[afeBlock] / (32*this->current_lsb_3V3[afeBlock]));
@@ -243,15 +243,15 @@ void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(const uint8_t &afeBlo
         static_cast<uint8_t>(max_power_3V3_reg & 0xFF)
     };
     INA232_3V3.writeBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_ALERT_LIMIT_REG"), max_power_3V3_vector);
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
 
     //Alert flags
     INA232_3V3.writeBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_MASK_ENABLE_REG"), alert_flags_vector);
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
 
     // Now, let's configure the TCA9536
     TCA9536.writeByte(I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_CONF_REG"), 0xF0); // Set all pins as outputs
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
 
 }
 
@@ -264,7 +264,7 @@ void I2CMezzDrivers::HDMezzDriver::powerOn_5V_HDMezzAfeBlock(const uint8_t &afeB
     }
     std::string afeBlockStr = "AFE" + std::to_string(afeBlock) + "_MEZZ";
     I2C_exp_mezz.writeSingleByte(I2C_drivers_defines::HDMezzExpanderEncoder.at(afeBlockStr)); // Configuration the switch to the specific AFE block
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
     I2CDevice TCA9536("/dev/i2c-2", I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_ADDR"));
     uint8_t output_port;
     TCA9536.readByte(I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_OUTPUT_PORT_REG"), output_port);
@@ -274,7 +274,7 @@ void I2CMezzDrivers::HDMezzDriver::powerOn_5V_HDMezzAfeBlock(const uint8_t &afeB
         output_port &= 0b11111110; // Set bit 0 to 0 to power off the 5V
     }
     TCA9536.writeByte(I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_OUTPUT_PORT_REG"), output_port);
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
 }
 
 void I2CMezzDrivers::HDMezzDriver::powerOn_3V3_HDMezzAfeBlock(const uint8_t &afeBlock, const bool &powerOn){
@@ -286,7 +286,7 @@ void I2CMezzDrivers::HDMezzDriver::powerOn_3V3_HDMezzAfeBlock(const uint8_t &afe
     }
     std::string afeBlockStr = "AFE" + std::to_string(afeBlock) + "_MEZZ";
     I2C_exp_mezz.writeSingleByte(I2C_drivers_defines::HDMezzExpanderEncoder.at(afeBlockStr)); // Configuration the switch to the specific AFE block
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
     I2CDevice TCA9536("/dev/i2c-2", I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_ADDR"));
     uint8_t output_port;
     TCA9536.readByte(I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_OUTPUT_PORT_REG"), output_port);
@@ -296,7 +296,7 @@ void I2CMezzDrivers::HDMezzDriver::powerOn_3V3_HDMezzAfeBlock(const uint8_t &afe
         output_port &= 0b11111101; // Set bit 1 to 0 to power off the 3.3V
     }
     TCA9536.writeByte(I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_OUTPUT_PORT_REG"), output_port);
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
 }
 
 double I2CMezzDrivers::HDMezzDriver::readRailVoltage5V(const uint8_t &afeBlock){
@@ -308,7 +308,7 @@ double I2CMezzDrivers::HDMezzDriver::readRailVoltage5V(const uint8_t &afeBlock){
     }
     std::string afeBlockStr = "AFE" + std::to_string(afeBlock) + "_MEZZ";
     I2C_exp_mezz.writeSingleByte(I2C_drivers_defines::HDMezzExpanderEncoder.at(afeBlockStr)); // Configuration the switch to the specific AFE block
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
     I2CDevice INA232_5V("/dev/i2c-2", I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"));
     std::vector<uint8_t> bus_voltage_bytes;
     INA232_5V.readBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_BUS_VOLTAGE_REG"), bus_voltage_bytes, 2);
@@ -326,7 +326,7 @@ double I2CMezzDrivers::HDMezzDriver::readRailVoltage3V3(const uint8_t &afeBlock)
     }
     std::string afeBlockStr = "AFE" + std::to_string(afeBlock) + "_MEZZ";
     I2C_exp_mezz.writeSingleByte(I2C_drivers_defines::HDMezzExpanderEncoder.at(afeBlockStr)); // Configuration the switch to the specific AFE block
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
     I2CDevice INA232_3V3("/dev/i2c-2", I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"));
     std::vector<uint8_t> bus_voltage_bytes;
     INA232_3V3.readBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_BUS_VOLTAGE_REG"), bus_voltage_bytes, 2);
@@ -344,7 +344,7 @@ double I2CMezzDrivers::HDMezzDriver::readRailCurrent5V(const uint8_t &afeBlock){
     }
     std::string afeBlockStr = "AFE" + std::to_string(afeBlock) + "_MEZZ";
     I2C_exp_mezz.writeSingleByte(I2C_drivers_defines::HDMezzExpanderEncoder.at(afeBlockStr)); // Configuration the switch to the specific AFE block
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
     I2CDevice INA232_5V("/dev/i2c-2", I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"));
     std::vector<uint8_t> current_bytes;
     INA232_5V.readBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_CURRENT_REG"), current_bytes, 2);
@@ -362,7 +362,7 @@ double I2CMezzDrivers::HDMezzDriver::readRailCurrent3V3(const uint8_t &afeBlock)
     }
     std::string afeBlockStr = "AFE" + std::to_string(afeBlock) + "_MEZZ";
     I2C_exp_mezz.writeSingleByte(I2C_drivers_defines::HDMezzExpanderEncoder.at(afeBlockStr)); // Configuration the switch to the specific AFE block
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
     I2CDevice INA232_3V3("/dev/i2c-2", I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"));
     std::vector<uint8_t> current_bytes;
     INA232_3V3.readBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_CURRENT_REG"), current_bytes, 2);
@@ -380,7 +380,7 @@ double I2CMezzDrivers::HDMezzDriver::readRailPower5V(const uint8_t &afeBlock){
     }
     std::string afeBlockStr = "AFE" + std::to_string(afeBlock) + "_MEZZ";
     I2C_exp_mezz.writeSingleByte(I2C_drivers_defines::HDMezzExpanderEncoder.at(afeBlockStr)); // Configuration the switch to the specific AFE block
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
     I2CDevice INA232_5V("/dev/i2c-2", I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"));
     std::vector<uint8_t> power_bytes;
     INA232_5V.readBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_POWER_REG"), power_bytes, 2);
@@ -398,7 +398,7 @@ double I2CMezzDrivers::HDMezzDriver::readRailPower3V3(const uint8_t &afeBlock){
     }
     std::string afeBlockStr = "AFE" + std::to_string(afeBlock) + "_MEZZ";
     I2C_exp_mezz.writeSingleByte(I2C_drivers_defines::HDMezzExpanderEncoder.at(afeBlockStr)); // Configuration the switch to the specific AFE block
-    usleep(10000); // wait 10ms
+    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
     I2CDevice INA232_3V3("/dev/i2c-2", I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"));
     std::vector<uint8_t> power_bytes;
     INA232_3V3.readBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_POWER_REG"), power_bytes, 2);
@@ -407,16 +407,16 @@ double I2CMezzDrivers::HDMezzDriver::readRailPower3V3(const uint8_t &afeBlock){
     return power;
 }
 
-I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver::PJT004A0X43_SRZ_Driver():
+I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver::PJT004A0X43_SRZ_Driver():
     REG_3VD3("/dev/i2c-2", I2C_drivers_defines::I2CDevicesAddress.at("SW_REG_3VD3"), 1),
     REG_2VA1("/dev/i2c-2", I2C_drivers_defines::I2CDevicesAddress.at("SW_REG_2VA1"), 1),
     REG_3VA6("/dev/i2c-2", I2C_drivers_defines::I2CDevicesAddress.at("SW_REG_3VA6"), 1),
     REG_1VD8("/dev/i2c-2", I2C_drivers_defines::I2CDevicesAddress.at("SW_REG_1VD8"), 1){}
 
 
-I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver::~PJT004A0X43_SRZ_Driver(){}
+I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver::~PJT004A0X43_SRZ_Driver(){}
 
-double I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver::readRailVoltage(const uint8_t &regulatorNumber){
+double I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver::readRailVoltage(const uint8_t &regulatorNumber){
     if(regulatorNumber > 3){
         throw std::invalid_argument("Invalid regulator number. Valid values are 0 to 3.");
     }
@@ -442,7 +442,7 @@ double I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver::readRailVoltage(const uint
     return voltage;
 }
 
-double I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver::readRailCurrent(const uint8_t &regulatorNumber){
+double I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver::readRailCurrent(const uint8_t &regulatorNumber){
     if(regulatorNumber > 3){
         throw std::invalid_argument("Invalid regulator number. Valid values are 0 to 3.");
     }
@@ -468,7 +468,7 @@ double I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver::readRailCurrent(const uint
     return current;
 }
 
-double I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver::readTemperature(const uint8_t &regulatorNumber){
+double I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver::readTemperature(const uint8_t &regulatorNumber){
     if(regulatorNumber > 3){
         throw std::invalid_argument("Invalid regulator number. Valid values are 0 to 3.");
     }
@@ -494,7 +494,7 @@ double I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver::readTemperature(const uint
     return temperature;
 }
 
-double I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver::decodeRaw(const uint16_t &rawData, const uint16_t &exponentLSBPos, const uint16_t &mantissaMSBPos) 
+double I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver::decodeRaw(const uint16_t &rawData, const uint16_t &exponentLSBPos, const uint16_t &mantissaMSBPos) 
 {
     // Extract mantissa
     uint16_t mantissaMask = (1u << (mantissaMSBPos + 1)) - 1u;
@@ -519,10 +519,161 @@ double I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver::decodeRaw(const uint16_t &
     return static_cast<double>(mantissa) * std::pow(2.0, exponent);
 }
 
-double I2CRegulartorsDrivers::PJT004A0X43_SRZ_Driver::decodeRaw(const uint16_t &rawData, const int &exponent) 
+double I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver::decodeRaw(const uint16_t &rawData, const int &exponent) 
 {
     int16_t mantissa = static_cast<int16_t>(rawData);
 
     return static_cast<double>(mantissa) * std::pow(2.0, exponent);
 }
 
+I2CADCsDrivers::ADS7138_Driver::ADS7138_Driver(const uint8_t &deviceAddress):
+    deviceAddress(deviceAddress),
+    ADC_ADS7138("/dev/i2c-1", deviceAddress){
+        this->configureDevice();
+    }
+
+I2CADCsDrivers::ADS7138_Driver::~ADS7138_Driver(){}
+
+uint8_t I2CADCsDrivers::ADS7138_Driver::getChannelsListByte(const std::vector<bool> &channelsList){
+    if(channelsList.size() != 8){
+        throw std::invalid_argument("Channels list must have exactly 8 elements.");
+    }
+    uint8_t result = 0;
+    for(size_t i = 0; i < channelsList.size(); ++i){
+        if(channelsList[i]){
+            result |= (1 << i);
+        }
+    }
+    return result;
+}
+
+void I2CADCsDrivers::ADS7138_Driver::resetDevice(){
+
+    this->writeSingleRegister(static_cast<uint8_t>(I2C_drivers_defines::ADS7138RegisterMap::GENERAL_CFG), 0b00000001);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    uint8_t general_config = this->readSingleRegister(static_cast<uint8_t>(I2C_drivers_defines::ADS7138RegisterMap::GENERAL_CFG)); // just to ensure the write is done.
+    // check only the bite 0
+    auto start_time = std::chrono::high_resolution_clock::now();
+    while(general_config & 0b00000001){
+        general_config = this->readSingleRegister(static_cast<uint8_t>(I2C_drivers_defines::ADS7138RegisterMap::GENERAL_CFG));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        // timeout condition
+        if(std::chrono::high_resolution_clock::now() - start_time > std::chrono::milliseconds(100)){
+            throw std::runtime_error("Timeout waiting for ADS7138 reset to complete.");
+        }
+    }
+}
+
+void I2CADCsDrivers::ADS7138_Driver::calibrateOffsetError(){
+    // Set the CALIBRATE bit in the GENERAL_CFG register
+    this->writeSingleRegister(static_cast<uint8_t>(I2C_drivers_defines::ADS7138RegisterMap::GENERAL_CFG), 0b00000010);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    uint8_t general_config = this->readSingleRegister(static_cast<uint8_t>(I2C_drivers_defines::ADS7138RegisterMap::GENERAL_CFG)); // just to ensure the write is done.
+    // check only the bite 1
+    auto start_time = std::chrono::high_resolution_clock::now();
+    while(general_config & 0b00000010){
+        general_config = this->readSingleRegister(static_cast<uint8_t>(I2C_drivers_defines::ADS7138RegisterMap::GENERAL_CFG));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        // timeout condition
+        if(std::chrono::high_resolution_clock::now() - start_time > std::chrono::milliseconds(100)){
+            throw std::runtime_error("Timeout waiting for ADS7138 offset error calibration to complete.");
+        }
+    }
+}
+
+void I2CADCsDrivers::ADS7138_Driver::configureDevice(){
+
+    this->resetDevice();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    this->writeSingleRegister(static_cast<uint8_t>(I2C_drivers_defines::ADS7138RegisterMap::PIN_CFG), 0b0); // set all pins to analog
+    // do the offset error calibration first.
+    this->calibrateOffsetError();
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    
+    // Now, I need to configure the channels that will be read in the auto sequence.
+    //First convert the std::vector<bool> to a byte.
+    uint8_t channel_config = this->getChannelsListByte(this->enabled_channels);
+    //then set the auto sequence register with this value.
+    this->writeSingleRegister(static_cast<uint8_t>(I2C_drivers_defines::ADS7138RegisterMap::AUTO_SEQ_CH_SEL), channel_config);
+    // Set the oversampling ratio to 128 samples (maximum).
+    this->writeSingleRegister(static_cast<uint8_t>(I2C_drivers_defines::ADS7138RegisterMap::OSR_CFG), 0b00000111);
+    // Sets the SEQ_CONFIG = 0b01 and SEQ_START = 0b1
+    this->writeSingleRegister(static_cast<uint8_t>(I2C_drivers_defines::ADS7138RegisterMap::SEQUENCE_CFG), 0b00010001);
+    
+    //Let's set the device sampling rate and manual mode.
+    this->writeSingleRegister(static_cast<uint8_t>(I2C_drivers_defines::ADS7138RegisterMap::OPMODE_CFG), 0b00001000);// sets to 62.5kSPS / High speed oscillator / Manual mode
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    // Now, the device should be ready to acquire data.
+
+}
+
+void I2CADCsDrivers::ADS7138_Driver::setEnabledChannels(const std::vector<bool> &channelsList){
+    if(channelsList.size() != 8){
+        throw std::invalid_argument("Channels list must have exactly 8 elements.");
+    }
+    this->enabled_channels = channelsList;
+    uint8_t channel_config = this->getChannelsListByte(this->enabled_channels);
+    //then set the auto sequence register with this value.
+    this->configureDevice();
+}
+
+std::vector<bool> I2CADCsDrivers::ADS7138_Driver::getEnabledChannels() const{
+    return this->enabled_channels;
+}
+
+void I2CADCsDrivers::ADS7138_Driver::writeSingleRegister(const uint8_t &registerAddress, const uint8_t &value){
+    
+    // First let's set the data frame. The data frame is composed of:
+    // - 1 byte for the opcode
+    // - 1 byte for regaddr
+    // - 1 byte for data
+
+    std::vector<uint8_t> dataFrame = {static_cast<uint8_t>(I2C_drivers_defines::ADS7138OpCodes::SINGLE_REGISTER_WRITE),
+                                      registerAddress,
+                                      value};
+    this->ADC_ADS7138.writeFrame(dataFrame);
+}
+
+uint8_t I2CADCsDrivers::ADS7138_Driver::readSingleRegister(const uint8_t &registerAddress){
+    // First let's set the data frame. The data frame is composed of:
+    // - 1 byte for the opcode
+    // - 1 byte for regaddr
+    std::vector<uint8_t> dataFrame = {static_cast<uint8_t>(I2C_drivers_defines::ADS7138OpCodes::SINGLE_REGISTER_READ),
+                                      registerAddress};
+    this->ADC_ADS7138.writeFrame(dataFrame);
+    std::vector<uint8_t> registerValue;
+    this->ADC_ADS7138.readFrame(registerValue, 1);
+    return registerValue[0];
+}
+
+std::vector<double> I2CADCsDrivers::ADS7138_Driver::readData(const uint8_t &numSamples){
+
+    if(numSamples == 0){
+        throw std::invalid_argument("Number of samples must be greater than zero.");
+    }
+    // First, let's determine how many channels are enabled.
+    size_t numEnabledChannels = 0;
+    for(const auto &channel : this->enabled_channels){
+        if(channel){
+            numEnabledChannels++;
+        }
+    }
+    if(numEnabledChannels == 0){
+        throw std::runtime_error("No channels are enabled. Please enable at least one channel before reading data.");
+    }
+    // Each sample consists of 2 bytes per channel.
+    size_t bytesToRead = numSamples * numEnabledChannels * 2;
+    std::vector<uint8_t> rawData(bytesToRead);
+    this->ADC_ADS7138.readFrame(rawData, bytesToRead);
+    // Now, let's parse the raw data into a vector of double.
+    std::vector<double> parsedData;
+    parsedData.reserve(numSamples * numEnabledChannels);
+    double Vref = 3.3;
+    int N = 16;
+    for(size_t i = 0; i < bytesToRead; i += 2){
+        uint16_t sample = (static_cast<uint16_t>(rawData[i]) << 8) | static_cast<uint16_t>(rawData[i + 1]);
+        double voltage = (static_cast<double>(sample) * Vref) / (1u << N);
+        parsedData.push_back(voltage);
+    }
+    return parsedData;
+}

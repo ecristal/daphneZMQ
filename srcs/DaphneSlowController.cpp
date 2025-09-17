@@ -1181,6 +1181,116 @@ static void server_loop_router(zmq::context_t &ctx, const std::string &bind_endp
     }
 }
 
+void I2C_2_monitorThread(Daphne &daphne){
+    //auto start = std::chrono::high_resolution_clock::now();
+    //daphne.getHDMezzDriver()->enableAfeBlock(4, true);
+    //daphne.getHDMezzDriver()->configureHdMezzAfeBlock(4); //testing purposes
+    while(true){
+        try{
+            if(!daphne.isI2C_2_device_configuring.load()){
+                if(daphne.getHDMezzDriver()->isAfeBlockEnabled(4)){
+                    daphne.HDMezz_5V_voltage_afe4.store(daphne.getHDMezzDriver()->readRailVoltage5V(4));
+                    daphne.HDMezz_5V_current_afe4.store(daphne.getHDMezzDriver()->readRailCurrent5V(4));
+                    daphne.HDMezz_3V3_voltage_afe4.store(daphne.getHDMezzDriver()->readRailVoltage3V3(4));
+                    daphne.HDMezz_3V3_current_afe4.store(daphne.getHDMezzDriver()->readRailCurrent3V3(4));
+                    daphne.HDMezz_5V_power_afe4.store(daphne.getHDMezzDriver()->readRailPower5V(4));
+                    daphne.HDMezz_3V3_power_afe4.store(daphne.getHDMezzDriver()->readRailPower3V3(4));
+                }
+
+                if(daphne.getHDMezzDriver()->isAfeBlockEnabled(3)){
+                    daphne.HDMezz_5V_voltage_afe3.store(daphne.getHDMezzDriver()->readRailVoltage5V(3));
+                    daphne.HDMezz_5V_current_afe3.store(daphne.getHDMezzDriver()->readRailCurrent5V(3));
+                    daphne.HDMezz_3V3_voltage_afe3.store(daphne.getHDMezzDriver()->readRailVoltage3V3(3));
+                    daphne.HDMezz_3V3_current_afe3.store(daphne.getHDMezzDriver()->readRailCurrent3V3(3));
+                    daphne.HDMezz_5V_power_afe3.store(daphne.getHDMezzDriver()->readRailPower5V(3));
+                    daphne.HDMezz_3V3_power_afe3.store(daphne.getHDMezzDriver()->readRailPower3V3(3));
+                }
+
+                if(daphne.getHDMezzDriver()->isAfeBlockEnabled(2)){
+                    daphne.HDMezz_5V_voltage_afe2.store(daphne.getHDMezzDriver()->readRailVoltage5V(2));
+                    daphne.HDMezz_5V_current_afe2.store(daphne.getHDMezzDriver()->readRailCurrent5V(2));
+                    daphne.HDMezz_3V3_voltage_afe2.store(daphne.getHDMezzDriver()->readRailVoltage3V3(2));
+                    daphne.HDMezz_3V3_current_afe2.store(daphne.getHDMezzDriver()->readRailCurrent3V3(2));
+                    daphne.HDMezz_5V_power_afe2.store(daphne.getHDMezzDriver()->readRailPower5V(2));
+                    daphne.HDMezz_3V3_power_afe2.store(daphne.getHDMezzDriver()->readRailPower3V3(2));
+                }
+                
+                if(daphne.getHDMezzDriver()->isAfeBlockEnabled(1)){
+                    daphne.HDMezz_5V_voltage_afe1.store(daphne.getHDMezzDriver()->readRailVoltage5V(1));
+                    daphne.HDMezz_5V_current_afe1.store(daphne.getHDMezzDriver()->readRailCurrent5V(1));
+                    daphne.HDMezz_3V3_voltage_afe1.store(daphne.getHDMezzDriver()->readRailVoltage3V3(1));
+                    daphne.HDMezz_3V3_current_afe1.store(daphne.getHDMezzDriver()->readRailCurrent3V3(1));
+                    daphne.HDMezz_5V_power_afe1.store(daphne.getHDMezzDriver()->readRailPower5V(1));
+                    daphne.HDMezz_3V3_power_afe1.store(daphne.getHDMezzDriver()->readRailPower3V3(1));
+                }
+
+                if(daphne.getHDMezzDriver()->isAfeBlockEnabled(0)){
+                    daphne.HDMezz_5V_voltage_afe0.store(daphne.getHDMezzDriver()->readRailVoltage5V(0));
+                    daphne.HDMezz_5V_current_afe0.store(daphne.getHDMezzDriver()->readRailCurrent5V(0));
+                    daphne.HDMezz_3V3_voltage_afe0.store(daphne.getHDMezzDriver()->readRailVoltage3V3(0));
+                    daphne.HDMezz_3V3_current_afe0.store(daphne.getHDMezzDriver()->readRailCurrent3V3(0));
+                    daphne.HDMezz_5V_power_afe0.store(daphne.getHDMezzDriver()->readRailPower5V(0));
+                    daphne.HDMezz_3V3_power_afe0.store(daphne.getHDMezzDriver()->readRailPower3V3(0));
+                }
+            }
+
+            //Meassure time
+            //auto end = std::chrono::high_resolution_clock::now();
+            //std::chrono::duration<double> elapsed = end - start;
+            //std::cout << "Time since last reading: " << elapsed.count() << " seconds" << std::endl;
+            //std::cout << "5V  : " << daphne.HDMezz_5V_voltage_afe4.load() << " V, " << daphne.HDMezz_5V_current_afe4.load() << " mA, " << daphne.HDMezz_5V_power_afe4.load() << " mW" << std::endl;
+            //std::cout << "3.3V: " << daphne.HDMezz_3V3_voltage_afe4.load() << " V, " << daphne.HDMezz_3V3_current_afe4.load() << " mA, " << daphne.HDMezz_3V3_power_afe4.load() << " mW" << std::endl;
+            //std::this_thread::sleep_for(std::chrono::seconds(2));
+        }catch(std::exception &e){
+            std::cerr << "Error in monitor thread: " << e.what() << std::endl;
+        }
+    }
+}
+
+void I2C_1_monitorThread(Daphne &daphne){
+    //auto start = std::chrono::high_resolution_clock::now();
+    while(true){
+        try{
+            
+            if(!daphne.isI2C_1_device_configuring.load() && !daphne.user_vbias_voltage_request.load()){
+                daphne.is_vbias_voltage_monitor_reading.store(true);
+                std::vector<double> adc_values_0x10 = daphne.getADS7138_Driver_addr_0x10()->readData(7);
+                std::vector<double> adc_values_0x17 = daphne.getADS7138_Driver_addr_0x17()->readData(3);
+                daphne.is_vbias_voltage_monitor_reading.store(false);
+                
+                daphne._3V3PDS_voltage.store(adc_values_0x10[0]*2.0);
+                daphne._1V8PDS_voltage.store(adc_values_0x10[1]*2.0);
+                daphne._VBIAS_0_voltage.store(adc_values_0x10[2]*39.314);
+                daphne._VBIAS_1_voltage.store(adc_values_0x10[3]*39.314);
+                daphne._VBIAS_2_voltage.store(adc_values_0x10[4]*39.314);
+                daphne._VBIAS_3_voltage.store(adc_values_0x10[5]*39.314);
+                daphne._VBIAS_4_voltage.store(adc_values_0x10[6]*39.314);
+
+                daphne._1V8A_voltage.store(adc_values_0x17[0]*2.0);
+                daphne._3V3A_voltage.store(adc_values_0x17[1]*2.0);
+                daphne._n5VA_voltage.store(adc_values_0x17[2]*(-2.0));
+            }
+            
+            
+            //Meassure time
+            //auto end = std::chrono::high_resolution_clock::now();
+            //std::chrono::duration<double> elapsed = end - start;
+            //ADC readout
+            //std::cout << "ADC readout." << std::endl;
+            //std::cout << "3V3PDS : " << daphne._3V3PDS_voltage.load() << " V, 1V8PDS : " << daphne._1V8PDS_voltage.load() << " V." << std::endl;
+            //std::cout << "3V3A : " << daphne._3V3A_voltage.load() << " V, 1V8A : " << daphne._1V8A_voltage.load() << " V, -5VA :" << daphne._n5VA_voltage.load() << " V." <<std::endl;
+            //std::cout << "BIAS 0 : " << daphne._VBIAS_0_voltage.load() << " V." << std::endl;
+            //std::cout << "BIAS 1 : " << daphne._VBIAS_1_voltage.load() << " V." << std::endl;
+            //std::cout << "BIAS 2 : " << daphne._VBIAS_2_voltage.load() << " V." << std::endl;
+            //std::cout << "BIAS 3 : " << daphne._VBIAS_3_voltage.load() << " V." << std::endl;
+            //std::cout << "BIAS 4 : " << daphne._VBIAS_4_voltage.load() << " V." << std::endl;
+            //std::this_thread::sleep_for(std::chrono::seconds(2));
+        }catch(std::exception &e){
+            std::cerr << "Error in monitor thread: " << e.what() << std::endl;
+        }
+    }
+}
+
 int main(int argc, char* argv[]) {
 
     CLI::App app{"Daphne Slow Controller"};
@@ -1239,19 +1349,27 @@ int main(int argc, char* argv[]) {
 
 
     try {
-    std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_31\n";
-    std::cout << "ZMQ ROUTER server binding on " << endpoint << "\n";
+        std::cout << "DAPHNE V3/Mezz Slow Controls V0_01_30\n";
+        std::cout << "ZMQ ROUTER server binding on " << endpoint << "\n";
     } catch (const std::exception &e) {
-    std::cerr << "Initialization error: " << e.what() << "\n";
-    return 1;
+        std::cerr << "Initialization error: " << e.what() << "\n";
+        return 1;
     }
 
 
     Daphne daphne;
 
-
+    std::thread monitor1_thread(I2C_1_monitorThread, std::ref(daphne));
+    std::thread monitor2_thread(I2C_2_monitorThread, std::ref(daphne));
     // Enters the ROUTER-based server loop. This function binds the ROUTER
     // and handles both legacy single-reply and new chunked streaming.
     server_loop_router(context, endpoint, daphne);
+    
+    if (monitor1_thread.joinable()) {
+        monitor1_thread.join();
+    }
+    if (monitor2_thread.joinable()) {
+        monitor2_thread.join();
+    }
     return 0;
 }
