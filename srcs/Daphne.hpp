@@ -25,6 +25,7 @@
 #include "FrontEnd.hpp"
 #include "SpyBuffer.hpp"
 #include "DaphneI2CDrivers.hpp"
+#include "DaphneSpiDrivers.hpp"
 
 class Daphne {
 public:
@@ -43,6 +44,7 @@ public:
     I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver* getRegulatorsDriver();
     I2CADCsDrivers::ADS7138_Driver* getADS7138_Driver_addr_0x10();
     I2CADCsDrivers::ADS7138_Driver* getADS7138_Driver_addr_0x17();
+    CurrentMonitorDrivers::CurrentMonitor* getCurrentMonitorDriver();
 
     std::optional<std::pair<uint32_t, uint32_t>> longestIdenticalSubsequenceIndices(const std::vector<uint32_t>& nums);
     std::vector<uint32_t> scanGeneric(const uint32_t& afe,const std::string& what,const uint32_t& taps, std::function<uint32_t(const uint32_t&, const uint32_t&)> setFunc);
@@ -127,6 +129,7 @@ private:
     std::unique_ptr<I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver> regulatorsdriver;
     std::unique_ptr<I2CADCsDrivers::ADS7138_Driver> ads7138driver_addr_0x10;
     std::unique_ptr<I2CADCsDrivers::ADS7138_Driver> ads7138driver_addr_0x17;
+    std::unique_ptr<CurrentMonitorDrivers::CurrentMonitor> current_monitor;
 
     std::unordered_map<std::string, std::vector<double>> AFE_GAIN_LUT = {
         {"VCNTL",{0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5}},

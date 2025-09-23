@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iomanip>
 #include <tuple>
+#include <memory>
 
 #include "FpgaRegDict.hpp"
 #include "reg.hpp"

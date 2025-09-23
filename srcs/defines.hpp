@@ -37,7 +37,7 @@ namespace afe_definitions {
         {"EXT_REF", {{1 , {13, 13}}}},
         {"LVDS_OUTPUT_RATE_2X", {{1, {12, 14}}}},
         {"SINGLE-ENDED_CLK_MODE", {{1, {15, 15}}}},
-        {"POWER-DOWN_LDVS", {{2, {10, 3}}}},
+        {"POWER-DOWN_LVDS", {{2, {10, 3}}}},
         {"AVERAGING_ENABLE", {{2, {11, 11}}}},
         {"LOW_LATENCY", {{2, {12, 12}}}},
         {"TEST_PATTERN_MODES", {{2, {15, 13}}}},
@@ -132,7 +132,7 @@ namespace afe_definitions {
         {"EXT_REF", {0, 1}},
         {"LVDS_OUTPUT_RATE_2X", {0, 1}},
         {"SINGLE-ENDED_CLK_MODE", {0, 1}},
-        {"POWER-DOWN_LDVS", {0, 1}},
+        {"POWER-DOWN_LVDS", {0, 1}},
         {"AVERAGING_ENABLE", {0, 1}},
         {"LOW_LATENCY", {0, 1}},
         {"TEST_PATTERN_MODES", {0, 0x7}},
@@ -424,7 +424,72 @@ namespace I2C_drivers_defines{
         CONTINUOS_BLOCK_READ      = 0b00110000,
         CONTINUOS_BLOCK_WRITE     = 0b00101000
     };
-    
+}
+
+namespace spiDevices_drivers_defines{    // Current Monitor ADS1260
+    // {FUNCTION_NAME, {REGISTER_ADDR, {BITH, BITL}}}
+    using BitField = std::unordered_map<uint8_t, std::pair<int, int>>;
+
+    const std::unordered_map<std::string, BitField> ADS1260FunctionDict = {
+        {"DEV_ID",    {{0x0, {7, 4}}}},
+        {"REV_ID",    {{0x0, {3, 0}}}},
+        {"LOCK",      {{0x1, {7, 7}}}},
+        {"CRCERR",    {{0x1, {6, 6}}}},
+        {"PGAL_ALM",  {{0x1, {5, 5}}}},
+        {"PGAH_ALM",  {{0x1, {4, 4}}}},
+        {"REFL_ALM",  {{0x1, {3, 3}}}},
+        {"DRDY",      {{0x1, {2, 2}}}},
+        {"CLOCK",     {{0x1, {1, 1}}}},
+        {"RESET",     {{0x1, {0, 0}}}},
+        {"DR",        {{0x2, {7, 3}}}},
+        {"FILTER",    {{0x2, {2, 0}}}},
+        {"CHOP",      {{0x3, {6, 5}}}},
+        {"CONVRT",    {{0x3, {4, 4}}}},
+        {"DELAY",     {{0x3, {3, 0}}}},
+        {"GPIO_CON",  {{0x4, {7, 4}}}},
+        {"GPIO_DIR",  {{0x4, {3, 0}}}},
+        {"PWDN",      {{0x5, {7, 7}}}},
+        {"STATENB",   {{0x5, {6, 6}}}},
+        {"CRCENB",    {{0x5, {5, 5}}}},
+        {"SPITIM",    {{0x5, {4, 4}}}},
+        {"GPIO_DAT",  {{0x5, {3, 0}}}},
+        {"REFENB",    {{0x6, {4, 4}}}},
+        {"RMUXP",     {{0x6, {3, 2}}}},
+        {"RMUXN",     {{0x6, {1, 0}}}},
+        {"OFC_7_0",   {{0x7, {7, 0}}}},
+        {"OFC_15_8",  {{0x8, {7, 0}}}},
+        {"OFC_23_16", {{0x9, {7, 0}}}},
+        {"FSC_7_0",   {{0xA, {7, 0}}}},
+        {"FSC_15_8",  {{0xB, {7, 0}}}},
+        {"FSC_23_16", {{0xC, {7, 0}}}},  
+        {"IMUX2",     {{0xD, {7, 4}}}},
+        {"IMUX1",     {{0xD, {3, 0}}}},
+        {"IMAG2",     {{0xE, {7, 4}}}},
+        {"IMAG1",     {{0xE, {3, 0}}}},
+        {"RESERVED",  {{0x0F, {7, 0}}}},
+        {"BYPASS",    {{0x10, {7, 7}}}},
+        {"GAIN",      {{0x10, {2, 0}}}},
+        {"MUXP",      {{0x11, {7, 4}}}},
+        {"MUXN",      {{0x11, {3, 0}}}},
+        {"VBIAS",     {{0x12, {4, 4}}}},
+        {"BOCSP",     {{0x12, {3, 3}}}},
+        {"BOCS",      {{0x12, {2, 0}}}},
+    };
+
+    enum class ADS1260opCodes : uint8_t {
+        NOP      = 0x0,  // No operation
+        RESET    = 0x6,  // Reset
+        START    = 0x8,  // Start conversion
+        STOP     = 0xA,  // Stop conversion
+        RDATA    = 0x12, // Read conversion data
+        SYOCAL   = 0x16, // System offset calibration
+        GANCAL   = 0x17, // Gain calibration
+        SFOCAL   = 0x19, // Self offset calibration
+        RREG     = 0x20, // Read register data 0x20 + 0xrr
+        WREG     = 0x40, // Write register data 0x40 + 0xrr
+        LOCK     = 0xF2, // Register lock
+        UNLOCK   = 0xF5  // Register unlock 
+    };
 }
 
 #endif // CONSTANTES_HPP

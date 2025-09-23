@@ -77,6 +77,8 @@ set(SOURCES
     srcs/SpyBuffer.cpp
     srcs/I2CDevice.cpp
     srcs/DaphneI2CDrivers.cpp
+    srcs/SpiDevice.cpp
+    srcs/DaphneSpiDrivers.cpp
     srcs/Afe.cpp
     srcs/FrontEnd.cpp
     srcs/Endpoint.cpp

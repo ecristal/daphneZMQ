@@ -8,13 +8,14 @@ Daphne::Daphne()
 	  hdmezzdriver(std::make_unique<I2CMezzDrivers::HDMezzDriver>()),
 	  regulatorsdriver(std::make_unique<I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver>()),
 	  ads7138driver_addr_0x10(std::make_unique<I2CADCsDrivers::ADS7138_Driver>(0x10)),
-	  ads7138driver_addr_0x17(std::make_unique<I2CADCsDrivers::ADS7138_Driver>(0x17))
+	  ads7138driver_addr_0x17(std::make_unique<I2CADCsDrivers::ADS7138_Driver>(0x17)),
+	  current_monitor(std::make_unique<CurrentMonitorDrivers::CurrentMonitor>())
 	{
 		this->initRegDictHistory();
 		this->getADS7138_Driver_addr_0x10()->setEnabledChannels({true, true, true, true,
-		                                                         true, true, true, false});
+		                                                        true, true, true, false});
 		this->getADS7138_Driver_addr_0x17()->setEnabledChannels({false, false, true, false,
-		                                                         false, true, false, true});
+		                                                        false, true, false, true});
 		this->isI2C_1_device_configuring.store(false);
 		this->isI2C_2_device_configuring.store(false);
 		this->user_vbias_voltage_request.store(false);
@@ -94,6 +95,10 @@ I2CADCsDrivers::ADS7138_Driver* Daphne::getADS7138_Driver_addr_0x10(){
 
 I2CADCsDrivers::ADS7138_Driver* Daphne::getADS7138_Driver_addr_0x17(){
 	return this->ads7138driver_addr_0x17.get();
+}
+
+CurrentMonitorDrivers::CurrentMonitor* Daphne::getCurrentMonitorDriver(){
+	return this->current_monitor.get();
 }
 
 std::optional<std::pair<uint32_t, uint32_t>> Daphne::longestIdenticalSubsequenceIndices(const std::vector<uint32_t>& nums){
@@ -324,7 +329,7 @@ void Daphne::initRegDictHistory() {
     };
 
 	this->afeRegDictSetting.clear();
-	for(int i = 0; i < 4; i++) {
+	for(int i = 0; i < 5; i++) {
 		this->afeRegDictSetting.push_back(afeRegDict);
 	}
 	this->afeAttenuationDictSetting.clear();
