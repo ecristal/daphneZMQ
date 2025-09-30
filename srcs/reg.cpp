@@ -206,9 +206,9 @@ void reg::GetFieldMeta_(const std::string& regName, const std::string& bitName) 
     meta.addr = regIt->second.first;
     meta.low_bit = static_cast<uint8_t>(bitIt->second.first);
     meta.high_bit = static_cast<uint8_t>(bitIt->second.second);
-	if(bitName.compare("DATAH")){
+	if(bitName.compare("DATAH")==0){
     	this->bitFieldMetadata_high = meta;
-	}else if(bitName.compare("DATAL")){
+	}else if(bitName.compare("DATAL")==0){
 		this->bitFieldMetadata_low = meta;
 	}
 }
