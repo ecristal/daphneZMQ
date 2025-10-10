@@ -1,4 +1,5 @@
 #include "DaphneSpiDrivers.hpp"
+#include <array>
 
 CurrentMonitorDrivers::ADS1260::ADS1260():
     deviceAddress("/dev/spidev3.0"),

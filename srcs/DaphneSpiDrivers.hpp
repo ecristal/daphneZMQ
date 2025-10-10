@@ -4,7 +4,9 @@
 #include "SpiDevice.hpp"
 #include "FpgaReg.hpp"
 #include "defines.hpp"
-
+#include <cstdint>
+#include <array>
+#include <array>
 namespace CurrentMonitorDrivers{
     class ADS1260{
         public:
@@ -26,7 +28,7 @@ namespace CurrentMonitorDrivers{
             uint8_t spiMode;
             uint8_t bitsPerWord;
             
-            std::array<uint8_t, 256> build_crc_table();
+            static std::array<uint8_t, 256> build_crc_table();
             uint8_t ads1260_crc8_lut(const std::vector<uint8_t>& data);
             const std::array<uint8_t, 256> CRC8_TABLE;
 

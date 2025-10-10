@@ -24,6 +24,7 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::google::protobuf;
 namespace _pbi = ::google::protobuf::internal;
 namespace _fl = ::google::protobuf::internal::field_layout;
+namespace daphne {
 
 inline constexpr cmd_writeVbiasControl_response::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
@@ -57,6 +58,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_writeVbiasControl::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         vbiascontrolvalue_{0u},
         enable_{false} {}
 
@@ -114,6 +116,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_writeTrim_singleChannel::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         trimchannel_{0u},
         trimvalue_{0u},
         trimgain_{false} {}
@@ -172,6 +175,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_writeTrim_allAFE::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         afeblock_{0u},
         trimvalue_{0u},
         trimgain_{false} {}
@@ -229,6 +233,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_writeTRIM_allChannels::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         trimvalue_{0u},
         trimgain_{false} {}
 
@@ -286,6 +291,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_writeOFFSET_singleChannel::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         offsetchannel_{0u},
         offsetvalue_{0u},
         offsetgain_{false} {}
@@ -401,6 +407,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_writeOFFSET_allAFE::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         afeblock_{0u},
         offsetvalue_{0u},
         offsetgain_{false} {}
@@ -425,7 +432,7 @@ struct cmd_writeOFFSET_allAFEDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_writeOFFSET_allAFEDefaultTypeInternal _cmd_writeOFFSET_allAFE_default_instance_;
 
-inline constexpr cmd_writeAFEVgain_response::Impl_::Impl_(
+inline constexpr cmd_writeAFEVGAIN_response::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
         message_(
@@ -436,28 +443,29 @@ inline constexpr cmd_writeAFEVgain_response::Impl_::Impl_(
         vgainvalue_{0u} {}
 
 template <typename>
-PROTOBUF_CONSTEXPR cmd_writeAFEVgain_response::cmd_writeAFEVgain_response(::_pbi::ConstantInitialized)
+PROTOBUF_CONSTEXPR cmd_writeAFEVGAIN_response::cmd_writeAFEVGAIN_response(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(cmd_writeAFEVgain_response_class_data_.base()),
+    : ::google::protobuf::Message(cmd_writeAFEVGAIN_response_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(),
 #endif  // PROTOBUF_CUSTOM_VTABLE
       _impl_(::_pbi::ConstantInitialized()) {
 }
-struct cmd_writeAFEVgain_responseDefaultTypeInternal {
-  PROTOBUF_CONSTEXPR cmd_writeAFEVgain_responseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
-  ~cmd_writeAFEVgain_responseDefaultTypeInternal() {}
+struct cmd_writeAFEVGAIN_responseDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR cmd_writeAFEVGAIN_responseDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~cmd_writeAFEVGAIN_responseDefaultTypeInternal() {}
   union {
-    cmd_writeAFEVgain_response _instance;
+    cmd_writeAFEVGAIN_response _instance;
   };
 };
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
-    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_writeAFEVgain_responseDefaultTypeInternal _cmd_writeAFEVgain_response_default_instance_;
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_writeAFEVGAIN_responseDefaultTypeInternal _cmd_writeAFEVGAIN_response_default_instance_;
 
 inline constexpr cmd_writeAFEVGAIN::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         afeblock_{0u},
         vgainvalue_{0u} {}
 
@@ -515,6 +523,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_writeAFEReg::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         afeblock_{0u},
         regaddress_{0u},
         regvalue_{0u} {}
@@ -634,6 +643,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_writeAFEBiasSet::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         afeblock_{0u},
         biasvalue_{0u} {}
 
@@ -690,6 +700,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_writeAFEAttenuation::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         afeblock_{0u},
         attenuation_{0u} {}
 
@@ -745,6 +756,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_setAFEReset::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         resetvalue_{false} {}
 
 template <typename>
@@ -799,6 +811,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_setAFEPowerState::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         powerstate_{false} {}
 
 template <typename>
@@ -849,14 +862,21 @@ struct cmd_readVbiasControl_responseDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_readVbiasControl_responseDefaultTypeInternal _cmd_readVbiasControl_response_default_instance_;
+
+inline constexpr cmd_readVbiasControl::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        id_{0} {}
+
 template <typename>
 PROTOBUF_CONSTEXPR cmd_readVbiasControl::cmd_readVbiasControl(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(cmd_readVbiasControl_class_data_.base()){}
+    : ::google::protobuf::Message(cmd_readVbiasControl_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase() {
-}
+    : ::google::protobuf::Message(),
 #endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
 struct cmd_readVbiasControlDefaultTypeInternal {
   PROTOBUF_CONSTEXPR cmd_readVbiasControlDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
   ~cmd_readVbiasControlDefaultTypeInternal() {}
@@ -901,6 +921,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_readTrim_singleChannel::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         trimchannel_{0u} {}
 
 template <typename>
@@ -952,14 +973,21 @@ struct cmd_readTrim_allChannels_responseDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_readTrim_allChannels_responseDefaultTypeInternal _cmd_readTrim_allChannels_response_default_instance_;
+
+inline constexpr cmd_readTrim_allChannels::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        id_{0} {}
+
 template <typename>
 PROTOBUF_CONSTEXPR cmd_readTrim_allChannels::cmd_readTrim_allChannels(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(cmd_readTrim_allChannels_class_data_.base()){}
+    : ::google::protobuf::Message(cmd_readTrim_allChannels_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase() {
-}
+    : ::google::protobuf::Message(),
 #endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
 struct cmd_readTrim_allChannelsDefaultTypeInternal {
   PROTOBUF_CONSTEXPR cmd_readTrim_allChannelsDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
   ~cmd_readTrim_allChannelsDefaultTypeInternal() {}
@@ -1005,6 +1033,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_readTrim_allAFE::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         afeblock_{0u} {}
 
 template <typename>
@@ -1060,6 +1089,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_readOffset_singleChannel::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         offsetchannel_{0u} {}
 
 template <typename>
@@ -1111,14 +1141,21 @@ struct cmd_readOffset_allChannels_responseDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_readOffset_allChannels_responseDefaultTypeInternal _cmd_readOffset_allChannels_response_default_instance_;
+
+inline constexpr cmd_readOffset_allChannels::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        id_{0} {}
+
 template <typename>
 PROTOBUF_CONSTEXPR cmd_readOffset_allChannels::cmd_readOffset_allChannels(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(cmd_readOffset_allChannels_class_data_.base()){}
+    : ::google::protobuf::Message(cmd_readOffset_allChannels_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase() {
-}
+    : ::google::protobuf::Message(),
 #endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
 struct cmd_readOffset_allChannelsDefaultTypeInternal {
   PROTOBUF_CONSTEXPR cmd_readOffset_allChannelsDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
   ~cmd_readOffset_allChannelsDefaultTypeInternal() {}
@@ -1164,6 +1201,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_readOffset_allAFE::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         afeblock_{0u} {}
 
 template <typename>
@@ -1219,6 +1257,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_readCurrentMonitor::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         currentmonitorchannel_{0u} {}
 
 template <typename>
@@ -1274,6 +1313,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_readBiasVoltageMonitor::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         afeblock_{0u} {}
 
 template <typename>
@@ -1329,6 +1369,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_readAFEVgain::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         afeblock_{0u} {}
 
 template <typename>
@@ -1385,6 +1426,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_readAFEReg::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         afeblock_{0u},
         regaddress_{0u} {}
 
@@ -1441,6 +1483,7 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
 inline constexpr cmd_readAFEBiasSet::Impl_::Impl_(
     ::_pbi::ConstantInitialized) noexcept
       : _cached_size_{0},
+        id_{0},
         afeblock_{0u} {}
 
 template <typename>
@@ -1536,14 +1579,21 @@ struct cmd_doAFEReset_responseDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_doAFEReset_responseDefaultTypeInternal _cmd_doAFEReset_response_default_instance_;
+
+inline constexpr cmd_doAFEReset::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        id_{0} {}
+
 template <typename>
 PROTOBUF_CONSTEXPR cmd_doAFEReset::cmd_doAFEReset(::_pbi::ConstantInitialized)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(cmd_doAFEReset_class_data_.base()){}
+    : ::google::protobuf::Message(cmd_doAFEReset_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase() {
-}
+    : ::google::protobuf::Message(),
 #endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
 struct cmd_doAFEResetDefaultTypeInternal {
   PROTOBUF_CONSTEXPR cmd_doAFEResetDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
   ~cmd_doAFEResetDefaultTypeInternal() {}
@@ -1604,6 +1654,35 @@ struct cmd_alignAFEsDefaultTypeInternal {
 
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 cmd_alignAFEsDefaultTypeInternal _cmd_alignAFEs_default_instance_;
+
+inline constexpr Status::Impl_::Impl_(
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0},
+        extra_(
+            &::google::protobuf::internal::fixed_address_empty_string,
+            ::_pbi::ConstantInitialized()),
+        success_{false} {}
+
+template <typename>
+PROTOBUF_CONSTEXPR Status::Status(::_pbi::ConstantInitialized)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(Status_class_data_.base()),
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(),
+#endif  // PROTOBUF_CUSTOM_VTABLE
+      _impl_(::_pbi::ConstantInitialized()) {
+}
+struct StatusDefaultTypeInternal {
+  PROTOBUF_CONSTEXPR StatusDefaultTypeInternal() : _instance(::_pbi::ConstantInitialized{}) {}
+  ~StatusDefaultTypeInternal() {}
+  union {
+    Status _instance;
+  };
+};
+
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 StatusDefaultTypeInternal _Status_default_instance_;
+}  // namespace daphne
 static constexpr const ::_pb::EnumDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
     file_level_enum_descriptors_daphneV3_5flow_5flevel_5fconfs_2eproto = nullptr;
 static constexpr const ::_pb::ServiceDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULLABLE
@@ -1611,1042 +1690,1116 @@ static constexpr const ::_pb::ServiceDescriptor *PROTOBUF_NONNULL *PROTOBUF_NULL
 const ::uint32_t
     TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
         protodesc_cold) = {
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEReg, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEReg, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEReg, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEReg, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEReg, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEReg, _impl_.regaddress_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEReg, _impl_.regvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEReg, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEReg, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEReg, _impl_.regaddress_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEReg, _impl_.regvalue_),
         0,
         1,
         2,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEReg_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEReg_response, _internal_metadata_),
+        3,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEReg_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEReg_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEReg_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEReg_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEReg_response, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEReg_response, _impl_.regaddress_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEReg_response, _impl_.regvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEReg_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEReg_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEReg_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEReg_response, _impl_.regaddress_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEReg_response, _impl_.regvalue_),
         1,
         0,
         2,
         3,
         4,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEVGAIN, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEVGAIN, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEVGAIN, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEVGAIN, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEVGAIN, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEVGAIN, _impl_.vgainvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEVGAIN, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEVGAIN, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEVGAIN, _impl_.vgainvalue_),
         0,
         1,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEVgain_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEVgain_response, _internal_metadata_),
+        2,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEVGAIN_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEVGAIN_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEVgain_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEVgain_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEVgain_response, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEVgain_response, _impl_.vgainvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEVGAIN_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEVGAIN_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEVGAIN_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEVGAIN_response, _impl_.vgainvalue_),
         1,
         0,
         2,
         3,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEAttenuation, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEAttenuation, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation, _impl_.attenuation_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEAttenuation, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEAttenuation, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEAttenuation, _impl_.attenuation_),
         0,
         1,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation_response, _internal_metadata_),
+        2,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEAttenuation_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEAttenuation_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation_response, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEAttenuation_response, _impl_.attenuation_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEAttenuation_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEAttenuation_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEAttenuation_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEAttenuation_response, _impl_.attenuation_),
         1,
         0,
         2,
         3,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEBiasSet, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEBiasSet, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEBiasSet, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEBiasSet, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEBiasSet, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEBiasSet, _impl_.biasvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEBiasSet, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEBiasSet, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEBiasSet, _impl_.biasvalue_),
         0,
         1,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEBiasSet_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEBiasSet_response, _internal_metadata_),
+        2,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEBiasSet_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEBiasSet_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEBiasSet_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEBiasSet_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEBiasSet_response, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEBiasSet_response, _impl_.biasvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEBiasSet_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEBiasSet_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEBiasSet_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEBiasSet_response, _impl_.biasvalue_),
         1,
         0,
         2,
         3,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTRIM_allChannels, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTRIM_allChannels, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels, _impl_.trimvalue_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels, _impl_.trimgain_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTRIM_allChannels, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTRIM_allChannels, _impl_.trimvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTRIM_allChannels, _impl_.trimgain_),
         0,
         1,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels_response, _internal_metadata_),
+        2,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTRIM_allChannels_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTRIM_allChannels_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels_response, _impl_.trimvalue_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTRIM_allChannels_response, _impl_.trimgain_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTRIM_allChannels_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTRIM_allChannels_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTRIM_allChannels_response, _impl_.trimvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTRIM_allChannels_response, _impl_.trimgain_),
         1,
         0,
         3,
         2,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_allAFE, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_allAFE, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE, _impl_.trimvalue_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE, _impl_.trimgain_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_allAFE, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_allAFE, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_allAFE, _impl_.trimvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_allAFE, _impl_.trimgain_),
         0,
         1,
         2,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE_response, _internal_metadata_),
+        3,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_allAFE_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_allAFE_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE_response, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE_response, _impl_.trimvalue_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_allAFE_response, _impl_.trimgain_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_allAFE_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_allAFE_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_allAFE_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_allAFE_response, _impl_.trimvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_allAFE_response, _impl_.trimgain_),
         2,
         0,
         1,
         4,
         3,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_singleChannel, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_singleChannel, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel, _impl_.trimchannel_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel, _impl_.trimvalue_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel, _impl_.trimgain_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_singleChannel, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_singleChannel, _impl_.trimchannel_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_singleChannel, _impl_.trimvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_singleChannel, _impl_.trimgain_),
         0,
         1,
         2,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel_response, _internal_metadata_),
+        3,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_singleChannel_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_singleChannel_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel_response, _impl_.trimchannel_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel_response, _impl_.trimvalue_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeTrim_singleChannel_response, _impl_.trimgain_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_singleChannel_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_singleChannel_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_singleChannel_response, _impl_.trimchannel_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_singleChannel_response, _impl_.trimvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeTrim_singleChannel_response, _impl_.trimgain_),
         2,
         0,
         1,
         4,
         3,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allChannels, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allChannels, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels, _impl_.id_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels, _impl_.offsetvalue_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels, _impl_.offsetgain_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allChannels, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allChannels, _impl_.offsetvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allChannels, _impl_.offsetgain_),
         0,
         1,
         2,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels_response, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allChannels_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allChannels_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels_response, _impl_.offsetvalue_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allChannels_response, _impl_.offsetgain_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allChannels_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allChannels_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allChannels_response, _impl_.offsetvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allChannels_response, _impl_.offsetgain_),
         1,
         0,
         3,
         2,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allAFE, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allAFE, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE, _impl_.offsetvalue_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE, _impl_.offsetgain_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allAFE, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allAFE, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allAFE, _impl_.offsetvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allAFE, _impl_.offsetgain_),
         0,
         1,
         2,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE_response, _internal_metadata_),
+        3,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allAFE_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allAFE_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE_response, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE_response, _impl_.offsetvalue_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_allAFE_response, _impl_.offsetgain_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allAFE_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allAFE_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allAFE_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allAFE_response, _impl_.offsetvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_allAFE_response, _impl_.offsetgain_),
         2,
         0,
         1,
         4,
         3,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_singleChannel, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_singleChannel, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel, _impl_.offsetvalue_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel, _impl_.offsetgain_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_singleChannel, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_singleChannel, _impl_.offsetvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_singleChannel, _impl_.offsetgain_),
         0,
         1,
         2,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _internal_metadata_),
+        3,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_singleChannel_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_singleChannel_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _impl_.offsetchannel_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _impl_.offsetvalue_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeOFFSET_singleChannel_response, _impl_.offsetgain_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_singleChannel_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_singleChannel_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_singleChannel_response, _impl_.offsetchannel_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_singleChannel_response, _impl_.offsetvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeOFFSET_singleChannel_response, _impl_.offsetgain_),
         2,
         0,
         1,
         4,
         3,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeVbiasControl, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeVbiasControl, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl, _impl_.vbiascontrolvalue_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl, _impl_.enable_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeVbiasControl, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeVbiasControl, _impl_.vbiascontrolvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeVbiasControl, _impl_.enable_),
         0,
         1,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl_response, _internal_metadata_),
+        2,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeVbiasControl_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeVbiasControl_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeVbiasControl_response, _impl_.vbiascontrolvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeVbiasControl_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeVbiasControl_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeVbiasControl_response, _impl_.vbiascontrolvalue_),
         1,
         0,
         2,
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEReg, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEReg, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEReg, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEReg, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEReg, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEReg, _impl_.regaddress_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEReg, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEReg, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEReg, _impl_.regaddress_),
         0,
         1,
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEReg_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEReg_response, _internal_metadata_),
+        2,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEReg_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEReg_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEReg_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEReg_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEReg_response, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEReg_response, _impl_.regaddress_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEReg_response, _impl_.regvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEReg_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEReg_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEReg_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEReg_response, _impl_.regaddress_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEReg_response, _impl_.regvalue_),
         1,
         0,
         2,
         3,
         4,
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEVgain, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEVgain, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEVgain, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEVgain, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEVgain, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEVgain, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEVgain, _impl_.afeblock_),
         0,
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEVgain_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEVgain_response, _internal_metadata_),
+        1,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEVgain_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEVgain_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEVgain_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEVgain_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEVgain_response, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEVgain_response, _impl_.vgainvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEVgain_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEVgain_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEVgain_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEVgain_response, _impl_.vgainvalue_),
         1,
         0,
         2,
         3,
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEBiasSet, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEBiasSet, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEBiasSet, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEBiasSet, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEBiasSet, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEBiasSet, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEBiasSet, _impl_.afeblock_),
         0,
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEBiasSet_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEBiasSet_response, _internal_metadata_),
+        1,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEBiasSet_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEBiasSet_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEBiasSet_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEBiasSet_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEBiasSet_response, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readAFEBiasSet_response, _impl_.biasvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEBiasSet_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEBiasSet_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEBiasSet_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readAFEBiasSet_response, _impl_.biasvalue_),
         1,
         0,
         2,
         3,
-        ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allChannels, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allChannels, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allChannels, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allChannels_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allChannels_response, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allChannels, _impl_.id_),
+        0,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allChannels_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allChannels_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allChannels_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allChannels_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allChannels_response, _impl_.trimvalues_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allChannels_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allChannels_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allChannels_response, _impl_.trimvalues_),
         1,
         0,
         ~0u,
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allAFE, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allAFE, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allAFE, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allAFE, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allAFE, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allAFE, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allAFE, _impl_.afeblock_),
         0,
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allAFE_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allAFE_response, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allAFE_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allAFE_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allAFE_response, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_allAFE_response, _impl_.trimvalues_),
         1,
-        0,
-        2,
-        ~0u,
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_singleChannel, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_singleChannel, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allAFE_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allAFE_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_singleChannel, _impl_.trimchannel_),
-        0,
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_singleChannel_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_singleChannel_response, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_singleChannel_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_singleChannel_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_singleChannel_response, _impl_.trimchannel_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readTrim_singleChannel_response, _impl_.trimvalue_),
-        1,
-        0,
-        2,
-        3,
-        ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allChannels, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allChannels_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allChannels_response, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allChannels_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allChannels_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allChannels_response, _impl_.offsetvalues_),
-        1,
-        0,
-        ~0u,
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allAFE, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allAFE, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allAFE, _impl_.afeblock_),
-        0,
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allAFE_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allAFE_response, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allAFE_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allAFE_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allAFE_response, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_allAFE_response, _impl_.offsetvalues_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allAFE_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allAFE_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allAFE_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_allAFE_response, _impl_.trimvalues_),
         1,
         0,
         2,
         ~0u,
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_singleChannel, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_singleChannel, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_singleChannel, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_singleChannel, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_singleChannel, _impl_.offsetchannel_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_singleChannel, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_singleChannel, _impl_.trimchannel_),
         0,
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_singleChannel_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_singleChannel_response, _internal_metadata_),
+        1,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_singleChannel_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_singleChannel_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_singleChannel_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_singleChannel_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_singleChannel_response, _impl_.offsetchannel_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readOffset_singleChannel_response, _impl_.offsetvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_singleChannel_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_singleChannel_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_singleChannel_response, _impl_.trimchannel_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readTrim_singleChannel_response, _impl_.trimvalue_),
         1,
         0,
         2,
         3,
-        ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::cmd_readVbiasControl, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allChannels, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allChannels, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readVbiasControl_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readVbiasControl_response, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allChannels, _impl_.id_),
+        0,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allChannels_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allChannels_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readVbiasControl_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readVbiasControl_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readVbiasControl_response, _impl_.vbiascontrolvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allChannels_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allChannels_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allChannels_response, _impl_.offsetvalues_),
+        1,
+        0,
+        ~0u,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allAFE, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allAFE, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allAFE, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allAFE, _impl_.afeblock_),
+        0,
+        1,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allAFE_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allAFE_response, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allAFE_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allAFE_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allAFE_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_allAFE_response, _impl_.offsetvalues_),
         1,
         0,
         2,
-        PROTOBUF_FIELD_OFFSET(::cmd_readCurrentMonitor, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readCurrentMonitor, _internal_metadata_),
+        ~0u,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_singleChannel, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_singleChannel, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readCurrentMonitor, _impl_.currentmonitorchannel_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_singleChannel, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_singleChannel, _impl_.offsetchannel_),
         0,
-        PROTOBUF_FIELD_OFFSET(::cmd_readCurrentMonitor_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readCurrentMonitor_response, _internal_metadata_),
+        1,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_singleChannel_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_singleChannel_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readCurrentMonitor_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readCurrentMonitor_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readCurrentMonitor_response, _impl_.currentmonitorchannel_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readCurrentMonitor_response, _impl_.currentvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_singleChannel_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_singleChannel_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_singleChannel_response, _impl_.offsetchannel_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readOffset_singleChannel_response, _impl_.offsetvalue_),
         1,
         0,
         2,
         3,
-        PROTOBUF_FIELD_OFFSET(::cmd_readBiasVoltageMonitor, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readBiasVoltageMonitor, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readVbiasControl, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readVbiasControl, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readBiasVoltageMonitor, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readVbiasControl, _impl_.id_),
         0,
-        PROTOBUF_FIELD_OFFSET(::cmd_readBiasVoltageMonitor_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readBiasVoltageMonitor_response, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readVbiasControl_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readVbiasControl_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_readBiasVoltageMonitor_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readBiasVoltageMonitor_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readBiasVoltageMonitor_response, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_readBiasVoltageMonitor_response, _impl_.biasvoltagevalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readVbiasControl_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readVbiasControl_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readVbiasControl_response, _impl_.vbiascontrolvalue_),
+        1,
+        0,
+        2,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readCurrentMonitor, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readCurrentMonitor, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readCurrentMonitor, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readCurrentMonitor, _impl_.currentmonitorchannel_),
+        0,
+        1,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readCurrentMonitor_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readCurrentMonitor_response, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readCurrentMonitor_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readCurrentMonitor_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readCurrentMonitor_response, _impl_.currentmonitorchannel_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readCurrentMonitor_response, _impl_.currentvalue_),
         1,
         0,
         2,
         3,
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEReset, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEReset, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readBiasVoltageMonitor, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readBiasVoltageMonitor, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEReset, _impl_.resetvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readBiasVoltageMonitor, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readBiasVoltageMonitor, _impl_.afeblock_),
         0,
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEReset_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEReset_response, _internal_metadata_),
+        1,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readBiasVoltageMonitor_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readBiasVoltageMonitor_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEReset_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEReset_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEReset_response, _impl_.resetvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readBiasVoltageMonitor_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readBiasVoltageMonitor_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readBiasVoltageMonitor_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_readBiasVoltageMonitor_response, _impl_.biasvoltagevalue_),
         1,
         0,
         2,
-        ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::cmd_doAFEReset, _internal_metadata_),
+        3,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEReset, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEReset, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_doAFEReset_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_doAFEReset_response, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_doAFEReset_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_doAFEReset_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEReset, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEReset, _impl_.resetvalue_),
+        0,
         1,
-        0,
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEPowerState, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEPowerState, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEReset_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEReset_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEPowerState, _impl_.powerstate_),
-        0,
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEPowerState_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEPowerState_response, _internal_metadata_),
-        ~0u,  // no _extensions_
-        ~0u,  // no _oneof_case_
-        ~0u,  // no _weak_field_map_
-        ~0u,  // no _inlined_string_donated_
-        ~0u,  // no _split_
-        ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEPowerState_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEPowerState_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_setAFEPowerState_response, _impl_.powerstate_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEReset_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEReset_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEReset_response, _impl_.resetvalue_),
         1,
         0,
         2,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_doAFEReset, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_doAFEReset, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_doAFEReset, _impl_.id_),
+        0,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_doAFEReset_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_doAFEReset_response, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_doAFEReset_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_doAFEReset_response, _impl_.message_),
+        1,
+        0,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEPowerState, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEPowerState, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEPowerState, _impl_.id_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEPowerState, _impl_.powerstate_),
+        0,
+        1,
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEPowerState_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEPowerState_response, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEPowerState_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEPowerState_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_setAFEPowerState_response, _impl_.powerstate_),
+        1,
+        0,
+        2,
+        PROTOBUF_FIELD_OFFSET(::daphne::Status, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::Status, _internal_metadata_),
+        ~0u,  // no _extensions_
+        ~0u,  // no _oneof_case_
+        ~0u,  // no _weak_field_map_
+        ~0u,  // no _inlined_string_donated_
+        ~0u,  // no _split_
+        ~0u,  // no sizeof(Split)
+        PROTOBUF_FIELD_OFFSET(::daphne::Status, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::Status, _impl_.extra_),
+        1,
+        0,
         ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::cmd_alignAFEs, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_alignAFEs, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_alignAFEs_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_alignAFEs_response, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_alignAFEs_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_alignAFEs_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_alignAFEs_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_alignAFEs_response, _impl_.delay_),
-        PROTOBUF_FIELD_OFFSET(::cmd_alignAFEs_response, _impl_.bitslip_),
-        PROTOBUF_FIELD_OFFSET(::cmd_alignAFEs_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_alignAFEs_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_alignAFEs_response, _impl_.delay_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_alignAFEs_response, _impl_.bitslip_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_alignAFEs_response, _impl_.message_),
         1,
         ~0u,
         ~0u,
         0,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEFunction, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEFunction, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEFunction, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEFunction, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEFunction, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEFunction, _impl_.function_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEFunction, _impl_.configvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEFunction, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEFunction, _impl_.function_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEFunction, _impl_.configvalue_),
         1,
         0,
         2,
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEFunction_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEFunction_response, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEFunction_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEFunction_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEFunction_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEFunction_response, _impl_.message_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEFunction_response, _impl_.afeblock_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEFunction_response, _impl_.function_),
-        PROTOBUF_FIELD_OFFSET(::cmd_writeAFEFunction_response, _impl_.configvalue_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEFunction_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEFunction_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEFunction_response, _impl_.afeblock_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEFunction_response, _impl_.function_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_writeAFEFunction_response, _impl_.configvalue_),
         2,
         0,
         3,
         1,
         4,
         ~0u,  // no _has_bits_
-        PROTOBUF_FIELD_OFFSET(::cmd_doSoftwareTrigger, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_doSoftwareTrigger, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_doSoftwareTrigger_response, _impl_._has_bits_),
-        PROTOBUF_FIELD_OFFSET(::cmd_doSoftwareTrigger_response, _internal_metadata_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_doSoftwareTrigger_response, _impl_._has_bits_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_doSoftwareTrigger_response, _internal_metadata_),
         ~0u,  // no _extensions_
         ~0u,  // no _oneof_case_
         ~0u,  // no _weak_field_map_
         ~0u,  // no _inlined_string_donated_
         ~0u,  // no _split_
         ~0u,  // no sizeof(Split)
-        PROTOBUF_FIELD_OFFSET(::cmd_doSoftwareTrigger_response, _impl_.success_),
-        PROTOBUF_FIELD_OFFSET(::cmd_doSoftwareTrigger_response, _impl_.message_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_doSoftwareTrigger_response, _impl_.success_),
+        PROTOBUF_FIELD_OFFSET(::daphne::cmd_doSoftwareTrigger_response, _impl_.message_),
         1,
         0,
 };
 
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
-        {0, 11, -1, sizeof(::cmd_writeAFEReg)},
-        {14, 27, -1, sizeof(::cmd_writeAFEReg_response)},
-        {32, 42, -1, sizeof(::cmd_writeAFEVGAIN)},
-        {44, 56, -1, sizeof(::cmd_writeAFEVgain_response)},
-        {60, 70, -1, sizeof(::cmd_writeAFEAttenuation)},
-        {72, 84, -1, sizeof(::cmd_writeAFEAttenuation_response)},
-        {88, 98, -1, sizeof(::cmd_writeAFEBiasSet)},
-        {100, 112, -1, sizeof(::cmd_writeAFEBiasSet_response)},
-        {116, 126, -1, sizeof(::cmd_writeTRIM_allChannels)},
-        {128, 140, -1, sizeof(::cmd_writeTRIM_allChannels_response)},
-        {144, 155, -1, sizeof(::cmd_writeTrim_allAFE)},
-        {158, 171, -1, sizeof(::cmd_writeTrim_allAFE_response)},
-        {176, 187, -1, sizeof(::cmd_writeTrim_singleChannel)},
-        {190, 203, -1, sizeof(::cmd_writeTrim_singleChannel_response)},
-        {208, 219, -1, sizeof(::cmd_writeOFFSET_allChannels)},
-        {222, 234, -1, sizeof(::cmd_writeOFFSET_allChannels_response)},
-        {238, 249, -1, sizeof(::cmd_writeOFFSET_allAFE)},
-        {252, 265, -1, sizeof(::cmd_writeOFFSET_allAFE_response)},
-        {270, 281, -1, sizeof(::cmd_writeOFFSET_singleChannel)},
-        {284, 297, -1, sizeof(::cmd_writeOFFSET_singleChannel_response)},
-        {302, 312, -1, sizeof(::cmd_writeVbiasControl)},
-        {314, 325, -1, sizeof(::cmd_writeVbiasControl_response)},
-        {328, 338, -1, sizeof(::cmd_readAFEReg)},
-        {340, 353, -1, sizeof(::cmd_readAFEReg_response)},
-        {358, 367, -1, sizeof(::cmd_readAFEVgain)},
-        {368, 380, -1, sizeof(::cmd_readAFEVgain_response)},
-        {384, 393, -1, sizeof(::cmd_readAFEBiasSet)},
-        {394, 406, -1, sizeof(::cmd_readAFEBiasSet_response)},
-        {410, -1, -1, sizeof(::cmd_readTrim_allChannels)},
-        {418, 429, -1, sizeof(::cmd_readTrim_allChannels_response)},
-        {432, 441, -1, sizeof(::cmd_readTrim_allAFE)},
-        {442, 454, -1, sizeof(::cmd_readTrim_allAFE_response)},
-        {458, 467, -1, sizeof(::cmd_readTrim_singleChannel)},
-        {468, 480, -1, sizeof(::cmd_readTrim_singleChannel_response)},
-        {484, -1, -1, sizeof(::cmd_readOffset_allChannels)},
-        {492, 503, -1, sizeof(::cmd_readOffset_allChannels_response)},
-        {506, 515, -1, sizeof(::cmd_readOffset_allAFE)},
-        {516, 528, -1, sizeof(::cmd_readOffset_allAFE_response)},
-        {532, 541, -1, sizeof(::cmd_readOffset_singleChannel)},
-        {542, 554, -1, sizeof(::cmd_readOffset_singleChannel_response)},
-        {558, -1, -1, sizeof(::cmd_readVbiasControl)},
-        {566, 577, -1, sizeof(::cmd_readVbiasControl_response)},
-        {580, 589, -1, sizeof(::cmd_readCurrentMonitor)},
-        {590, 602, -1, sizeof(::cmd_readCurrentMonitor_response)},
-        {606, 615, -1, sizeof(::cmd_readBiasVoltageMonitor)},
-        {616, 628, -1, sizeof(::cmd_readBiasVoltageMonitor_response)},
-        {632, 641, -1, sizeof(::cmd_setAFEReset)},
-        {642, 653, -1, sizeof(::cmd_setAFEReset_response)},
-        {656, -1, -1, sizeof(::cmd_doAFEReset)},
-        {664, 674, -1, sizeof(::cmd_doAFEReset_response)},
-        {676, 685, -1, sizeof(::cmd_setAFEPowerState)},
-        {686, 697, -1, sizeof(::cmd_setAFEPowerState_response)},
-        {700, -1, -1, sizeof(::cmd_alignAFEs)},
-        {708, 720, -1, sizeof(::cmd_alignAFEs_response)},
-        {724, 735, -1, sizeof(::cmd_writeAFEFunction)},
-        {738, 751, -1, sizeof(::cmd_writeAFEFunction_response)},
-        {756, -1, -1, sizeof(::cmd_doSoftwareTrigger)},
-        {764, 774, -1, sizeof(::cmd_doSoftwareTrigger_response)},
+        {0, 12, -1, sizeof(::daphne::cmd_writeAFEReg)},
+        {16, 29, -1, sizeof(::daphne::cmd_writeAFEReg_response)},
+        {34, 45, -1, sizeof(::daphne::cmd_writeAFEVGAIN)},
+        {48, 60, -1, sizeof(::daphne::cmd_writeAFEVGAIN_response)},
+        {64, 75, -1, sizeof(::daphne::cmd_writeAFEAttenuation)},
+        {78, 90, -1, sizeof(::daphne::cmd_writeAFEAttenuation_response)},
+        {94, 105, -1, sizeof(::daphne::cmd_writeAFEBiasSet)},
+        {108, 120, -1, sizeof(::daphne::cmd_writeAFEBiasSet_response)},
+        {124, 135, -1, sizeof(::daphne::cmd_writeTRIM_allChannels)},
+        {138, 150, -1, sizeof(::daphne::cmd_writeTRIM_allChannels_response)},
+        {154, 166, -1, sizeof(::daphne::cmd_writeTrim_allAFE)},
+        {170, 183, -1, sizeof(::daphne::cmd_writeTrim_allAFE_response)},
+        {188, 200, -1, sizeof(::daphne::cmd_writeTrim_singleChannel)},
+        {204, 217, -1, sizeof(::daphne::cmd_writeTrim_singleChannel_response)},
+        {222, 233, -1, sizeof(::daphne::cmd_writeOFFSET_allChannels)},
+        {236, 248, -1, sizeof(::daphne::cmd_writeOFFSET_allChannels_response)},
+        {252, 264, -1, sizeof(::daphne::cmd_writeOFFSET_allAFE)},
+        {268, 281, -1, sizeof(::daphne::cmd_writeOFFSET_allAFE_response)},
+        {286, 298, -1, sizeof(::daphne::cmd_writeOFFSET_singleChannel)},
+        {302, 315, -1, sizeof(::daphne::cmd_writeOFFSET_singleChannel_response)},
+        {320, 331, -1, sizeof(::daphne::cmd_writeVbiasControl)},
+        {334, 345, -1, sizeof(::daphne::cmd_writeVbiasControl_response)},
+        {348, 359, -1, sizeof(::daphne::cmd_readAFEReg)},
+        {362, 375, -1, sizeof(::daphne::cmd_readAFEReg_response)},
+        {380, 390, -1, sizeof(::daphne::cmd_readAFEVgain)},
+        {392, 404, -1, sizeof(::daphne::cmd_readAFEVgain_response)},
+        {408, 418, -1, sizeof(::daphne::cmd_readAFEBiasSet)},
+        {420, 432, -1, sizeof(::daphne::cmd_readAFEBiasSet_response)},
+        {436, 445, -1, sizeof(::daphne::cmd_readTrim_allChannels)},
+        {446, 457, -1, sizeof(::daphne::cmd_readTrim_allChannels_response)},
+        {460, 470, -1, sizeof(::daphne::cmd_readTrim_allAFE)},
+        {472, 484, -1, sizeof(::daphne::cmd_readTrim_allAFE_response)},
+        {488, 498, -1, sizeof(::daphne::cmd_readTrim_singleChannel)},
+        {500, 512, -1, sizeof(::daphne::cmd_readTrim_singleChannel_response)},
+        {516, 525, -1, sizeof(::daphne::cmd_readOffset_allChannels)},
+        {526, 537, -1, sizeof(::daphne::cmd_readOffset_allChannels_response)},
+        {540, 550, -1, sizeof(::daphne::cmd_readOffset_allAFE)},
+        {552, 564, -1, sizeof(::daphne::cmd_readOffset_allAFE_response)},
+        {568, 578, -1, sizeof(::daphne::cmd_readOffset_singleChannel)},
+        {580, 592, -1, sizeof(::daphne::cmd_readOffset_singleChannel_response)},
+        {596, 605, -1, sizeof(::daphne::cmd_readVbiasControl)},
+        {606, 617, -1, sizeof(::daphne::cmd_readVbiasControl_response)},
+        {620, 630, -1, sizeof(::daphne::cmd_readCurrentMonitor)},
+        {632, 644, -1, sizeof(::daphne::cmd_readCurrentMonitor_response)},
+        {648, 658, -1, sizeof(::daphne::cmd_readBiasVoltageMonitor)},
+        {660, 672, -1, sizeof(::daphne::cmd_readBiasVoltageMonitor_response)},
+        {676, 686, -1, sizeof(::daphne::cmd_setAFEReset)},
+        {688, 699, -1, sizeof(::daphne::cmd_setAFEReset_response)},
+        {702, 711, -1, sizeof(::daphne::cmd_doAFEReset)},
+        {712, 722, -1, sizeof(::daphne::cmd_doAFEReset_response)},
+        {724, 734, -1, sizeof(::daphne::cmd_setAFEPowerState)},
+        {736, 747, -1, sizeof(::daphne::cmd_setAFEPowerState_response)},
+        {750, 760, -1, sizeof(::daphne::Status)},
+        {762, -1, -1, sizeof(::daphne::cmd_alignAFEs)},
+        {770, 782, -1, sizeof(::daphne::cmd_alignAFEs_response)},
+        {786, 797, -1, sizeof(::daphne::cmd_writeAFEFunction)},
+        {800, 813, -1, sizeof(::daphne::cmd_writeAFEFunction_response)},
+        {818, -1, -1, sizeof(::daphne::cmd_doSoftwareTrigger)},
+        {826, 836, -1, sizeof(::daphne::cmd_doSoftwareTrigger_response)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
-    &::_cmd_writeAFEReg_default_instance_._instance,
-    &::_cmd_writeAFEReg_response_default_instance_._instance,
-    &::_cmd_writeAFEVGAIN_default_instance_._instance,
-    &::_cmd_writeAFEVgain_response_default_instance_._instance,
-    &::_cmd_writeAFEAttenuation_default_instance_._instance,
-    &::_cmd_writeAFEAttenuation_response_default_instance_._instance,
-    &::_cmd_writeAFEBiasSet_default_instance_._instance,
-    &::_cmd_writeAFEBiasSet_response_default_instance_._instance,
-    &::_cmd_writeTRIM_allChannels_default_instance_._instance,
-    &::_cmd_writeTRIM_allChannels_response_default_instance_._instance,
-    &::_cmd_writeTrim_allAFE_default_instance_._instance,
-    &::_cmd_writeTrim_allAFE_response_default_instance_._instance,
-    &::_cmd_writeTrim_singleChannel_default_instance_._instance,
-    &::_cmd_writeTrim_singleChannel_response_default_instance_._instance,
-    &::_cmd_writeOFFSET_allChannels_default_instance_._instance,
-    &::_cmd_writeOFFSET_allChannels_response_default_instance_._instance,
-    &::_cmd_writeOFFSET_allAFE_default_instance_._instance,
-    &::_cmd_writeOFFSET_allAFE_response_default_instance_._instance,
-    &::_cmd_writeOFFSET_singleChannel_default_instance_._instance,
-    &::_cmd_writeOFFSET_singleChannel_response_default_instance_._instance,
-    &::_cmd_writeVbiasControl_default_instance_._instance,
-    &::_cmd_writeVbiasControl_response_default_instance_._instance,
-    &::_cmd_readAFEReg_default_instance_._instance,
-    &::_cmd_readAFEReg_response_default_instance_._instance,
-    &::_cmd_readAFEVgain_default_instance_._instance,
-    &::_cmd_readAFEVgain_response_default_instance_._instance,
-    &::_cmd_readAFEBiasSet_default_instance_._instance,
-    &::_cmd_readAFEBiasSet_response_default_instance_._instance,
-    &::_cmd_readTrim_allChannels_default_instance_._instance,
-    &::_cmd_readTrim_allChannels_response_default_instance_._instance,
-    &::_cmd_readTrim_allAFE_default_instance_._instance,
-    &::_cmd_readTrim_allAFE_response_default_instance_._instance,
-    &::_cmd_readTrim_singleChannel_default_instance_._instance,
-    &::_cmd_readTrim_singleChannel_response_default_instance_._instance,
-    &::_cmd_readOffset_allChannels_default_instance_._instance,
-    &::_cmd_readOffset_allChannels_response_default_instance_._instance,
-    &::_cmd_readOffset_allAFE_default_instance_._instance,
-    &::_cmd_readOffset_allAFE_response_default_instance_._instance,
-    &::_cmd_readOffset_singleChannel_default_instance_._instance,
-    &::_cmd_readOffset_singleChannel_response_default_instance_._instance,
-    &::_cmd_readVbiasControl_default_instance_._instance,
-    &::_cmd_readVbiasControl_response_default_instance_._instance,
-    &::_cmd_readCurrentMonitor_default_instance_._instance,
-    &::_cmd_readCurrentMonitor_response_default_instance_._instance,
-    &::_cmd_readBiasVoltageMonitor_default_instance_._instance,
-    &::_cmd_readBiasVoltageMonitor_response_default_instance_._instance,
-    &::_cmd_setAFEReset_default_instance_._instance,
-    &::_cmd_setAFEReset_response_default_instance_._instance,
-    &::_cmd_doAFEReset_default_instance_._instance,
-    &::_cmd_doAFEReset_response_default_instance_._instance,
-    &::_cmd_setAFEPowerState_default_instance_._instance,
-    &::_cmd_setAFEPowerState_response_default_instance_._instance,
-    &::_cmd_alignAFEs_default_instance_._instance,
-    &::_cmd_alignAFEs_response_default_instance_._instance,
-    &::_cmd_writeAFEFunction_default_instance_._instance,
-    &::_cmd_writeAFEFunction_response_default_instance_._instance,
-    &::_cmd_doSoftwareTrigger_default_instance_._instance,
-    &::_cmd_doSoftwareTrigger_response_default_instance_._instance,
+    &::daphne::_cmd_writeAFEReg_default_instance_._instance,
+    &::daphne::_cmd_writeAFEReg_response_default_instance_._instance,
+    &::daphne::_cmd_writeAFEVGAIN_default_instance_._instance,
+    &::daphne::_cmd_writeAFEVGAIN_response_default_instance_._instance,
+    &::daphne::_cmd_writeAFEAttenuation_default_instance_._instance,
+    &::daphne::_cmd_writeAFEAttenuation_response_default_instance_._instance,
+    &::daphne::_cmd_writeAFEBiasSet_default_instance_._instance,
+    &::daphne::_cmd_writeAFEBiasSet_response_default_instance_._instance,
+    &::daphne::_cmd_writeTRIM_allChannels_default_instance_._instance,
+    &::daphne::_cmd_writeTRIM_allChannels_response_default_instance_._instance,
+    &::daphne::_cmd_writeTrim_allAFE_default_instance_._instance,
+    &::daphne::_cmd_writeTrim_allAFE_response_default_instance_._instance,
+    &::daphne::_cmd_writeTrim_singleChannel_default_instance_._instance,
+    &::daphne::_cmd_writeTrim_singleChannel_response_default_instance_._instance,
+    &::daphne::_cmd_writeOFFSET_allChannels_default_instance_._instance,
+    &::daphne::_cmd_writeOFFSET_allChannels_response_default_instance_._instance,
+    &::daphne::_cmd_writeOFFSET_allAFE_default_instance_._instance,
+    &::daphne::_cmd_writeOFFSET_allAFE_response_default_instance_._instance,
+    &::daphne::_cmd_writeOFFSET_singleChannel_default_instance_._instance,
+    &::daphne::_cmd_writeOFFSET_singleChannel_response_default_instance_._instance,
+    &::daphne::_cmd_writeVbiasControl_default_instance_._instance,
+    &::daphne::_cmd_writeVbiasControl_response_default_instance_._instance,
+    &::daphne::_cmd_readAFEReg_default_instance_._instance,
+    &::daphne::_cmd_readAFEReg_response_default_instance_._instance,
+    &::daphne::_cmd_readAFEVgain_default_instance_._instance,
+    &::daphne::_cmd_readAFEVgain_response_default_instance_._instance,
+    &::daphne::_cmd_readAFEBiasSet_default_instance_._instance,
+    &::daphne::_cmd_readAFEBiasSet_response_default_instance_._instance,
+    &::daphne::_cmd_readTrim_allChannels_default_instance_._instance,
+    &::daphne::_cmd_readTrim_allChannels_response_default_instance_._instance,
+    &::daphne::_cmd_readTrim_allAFE_default_instance_._instance,
+    &::daphne::_cmd_readTrim_allAFE_response_default_instance_._instance,
+    &::daphne::_cmd_readTrim_singleChannel_default_instance_._instance,
+    &::daphne::_cmd_readTrim_singleChannel_response_default_instance_._instance,
+    &::daphne::_cmd_readOffset_allChannels_default_instance_._instance,
+    &::daphne::_cmd_readOffset_allChannels_response_default_instance_._instance,
+    &::daphne::_cmd_readOffset_allAFE_default_instance_._instance,
+    &::daphne::_cmd_readOffset_allAFE_response_default_instance_._instance,
+    &::daphne::_cmd_readOffset_singleChannel_default_instance_._instance,
+    &::daphne::_cmd_readOffset_singleChannel_response_default_instance_._instance,
+    &::daphne::_cmd_readVbiasControl_default_instance_._instance,
+    &::daphne::_cmd_readVbiasControl_response_default_instance_._instance,
+    &::daphne::_cmd_readCurrentMonitor_default_instance_._instance,
+    &::daphne::_cmd_readCurrentMonitor_response_default_instance_._instance,
+    &::daphne::_cmd_readBiasVoltageMonitor_default_instance_._instance,
+    &::daphne::_cmd_readBiasVoltageMonitor_response_default_instance_._instance,
+    &::daphne::_cmd_setAFEReset_default_instance_._instance,
+    &::daphne::_cmd_setAFEReset_response_default_instance_._instance,
+    &::daphne::_cmd_doAFEReset_default_instance_._instance,
+    &::daphne::_cmd_doAFEReset_response_default_instance_._instance,
+    &::daphne::_cmd_setAFEPowerState_default_instance_._instance,
+    &::daphne::_cmd_setAFEPowerState_response_default_instance_._instance,
+    &::daphne::_Status_default_instance_._instance,
+    &::daphne::_cmd_alignAFEs_default_instance_._instance,
+    &::daphne::_cmd_alignAFEs_response_default_instance_._instance,
+    &::daphne::_cmd_writeAFEFunction_default_instance_._instance,
+    &::daphne::_cmd_writeAFEFunction_response_default_instance_._instance,
+    &::daphne::_cmd_doSoftwareTrigger_default_instance_._instance,
+    &::daphne::_cmd_doSoftwareTrigger_response_default_instance_._instance,
 };
 const char descriptor_table_protodef_daphneV3_5flow_5flevel_5fconfs_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\036daphneV3_low_level_confs.proto\"I\n\017cmd_"
-    "writeAFEReg\022\020\n\010afeBlock\030\001 \001(\r\022\022\n\nregAddr"
-    "ess\030\002 \001(\r\022\020\n\010regValue\030\003 \001(\r\"t\n\030cmd_write"
-    "AFEReg_response\022\017\n\007success\030\001 \001(\010\022\017\n\007mess"
-    "age\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\022\n\nregAddres"
-    "s\030\004 \001(\r\022\020\n\010regValue\030\005 \001(\r\"9\n\021cmd_writeAF"
-    "EVGAIN\022\020\n\010afeBlock\030\001 \001(\r\022\022\n\nvgainValue\030\002"
-    " \001(\r\"d\n\032cmd_writeAFEVgain_response\022\017\n\007su"
-    "ccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock"
-    "\030\003 \001(\r\022\022\n\nvgainValue\030\004 \001(\r\"@\n\027cmd_writeA"
-    "FEAttenuation\022\020\n\010afeBlock\030\001 \001(\r\022\023\n\013atten"
-    "uation\030\002 \001(\r\"k\n cmd_writeAFEAttenuation_"
-    "response\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001"
-    "(\t\022\020\n\010afeBlock\030\003 \001(\r\022\023\n\013attenuation\030\004 \001("
-    "\r\":\n\023cmd_writeAFEBiasSet\022\020\n\010afeBlock\030\001 \001"
-    "(\r\022\021\n\tbiasValue\030\002 \001(\r\"e\n\034cmd_writeAFEBia"
-    "sSet_response\022\017\n\007success\030\001 \001(\010\022\017\n\007messag"
-    "e\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\021\n\tbiasValue\030\004"
-    " \001(\r\"@\n\031cmd_writeTRIM_allChannels\022\021\n\ttri"
-    "mValue\030\001 \001(\r\022\020\n\010trimGain\030\002 \001(\010\"k\n\"cmd_wr"
-    "iteTRIM_allChannels_response\022\017\n\007success\030"
-    "\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\021\n\ttrimValue\030\003 \001("
-    "\r\022\020\n\010trimGain\030\004 \001(\010\"M\n\024cmd_writeTrim_all"
-    "AFE\022\020\n\010afeBlock\030\001 \001(\r\022\021\n\ttrimValue\030\002 \001(\r"
-    "\022\020\n\010trimGain\030\003 \001(\010\"x\n\035cmd_writeTrim_allA"
+    "\n\036daphneV3_low_level_confs.proto\022\006daphne"
+    "\"U\n\017cmd_writeAFEReg\022\n\n\002id\030\001 \001(\005\022\020\n\010afeBl"
+    "ock\030\002 \001(\r\022\022\n\nregAddress\030\003 \001(\r\022\020\n\010regValu"
+    "e\030\004 \001(\r\"t\n\030cmd_writeAFEReg_response\022\017\n\007s"
+    "uccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBloc"
+    "k\030\003 \001(\r\022\022\n\nregAddress\030\004 \001(\r\022\020\n\010regValue\030"
+    "\005 \001(\r\"E\n\021cmd_writeAFEVGAIN\022\n\n\002id\030\001 \001(\005\022\020"
+    "\n\010afeBlock\030\002 \001(\r\022\022\n\nvgainValue\030\003 \001(\r\"d\n\032"
+    "cmd_writeAFEVGAIN_response\022\017\n\007success\030\001 "
+    "\001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\022"
+    "\n\nvgainValue\030\004 \001(\r\"L\n\027cmd_writeAFEAttenu"
+    "ation\022\n\n\002id\030\001 \001(\005\022\020\n\010afeBlock\030\002 \001(\r\022\023\n\013a"
+    "ttenuation\030\003 \001(\r\"k\n cmd_writeAFEAttenuat"
+    "ion_response\022\017\n\007success\030\001 \001(\010\022\017\n\007message"
+    "\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\023\n\013attenuation\030"
+    "\004 \001(\r\"F\n\023cmd_writeAFEBiasSet\022\n\n\002id\030\001 \001(\005"
+    "\022\020\n\010afeBlock\030\002 \001(\r\022\021\n\tbiasValue\030\003 \001(\r\"e\n"
+    "\034cmd_writeAFEBiasSet_response\022\017\n\007success"
+    "\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001("
+    "\r\022\021\n\tbiasValue\030\004 \001(\r\"L\n\031cmd_writeTRIM_al"
+    "lChannels\022\n\n\002id\030\001 \001(\005\022\021\n\ttrimValue\030\002 \001(\r"
+    "\022\020\n\010trimGain\030\003 \001(\010\"k\n\"cmd_writeTRIM_allC"
+    "hannels_response\022\017\n\007success\030\001 \001(\010\022\017\n\007mes"
+    "sage\030\002 \001(\t\022\021\n\ttrimValue\030\003 \001(\r\022\020\n\010trimGai"
+    "n\030\004 \001(\010\"Y\n\024cmd_writeTrim_allAFE\022\n\n\002id\030\001 "
+    "\001(\005\022\020\n\010afeBlock\030\002 \001(\r\022\021\n\ttrimValue\030\003 \001(\r"
+    "\022\020\n\010trimGain\030\004 \001(\010\"x\n\035cmd_writeTrim_allA"
     "FE_response\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030"
     "\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\021\n\ttrimValue\030\004 \001"
-    "(\r\022\020\n\010trimGain\030\005 \001(\010\"W\n\033cmd_writeTrim_si"
-    "ngleChannel\022\023\n\013trimChannel\030\001 \001(\r\022\021\n\ttrim"
-    "Value\030\002 \001(\r\022\020\n\010trimGain\030\003 \001(\010\"\202\001\n$cmd_wr"
-    "iteTrim_singleChannel_response\022\017\n\007succes"
-    "s\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\023\n\013trimChannel\030"
-    "\003 \001(\r\022\021\n\ttrimValue\030\004 \001(\r\022\020\n\010trimGain\030\005 \001"
-    "(\010\"R\n\033cmd_writeOFFSET_allChannels\022\n\n\002id\030"
-    "\001 \001(\005\022\023\n\013offsetValue\030\002 \001(\r\022\022\n\noffsetGain"
-    "\030\003 \001(\010\"q\n$cmd_writeOFFSET_allChannels_re"
-    "sponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t"
-    "\022\023\n\013offsetValue\030\003 \001(\r\022\022\n\noffsetGain\030\004 \001("
-    "\010\"S\n\026cmd_writeOFFSET_allAFE\022\020\n\010afeBlock\030"
-    "\001 \001(\r\022\023\n\013offsetValue\030\002 \001(\r\022\022\n\noffsetGain"
-    "\030\003 \001(\010\"~\n\037cmd_writeOFFSET_allAFE_respons"
-    "e\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010a"
-    "feBlock\030\003 \001(\r\022\023\n\013offsetValue\030\004 \001(\r\022\022\n\nof"
-    "fsetGain\030\005 \001(\010\"_\n\035cmd_writeOFFSET_single"
-    "Channel\022\025\n\roffsetChannel\030\001 \001(\r\022\023\n\013offset"
-    "Value\030\002 \001(\r\022\022\n\noffsetGain\030\003 \001(\010\"\212\001\n&cmd_"
-    "writeOFFSET_singleChannel_response\022\017\n\007su"
-    "ccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\025\n\roffsetCh"
-    "annel\030\003 \001(\r\022\023\n\013offsetValue\030\004 \001(\r\022\022\n\noffs"
-    "etGain\030\005 \001(\010\"B\n\025cmd_writeVbiasControl\022\031\n"
-    "\021vBiasControlValue\030\001 \001(\r\022\016\n\006enable\030\002 \001(\010"
-    "\"]\n\036cmd_writeVbiasControl_response\022\017\n\007su"
-    "ccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\031\n\021vBiasCon"
-    "trolValue\030\003 \001(\r\"6\n\016cmd_readAFEReg\022\020\n\010afe"
-    "Block\030\001 \001(\r\022\022\n\nregAddress\030\002 \001(\r\"s\n\027cmd_r"
-    "eadAFEReg_response\022\017\n\007success\030\001 \001(\010\022\017\n\007m"
-    "essage\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\022\n\nregAdd"
-    "ress\030\004 \001(\r\022\020\n\010regValue\030\005 \001(\r\"$\n\020cmd_read"
-    "AFEVgain\022\020\n\010afeBlock\030\001 \001(\r\"c\n\031cmd_readAF"
-    "EVgain_response\022\017\n\007success\030\001 \001(\010\022\017\n\007mess"
-    "age\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\022\n\nvgainValu"
-    "e\030\004 \001(\r\"&\n\022cmd_readAFEBiasSet\022\020\n\010afeBloc"
-    "k\030\001 \001(\r\"d\n\033cmd_readAFEBiasSet_response\022\017"
+    "(\r\022\020\n\010trimGain\030\005 \001(\010\"c\n\033cmd_writeTrim_si"
+    "ngleChannel\022\n\n\002id\030\001 \001(\005\022\023\n\013trimChannel\030\002"
+    " \001(\r\022\021\n\ttrimValue\030\003 \001(\r\022\020\n\010trimGain\030\004 \001("
+    "\010\"\202\001\n$cmd_writeTrim_singleChannel_respon"
+    "se\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\023\n\013"
+    "trimChannel\030\003 \001(\r\022\021\n\ttrimValue\030\004 \001(\r\022\020\n\010"
+    "trimGain\030\005 \001(\010\"R\n\033cmd_writeOFFSET_allCha"
+    "nnels\022\n\n\002id\030\001 \001(\005\022\023\n\013offsetValue\030\002 \001(\r\022\022"
+    "\n\noffsetGain\030\003 \001(\010\"q\n$cmd_writeOFFSET_al"
+    "lChannels_response\022\017\n\007success\030\001 \001(\010\022\017\n\007m"
+    "essage\030\002 \001(\t\022\023\n\013offsetValue\030\003 \001(\r\022\022\n\noff"
+    "setGain\030\004 \001(\010\"_\n\026cmd_writeOFFSET_allAFE\022"
+    "\n\n\002id\030\001 \001(\005\022\020\n\010afeBlock\030\002 \001(\r\022\023\n\013offsetV"
+    "alue\030\003 \001(\r\022\022\n\noffsetGain\030\004 \001(\010\"~\n\037cmd_wr"
+    "iteOFFSET_allAFE_response\022\017\n\007success\030\001 \001"
+    "(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\023\n"
+    "\013offsetValue\030\004 \001(\r\022\022\n\noffsetGain\030\005 \001(\010\"k"
+    "\n\035cmd_writeOFFSET_singleChannel\022\n\n\002id\030\001 "
+    "\001(\005\022\025\n\roffsetChannel\030\002 \001(\r\022\023\n\013offsetValu"
+    "e\030\003 \001(\r\022\022\n\noffsetGain\030\004 \001(\010\"\212\001\n&cmd_writ"
+    "eOFFSET_singleChannel_response\022\017\n\007succes"
+    "s\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\025\n\roffsetChanne"
+    "l\030\003 \001(\r\022\023\n\013offsetValue\030\004 \001(\r\022\022\n\noffsetGa"
+    "in\030\005 \001(\010\"N\n\025cmd_writeVbiasControl\022\n\n\002id\030"
+    "\001 \001(\005\022\031\n\021vBiasControlValue\030\002 \001(\r\022\016\n\006enab"
+    "le\030\003 \001(\010\"]\n\036cmd_writeVbiasControl_respon"
+    "se\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\031\n\021"
+    "vBiasControlValue\030\003 \001(\r\"B\n\016cmd_readAFERe"
+    "g\022\n\n\002id\030\001 \001(\005\022\020\n\010afeBlock\030\002 \001(\r\022\022\n\nregAd"
+    "dress\030\003 \001(\r\"s\n\027cmd_readAFEReg_response\022\017"
     "\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeB"
-    "lock\030\003 \001(\r\022\021\n\tbiasValue\030\004 \001(\r\"\032\n\030cmd_rea"
-    "dTrim_allChannels\"Y\n!cmd_readTrim_allCha"
-    "nnels_response\022\017\n\007success\030\001 \001(\010\022\017\n\007messa"
-    "ge\030\002 \001(\t\022\022\n\ntrimValues\030\003 \003(\r\"\'\n\023cmd_read"
-    "Trim_allAFE\022\020\n\010afeBlock\030\001 \001(\r\"f\n\034cmd_rea"
-    "dTrim_allAFE_response\022\017\n\007success\030\001 \001(\010\022\017"
-    "\n\007message\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\022\n\ntri"
-    "mValues\030\004 \003(\r\"1\n\032cmd_readTrim_singleChan"
-    "nel\022\023\n\013trimChannel\030\001 \001(\r\"o\n#cmd_readTrim"
+    "lock\030\003 \001(\r\022\022\n\nregAddress\030\004 \001(\r\022\020\n\010regVal"
+    "ue\030\005 \001(\r\"0\n\020cmd_readAFEVgain\022\n\n\002id\030\001 \001(\005"
+    "\022\020\n\010afeBlock\030\002 \001(\r\"c\n\031cmd_readAFEVgain_r"
+    "esponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001("
+    "\t\022\020\n\010afeBlock\030\003 \001(\r\022\022\n\nvgainValue\030\004 \001(\r\""
+    "2\n\022cmd_readAFEBiasSet\022\n\n\002id\030\001 \001(\005\022\020\n\010afe"
+    "Block\030\002 \001(\r\"d\n\033cmd_readAFEBiasSet_respon"
+    "se\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010"
+    "afeBlock\030\003 \001(\r\022\021\n\tbiasValue\030\004 \001(\r\"&\n\030cmd"
+    "_readTrim_allChannels\022\n\n\002id\030\001 \001(\005\"Y\n!cmd"
+    "_readTrim_allChannels_response\022\017\n\007succes"
+    "s\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\022\n\ntrimValues\030\003"
+    " \003(\r\"3\n\023cmd_readTrim_allAFE\022\n\n\002id\030\001 \001(\005\022"
+    "\020\n\010afeBlock\030\002 \001(\r\"f\n\034cmd_readTrim_allAFE"
+    "_response\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 "
+    "\001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\022\n\ntrimValues\030\004 \003("
+    "\r\"=\n\032cmd_readTrim_singleChannel\022\n\n\002id\030\001 "
+    "\001(\005\022\023\n\013trimChannel\030\002 \001(\r\"o\n#cmd_readTrim"
     "_singleChannel_response\022\017\n\007success\030\001 \001(\010"
     "\022\017\n\007message\030\002 \001(\t\022\023\n\013trimChannel\030\003 \001(\r\022\021"
-    "\n\ttrimValue\030\004 \001(\r\"\034\n\032cmd_readOffset_allC"
-    "hannels\"]\n#cmd_readOffset_allChannels_re"
-    "sponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t"
-    "\022\024\n\014offsetValues\030\003 \003(\r\")\n\025cmd_readOffset"
-    "_allAFE\022\020\n\010afeBlock\030\001 \001(\r\"j\n\036cmd_readOff"
-    "set_allAFE_response\022\017\n\007success\030\001 \001(\010\022\017\n\007"
-    "message\030\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\024\n\014offse"
-    "tValues\030\004 \003(\r\"5\n\034cmd_readOffset_singleCh"
-    "annel\022\025\n\roffsetChannel\030\001 \001(\r\"u\n%cmd_read"
-    "Offset_singleChannel_response\022\017\n\007success"
-    "\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\025\n\roffsetChannel"
-    "\030\003 \001(\r\022\023\n\013offsetValue\030\004 \001(\r\"\026\n\024cmd_readV"
-    "biasControl\"\\\n\035cmd_readVbiasControl_resp"
-    "onse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\031"
-    "\n\021vBiasControlValue\030\003 \001(\r\"7\n\026cmd_readCur"
-    "rentMonitor\022\035\n\025currentMonitorChannel\030\001 \001"
-    "(\r\"x\n\037cmd_readCurrentMonitor_response\022\017\n"
-    "\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\035\n\025curre"
-    "ntMonitorChannel\030\003 \001(\r\022\024\n\014currentValue\030\004"
-    " \001(\r\".\n\032cmd_readBiasVoltageMonitor\022\020\n\010af"
-    "eBlock\030\001 \001(\r\"s\n#cmd_readBiasVoltageMonit"
-    "or_response\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030"
-    "\002 \001(\t\022\020\n\010afeBlock\030\003 \001(\r\022\030\n\020biasVoltageVa"
-    "lue\030\004 \001(\r\"%\n\017cmd_setAFEReset\022\022\n\nresetVal"
-    "ue\030\001 \001(\010\"P\n\030cmd_setAFEReset_response\022\017\n\007"
-    "success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\022\n\nresetV"
-    "alue\030\003 \001(\010\"\020\n\016cmd_doAFEReset\";\n\027cmd_doAF"
-    "EReset_response\022\017\n\007success\030\001 \001(\010\022\017\n\007mess"
-    "age\030\002 \001(\t\"*\n\024cmd_setAFEPowerState\022\022\n\npow"
-    "erState\030\001 \001(\010\"U\n\035cmd_setAFEPowerState_re"
-    "sponse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t"
-    "\022\022\n\npowerState\030\003 \001(\r\"\017\n\rcmd_alignAFEs\"Z\n"
-    "\026cmd_alignAFEs_response\022\017\n\007success\030\001 \001(\010"
-    "\022\r\n\005delay\030\002 \003(\r\022\017\n\007bitslip\030\003 \003(\r\022\017\n\007mess"
-    "age\030\004 \001(\t\"O\n\024cmd_writeAFEFunction\022\020\n\010afe"
-    "Block\030\001 \001(\r\022\020\n\010function\030\002 \001(\t\022\023\n\013configV"
-    "alue\030\003 \001(\r\"z\n\035cmd_writeAFEFunction_respo"
+    "\n\ttrimValue\030\004 \001(\r\"(\n\032cmd_readOffset_allC"
+    "hannels\022\n\n\002id\030\001 \001(\005\"]\n#cmd_readOffset_al"
+    "lChannels_response\022\017\n\007success\030\001 \001(\010\022\017\n\007m"
+    "essage\030\002 \001(\t\022\024\n\014offsetValues\030\003 \003(\r\"5\n\025cm"
+    "d_readOffset_allAFE\022\n\n\002id\030\001 \001(\005\022\020\n\010afeBl"
+    "ock\030\002 \001(\r\"j\n\036cmd_readOffset_allAFE_respo"
     "nse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n"
-    "\010afeBlock\030\003 \001(\r\022\020\n\010function\030\004 \001(\t\022\023\n\013con"
-    "figValue\030\005 \001(\r\"\027\n\025cmd_doSoftwareTrigger\""
-    "B\n\036cmd_doSoftwareTrigger_response\022\017\n\007suc"
-    "cess\030\001 \001(\010\022\017\n\007message\030\002 \001(\tb\006proto3"
+    "\010afeBlock\030\003 \001(\r\022\024\n\014offsetValues\030\004 \003(\r\"A\n"
+    "\034cmd_readOffset_singleChannel\022\n\n\002id\030\001 \001("
+    "\005\022\025\n\roffsetChannel\030\002 \001(\r\"u\n%cmd_readOffs"
+    "et_singleChannel_response\022\017\n\007success\030\001 \001"
+    "(\010\022\017\n\007message\030\002 \001(\t\022\025\n\roffsetChannel\030\003 \001"
+    "(\r\022\023\n\013offsetValue\030\004 \001(\r\"\"\n\024cmd_readVbias"
+    "Control\022\n\n\002id\030\001 \001(\005\"\\\n\035cmd_readVbiasCont"
+    "rol_response\022\017\n\007success\030\001 \001(\010\022\017\n\007message"
+    "\030\002 \001(\t\022\031\n\021vBiasControlValue\030\003 \001(\r\"C\n\026cmd"
+    "_readCurrentMonitor\022\n\n\002id\030\001 \001(\005\022\035\n\025curre"
+    "ntMonitorChannel\030\002 \001(\r\"x\n\037cmd_readCurren"
+    "tMonitor_response\022\017\n\007success\030\001 \001(\010\022\017\n\007me"
+    "ssage\030\002 \001(\t\022\035\n\025currentMonitorChannel\030\003 \001"
+    "(\r\022\024\n\014currentValue\030\004 \001(\r\":\n\032cmd_readBias"
+    "VoltageMonitor\022\n\n\002id\030\001 \001(\005\022\020\n\010afeBlock\030\002"
+    " \001(\r\"s\n#cmd_readBiasVoltageMonitor_respo"
+    "nse\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n"
+    "\010afeBlock\030\003 \001(\r\022\030\n\020biasVoltageValue\030\004 \001("
+    "\r\"1\n\017cmd_setAFEReset\022\n\n\002id\030\001 \001(\005\022\022\n\nrese"
+    "tValue\030\002 \001(\010\"P\n\030cmd_setAFEReset_response"
+    "\022\017\n\007success\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\022\n\nre"
+    "setValue\030\003 \001(\010\"\034\n\016cmd_doAFEReset\022\n\n\002id\030\001"
+    " \001(\005\";\n\027cmd_doAFEReset_response\022\017\n\007succe"
+    "ss\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\"6\n\024cmd_setAFEP"
+    "owerState\022\n\n\002id\030\001 \001(\005\022\022\n\npowerState\030\002 \001("
+    "\010\"U\n\035cmd_setAFEPowerState_response\022\017\n\007su"
+    "ccess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\022\n\npowerSta"
+    "te\030\003 \001(\r\"(\n\006Status\022\017\n\007success\030\001 \001(\010\022\r\n\005e"
+    "xtra\030\002 \001(\014\"\017\n\rcmd_alignAFEs\"Z\n\026cmd_align"
+    "AFEs_response\022\017\n\007success\030\001 \001(\010\022\r\n\005delay\030"
+    "\002 \003(\r\022\017\n\007bitslip\030\003 \003(\r\022\017\n\007message\030\004 \001(\t\""
+    "O\n\024cmd_writeAFEFunction\022\020\n\010afeBlock\030\001 \001("
+    "\r\022\020\n\010function\030\002 \001(\t\022\023\n\013configValue\030\003 \001(\r"
+    "\"z\n\035cmd_writeAFEFunction_response\022\017\n\007suc"
+    "cess\030\001 \001(\010\022\017\n\007message\030\002 \001(\t\022\020\n\010afeBlock\030"
+    "\003 \001(\r\022\020\n\010function\030\004 \001(\t\022\023\n\013configValue\030\005"
+    " \001(\r\"\027\n\025cmd_doSoftwareTrigger\"B\n\036cmd_doS"
+    "oftwareTrigger_response\022\017\n\007success\030\001 \001(\010"
+    "\022\017\n\007message\030\002 \001(\tb\006proto3"
 };
 static ::absl::once_flag descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto = {
     false,
     false,
-    4675,
+    5025,
     descriptor_table_protodef_daphneV3_5flow_5flevel_5fconfs_2eproto,
     "daphneV3_low_level_confs.proto",
     &descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto_once,
     nullptr,
     0,
-    58,
+    59,
     schemas,
     file_default_instances,
     TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto::offsets,
     file_level_enum_descriptors_daphneV3_5flow_5flevel_5fconfs_2eproto,
     file_level_service_descriptors_daphneV3_5flow_5flevel_5fconfs_2eproto,
 };
+namespace daphne {
 // ===================================================================
 
 class cmd_writeAFEReg::_Internal {
@@ -2664,7 +2817,7 @@ cmd_writeAFEReg::cmd_writeAFEReg(::google::protobuf::Arena* PROTOBUF_NULLABLE ar
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeAFEReg)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeAFEReg)
 }
 cmd_writeAFEReg::cmd_writeAFEReg(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeAFEReg& from)
@@ -2685,14 +2838,14 @@ PROTOBUF_NDEBUG_INLINE cmd_writeAFEReg::Impl_::Impl_(
 inline void cmd_writeAFEReg::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, afeblock_),
+               offsetof(Impl_, id_),
            0,
            offsetof(Impl_, regvalue_) -
-               offsetof(Impl_, afeblock_) +
+               offsetof(Impl_, id_) +
                sizeof(Impl_::regvalue_));
 }
 cmd_writeAFEReg::~cmd_writeAFEReg() {
-  // @@protoc_insertion_point(destructor:cmd_writeAFEReg)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeAFEReg)
   SharedDtor(*this);
 }
 inline void cmd_writeAFEReg::SharedDtor(MessageLite& self) {
@@ -2745,46 +2898,51 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeAFEReg:
   return cmd_writeAFEReg_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 0, 2>
 cmd_writeAFEReg::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_._has_bits_),
     0, // no _extensions_
-    3, 24,  // max_field_number, fast_idx_mask
+    4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967288,  // skipmap
+    4294967280,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    3,  // num_field_entries
+    4,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeAFEReg_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeAFEReg>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeAFEReg>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
-    // uint32 afeBlock = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEReg, _impl_.afeblock_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.afeblock_)}},
-    // uint32 regAddress = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEReg, _impl_.regaddress_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.regaddress_)}},
-    // uint32 regValue = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEReg, _impl_.regvalue_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.regvalue_)}},
+    // uint32 regValue = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEReg, _impl_.regvalue_), 3>(),
+     {32, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.regvalue_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEReg, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.id_)}},
+    // uint32 afeBlock = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEReg, _impl_.afeblock_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.afeblock_)}},
+    // uint32 regAddress = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEReg, _impl_.regaddress_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.regaddress_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 afeBlock = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.afeblock_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 afeBlock = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 regAddress = 2;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.regaddress_), _Internal::kHasBitsOffset + 1, 0,
+    // uint32 regAddress = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.regaddress_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 regValue = 3;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.regvalue_), _Internal::kHasBitsOffset + 2, 0,
+    // uint32 regValue = 4;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.regvalue_), _Internal::kHasBitsOffset + 3, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
@@ -2792,17 +2950,17 @@ cmd_writeAFEReg::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeAFEReg::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeAFEReg)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeAFEReg)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
-    ::memset(&_impl_.afeblock_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x0000000fu) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.regvalue_) -
-        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.regvalue_));
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.regvalue_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -2819,34 +2977,43 @@ PROTOBUF_NOINLINE void cmd_writeAFEReg::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeAFEReg& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeAFEReg)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeAFEReg)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // uint32 afeBlock = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_afeblock() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_afeblock(), target);
+          2, this_._internal_afeblock(), target);
     }
   }
 
-  // uint32 regAddress = 2;
-  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+  // uint32 regAddress = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_regaddress() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          2, this_._internal_regaddress(), target);
+          3, this_._internal_regaddress(), target);
     }
   }
 
-  // uint32 regValue = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+  // uint32 regValue = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
     if (this_._internal_regvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          3, this_._internal_regvalue(), target);
+          4, this_._internal_regvalue(), target);
     }
   }
 
@@ -2855,7 +3022,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEReg::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeAFEReg)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeAFEReg)
   return target;
 }
 
@@ -2866,7 +3033,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEReg::Clear() {
 ::size_t cmd_writeAFEReg::ByteSizeLong() const {
   const cmd_writeAFEReg& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeAFEReg)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeAFEReg)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -2875,23 +3042,30 @@ PROTOBUF_NOINLINE void cmd_writeAFEReg::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
-    // uint32 afeBlock = 1;
+  if ((cached_has_bits & 0x0000000fu) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 afeBlock = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
       }
     }
-    // uint32 regAddress = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    // uint32 regAddress = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (this_._internal_regaddress() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_regaddress());
       }
     }
-    // uint32 regValue = 3;
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    // uint32 regValue = 4;
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (this_._internal_regvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_regvalue());
@@ -2905,24 +3079,29 @@ PROTOBUF_NOINLINE void cmd_writeAFEReg::Clear() {
 void cmd_writeAFEReg::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeAFEReg*>(&to_msg);
   auto& from = static_cast<const cmd_writeAFEReg&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeAFEReg)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeAFEReg)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_afeblock() != 0) {
         _this->_impl_.afeblock_ = from._impl_.afeblock_;
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_regaddress() != 0) {
         _this->_impl_.regaddress_ = from._impl_.regaddress_;
       }
     }
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (from._internal_regvalue() != 0) {
         _this->_impl_.regvalue_ = from._impl_.regvalue_;
       }
@@ -2933,7 +3112,7 @@ void cmd_writeAFEReg::MergeImpl(::google::protobuf::MessageLite& to_msg, const :
 }
 
 void cmd_writeAFEReg::CopyFrom(const cmd_writeAFEReg& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeAFEReg)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeAFEReg)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -2947,9 +3126,9 @@ void cmd_writeAFEReg::InternalSwap(cmd_writeAFEReg* PROTOBUF_RESTRICT PROTOBUF_N
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.regvalue_)
       + sizeof(cmd_writeAFEReg::_impl_.regvalue_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.afeblock_)>(
-          reinterpret_cast<char*>(&_impl_.afeblock_),
-          reinterpret_cast<char*>(&other->_impl_.afeblock_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_writeAFEReg::GetMetadata() const {
@@ -2972,12 +3151,12 @@ cmd_writeAFEReg_response::cmd_writeAFEReg_response(::google::protobuf::Arena* PR
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeAFEReg_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeAFEReg_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeAFEReg_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_writeAFEReg_response& from_msg)
+    const ::daphne::cmd_writeAFEReg_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -3003,7 +3182,7 @@ cmd_writeAFEReg_response::cmd_writeAFEReg_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::regvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_writeAFEReg_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_writeAFEReg_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeAFEReg_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -3021,7 +3200,7 @@ inline void cmd_writeAFEReg_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE
                sizeof(Impl_::regvalue_));
 }
 cmd_writeAFEReg_response::~cmd_writeAFEReg_response() {
-  // @@protoc_insertion_point(destructor:cmd_writeAFEReg_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeAFEReg_response)
   SharedDtor(*this);
 }
 inline void cmd_writeAFEReg_response::SharedDtor(MessageLite& self) {
@@ -3075,7 +3254,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeAFEReg_
   return cmd_writeAFEReg_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 5, 0, 40, 2>
+const ::_pbi::TcParseTable<3, 5, 0, 47, 2>
 cmd_writeAFEReg_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeAFEReg_response, _impl_._has_bits_),
@@ -3091,7 +3270,7 @@ cmd_writeAFEReg_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeAFEReg_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeAFEReg_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -3133,13 +3312,13 @@ cmd_writeAFEReg_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\30\0\7\0\0\0\0\0"
-    "cmd_writeAFEReg_response"
+    "\37\0\7\0\0\0\0\0"
+    "daphne.cmd_writeAFEReg_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeAFEReg_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeAFEReg_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeAFEReg_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -3169,7 +3348,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEReg_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeAFEReg_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeAFEReg_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeAFEReg_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -3187,7 +3366,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEReg_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeAFEReg_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeAFEReg_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -3224,7 +3403,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEReg_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeAFEReg_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeAFEReg_response)
   return target;
 }
 
@@ -3235,7 +3414,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEReg_response::Clear() {
 ::size_t cmd_writeAFEReg_response::ByteSizeLong() const {
   const cmd_writeAFEReg_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeAFEReg_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeAFEReg_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -3287,7 +3466,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEReg_response::Clear() {
 void cmd_writeAFEReg_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeAFEReg_response*>(&to_msg);
   auto& from = static_cast<const cmd_writeAFEReg_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeAFEReg_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeAFEReg_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -3329,7 +3508,7 @@ void cmd_writeAFEReg_response::MergeImpl(::google::protobuf::MessageLite& to_msg
 }
 
 void cmd_writeAFEReg_response::CopyFrom(const cmd_writeAFEReg_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeAFEReg_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeAFEReg_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -3371,7 +3550,7 @@ cmd_writeAFEVGAIN::cmd_writeAFEVGAIN(::google::protobuf::Arena* PROTOBUF_NULLABL
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeAFEVGAIN)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeAFEVGAIN)
 }
 cmd_writeAFEVGAIN::cmd_writeAFEVGAIN(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeAFEVGAIN& from)
@@ -3392,14 +3571,14 @@ PROTOBUF_NDEBUG_INLINE cmd_writeAFEVGAIN::Impl_::Impl_(
 inline void cmd_writeAFEVGAIN::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, afeblock_),
+               offsetof(Impl_, id_),
            0,
            offsetof(Impl_, vgainvalue_) -
-               offsetof(Impl_, afeblock_) +
+               offsetof(Impl_, id_) +
                sizeof(Impl_::vgainvalue_));
 }
 cmd_writeAFEVGAIN::~cmd_writeAFEVGAIN() {
-  // @@protoc_insertion_point(destructor:cmd_writeAFEVGAIN)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeAFEVGAIN)
   SharedDtor(*this);
 }
 inline void cmd_writeAFEVGAIN::SharedDtor(MessageLite& self) {
@@ -3452,39 +3631,46 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeAFEVGAI
   return cmd_writeAFEVGAIN_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
 cmd_writeAFEVGAIN::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeAFEVGAIN_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeAFEVGAIN>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeAFEVGAIN>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 vgainValue = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEVGAIN, _impl_.vgainvalue_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_.vgainvalue_)}},
-    // uint32 afeBlock = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEVGAIN, _impl_.afeblock_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_.afeblock_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEVGAIN, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_.id_)}},
+    // uint32 afeBlock = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEVGAIN, _impl_.afeblock_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_.afeblock_)}},
+    // uint32 vgainValue = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEVGAIN, _impl_.vgainvalue_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_.vgainvalue_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 afeBlock = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_.afeblock_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 afeBlock = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 vgainValue = 2;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_.vgainvalue_), _Internal::kHasBitsOffset + 1, 0,
+    // uint32 vgainValue = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_.vgainvalue_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
@@ -3492,17 +3678,17 @@ cmd_writeAFEVGAIN::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeAFEVGAIN::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeAFEVGAIN)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeAFEVGAIN)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    ::memset(&_impl_.afeblock_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.vgainvalue_) -
-        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.vgainvalue_));
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.vgainvalue_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -3519,25 +3705,34 @@ PROTOBUF_NOINLINE void cmd_writeAFEVGAIN::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeAFEVGAIN& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeAFEVGAIN)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeAFEVGAIN)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
-    if (this_._internal_afeblock() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_afeblock(), target);
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
     }
   }
 
-  // uint32 vgainValue = 2;
+  // uint32 afeBlock = 2;
   if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_afeblock() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          2, this_._internal_afeblock(), target);
+    }
+  }
+
+  // uint32 vgainValue = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_vgainvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          2, this_._internal_vgainvalue(), target);
+          3, this_._internal_vgainvalue(), target);
     }
   }
 
@@ -3546,7 +3741,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEVGAIN::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeAFEVGAIN)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeAFEVGAIN)
   return target;
 }
 
@@ -3557,7 +3752,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEVGAIN::Clear() {
 ::size_t cmd_writeAFEVGAIN::ByteSizeLong() const {
   const cmd_writeAFEVGAIN& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeAFEVGAIN)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeAFEVGAIN)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -3566,16 +3761,23 @@ PROTOBUF_NOINLINE void cmd_writeAFEVGAIN::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    // uint32 afeBlock = 1;
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 afeBlock = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
       }
     }
-    // uint32 vgainValue = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    // uint32 vgainValue = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (this_._internal_vgainvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_vgainvalue());
@@ -3589,19 +3791,24 @@ PROTOBUF_NOINLINE void cmd_writeAFEVGAIN::Clear() {
 void cmd_writeAFEVGAIN::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeAFEVGAIN*>(&to_msg);
   auto& from = static_cast<const cmd_writeAFEVGAIN&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeAFEVGAIN)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeAFEVGAIN)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_afeblock() != 0) {
         _this->_impl_.afeblock_ = from._impl_.afeblock_;
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_vgainvalue() != 0) {
         _this->_impl_.vgainvalue_ = from._impl_.vgainvalue_;
       }
@@ -3612,7 +3819,7 @@ void cmd_writeAFEVGAIN::MergeImpl(::google::protobuf::MessageLite& to_msg, const
 }
 
 void cmd_writeAFEVGAIN::CopyFrom(const cmd_writeAFEVGAIN& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeAFEVGAIN)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeAFEVGAIN)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -3626,9 +3833,9 @@ void cmd_writeAFEVGAIN::InternalSwap(cmd_writeAFEVGAIN* PROTOBUF_RESTRICT PROTOB
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_.vgainvalue_)
       + sizeof(cmd_writeAFEVGAIN::_impl_.vgainvalue_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_.afeblock_)>(
-          reinterpret_cast<char*>(&_impl_.afeblock_),
-          reinterpret_cast<char*>(&other->_impl_.afeblock_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_writeAFEVGAIN::GetMetadata() const {
@@ -3636,40 +3843,40 @@ void cmd_writeAFEVGAIN::InternalSwap(cmd_writeAFEVGAIN* PROTOBUF_RESTRICT PROTOB
 }
 // ===================================================================
 
-class cmd_writeAFEVgain_response::_Internal {
+class cmd_writeAFEVGAIN_response::_Internal {
  public:
   using HasBits =
-      decltype(std::declval<cmd_writeAFEVgain_response>()._impl_._has_bits_);
+      decltype(std::declval<cmd_writeAFEVGAIN_response>()._impl_._has_bits_);
   static constexpr ::int32_t kHasBitsOffset =
-      8 * PROTOBUF_FIELD_OFFSET(cmd_writeAFEVgain_response, _impl_._has_bits_);
+      8 * PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN_response, _impl_._has_bits_);
 };
 
-cmd_writeAFEVgain_response::cmd_writeAFEVgain_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+cmd_writeAFEVGAIN_response::cmd_writeAFEVGAIN_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, cmd_writeAFEVgain_response_class_data_.base()) {
+    : ::google::protobuf::Message(arena, cmd_writeAFEVGAIN_response_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeAFEVgain_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeAFEVGAIN_response)
 }
-PROTOBUF_NDEBUG_INLINE cmd_writeAFEVgain_response::Impl_::Impl_(
+PROTOBUF_NDEBUG_INLINE cmd_writeAFEVGAIN_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_writeAFEVgain_response& from_msg)
+    const ::daphne::cmd_writeAFEVGAIN_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
 
-cmd_writeAFEVgain_response::cmd_writeAFEVgain_response(
+cmd_writeAFEVGAIN_response::cmd_writeAFEVGAIN_response(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
-    const cmd_writeAFEVgain_response& from)
+    const cmd_writeAFEVGAIN_response& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::Message(arena, cmd_writeAFEVgain_response_class_data_.base()) {
+    : ::google::protobuf::Message(arena, cmd_writeAFEVGAIN_response_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  cmd_writeAFEVgain_response* const _this = this;
+  cmd_writeAFEVGAIN_response* const _this = this;
   (void)_this;
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
@@ -3682,15 +3889,15 @@ cmd_writeAFEVgain_response::cmd_writeAFEVgain_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::vgainvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_writeAFEVgain_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_writeAFEVGAIN_response)
 }
-PROTOBUF_NDEBUG_INLINE cmd_writeAFEVgain_response::Impl_::Impl_(
+PROTOBUF_NDEBUG_INLINE cmd_writeAFEVGAIN_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
       : _cached_size_{0},
         message_(arena) {}
 
-inline void cmd_writeAFEVgain_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+inline void cmd_writeAFEVGAIN_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
                offsetof(Impl_, success_),
@@ -3699,45 +3906,45 @@ inline void cmd_writeAFEVgain_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLAB
                offsetof(Impl_, success_) +
                sizeof(Impl_::vgainvalue_));
 }
-cmd_writeAFEVgain_response::~cmd_writeAFEVgain_response() {
-  // @@protoc_insertion_point(destructor:cmd_writeAFEVgain_response)
+cmd_writeAFEVGAIN_response::~cmd_writeAFEVGAIN_response() {
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeAFEVGAIN_response)
   SharedDtor(*this);
 }
-inline void cmd_writeAFEVgain_response::SharedDtor(MessageLite& self) {
-  cmd_writeAFEVgain_response& this_ = static_cast<cmd_writeAFEVgain_response&>(self);
+inline void cmd_writeAFEVGAIN_response::SharedDtor(MessageLite& self) {
+  cmd_writeAFEVGAIN_response& this_ = static_cast<cmd_writeAFEVGAIN_response&>(self);
   this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
   this_._impl_.message_.Destroy();
   this_._impl_.~Impl_();
 }
 
-inline void* PROTOBUF_NONNULL cmd_writeAFEVgain_response::PlacementNew_(
+inline void* PROTOBUF_NONNULL cmd_writeAFEVGAIN_response::PlacementNew_(
     const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
-  return ::new (mem) cmd_writeAFEVgain_response(arena);
+  return ::new (mem) cmd_writeAFEVGAIN_response(arena);
 }
-constexpr auto cmd_writeAFEVgain_response::InternalNewImpl_() {
-  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(cmd_writeAFEVgain_response),
-                                            alignof(cmd_writeAFEVgain_response));
+constexpr auto cmd_writeAFEVGAIN_response::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(cmd_writeAFEVGAIN_response),
+                                            alignof(cmd_writeAFEVGAIN_response));
 }
-constexpr auto cmd_writeAFEVgain_response::InternalGenerateClassData_() {
+constexpr auto cmd_writeAFEVGAIN_response::InternalGenerateClassData_() {
   return ::google::protobuf::internal::ClassDataFull{
       ::google::protobuf::internal::ClassData{
-          &_cmd_writeAFEVgain_response_default_instance_._instance,
+          &_cmd_writeAFEVGAIN_response_default_instance_._instance,
           &_table_.header,
           nullptr,  // OnDemandRegisterArenaDtor
           nullptr,  // IsInitialized
-          &cmd_writeAFEVgain_response::MergeImpl,
-          ::google::protobuf::Message::GetNewImpl<cmd_writeAFEVgain_response>(),
+          &cmd_writeAFEVGAIN_response::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<cmd_writeAFEVGAIN_response>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-          &cmd_writeAFEVgain_response::SharedDtor,
-          ::google::protobuf::Message::GetClearImpl<cmd_writeAFEVgain_response>(), &cmd_writeAFEVgain_response::ByteSizeLong,
-              &cmd_writeAFEVgain_response::_InternalSerialize,
+          &cmd_writeAFEVGAIN_response::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<cmd_writeAFEVGAIN_response>(), &cmd_writeAFEVGAIN_response::ByteSizeLong,
+              &cmd_writeAFEVGAIN_response::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
-          PROTOBUF_FIELD_OFFSET(cmd_writeAFEVgain_response, _impl_._cached_size_),
+          PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN_response, _impl_._cached_size_),
           false,
       },
-      &cmd_writeAFEVgain_response::kDescriptorMethods,
+      &cmd_writeAFEVGAIN_response::kDescriptorMethods,
       &descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto,
       nullptr,  // tracker
   };
@@ -3745,19 +3952,19 @@ constexpr auto cmd_writeAFEVgain_response::InternalGenerateClassData_() {
 
 PROTOBUF_CONSTINIT
     PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const ::google::protobuf::internal::ClassDataFull
-        cmd_writeAFEVgain_response_class_data_ =
-            cmd_writeAFEVgain_response::InternalGenerateClassData_();
+        cmd_writeAFEVGAIN_response_class_data_ =
+            cmd_writeAFEVGAIN_response::InternalGenerateClassData_();
 
-const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeAFEVgain_response::GetClassData() const {
-  ::google::protobuf::internal::PrefetchToLocalCache(&cmd_writeAFEVgain_response_class_data_);
-  ::google::protobuf::internal::PrefetchToLocalCache(cmd_writeAFEVgain_response_class_data_.tc_table);
-  return cmd_writeAFEVgain_response_class_data_.base();
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeAFEVGAIN_response::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&cmd_writeAFEVGAIN_response_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(cmd_writeAFEVGAIN_response_class_data_.tc_table);
+  return cmd_writeAFEVGAIN_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 42, 2>
-cmd_writeAFEVgain_response::_table_ = {
+const ::_pbi::TcParseTable<2, 4, 0, 49, 2>
+cmd_writeAFEVGAIN_response::_table_ = {
   {
-    PROTOBUF_FIELD_OFFSET(cmd_writeAFEVgain_response, _impl_._has_bits_),
+    PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN_response, _impl_._has_bits_),
     0, // no _extensions_
     4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
@@ -3766,50 +3973,50 @@ cmd_writeAFEVgain_response::_table_ = {
     4,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
-    cmd_writeAFEVgain_response_class_data_.base(),
+    cmd_writeAFEVGAIN_response_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeAFEVgain_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeAFEVGAIN_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // uint32 vgainValue = 4;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEVgain_response, _impl_.vgainvalue_), 3>(),
-     {32, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEVgain_response, _impl_.vgainvalue_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEVGAIN_response, _impl_.vgainvalue_), 3>(),
+     {32, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN_response, _impl_.vgainvalue_)}},
     // bool success = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeAFEVgain_response, _impl_.success_), 1>(),
-     {8, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEVgain_response, _impl_.success_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeAFEVGAIN_response, _impl_.success_), 1>(),
+     {8, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN_response, _impl_.success_)}},
     // string message = 2;
     {::_pbi::TcParser::FastUS1,
-     {18, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEVgain_response, _impl_.message_)}},
+     {18, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN_response, _impl_.message_)}},
     // uint32 afeBlock = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEVgain_response, _impl_.afeblock_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEVgain_response, _impl_.afeblock_)}},
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEVGAIN_response, _impl_.afeblock_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN_response, _impl_.afeblock_)}},
   }}, {{
     65535, 65535
   }}, {{
     // bool success = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEVgain_response, _impl_.success_), _Internal::kHasBitsOffset + 1, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN_response, _impl_.success_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
     // string message = 2;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEVgain_response, _impl_.message_), _Internal::kHasBitsOffset + 0, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN_response, _impl_.message_), _Internal::kHasBitsOffset + 0, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUtf8String | ::_fl::kRepAString)},
     // uint32 afeBlock = 3;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEVgain_response, _impl_.afeblock_), _Internal::kHasBitsOffset + 2, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN_response, _impl_.afeblock_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
     // uint32 vgainValue = 4;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEVgain_response, _impl_.vgainvalue_), _Internal::kHasBitsOffset + 3, 0,
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN_response, _impl_.vgainvalue_), _Internal::kHasBitsOffset + 3, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
   {{
-    "\32\0\7\0\0\0\0\0"
-    "cmd_writeAFEVgain_response"
+    "\41\0\7\0\0\0\0\0"
+    "daphne.cmd_writeAFEVGAIN_response"
     "message"
   }},
 };
-PROTOBUF_NOINLINE void cmd_writeAFEVgain_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeAFEVgain_response)
+PROTOBUF_NOINLINE void cmd_writeAFEVGAIN_response::Clear() {
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeAFEVGAIN_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -3829,17 +4036,17 @@ PROTOBUF_NOINLINE void cmd_writeAFEVgain_response::Clear() {
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-::uint8_t* PROTOBUF_NONNULL cmd_writeAFEVgain_response::_InternalSerialize(
+::uint8_t* PROTOBUF_NONNULL cmd_writeAFEVGAIN_response::_InternalSerialize(
     const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
-  const cmd_writeAFEVgain_response& this_ = static_cast<const cmd_writeAFEVgain_response&>(base);
+  const cmd_writeAFEVGAIN_response& this_ = static_cast<const cmd_writeAFEVGAIN_response&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-::uint8_t* PROTOBUF_NONNULL cmd_writeAFEVgain_response::_InternalSerialize(
+::uint8_t* PROTOBUF_NONNULL cmd_writeAFEVGAIN_response::_InternalSerialize(
     ::uint8_t* PROTOBUF_NONNULL target,
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
-  const cmd_writeAFEVgain_response& this_ = *this;
+  const cmd_writeAFEVGAIN_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeAFEVgain_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeAFEVGAIN_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -3857,7 +4064,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEVgain_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeAFEVgain_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeAFEVGAIN_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -3885,18 +4092,18 @@ PROTOBUF_NOINLINE void cmd_writeAFEVgain_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeAFEVgain_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeAFEVGAIN_response)
   return target;
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-::size_t cmd_writeAFEVgain_response::ByteSizeLong(const MessageLite& base) {
-  const cmd_writeAFEVgain_response& this_ = static_cast<const cmd_writeAFEVgain_response&>(base);
+::size_t cmd_writeAFEVGAIN_response::ByteSizeLong(const MessageLite& base) {
+  const cmd_writeAFEVGAIN_response& this_ = static_cast<const cmd_writeAFEVGAIN_response&>(base);
 #else   // PROTOBUF_CUSTOM_VTABLE
-::size_t cmd_writeAFEVgain_response::ByteSizeLong() const {
-  const cmd_writeAFEVgain_response& this_ = *this;
+::size_t cmd_writeAFEVGAIN_response::ByteSizeLong() const {
+  const cmd_writeAFEVGAIN_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeAFEVgain_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeAFEVGAIN_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -3938,10 +4145,10 @@ PROTOBUF_NOINLINE void cmd_writeAFEVgain_response::Clear() {
                                              &this_._impl_._cached_size_);
 }
 
-void cmd_writeAFEVgain_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
-  auto* const _this = static_cast<cmd_writeAFEVgain_response*>(&to_msg);
-  auto& from = static_cast<const cmd_writeAFEVgain_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeAFEVgain_response)
+void cmd_writeAFEVGAIN_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<cmd_writeAFEVGAIN_response*>(&to_msg);
+  auto& from = static_cast<const cmd_writeAFEVGAIN_response&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeAFEVGAIN_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -3977,15 +4184,15 @@ void cmd_writeAFEVgain_response::MergeImpl(::google::protobuf::MessageLite& to_m
   _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
 }
 
-void cmd_writeAFEVgain_response::CopyFrom(const cmd_writeAFEVgain_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeAFEVgain_response)
+void cmd_writeAFEVGAIN_response::CopyFrom(const cmd_writeAFEVGAIN_response& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeAFEVGAIN_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
 }
 
 
-void cmd_writeAFEVgain_response::InternalSwap(cmd_writeAFEVgain_response* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+void cmd_writeAFEVGAIN_response::InternalSwap(cmd_writeAFEVGAIN_response* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using std::swap;
   auto* arena = GetArena();
   ABSL_DCHECK_EQ(arena, other->GetArena());
@@ -3993,14 +4200,14 @@ void cmd_writeAFEVgain_response::InternalSwap(cmd_writeAFEVgain_response* PROTOB
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.message_, &other->_impl_.message_, arena);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(cmd_writeAFEVgain_response, _impl_.vgainvalue_)
-      + sizeof(cmd_writeAFEVgain_response::_impl_.vgainvalue_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeAFEVgain_response, _impl_.success_)>(
+      PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN_response, _impl_.vgainvalue_)
+      + sizeof(cmd_writeAFEVGAIN_response::_impl_.vgainvalue_)
+      - PROTOBUF_FIELD_OFFSET(cmd_writeAFEVGAIN_response, _impl_.success_)>(
           reinterpret_cast<char*>(&_impl_.success_),
           reinterpret_cast<char*>(&other->_impl_.success_));
 }
 
-::google::protobuf::Metadata cmd_writeAFEVgain_response::GetMetadata() const {
+::google::protobuf::Metadata cmd_writeAFEVGAIN_response::GetMetadata() const {
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================
@@ -4020,7 +4227,7 @@ cmd_writeAFEAttenuation::cmd_writeAFEAttenuation(::google::protobuf::Arena* PROT
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeAFEAttenuation)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeAFEAttenuation)
 }
 cmd_writeAFEAttenuation::cmd_writeAFEAttenuation(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeAFEAttenuation& from)
@@ -4041,14 +4248,14 @@ PROTOBUF_NDEBUG_INLINE cmd_writeAFEAttenuation::Impl_::Impl_(
 inline void cmd_writeAFEAttenuation::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, afeblock_),
+               offsetof(Impl_, id_),
            0,
            offsetof(Impl_, attenuation_) -
-               offsetof(Impl_, afeblock_) +
+               offsetof(Impl_, id_) +
                sizeof(Impl_::attenuation_));
 }
 cmd_writeAFEAttenuation::~cmd_writeAFEAttenuation() {
-  // @@protoc_insertion_point(destructor:cmd_writeAFEAttenuation)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeAFEAttenuation)
   SharedDtor(*this);
 }
 inline void cmd_writeAFEAttenuation::SharedDtor(MessageLite& self) {
@@ -4101,39 +4308,46 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeAFEAtte
   return cmd_writeAFEAttenuation_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
 cmd_writeAFEAttenuation::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeAFEAttenuation_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeAFEAttenuation>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeAFEAttenuation>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 attenuation = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEAttenuation, _impl_.attenuation_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.attenuation_)}},
-    // uint32 afeBlock = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEAttenuation, _impl_.afeblock_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.afeblock_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEAttenuation, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.id_)}},
+    // uint32 afeBlock = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEAttenuation, _impl_.afeblock_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.afeblock_)}},
+    // uint32 attenuation = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEAttenuation, _impl_.attenuation_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.attenuation_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 afeBlock = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.afeblock_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 afeBlock = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 attenuation = 2;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.attenuation_), _Internal::kHasBitsOffset + 1, 0,
+    // uint32 attenuation = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.attenuation_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
@@ -4141,17 +4355,17 @@ cmd_writeAFEAttenuation::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeAFEAttenuation::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeAFEAttenuation)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeAFEAttenuation)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    ::memset(&_impl_.afeblock_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.attenuation_) -
-        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.attenuation_));
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.attenuation_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -4168,25 +4382,34 @@ PROTOBUF_NOINLINE void cmd_writeAFEAttenuation::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeAFEAttenuation& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeAFEAttenuation)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeAFEAttenuation)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
-    if (this_._internal_afeblock() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_afeblock(), target);
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
     }
   }
 
-  // uint32 attenuation = 2;
+  // uint32 afeBlock = 2;
   if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_afeblock() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          2, this_._internal_afeblock(), target);
+    }
+  }
+
+  // uint32 attenuation = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_attenuation() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          2, this_._internal_attenuation(), target);
+          3, this_._internal_attenuation(), target);
     }
   }
 
@@ -4195,7 +4418,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEAttenuation::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeAFEAttenuation)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeAFEAttenuation)
   return target;
 }
 
@@ -4206,7 +4429,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEAttenuation::Clear() {
 ::size_t cmd_writeAFEAttenuation::ByteSizeLong() const {
   const cmd_writeAFEAttenuation& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeAFEAttenuation)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeAFEAttenuation)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -4215,16 +4438,23 @@ PROTOBUF_NOINLINE void cmd_writeAFEAttenuation::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    // uint32 afeBlock = 1;
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 afeBlock = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
       }
     }
-    // uint32 attenuation = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    // uint32 attenuation = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (this_._internal_attenuation() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_attenuation());
@@ -4238,19 +4468,24 @@ PROTOBUF_NOINLINE void cmd_writeAFEAttenuation::Clear() {
 void cmd_writeAFEAttenuation::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeAFEAttenuation*>(&to_msg);
   auto& from = static_cast<const cmd_writeAFEAttenuation&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeAFEAttenuation)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeAFEAttenuation)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_afeblock() != 0) {
         _this->_impl_.afeblock_ = from._impl_.afeblock_;
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_attenuation() != 0) {
         _this->_impl_.attenuation_ = from._impl_.attenuation_;
       }
@@ -4261,7 +4496,7 @@ void cmd_writeAFEAttenuation::MergeImpl(::google::protobuf::MessageLite& to_msg,
 }
 
 void cmd_writeAFEAttenuation::CopyFrom(const cmd_writeAFEAttenuation& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeAFEAttenuation)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeAFEAttenuation)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -4275,9 +4510,9 @@ void cmd_writeAFEAttenuation::InternalSwap(cmd_writeAFEAttenuation* PROTOBUF_RES
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.attenuation_)
       + sizeof(cmd_writeAFEAttenuation::_impl_.attenuation_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.afeblock_)>(
-          reinterpret_cast<char*>(&_impl_.afeblock_),
-          reinterpret_cast<char*>(&other->_impl_.afeblock_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_writeAFEAttenuation::GetMetadata() const {
@@ -4300,12 +4535,12 @@ cmd_writeAFEAttenuation_response::cmd_writeAFEAttenuation_response(::google::pro
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeAFEAttenuation_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeAFEAttenuation_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeAFEAttenuation_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_writeAFEAttenuation_response& from_msg)
+    const ::daphne::cmd_writeAFEAttenuation_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -4331,7 +4566,7 @@ cmd_writeAFEAttenuation_response::cmd_writeAFEAttenuation_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::attenuation_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_writeAFEAttenuation_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_writeAFEAttenuation_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeAFEAttenuation_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -4349,7 +4584,7 @@ inline void cmd_writeAFEAttenuation_response::SharedCtor(::_pb::Arena* PROTOBUF_
                sizeof(Impl_::attenuation_));
 }
 cmd_writeAFEAttenuation_response::~cmd_writeAFEAttenuation_response() {
-  // @@protoc_insertion_point(destructor:cmd_writeAFEAttenuation_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeAFEAttenuation_response)
   SharedDtor(*this);
 }
 inline void cmd_writeAFEAttenuation_response::SharedDtor(MessageLite& self) {
@@ -4403,7 +4638,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeAFEAtte
   return cmd_writeAFEAttenuation_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 48, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 55, 2>
 cmd_writeAFEAttenuation_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeAFEAttenuation_response, _impl_._has_bits_),
@@ -4419,7 +4654,7 @@ cmd_writeAFEAttenuation_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeAFEAttenuation_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeAFEAttenuation_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // uint32 attenuation = 4;
@@ -4452,13 +4687,13 @@ cmd_writeAFEAttenuation_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\40\0\7\0\0\0\0\0"
-    "cmd_writeAFEAttenuation_response"
+    "\47\0\7\0\0\0\0\0"
+    "daphne.cmd_writeAFEAttenuation_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeAFEAttenuation_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeAFEAttenuation_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeAFEAttenuation_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -4488,7 +4723,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEAttenuation_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeAFEAttenuation_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeAFEAttenuation_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeAFEAttenuation_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -4506,7 +4741,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEAttenuation_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeAFEAttenuation_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeAFEAttenuation_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -4534,7 +4769,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEAttenuation_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeAFEAttenuation_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeAFEAttenuation_response)
   return target;
 }
 
@@ -4545,7 +4780,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEAttenuation_response::Clear() {
 ::size_t cmd_writeAFEAttenuation_response::ByteSizeLong() const {
   const cmd_writeAFEAttenuation_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeAFEAttenuation_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeAFEAttenuation_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -4590,7 +4825,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEAttenuation_response::Clear() {
 void cmd_writeAFEAttenuation_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeAFEAttenuation_response*>(&to_msg);
   auto& from = static_cast<const cmd_writeAFEAttenuation_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeAFEAttenuation_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeAFEAttenuation_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -4627,7 +4862,7 @@ void cmd_writeAFEAttenuation_response::MergeImpl(::google::protobuf::MessageLite
 }
 
 void cmd_writeAFEAttenuation_response::CopyFrom(const cmd_writeAFEAttenuation_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeAFEAttenuation_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeAFEAttenuation_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -4669,7 +4904,7 @@ cmd_writeAFEBiasSet::cmd_writeAFEBiasSet(::google::protobuf::Arena* PROTOBUF_NUL
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeAFEBiasSet)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeAFEBiasSet)
 }
 cmd_writeAFEBiasSet::cmd_writeAFEBiasSet(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeAFEBiasSet& from)
@@ -4690,14 +4925,14 @@ PROTOBUF_NDEBUG_INLINE cmd_writeAFEBiasSet::Impl_::Impl_(
 inline void cmd_writeAFEBiasSet::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, afeblock_),
+               offsetof(Impl_, id_),
            0,
            offsetof(Impl_, biasvalue_) -
-               offsetof(Impl_, afeblock_) +
+               offsetof(Impl_, id_) +
                sizeof(Impl_::biasvalue_));
 }
 cmd_writeAFEBiasSet::~cmd_writeAFEBiasSet() {
-  // @@protoc_insertion_point(destructor:cmd_writeAFEBiasSet)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeAFEBiasSet)
   SharedDtor(*this);
 }
 inline void cmd_writeAFEBiasSet::SharedDtor(MessageLite& self) {
@@ -4750,39 +4985,46 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeAFEBias
   return cmd_writeAFEBiasSet_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
 cmd_writeAFEBiasSet::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeAFEBiasSet_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeAFEBiasSet>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeAFEBiasSet>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 biasValue = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEBiasSet, _impl_.biasvalue_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_.biasvalue_)}},
-    // uint32 afeBlock = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEBiasSet, _impl_.afeblock_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_.afeblock_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEBiasSet, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_.id_)}},
+    // uint32 afeBlock = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEBiasSet, _impl_.afeblock_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_.afeblock_)}},
+    // uint32 biasValue = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeAFEBiasSet, _impl_.biasvalue_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_.biasvalue_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 afeBlock = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_.afeblock_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 afeBlock = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 biasValue = 2;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_.biasvalue_), _Internal::kHasBitsOffset + 1, 0,
+    // uint32 biasValue = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_.biasvalue_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
@@ -4790,17 +5032,17 @@ cmd_writeAFEBiasSet::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeAFEBiasSet::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeAFEBiasSet)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeAFEBiasSet)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    ::memset(&_impl_.afeblock_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.biasvalue_) -
-        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.biasvalue_));
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.biasvalue_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -4817,25 +5059,34 @@ PROTOBUF_NOINLINE void cmd_writeAFEBiasSet::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeAFEBiasSet& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeAFEBiasSet)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeAFEBiasSet)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
-    if (this_._internal_afeblock() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_afeblock(), target);
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
     }
   }
 
-  // uint32 biasValue = 2;
+  // uint32 afeBlock = 2;
   if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_afeblock() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          2, this_._internal_afeblock(), target);
+    }
+  }
+
+  // uint32 biasValue = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_biasvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          2, this_._internal_biasvalue(), target);
+          3, this_._internal_biasvalue(), target);
     }
   }
 
@@ -4844,7 +5095,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEBiasSet::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeAFEBiasSet)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeAFEBiasSet)
   return target;
 }
 
@@ -4855,7 +5106,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEBiasSet::Clear() {
 ::size_t cmd_writeAFEBiasSet::ByteSizeLong() const {
   const cmd_writeAFEBiasSet& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeAFEBiasSet)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeAFEBiasSet)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -4864,16 +5115,23 @@ PROTOBUF_NOINLINE void cmd_writeAFEBiasSet::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    // uint32 afeBlock = 1;
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 afeBlock = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
       }
     }
-    // uint32 biasValue = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    // uint32 biasValue = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (this_._internal_biasvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_biasvalue());
@@ -4887,19 +5145,24 @@ PROTOBUF_NOINLINE void cmd_writeAFEBiasSet::Clear() {
 void cmd_writeAFEBiasSet::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeAFEBiasSet*>(&to_msg);
   auto& from = static_cast<const cmd_writeAFEBiasSet&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeAFEBiasSet)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeAFEBiasSet)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_afeblock() != 0) {
         _this->_impl_.afeblock_ = from._impl_.afeblock_;
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_biasvalue() != 0) {
         _this->_impl_.biasvalue_ = from._impl_.biasvalue_;
       }
@@ -4910,7 +5173,7 @@ void cmd_writeAFEBiasSet::MergeImpl(::google::protobuf::MessageLite& to_msg, con
 }
 
 void cmd_writeAFEBiasSet::CopyFrom(const cmd_writeAFEBiasSet& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeAFEBiasSet)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeAFEBiasSet)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -4924,9 +5187,9 @@ void cmd_writeAFEBiasSet::InternalSwap(cmd_writeAFEBiasSet* PROTOBUF_RESTRICT PR
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_.biasvalue_)
       + sizeof(cmd_writeAFEBiasSet::_impl_.biasvalue_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_.afeblock_)>(
-          reinterpret_cast<char*>(&_impl_.afeblock_),
-          reinterpret_cast<char*>(&other->_impl_.afeblock_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_writeAFEBiasSet::GetMetadata() const {
@@ -4949,12 +5212,12 @@ cmd_writeAFEBiasSet_response::cmd_writeAFEBiasSet_response(::google::protobuf::A
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeAFEBiasSet_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeAFEBiasSet_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeAFEBiasSet_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_writeAFEBiasSet_response& from_msg)
+    const ::daphne::cmd_writeAFEBiasSet_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -4980,7 +5243,7 @@ cmd_writeAFEBiasSet_response::cmd_writeAFEBiasSet_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::biasvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_writeAFEBiasSet_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_writeAFEBiasSet_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeAFEBiasSet_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -4998,7 +5261,7 @@ inline void cmd_writeAFEBiasSet_response::SharedCtor(::_pb::Arena* PROTOBUF_NULL
                sizeof(Impl_::biasvalue_));
 }
 cmd_writeAFEBiasSet_response::~cmd_writeAFEBiasSet_response() {
-  // @@protoc_insertion_point(destructor:cmd_writeAFEBiasSet_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeAFEBiasSet_response)
   SharedDtor(*this);
 }
 inline void cmd_writeAFEBiasSet_response::SharedDtor(MessageLite& self) {
@@ -5052,7 +5315,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeAFEBias
   return cmd_writeAFEBiasSet_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 44, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 51, 2>
 cmd_writeAFEBiasSet_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeAFEBiasSet_response, _impl_._has_bits_),
@@ -5068,7 +5331,7 @@ cmd_writeAFEBiasSet_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeAFEBiasSet_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeAFEBiasSet_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // uint32 biasValue = 4;
@@ -5101,13 +5364,13 @@ cmd_writeAFEBiasSet_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\34\0\7\0\0\0\0\0"
-    "cmd_writeAFEBiasSet_response"
+    "\43\0\7\0\0\0\0\0"
+    "daphne.cmd_writeAFEBiasSet_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeAFEBiasSet_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeAFEBiasSet_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeAFEBiasSet_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -5137,7 +5400,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEBiasSet_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeAFEBiasSet_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeAFEBiasSet_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeAFEBiasSet_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -5155,7 +5418,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEBiasSet_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeAFEBiasSet_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeAFEBiasSet_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -5183,7 +5446,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEBiasSet_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeAFEBiasSet_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeAFEBiasSet_response)
   return target;
 }
 
@@ -5194,7 +5457,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEBiasSet_response::Clear() {
 ::size_t cmd_writeAFEBiasSet_response::ByteSizeLong() const {
   const cmd_writeAFEBiasSet_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeAFEBiasSet_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeAFEBiasSet_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -5239,7 +5502,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEBiasSet_response::Clear() {
 void cmd_writeAFEBiasSet_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeAFEBiasSet_response*>(&to_msg);
   auto& from = static_cast<const cmd_writeAFEBiasSet_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeAFEBiasSet_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeAFEBiasSet_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -5276,7 +5539,7 @@ void cmd_writeAFEBiasSet_response::MergeImpl(::google::protobuf::MessageLite& to
 }
 
 void cmd_writeAFEBiasSet_response::CopyFrom(const cmd_writeAFEBiasSet_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeAFEBiasSet_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeAFEBiasSet_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -5318,7 +5581,7 @@ cmd_writeTRIM_allChannels::cmd_writeTRIM_allChannels(::google::protobuf::Arena* 
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeTRIM_allChannels)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeTRIM_allChannels)
 }
 cmd_writeTRIM_allChannels::cmd_writeTRIM_allChannels(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeTRIM_allChannels& from)
@@ -5339,14 +5602,14 @@ PROTOBUF_NDEBUG_INLINE cmd_writeTRIM_allChannels::Impl_::Impl_(
 inline void cmd_writeTRIM_allChannels::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, trimvalue_),
+               offsetof(Impl_, id_),
            0,
            offsetof(Impl_, trimgain_) -
-               offsetof(Impl_, trimvalue_) +
+               offsetof(Impl_, id_) +
                sizeof(Impl_::trimgain_));
 }
 cmd_writeTRIM_allChannels::~cmd_writeTRIM_allChannels() {
-  // @@protoc_insertion_point(destructor:cmd_writeTRIM_allChannels)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeTRIM_allChannels)
   SharedDtor(*this);
 }
 inline void cmd_writeTRIM_allChannels::SharedDtor(MessageLite& self) {
@@ -5399,39 +5662,46 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeTRIM_al
   return cmd_writeTRIM_allChannels_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
 cmd_writeTRIM_allChannels::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeTRIM_allChannels_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeTRIM_allChannels>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeTRIM_allChannels>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // bool trimGain = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTRIM_allChannels, _impl_.trimgain_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimgain_)}},
-    // uint32 trimValue = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTRIM_allChannels, _impl_.trimvalue_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimvalue_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTRIM_allChannels, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.id_)}},
+    // uint32 trimValue = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTRIM_allChannels, _impl_.trimvalue_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimvalue_)}},
+    // bool trimGain = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTRIM_allChannels, _impl_.trimgain_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimgain_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 trimValue = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimvalue_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 trimValue = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimvalue_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // bool trimGain = 2;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimgain_), _Internal::kHasBitsOffset + 1, 0,
+    // bool trimGain = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimgain_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
@@ -5439,17 +5709,17 @@ cmd_writeTRIM_allChannels::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeTRIM_allChannels)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeTRIM_allChannels)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    ::memset(&_impl_.trimvalue_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.trimgain_) -
-        reinterpret_cast<char*>(&_impl_.trimvalue_)) + sizeof(_impl_.trimgain_));
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.trimgain_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -5466,25 +5736,34 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeTRIM_allChannels& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeTRIM_allChannels)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeTRIM_allChannels)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 trimValue = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
-    if (this_._internal_trimvalue() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_trimvalue(), target);
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
     }
   }
 
-  // bool trimGain = 2;
+  // uint32 trimValue = 2;
   if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_trimvalue() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          2, this_._internal_trimvalue(), target);
+    }
+  }
+
+  // bool trimGain = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_trimgain() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
-          2, this_._internal_trimgain(), target);
+          3, this_._internal_trimgain(), target);
     }
   }
 
@@ -5493,7 +5772,7 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeTRIM_allChannels)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeTRIM_allChannels)
   return target;
 }
 
@@ -5504,7 +5783,7 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels::Clear() {
 ::size_t cmd_writeTRIM_allChannels::ByteSizeLong() const {
   const cmd_writeTRIM_allChannels& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeTRIM_allChannels)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeTRIM_allChannels)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -5513,16 +5792,23 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    // uint32 trimValue = 1;
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 trimValue = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_trimvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_trimvalue());
       }
     }
-    // bool trimGain = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    // bool trimGain = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (this_._internal_trimgain() != 0) {
         total_size += 2;
       }
@@ -5535,19 +5821,24 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels::Clear() {
 void cmd_writeTRIM_allChannels::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeTRIM_allChannels*>(&to_msg);
   auto& from = static_cast<const cmd_writeTRIM_allChannels&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeTRIM_allChannels)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeTRIM_allChannels)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_trimvalue() != 0) {
         _this->_impl_.trimvalue_ = from._impl_.trimvalue_;
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_trimgain() != 0) {
         _this->_impl_.trimgain_ = from._impl_.trimgain_;
       }
@@ -5558,7 +5849,7 @@ void cmd_writeTRIM_allChannels::MergeImpl(::google::protobuf::MessageLite& to_ms
 }
 
 void cmd_writeTRIM_allChannels::CopyFrom(const cmd_writeTRIM_allChannels& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeTRIM_allChannels)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeTRIM_allChannels)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -5572,9 +5863,9 @@ void cmd_writeTRIM_allChannels::InternalSwap(cmd_writeTRIM_allChannels* PROTOBUF
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimgain_)
       + sizeof(cmd_writeTRIM_allChannels::_impl_.trimgain_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.trimvalue_)>(
-          reinterpret_cast<char*>(&_impl_.trimvalue_),
-          reinterpret_cast<char*>(&other->_impl_.trimvalue_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_writeTRIM_allChannels::GetMetadata() const {
@@ -5597,12 +5888,12 @@ cmd_writeTRIM_allChannels_response::cmd_writeTRIM_allChannels_response(::google:
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeTRIM_allChannels_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeTRIM_allChannels_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeTRIM_allChannels_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_writeTRIM_allChannels_response& from_msg)
+    const ::daphne::cmd_writeTRIM_allChannels_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -5628,7 +5919,7 @@ cmd_writeTRIM_allChannels_response::cmd_writeTRIM_allChannels_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::trimvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_writeTRIM_allChannels_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_writeTRIM_allChannels_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeTRIM_allChannels_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -5646,7 +5937,7 @@ inline void cmd_writeTRIM_allChannels_response::SharedCtor(::_pb::Arena* PROTOBU
                sizeof(Impl_::trimvalue_));
 }
 cmd_writeTRIM_allChannels_response::~cmd_writeTRIM_allChannels_response() {
-  // @@protoc_insertion_point(destructor:cmd_writeTRIM_allChannels_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeTRIM_allChannels_response)
   SharedDtor(*this);
 }
 inline void cmd_writeTRIM_allChannels_response::SharedDtor(MessageLite& self) {
@@ -5700,7 +5991,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeTRIM_al
   return cmd_writeTRIM_allChannels_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 50, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 57, 2>
 cmd_writeTRIM_allChannels_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeTRIM_allChannels_response, _impl_._has_bits_),
@@ -5716,7 +6007,7 @@ cmd_writeTRIM_allChannels_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeTRIM_allChannels_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeTRIM_allChannels_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // bool trimGain = 4;
@@ -5749,13 +6040,13 @@ cmd_writeTRIM_allChannels_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\42\0\7\0\0\0\0\0"
-    "cmd_writeTRIM_allChannels_response"
+    "\51\0\7\0\0\0\0\0"
+    "daphne.cmd_writeTRIM_allChannels_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeTRIM_allChannels_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeTRIM_allChannels_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -5785,7 +6076,7 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeTRIM_allChannels_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeTRIM_allChannels_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeTRIM_allChannels_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -5803,7 +6094,7 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeTRIM_allChannels_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeTRIM_allChannels_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -5831,7 +6122,7 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeTRIM_allChannels_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeTRIM_allChannels_response)
   return target;
 }
 
@@ -5842,7 +6133,7 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels_response::Clear() {
 ::size_t cmd_writeTRIM_allChannels_response::ByteSizeLong() const {
   const cmd_writeTRIM_allChannels_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeTRIM_allChannels_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeTRIM_allChannels_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -5886,7 +6177,7 @@ PROTOBUF_NOINLINE void cmd_writeTRIM_allChannels_response::Clear() {
 void cmd_writeTRIM_allChannels_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeTRIM_allChannels_response*>(&to_msg);
   auto& from = static_cast<const cmd_writeTRIM_allChannels_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeTRIM_allChannels_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeTRIM_allChannels_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -5923,7 +6214,7 @@ void cmd_writeTRIM_allChannels_response::MergeImpl(::google::protobuf::MessageLi
 }
 
 void cmd_writeTRIM_allChannels_response::CopyFrom(const cmd_writeTRIM_allChannels_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeTRIM_allChannels_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeTRIM_allChannels_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -5965,7 +6256,7 @@ cmd_writeTrim_allAFE::cmd_writeTrim_allAFE(::google::protobuf::Arena* PROTOBUF_N
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeTrim_allAFE)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeTrim_allAFE)
 }
 cmd_writeTrim_allAFE::cmd_writeTrim_allAFE(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeTrim_allAFE& from)
@@ -5986,14 +6277,14 @@ PROTOBUF_NDEBUG_INLINE cmd_writeTrim_allAFE::Impl_::Impl_(
 inline void cmd_writeTrim_allAFE::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, afeblock_),
+               offsetof(Impl_, id_),
            0,
            offsetof(Impl_, trimgain_) -
-               offsetof(Impl_, afeblock_) +
+               offsetof(Impl_, id_) +
                sizeof(Impl_::trimgain_));
 }
 cmd_writeTrim_allAFE::~cmd_writeTrim_allAFE() {
-  // @@protoc_insertion_point(destructor:cmd_writeTrim_allAFE)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeTrim_allAFE)
   SharedDtor(*this);
 }
 inline void cmd_writeTrim_allAFE::SharedDtor(MessageLite& self) {
@@ -6046,46 +6337,51 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeTrim_al
   return cmd_writeTrim_allAFE_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 0, 2>
 cmd_writeTrim_allAFE::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_._has_bits_),
     0, // no _extensions_
-    3, 24,  // max_field_number, fast_idx_mask
+    4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967288,  // skipmap
+    4294967280,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    3,  // num_field_entries
+    4,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeTrim_allAFE_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeTrim_allAFE>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeTrim_allAFE>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
-    // uint32 afeBlock = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_allAFE, _impl_.afeblock_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.afeblock_)}},
-    // uint32 trimValue = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_allAFE, _impl_.trimvalue_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimvalue_)}},
-    // bool trimGain = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTrim_allAFE, _impl_.trimgain_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimgain_)}},
+    // bool trimGain = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTrim_allAFE, _impl_.trimgain_), 3>(),
+     {32, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimgain_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_allAFE, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.id_)}},
+    // uint32 afeBlock = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_allAFE, _impl_.afeblock_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.afeblock_)}},
+    // uint32 trimValue = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_allAFE, _impl_.trimvalue_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimvalue_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 afeBlock = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.afeblock_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 afeBlock = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 trimValue = 2;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimvalue_), _Internal::kHasBitsOffset + 1, 0,
+    // uint32 trimValue = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimvalue_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // bool trimGain = 3;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimgain_), _Internal::kHasBitsOffset + 2, 0,
+    // bool trimGain = 4;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimgain_), _Internal::kHasBitsOffset + 3, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
@@ -6093,17 +6389,17 @@ cmd_writeTrim_allAFE::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeTrim_allAFE::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeTrim_allAFE)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeTrim_allAFE)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
-    ::memset(&_impl_.afeblock_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x0000000fu) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.trimgain_) -
-        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.trimgain_));
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.trimgain_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -6120,34 +6416,43 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeTrim_allAFE& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeTrim_allAFE)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeTrim_allAFE)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // uint32 afeBlock = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_afeblock() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_afeblock(), target);
+          2, this_._internal_afeblock(), target);
     }
   }
 
-  // uint32 trimValue = 2;
-  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+  // uint32 trimValue = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_trimvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          2, this_._internal_trimvalue(), target);
+          3, this_._internal_trimvalue(), target);
     }
   }
 
-  // bool trimGain = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+  // bool trimGain = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
     if (this_._internal_trimgain() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
-          3, this_._internal_trimgain(), target);
+          4, this_._internal_trimgain(), target);
     }
   }
 
@@ -6156,7 +6461,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeTrim_allAFE)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeTrim_allAFE)
   return target;
 }
 
@@ -6167,7 +6472,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE::Clear() {
 ::size_t cmd_writeTrim_allAFE::ByteSizeLong() const {
   const cmd_writeTrim_allAFE& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeTrim_allAFE)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeTrim_allAFE)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -6176,23 +6481,30 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
-    // uint32 afeBlock = 1;
+  if ((cached_has_bits & 0x0000000fu) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 afeBlock = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
       }
     }
-    // uint32 trimValue = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    // uint32 trimValue = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (this_._internal_trimvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_trimvalue());
       }
     }
-    // bool trimGain = 3;
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    // bool trimGain = 4;
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (this_._internal_trimgain() != 0) {
         total_size += 2;
       }
@@ -6205,24 +6517,29 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE::Clear() {
 void cmd_writeTrim_allAFE::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeTrim_allAFE*>(&to_msg);
   auto& from = static_cast<const cmd_writeTrim_allAFE&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeTrim_allAFE)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeTrim_allAFE)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_afeblock() != 0) {
         _this->_impl_.afeblock_ = from._impl_.afeblock_;
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_trimvalue() != 0) {
         _this->_impl_.trimvalue_ = from._impl_.trimvalue_;
       }
     }
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (from._internal_trimgain() != 0) {
         _this->_impl_.trimgain_ = from._impl_.trimgain_;
       }
@@ -6233,7 +6550,7 @@ void cmd_writeTrim_allAFE::MergeImpl(::google::protobuf::MessageLite& to_msg, co
 }
 
 void cmd_writeTrim_allAFE::CopyFrom(const cmd_writeTrim_allAFE& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeTrim_allAFE)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeTrim_allAFE)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -6247,9 +6564,9 @@ void cmd_writeTrim_allAFE::InternalSwap(cmd_writeTrim_allAFE* PROTOBUF_RESTRICT 
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.trimgain_)
       + sizeof(cmd_writeTrim_allAFE::_impl_.trimgain_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.afeblock_)>(
-          reinterpret_cast<char*>(&_impl_.afeblock_),
-          reinterpret_cast<char*>(&other->_impl_.afeblock_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_writeTrim_allAFE::GetMetadata() const {
@@ -6272,12 +6589,12 @@ cmd_writeTrim_allAFE_response::cmd_writeTrim_allAFE_response(::google::protobuf:
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeTrim_allAFE_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeTrim_allAFE_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeTrim_allAFE_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_writeTrim_allAFE_response& from_msg)
+    const ::daphne::cmd_writeTrim_allAFE_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -6303,7 +6620,7 @@ cmd_writeTrim_allAFE_response::cmd_writeTrim_allAFE_response(
                offsetof(Impl_, afeblock_) +
                sizeof(Impl_::trimvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_writeTrim_allAFE_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_writeTrim_allAFE_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeTrim_allAFE_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -6321,7 +6638,7 @@ inline void cmd_writeTrim_allAFE_response::SharedCtor(::_pb::Arena* PROTOBUF_NUL
                sizeof(Impl_::trimvalue_));
 }
 cmd_writeTrim_allAFE_response::~cmd_writeTrim_allAFE_response() {
-  // @@protoc_insertion_point(destructor:cmd_writeTrim_allAFE_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeTrim_allAFE_response)
   SharedDtor(*this);
 }
 inline void cmd_writeTrim_allAFE_response::SharedDtor(MessageLite& self) {
@@ -6375,7 +6692,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeTrim_al
   return cmd_writeTrim_allAFE_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 5, 0, 45, 2>
+const ::_pbi::TcParseTable<3, 5, 0, 52, 2>
 cmd_writeTrim_allAFE_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeTrim_allAFE_response, _impl_._has_bits_),
@@ -6391,7 +6708,7 @@ cmd_writeTrim_allAFE_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeTrim_allAFE_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeTrim_allAFE_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -6433,13 +6750,13 @@ cmd_writeTrim_allAFE_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\35\0\7\0\0\0\0\0"
-    "cmd_writeTrim_allAFE_response"
+    "\44\0\7\0\0\0\0\0"
+    "daphne.cmd_writeTrim_allAFE_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeTrim_allAFE_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeTrim_allAFE_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeTrim_allAFE_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -6469,7 +6786,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeTrim_allAFE_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeTrim_allAFE_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeTrim_allAFE_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -6487,7 +6804,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeTrim_allAFE_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeTrim_allAFE_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -6524,7 +6841,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeTrim_allAFE_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeTrim_allAFE_response)
   return target;
 }
 
@@ -6535,7 +6852,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE_response::Clear() {
 ::size_t cmd_writeTrim_allAFE_response::ByteSizeLong() const {
   const cmd_writeTrim_allAFE_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeTrim_allAFE_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeTrim_allAFE_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -6586,7 +6903,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_allAFE_response::Clear() {
 void cmd_writeTrim_allAFE_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeTrim_allAFE_response*>(&to_msg);
   auto& from = static_cast<const cmd_writeTrim_allAFE_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeTrim_allAFE_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeTrim_allAFE_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -6628,7 +6945,7 @@ void cmd_writeTrim_allAFE_response::MergeImpl(::google::protobuf::MessageLite& t
 }
 
 void cmd_writeTrim_allAFE_response::CopyFrom(const cmd_writeTrim_allAFE_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeTrim_allAFE_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeTrim_allAFE_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -6670,7 +6987,7 @@ cmd_writeTrim_singleChannel::cmd_writeTrim_singleChannel(::google::protobuf::Are
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeTrim_singleChannel)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeTrim_singleChannel)
 }
 cmd_writeTrim_singleChannel::cmd_writeTrim_singleChannel(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeTrim_singleChannel& from)
@@ -6691,14 +7008,14 @@ PROTOBUF_NDEBUG_INLINE cmd_writeTrim_singleChannel::Impl_::Impl_(
 inline void cmd_writeTrim_singleChannel::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, trimchannel_),
+               offsetof(Impl_, id_),
            0,
            offsetof(Impl_, trimgain_) -
-               offsetof(Impl_, trimchannel_) +
+               offsetof(Impl_, id_) +
                sizeof(Impl_::trimgain_));
 }
 cmd_writeTrim_singleChannel::~cmd_writeTrim_singleChannel() {
-  // @@protoc_insertion_point(destructor:cmd_writeTrim_singleChannel)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeTrim_singleChannel)
   SharedDtor(*this);
 }
 inline void cmd_writeTrim_singleChannel::SharedDtor(MessageLite& self) {
@@ -6751,46 +7068,51 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeTrim_si
   return cmd_writeTrim_singleChannel_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 0, 2>
 cmd_writeTrim_singleChannel::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_._has_bits_),
     0, // no _extensions_
-    3, 24,  // max_field_number, fast_idx_mask
+    4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967288,  // skipmap
+    4294967280,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    3,  // num_field_entries
+    4,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeTrim_singleChannel_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeTrim_singleChannel>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeTrim_singleChannel>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
-    // uint32 trimChannel = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_singleChannel, _impl_.trimchannel_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimchannel_)}},
-    // uint32 trimValue = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_singleChannel, _impl_.trimvalue_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimvalue_)}},
-    // bool trimGain = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTrim_singleChannel, _impl_.trimgain_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimgain_)}},
+    // bool trimGain = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeTrim_singleChannel, _impl_.trimgain_), 3>(),
+     {32, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimgain_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_singleChannel, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.id_)}},
+    // uint32 trimChannel = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_singleChannel, _impl_.trimchannel_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimchannel_)}},
+    // uint32 trimValue = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeTrim_singleChannel, _impl_.trimvalue_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimvalue_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 trimChannel = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimchannel_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 trimChannel = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimchannel_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 trimValue = 2;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimvalue_), _Internal::kHasBitsOffset + 1, 0,
+    // uint32 trimValue = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimvalue_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // bool trimGain = 3;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimgain_), _Internal::kHasBitsOffset + 2, 0,
+    // bool trimGain = 4;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimgain_), _Internal::kHasBitsOffset + 3, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
@@ -6798,17 +7120,17 @@ cmd_writeTrim_singleChannel::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeTrim_singleChannel)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeTrim_singleChannel)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
-    ::memset(&_impl_.trimchannel_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x0000000fu) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.trimgain_) -
-        reinterpret_cast<char*>(&_impl_.trimchannel_)) + sizeof(_impl_.trimgain_));
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.trimgain_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -6825,34 +7147,43 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeTrim_singleChannel& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeTrim_singleChannel)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeTrim_singleChannel)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 trimChannel = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // uint32 trimChannel = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_trimchannel() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_trimchannel(), target);
+          2, this_._internal_trimchannel(), target);
     }
   }
 
-  // uint32 trimValue = 2;
-  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+  // uint32 trimValue = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_trimvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          2, this_._internal_trimvalue(), target);
+          3, this_._internal_trimvalue(), target);
     }
   }
 
-  // bool trimGain = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+  // bool trimGain = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
     if (this_._internal_trimgain() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
-          3, this_._internal_trimgain(), target);
+          4, this_._internal_trimgain(), target);
     }
   }
 
@@ -6861,7 +7192,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeTrim_singleChannel)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeTrim_singleChannel)
   return target;
 }
 
@@ -6872,7 +7203,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel::Clear() {
 ::size_t cmd_writeTrim_singleChannel::ByteSizeLong() const {
   const cmd_writeTrim_singleChannel& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeTrim_singleChannel)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeTrim_singleChannel)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -6881,23 +7212,30 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
-    // uint32 trimChannel = 1;
+  if ((cached_has_bits & 0x0000000fu) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 trimChannel = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_trimchannel() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_trimchannel());
       }
     }
-    // uint32 trimValue = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    // uint32 trimValue = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (this_._internal_trimvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_trimvalue());
       }
     }
-    // bool trimGain = 3;
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    // bool trimGain = 4;
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (this_._internal_trimgain() != 0) {
         total_size += 2;
       }
@@ -6910,24 +7248,29 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel::Clear() {
 void cmd_writeTrim_singleChannel::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeTrim_singleChannel*>(&to_msg);
   auto& from = static_cast<const cmd_writeTrim_singleChannel&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeTrim_singleChannel)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeTrim_singleChannel)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_trimchannel() != 0) {
         _this->_impl_.trimchannel_ = from._impl_.trimchannel_;
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_trimvalue() != 0) {
         _this->_impl_.trimvalue_ = from._impl_.trimvalue_;
       }
     }
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (from._internal_trimgain() != 0) {
         _this->_impl_.trimgain_ = from._impl_.trimgain_;
       }
@@ -6938,7 +7281,7 @@ void cmd_writeTrim_singleChannel::MergeImpl(::google::protobuf::MessageLite& to_
 }
 
 void cmd_writeTrim_singleChannel::CopyFrom(const cmd_writeTrim_singleChannel& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeTrim_singleChannel)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeTrim_singleChannel)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -6952,9 +7295,9 @@ void cmd_writeTrim_singleChannel::InternalSwap(cmd_writeTrim_singleChannel* PROT
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimgain_)
       + sizeof(cmd_writeTrim_singleChannel::_impl_.trimgain_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.trimchannel_)>(
-          reinterpret_cast<char*>(&_impl_.trimchannel_),
-          reinterpret_cast<char*>(&other->_impl_.trimchannel_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_writeTrim_singleChannel::GetMetadata() const {
@@ -6977,12 +7320,12 @@ cmd_writeTrim_singleChannel_response::cmd_writeTrim_singleChannel_response(::goo
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeTrim_singleChannel_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeTrim_singleChannel_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeTrim_singleChannel_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_writeTrim_singleChannel_response& from_msg)
+    const ::daphne::cmd_writeTrim_singleChannel_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -7008,7 +7351,7 @@ cmd_writeTrim_singleChannel_response::cmd_writeTrim_singleChannel_response(
                offsetof(Impl_, trimchannel_) +
                sizeof(Impl_::trimvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_writeTrim_singleChannel_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_writeTrim_singleChannel_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeTrim_singleChannel_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -7026,7 +7369,7 @@ inline void cmd_writeTrim_singleChannel_response::SharedCtor(::_pb::Arena* PROTO
                sizeof(Impl_::trimvalue_));
 }
 cmd_writeTrim_singleChannel_response::~cmd_writeTrim_singleChannel_response() {
-  // @@protoc_insertion_point(destructor:cmd_writeTrim_singleChannel_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeTrim_singleChannel_response)
   SharedDtor(*this);
 }
 inline void cmd_writeTrim_singleChannel_response::SharedDtor(MessageLite& self) {
@@ -7080,7 +7423,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeTrim_si
   return cmd_writeTrim_singleChannel_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 5, 0, 52, 2>
+const ::_pbi::TcParseTable<3, 5, 0, 59, 2>
 cmd_writeTrim_singleChannel_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeTrim_singleChannel_response, _impl_._has_bits_),
@@ -7096,7 +7439,7 @@ cmd_writeTrim_singleChannel_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeTrim_singleChannel_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeTrim_singleChannel_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -7138,13 +7481,13 @@ cmd_writeTrim_singleChannel_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\44\0\7\0\0\0\0\0"
-    "cmd_writeTrim_singleChannel_response"
+    "\53\0\7\0\0\0\0\0"
+    "daphne.cmd_writeTrim_singleChannel_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeTrim_singleChannel_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeTrim_singleChannel_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -7174,7 +7517,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeTrim_singleChannel_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeTrim_singleChannel_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeTrim_singleChannel_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -7192,7 +7535,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeTrim_singleChannel_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeTrim_singleChannel_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -7229,7 +7572,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeTrim_singleChannel_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeTrim_singleChannel_response)
   return target;
 }
 
@@ -7240,7 +7583,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel_response::Clear() {
 ::size_t cmd_writeTrim_singleChannel_response::ByteSizeLong() const {
   const cmd_writeTrim_singleChannel_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeTrim_singleChannel_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeTrim_singleChannel_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -7291,7 +7634,7 @@ PROTOBUF_NOINLINE void cmd_writeTrim_singleChannel_response::Clear() {
 void cmd_writeTrim_singleChannel_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeTrim_singleChannel_response*>(&to_msg);
   auto& from = static_cast<const cmd_writeTrim_singleChannel_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeTrim_singleChannel_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeTrim_singleChannel_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -7333,7 +7676,7 @@ void cmd_writeTrim_singleChannel_response::MergeImpl(::google::protobuf::Message
 }
 
 void cmd_writeTrim_singleChannel_response::CopyFrom(const cmd_writeTrim_singleChannel_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeTrim_singleChannel_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeTrim_singleChannel_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -7375,7 +7718,7 @@ cmd_writeOFFSET_allChannels::cmd_writeOFFSET_allChannels(::google::protobuf::Are
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeOFFSET_allChannels)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeOFFSET_allChannels)
 }
 cmd_writeOFFSET_allChannels::cmd_writeOFFSET_allChannels(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeOFFSET_allChannels& from)
@@ -7403,7 +7746,7 @@ inline void cmd_writeOFFSET_allChannels::SharedCtor(::_pb::Arena* PROTOBUF_NULLA
                sizeof(Impl_::offsetgain_));
 }
 cmd_writeOFFSET_allChannels::~cmd_writeOFFSET_allChannels() {
-  // @@protoc_insertion_point(destructor:cmd_writeOFFSET_allChannels)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeOFFSET_allChannels)
   SharedDtor(*this);
 }
 inline void cmd_writeOFFSET_allChannels::SharedDtor(MessageLite& self) {
@@ -7472,7 +7815,7 @@ cmd_writeOFFSET_allChannels::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeOFFSET_allChannels>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeOFFSET_allChannels>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -7503,7 +7846,7 @@ cmd_writeOFFSET_allChannels::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeOFFSET_allChannels)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeOFFSET_allChannels)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -7530,7 +7873,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeOFFSET_allChannels& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeOFFSET_allChannels)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeOFFSET_allChannels)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -7566,7 +7909,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeOFFSET_allChannels)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeOFFSET_allChannels)
   return target;
 }
 
@@ -7577,7 +7920,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels::Clear() {
 ::size_t cmd_writeOFFSET_allChannels::ByteSizeLong() const {
   const cmd_writeOFFSET_allChannels& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeOFFSET_allChannels)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeOFFSET_allChannels)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -7615,7 +7958,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels::Clear() {
 void cmd_writeOFFSET_allChannels::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeOFFSET_allChannels*>(&to_msg);
   auto& from = static_cast<const cmd_writeOFFSET_allChannels&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeOFFSET_allChannels)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeOFFSET_allChannels)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -7643,7 +7986,7 @@ void cmd_writeOFFSET_allChannels::MergeImpl(::google::protobuf::MessageLite& to_
 }
 
 void cmd_writeOFFSET_allChannels::CopyFrom(const cmd_writeOFFSET_allChannels& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeOFFSET_allChannels)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeOFFSET_allChannels)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -7682,12 +8025,12 @@ cmd_writeOFFSET_allChannels_response::cmd_writeOFFSET_allChannels_response(::goo
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeOFFSET_allChannels_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeOFFSET_allChannels_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeOFFSET_allChannels_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_writeOFFSET_allChannels_response& from_msg)
+    const ::daphne::cmd_writeOFFSET_allChannels_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -7713,7 +8056,7 @@ cmd_writeOFFSET_allChannels_response::cmd_writeOFFSET_allChannels_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::offsetvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_writeOFFSET_allChannels_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_writeOFFSET_allChannels_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeOFFSET_allChannels_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -7731,7 +8074,7 @@ inline void cmd_writeOFFSET_allChannels_response::SharedCtor(::_pb::Arena* PROTO
                sizeof(Impl_::offsetvalue_));
 }
 cmd_writeOFFSET_allChannels_response::~cmd_writeOFFSET_allChannels_response() {
-  // @@protoc_insertion_point(destructor:cmd_writeOFFSET_allChannels_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeOFFSET_allChannels_response)
   SharedDtor(*this);
 }
 inline void cmd_writeOFFSET_allChannels_response::SharedDtor(MessageLite& self) {
@@ -7785,7 +8128,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeOFFSET_
   return cmd_writeOFFSET_allChannels_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 52, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 59, 2>
 cmd_writeOFFSET_allChannels_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allChannels_response, _impl_._has_bits_),
@@ -7801,7 +8144,7 @@ cmd_writeOFFSET_allChannels_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeOFFSET_allChannels_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeOFFSET_allChannels_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // bool offsetGain = 4;
@@ -7834,13 +8177,13 @@ cmd_writeOFFSET_allChannels_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\44\0\7\0\0\0\0\0"
-    "cmd_writeOFFSET_allChannels_response"
+    "\53\0\7\0\0\0\0\0"
+    "daphne.cmd_writeOFFSET_allChannels_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeOFFSET_allChannels_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeOFFSET_allChannels_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -7870,7 +8213,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeOFFSET_allChannels_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeOFFSET_allChannels_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeOFFSET_allChannels_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -7888,7 +8231,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeOFFSET_allChannels_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeOFFSET_allChannels_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -7916,7 +8259,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeOFFSET_allChannels_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeOFFSET_allChannels_response)
   return target;
 }
 
@@ -7927,7 +8270,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels_response::Clear() {
 ::size_t cmd_writeOFFSET_allChannels_response::ByteSizeLong() const {
   const cmd_writeOFFSET_allChannels_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeOFFSET_allChannels_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeOFFSET_allChannels_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -7971,7 +8314,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allChannels_response::Clear() {
 void cmd_writeOFFSET_allChannels_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeOFFSET_allChannels_response*>(&to_msg);
   auto& from = static_cast<const cmd_writeOFFSET_allChannels_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeOFFSET_allChannels_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeOFFSET_allChannels_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -8008,7 +8351,7 @@ void cmd_writeOFFSET_allChannels_response::MergeImpl(::google::protobuf::Message
 }
 
 void cmd_writeOFFSET_allChannels_response::CopyFrom(const cmd_writeOFFSET_allChannels_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeOFFSET_allChannels_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeOFFSET_allChannels_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -8050,7 +8393,7 @@ cmd_writeOFFSET_allAFE::cmd_writeOFFSET_allAFE(::google::protobuf::Arena* PROTOB
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeOFFSET_allAFE)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeOFFSET_allAFE)
 }
 cmd_writeOFFSET_allAFE::cmd_writeOFFSET_allAFE(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeOFFSET_allAFE& from)
@@ -8071,14 +8414,14 @@ PROTOBUF_NDEBUG_INLINE cmd_writeOFFSET_allAFE::Impl_::Impl_(
 inline void cmd_writeOFFSET_allAFE::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, afeblock_),
+               offsetof(Impl_, id_),
            0,
            offsetof(Impl_, offsetgain_) -
-               offsetof(Impl_, afeblock_) +
+               offsetof(Impl_, id_) +
                sizeof(Impl_::offsetgain_));
 }
 cmd_writeOFFSET_allAFE::~cmd_writeOFFSET_allAFE() {
-  // @@protoc_insertion_point(destructor:cmd_writeOFFSET_allAFE)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeOFFSET_allAFE)
   SharedDtor(*this);
 }
 inline void cmd_writeOFFSET_allAFE::SharedDtor(MessageLite& self) {
@@ -8131,46 +8474,51 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeOFFSET_
   return cmd_writeOFFSET_allAFE_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 0, 2>
 cmd_writeOFFSET_allAFE::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_._has_bits_),
     0, // no _extensions_
-    3, 24,  // max_field_number, fast_idx_mask
+    4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967288,  // skipmap
+    4294967280,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    3,  // num_field_entries
+    4,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeOFFSET_allAFE_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeOFFSET_allAFE>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeOFFSET_allAFE>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
-    // uint32 afeBlock = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allAFE, _impl_.afeblock_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.afeblock_)}},
-    // uint32 offsetValue = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allAFE, _impl_.offsetvalue_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetvalue_)}},
-    // bool offsetGain = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_allAFE, _impl_.offsetgain_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetgain_)}},
+    // bool offsetGain = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_allAFE, _impl_.offsetgain_), 3>(),
+     {32, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetgain_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allAFE, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.id_)}},
+    // uint32 afeBlock = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allAFE, _impl_.afeblock_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.afeblock_)}},
+    // uint32 offsetValue = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_allAFE, _impl_.offsetvalue_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetvalue_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 afeBlock = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.afeblock_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 afeBlock = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 offsetValue = 2;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetvalue_), _Internal::kHasBitsOffset + 1, 0,
+    // uint32 offsetValue = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetvalue_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // bool offsetGain = 3;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetgain_), _Internal::kHasBitsOffset + 2, 0,
+    // bool offsetGain = 4;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetgain_), _Internal::kHasBitsOffset + 3, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
@@ -8178,17 +8526,17 @@ cmd_writeOFFSET_allAFE::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeOFFSET_allAFE)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeOFFSET_allAFE)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
-    ::memset(&_impl_.afeblock_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x0000000fu) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.offsetgain_) -
-        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.offsetgain_));
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.offsetgain_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -8205,34 +8553,43 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeOFFSET_allAFE& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeOFFSET_allAFE)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeOFFSET_allAFE)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // uint32 afeBlock = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_afeblock() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_afeblock(), target);
+          2, this_._internal_afeblock(), target);
     }
   }
 
-  // uint32 offsetValue = 2;
-  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+  // uint32 offsetValue = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_offsetvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          2, this_._internal_offsetvalue(), target);
+          3, this_._internal_offsetvalue(), target);
     }
   }
 
-  // bool offsetGain = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+  // bool offsetGain = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
     if (this_._internal_offsetgain() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
-          3, this_._internal_offsetgain(), target);
+          4, this_._internal_offsetgain(), target);
     }
   }
 
@@ -8241,7 +8598,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeOFFSET_allAFE)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeOFFSET_allAFE)
   return target;
 }
 
@@ -8252,7 +8609,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE::Clear() {
 ::size_t cmd_writeOFFSET_allAFE::ByteSizeLong() const {
   const cmd_writeOFFSET_allAFE& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeOFFSET_allAFE)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeOFFSET_allAFE)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -8261,23 +8618,30 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
-    // uint32 afeBlock = 1;
+  if ((cached_has_bits & 0x0000000fu) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 afeBlock = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
       }
     }
-    // uint32 offsetValue = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    // uint32 offsetValue = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (this_._internal_offsetvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_offsetvalue());
       }
     }
-    // bool offsetGain = 3;
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    // bool offsetGain = 4;
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (this_._internal_offsetgain() != 0) {
         total_size += 2;
       }
@@ -8290,24 +8654,29 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE::Clear() {
 void cmd_writeOFFSET_allAFE::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeOFFSET_allAFE*>(&to_msg);
   auto& from = static_cast<const cmd_writeOFFSET_allAFE&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeOFFSET_allAFE)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeOFFSET_allAFE)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_afeblock() != 0) {
         _this->_impl_.afeblock_ = from._impl_.afeblock_;
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_offsetvalue() != 0) {
         _this->_impl_.offsetvalue_ = from._impl_.offsetvalue_;
       }
     }
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (from._internal_offsetgain() != 0) {
         _this->_impl_.offsetgain_ = from._impl_.offsetgain_;
       }
@@ -8318,7 +8687,7 @@ void cmd_writeOFFSET_allAFE::MergeImpl(::google::protobuf::MessageLite& to_msg, 
 }
 
 void cmd_writeOFFSET_allAFE::CopyFrom(const cmd_writeOFFSET_allAFE& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeOFFSET_allAFE)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeOFFSET_allAFE)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -8332,9 +8701,9 @@ void cmd_writeOFFSET_allAFE::InternalSwap(cmd_writeOFFSET_allAFE* PROTOBUF_RESTR
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.offsetgain_)
       + sizeof(cmd_writeOFFSET_allAFE::_impl_.offsetgain_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.afeblock_)>(
-          reinterpret_cast<char*>(&_impl_.afeblock_),
-          reinterpret_cast<char*>(&other->_impl_.afeblock_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_writeOFFSET_allAFE::GetMetadata() const {
@@ -8357,12 +8726,12 @@ cmd_writeOFFSET_allAFE_response::cmd_writeOFFSET_allAFE_response(::google::proto
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeOFFSET_allAFE_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeOFFSET_allAFE_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeOFFSET_allAFE_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_writeOFFSET_allAFE_response& from_msg)
+    const ::daphne::cmd_writeOFFSET_allAFE_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -8388,7 +8757,7 @@ cmd_writeOFFSET_allAFE_response::cmd_writeOFFSET_allAFE_response(
                offsetof(Impl_, afeblock_) +
                sizeof(Impl_::offsetvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_writeOFFSET_allAFE_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_writeOFFSET_allAFE_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeOFFSET_allAFE_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -8406,7 +8775,7 @@ inline void cmd_writeOFFSET_allAFE_response::SharedCtor(::_pb::Arena* PROTOBUF_N
                sizeof(Impl_::offsetvalue_));
 }
 cmd_writeOFFSET_allAFE_response::~cmd_writeOFFSET_allAFE_response() {
-  // @@protoc_insertion_point(destructor:cmd_writeOFFSET_allAFE_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeOFFSET_allAFE_response)
   SharedDtor(*this);
 }
 inline void cmd_writeOFFSET_allAFE_response::SharedDtor(MessageLite& self) {
@@ -8460,7 +8829,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeOFFSET_
   return cmd_writeOFFSET_allAFE_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 5, 0, 47, 2>
+const ::_pbi::TcParseTable<3, 5, 0, 54, 2>
 cmd_writeOFFSET_allAFE_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_allAFE_response, _impl_._has_bits_),
@@ -8476,7 +8845,7 @@ cmd_writeOFFSET_allAFE_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeOFFSET_allAFE_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeOFFSET_allAFE_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -8518,13 +8887,13 @@ cmd_writeOFFSET_allAFE_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\37\0\7\0\0\0\0\0"
-    "cmd_writeOFFSET_allAFE_response"
+    "\46\0\7\0\0\0\0\0"
+    "daphne.cmd_writeOFFSET_allAFE_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeOFFSET_allAFE_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeOFFSET_allAFE_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -8554,7 +8923,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeOFFSET_allAFE_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeOFFSET_allAFE_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeOFFSET_allAFE_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -8572,7 +8941,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeOFFSET_allAFE_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeOFFSET_allAFE_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -8609,7 +8978,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeOFFSET_allAFE_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeOFFSET_allAFE_response)
   return target;
 }
 
@@ -8620,7 +8989,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE_response::Clear() {
 ::size_t cmd_writeOFFSET_allAFE_response::ByteSizeLong() const {
   const cmd_writeOFFSET_allAFE_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeOFFSET_allAFE_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeOFFSET_allAFE_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -8671,7 +9040,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_allAFE_response::Clear() {
 void cmd_writeOFFSET_allAFE_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeOFFSET_allAFE_response*>(&to_msg);
   auto& from = static_cast<const cmd_writeOFFSET_allAFE_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeOFFSET_allAFE_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeOFFSET_allAFE_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -8713,7 +9082,7 @@ void cmd_writeOFFSET_allAFE_response::MergeImpl(::google::protobuf::MessageLite&
 }
 
 void cmd_writeOFFSET_allAFE_response::CopyFrom(const cmd_writeOFFSET_allAFE_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeOFFSET_allAFE_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeOFFSET_allAFE_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -8755,7 +9124,7 @@ cmd_writeOFFSET_singleChannel::cmd_writeOFFSET_singleChannel(::google::protobuf:
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeOFFSET_singleChannel)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeOFFSET_singleChannel)
 }
 cmd_writeOFFSET_singleChannel::cmd_writeOFFSET_singleChannel(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeOFFSET_singleChannel& from)
@@ -8776,14 +9145,14 @@ PROTOBUF_NDEBUG_INLINE cmd_writeOFFSET_singleChannel::Impl_::Impl_(
 inline void cmd_writeOFFSET_singleChannel::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, offsetchannel_),
+               offsetof(Impl_, id_),
            0,
            offsetof(Impl_, offsetgain_) -
-               offsetof(Impl_, offsetchannel_) +
+               offsetof(Impl_, id_) +
                sizeof(Impl_::offsetgain_));
 }
 cmd_writeOFFSET_singleChannel::~cmd_writeOFFSET_singleChannel() {
-  // @@protoc_insertion_point(destructor:cmd_writeOFFSET_singleChannel)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeOFFSET_singleChannel)
   SharedDtor(*this);
 }
 inline void cmd_writeOFFSET_singleChannel::SharedDtor(MessageLite& self) {
@@ -8836,46 +9205,51 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeOFFSET_
   return cmd_writeOFFSET_singleChannel_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 0, 2>
 cmd_writeOFFSET_singleChannel::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_._has_bits_),
     0, // no _extensions_
-    3, 24,  // max_field_number, fast_idx_mask
+    4, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967288,  // skipmap
+    4294967280,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    3,  // num_field_entries
+    4,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeOFFSET_singleChannel_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeOFFSET_singleChannel>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeOFFSET_singleChannel>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
-    // uint32 offsetChannel = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_)}},
-    // uint32 offsetValue = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_singleChannel, _impl_.offsetvalue_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetvalue_)}},
-    // bool offsetGain = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_singleChannel, _impl_.offsetgain_), 2>(),
-     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetgain_)}},
+    // bool offsetGain = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeOFFSET_singleChannel, _impl_.offsetgain_), 3>(),
+     {32, 3, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetgain_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_singleChannel, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.id_)}},
+    // uint32 offsetChannel = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_)}},
+    // uint32 offsetValue = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeOFFSET_singleChannel, _impl_.offsetvalue_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetvalue_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 offsetChannel = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 offsetChannel = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 offsetValue = 2;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetvalue_), _Internal::kHasBitsOffset + 1, 0,
+    // uint32 offsetValue = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetvalue_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // bool offsetGain = 3;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetgain_), _Internal::kHasBitsOffset + 2, 0,
+    // bool offsetGain = 4;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetgain_), _Internal::kHasBitsOffset + 3, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
@@ -8883,17 +9257,17 @@ cmd_writeOFFSET_singleChannel::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeOFFSET_singleChannel)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeOFFSET_singleChannel)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
-    ::memset(&_impl_.offsetchannel_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x0000000fu) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.offsetgain_) -
-        reinterpret_cast<char*>(&_impl_.offsetchannel_)) + sizeof(_impl_.offsetgain_));
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.offsetgain_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -8910,34 +9284,43 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeOFFSET_singleChannel& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeOFFSET_singleChannel)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeOFFSET_singleChannel)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 offsetChannel = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // uint32 offsetChannel = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_offsetchannel() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_offsetchannel(), target);
+          2, this_._internal_offsetchannel(), target);
     }
   }
 
-  // uint32 offsetValue = 2;
-  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+  // uint32 offsetValue = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_offsetvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          2, this_._internal_offsetvalue(), target);
+          3, this_._internal_offsetvalue(), target);
     }
   }
 
-  // bool offsetGain = 3;
-  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
+  // bool offsetGain = 4;
+  if ((this_._impl_._has_bits_[0] & 0x00000008u) != 0) {
     if (this_._internal_offsetgain() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
-          3, this_._internal_offsetgain(), target);
+          4, this_._internal_offsetgain(), target);
     }
   }
 
@@ -8946,7 +9329,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeOFFSET_singleChannel)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeOFFSET_singleChannel)
   return target;
 }
 
@@ -8957,7 +9340,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel::Clear() {
 ::size_t cmd_writeOFFSET_singleChannel::ByteSizeLong() const {
   const cmd_writeOFFSET_singleChannel& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeOFFSET_singleChannel)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeOFFSET_singleChannel)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -8966,23 +9349,30 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
-    // uint32 offsetChannel = 1;
+  if ((cached_has_bits & 0x0000000fu) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 offsetChannel = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_offsetchannel() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_offsetchannel());
       }
     }
-    // uint32 offsetValue = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    // uint32 offsetValue = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (this_._internal_offsetvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_offsetvalue());
       }
     }
-    // bool offsetGain = 3;
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    // bool offsetGain = 4;
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (this_._internal_offsetgain() != 0) {
         total_size += 2;
       }
@@ -8995,24 +9385,29 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel::Clear() {
 void cmd_writeOFFSET_singleChannel::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeOFFSET_singleChannel*>(&to_msg);
   auto& from = static_cast<const cmd_writeOFFSET_singleChannel&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeOFFSET_singleChannel)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeOFFSET_singleChannel)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000007u) != 0) {
+  if ((cached_has_bits & 0x0000000fu) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_offsetchannel() != 0) {
         _this->_impl_.offsetchannel_ = from._impl_.offsetchannel_;
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_offsetvalue() != 0) {
         _this->_impl_.offsetvalue_ = from._impl_.offsetvalue_;
       }
     }
-    if ((cached_has_bits & 0x00000004u) != 0) {
+    if ((cached_has_bits & 0x00000008u) != 0) {
       if (from._internal_offsetgain() != 0) {
         _this->_impl_.offsetgain_ = from._impl_.offsetgain_;
       }
@@ -9023,7 +9418,7 @@ void cmd_writeOFFSET_singleChannel::MergeImpl(::google::protobuf::MessageLite& t
 }
 
 void cmd_writeOFFSET_singleChannel::CopyFrom(const cmd_writeOFFSET_singleChannel& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeOFFSET_singleChannel)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeOFFSET_singleChannel)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -9037,9 +9432,9 @@ void cmd_writeOFFSET_singleChannel::InternalSwap(cmd_writeOFFSET_singleChannel* 
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetgain_)
       + sizeof(cmd_writeOFFSET_singleChannel::_impl_.offsetgain_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.offsetchannel_)>(
-          reinterpret_cast<char*>(&_impl_.offsetchannel_),
-          reinterpret_cast<char*>(&other->_impl_.offsetchannel_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_writeOFFSET_singleChannel::GetMetadata() const {
@@ -9062,12 +9457,12 @@ cmd_writeOFFSET_singleChannel_response::cmd_writeOFFSET_singleChannel_response(:
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeOFFSET_singleChannel_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeOFFSET_singleChannel_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeOFFSET_singleChannel_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_writeOFFSET_singleChannel_response& from_msg)
+    const ::daphne::cmd_writeOFFSET_singleChannel_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -9093,7 +9488,7 @@ cmd_writeOFFSET_singleChannel_response::cmd_writeOFFSET_singleChannel_response(
                offsetof(Impl_, offsetchannel_) +
                sizeof(Impl_::offsetvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_writeOFFSET_singleChannel_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_writeOFFSET_singleChannel_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeOFFSET_singleChannel_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -9111,7 +9506,7 @@ inline void cmd_writeOFFSET_singleChannel_response::SharedCtor(::_pb::Arena* PRO
                sizeof(Impl_::offsetvalue_));
 }
 cmd_writeOFFSET_singleChannel_response::~cmd_writeOFFSET_singleChannel_response() {
-  // @@protoc_insertion_point(destructor:cmd_writeOFFSET_singleChannel_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeOFFSET_singleChannel_response)
   SharedDtor(*this);
 }
 inline void cmd_writeOFFSET_singleChannel_response::SharedDtor(MessageLite& self) {
@@ -9165,7 +9560,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeOFFSET_
   return cmd_writeOFFSET_singleChannel_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 5, 0, 54, 2>
+const ::_pbi::TcParseTable<3, 5, 0, 61, 2>
 cmd_writeOFFSET_singleChannel_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeOFFSET_singleChannel_response, _impl_._has_bits_),
@@ -9181,7 +9576,7 @@ cmd_writeOFFSET_singleChannel_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeOFFSET_singleChannel_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeOFFSET_singleChannel_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -9223,13 +9618,13 @@ cmd_writeOFFSET_singleChannel_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\46\0\7\0\0\0\0\0"
-    "cmd_writeOFFSET_singleChannel_response"
+    "\55\0\7\0\0\0\0\0"
+    "daphne.cmd_writeOFFSET_singleChannel_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeOFFSET_singleChannel_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeOFFSET_singleChannel_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -9259,7 +9654,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeOFFSET_singleChannel_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeOFFSET_singleChannel_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeOFFSET_singleChannel_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -9277,7 +9672,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeOFFSET_singleChannel_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeOFFSET_singleChannel_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -9314,7 +9709,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeOFFSET_singleChannel_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeOFFSET_singleChannel_response)
   return target;
 }
 
@@ -9325,7 +9720,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel_response::Clear() {
 ::size_t cmd_writeOFFSET_singleChannel_response::ByteSizeLong() const {
   const cmd_writeOFFSET_singleChannel_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeOFFSET_singleChannel_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeOFFSET_singleChannel_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -9376,7 +9771,7 @@ PROTOBUF_NOINLINE void cmd_writeOFFSET_singleChannel_response::Clear() {
 void cmd_writeOFFSET_singleChannel_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeOFFSET_singleChannel_response*>(&to_msg);
   auto& from = static_cast<const cmd_writeOFFSET_singleChannel_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeOFFSET_singleChannel_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeOFFSET_singleChannel_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -9418,7 +9813,7 @@ void cmd_writeOFFSET_singleChannel_response::MergeImpl(::google::protobuf::Messa
 }
 
 void cmd_writeOFFSET_singleChannel_response::CopyFrom(const cmd_writeOFFSET_singleChannel_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeOFFSET_singleChannel_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeOFFSET_singleChannel_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -9460,7 +9855,7 @@ cmd_writeVbiasControl::cmd_writeVbiasControl(::google::protobuf::Arena* PROTOBUF
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeVbiasControl)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeVbiasControl)
 }
 cmd_writeVbiasControl::cmd_writeVbiasControl(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeVbiasControl& from)
@@ -9481,14 +9876,14 @@ PROTOBUF_NDEBUG_INLINE cmd_writeVbiasControl::Impl_::Impl_(
 inline void cmd_writeVbiasControl::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, vbiascontrolvalue_),
+               offsetof(Impl_, id_),
            0,
            offsetof(Impl_, enable_) -
-               offsetof(Impl_, vbiascontrolvalue_) +
+               offsetof(Impl_, id_) +
                sizeof(Impl_::enable_));
 }
 cmd_writeVbiasControl::~cmd_writeVbiasControl() {
-  // @@protoc_insertion_point(destructor:cmd_writeVbiasControl)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeVbiasControl)
   SharedDtor(*this);
 }
 inline void cmd_writeVbiasControl::SharedDtor(MessageLite& self) {
@@ -9541,39 +9936,46 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeVbiasCo
   return cmd_writeVbiasControl_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
 cmd_writeVbiasControl::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_writeVbiasControl_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeVbiasControl>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeVbiasControl>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // bool enable = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeVbiasControl, _impl_.enable_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.enable_)}},
-    // uint32 vBiasControlValue = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeVbiasControl, _impl_.vbiascontrolvalue_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.vbiascontrolvalue_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeVbiasControl, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.id_)}},
+    // uint32 vBiasControlValue = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_writeVbiasControl, _impl_.vbiascontrolvalue_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.vbiascontrolvalue_)}},
+    // bool enable = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_writeVbiasControl, _impl_.enable_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.enable_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 vBiasControlValue = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.vbiascontrolvalue_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 vBiasControlValue = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.vbiascontrolvalue_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // bool enable = 2;
-    {PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.enable_), _Internal::kHasBitsOffset + 1, 0,
+    // bool enable = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.enable_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
@@ -9581,17 +9983,17 @@ cmd_writeVbiasControl::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeVbiasControl::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeVbiasControl)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeVbiasControl)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    ::memset(&_impl_.vbiascontrolvalue_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.enable_) -
-        reinterpret_cast<char*>(&_impl_.vbiascontrolvalue_)) + sizeof(_impl_.enable_));
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.enable_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -9608,25 +10010,34 @@ PROTOBUF_NOINLINE void cmd_writeVbiasControl::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeVbiasControl& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeVbiasControl)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeVbiasControl)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 vBiasControlValue = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
-    if (this_._internal_vbiascontrolvalue() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_vbiascontrolvalue(), target);
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
     }
   }
 
-  // bool enable = 2;
+  // uint32 vBiasControlValue = 2;
   if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_vbiascontrolvalue() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          2, this_._internal_vbiascontrolvalue(), target);
+    }
+  }
+
+  // bool enable = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_enable() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
-          2, this_._internal_enable(), target);
+          3, this_._internal_enable(), target);
     }
   }
 
@@ -9635,7 +10046,7 @@ PROTOBUF_NOINLINE void cmd_writeVbiasControl::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeVbiasControl)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeVbiasControl)
   return target;
 }
 
@@ -9646,7 +10057,7 @@ PROTOBUF_NOINLINE void cmd_writeVbiasControl::Clear() {
 ::size_t cmd_writeVbiasControl::ByteSizeLong() const {
   const cmd_writeVbiasControl& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeVbiasControl)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeVbiasControl)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -9655,16 +10066,23 @@ PROTOBUF_NOINLINE void cmd_writeVbiasControl::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    // uint32 vBiasControlValue = 1;
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 vBiasControlValue = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_vbiascontrolvalue() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_vbiascontrolvalue());
       }
     }
-    // bool enable = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    // bool enable = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (this_._internal_enable() != 0) {
         total_size += 2;
       }
@@ -9677,19 +10095,24 @@ PROTOBUF_NOINLINE void cmd_writeVbiasControl::Clear() {
 void cmd_writeVbiasControl::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeVbiasControl*>(&to_msg);
   auto& from = static_cast<const cmd_writeVbiasControl&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeVbiasControl)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeVbiasControl)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_vbiascontrolvalue() != 0) {
         _this->_impl_.vbiascontrolvalue_ = from._impl_.vbiascontrolvalue_;
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_enable() != 0) {
         _this->_impl_.enable_ = from._impl_.enable_;
       }
@@ -9700,7 +10123,7 @@ void cmd_writeVbiasControl::MergeImpl(::google::protobuf::MessageLite& to_msg, c
 }
 
 void cmd_writeVbiasControl::CopyFrom(const cmd_writeVbiasControl& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeVbiasControl)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeVbiasControl)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -9714,9 +10137,9 @@ void cmd_writeVbiasControl::InternalSwap(cmd_writeVbiasControl* PROTOBUF_RESTRIC
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.enable_)
       + sizeof(cmd_writeVbiasControl::_impl_.enable_)
-      - PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.vbiascontrolvalue_)>(
-          reinterpret_cast<char*>(&_impl_.vbiascontrolvalue_),
-          reinterpret_cast<char*>(&other->_impl_.vbiascontrolvalue_));
+      - PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_writeVbiasControl::GetMetadata() const {
@@ -9739,12 +10162,12 @@ cmd_writeVbiasControl_response::cmd_writeVbiasControl_response(::google::protobu
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeVbiasControl_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeVbiasControl_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeVbiasControl_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_writeVbiasControl_response& from_msg)
+    const ::daphne::cmd_writeVbiasControl_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -9770,7 +10193,7 @@ cmd_writeVbiasControl_response::cmd_writeVbiasControl_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::vbiascontrolvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_writeVbiasControl_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_writeVbiasControl_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeVbiasControl_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -9788,7 +10211,7 @@ inline void cmd_writeVbiasControl_response::SharedCtor(::_pb::Arena* PROTOBUF_NU
                sizeof(Impl_::vbiascontrolvalue_));
 }
 cmd_writeVbiasControl_response::~cmd_writeVbiasControl_response() {
-  // @@protoc_insertion_point(destructor:cmd_writeVbiasControl_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeVbiasControl_response)
   SharedDtor(*this);
 }
 inline void cmd_writeVbiasControl_response::SharedDtor(MessageLite& self) {
@@ -9842,7 +10265,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeVbiasCo
   return cmd_writeVbiasControl_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 46, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 53, 2>
 cmd_writeVbiasControl_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeVbiasControl_response, _impl_._has_bits_),
@@ -9858,7 +10281,7 @@ cmd_writeVbiasControl_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeVbiasControl_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeVbiasControl_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -9886,13 +10309,13 @@ cmd_writeVbiasControl_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\36\0\7\0\0\0\0\0"
-    "cmd_writeVbiasControl_response"
+    "\45\0\7\0\0\0\0\0"
+    "daphne.cmd_writeVbiasControl_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeVbiasControl_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeVbiasControl_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeVbiasControl_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -9922,7 +10345,7 @@ PROTOBUF_NOINLINE void cmd_writeVbiasControl_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeVbiasControl_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeVbiasControl_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeVbiasControl_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -9940,7 +10363,7 @@ PROTOBUF_NOINLINE void cmd_writeVbiasControl_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeVbiasControl_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeVbiasControl_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -9959,7 +10382,7 @@ PROTOBUF_NOINLINE void cmd_writeVbiasControl_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeVbiasControl_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeVbiasControl_response)
   return target;
 }
 
@@ -9970,7 +10393,7 @@ PROTOBUF_NOINLINE void cmd_writeVbiasControl_response::Clear() {
 ::size_t cmd_writeVbiasControl_response::ByteSizeLong() const {
   const cmd_writeVbiasControl_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeVbiasControl_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeVbiasControl_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -10008,7 +10431,7 @@ PROTOBUF_NOINLINE void cmd_writeVbiasControl_response::Clear() {
 void cmd_writeVbiasControl_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeVbiasControl_response*>(&to_msg);
   auto& from = static_cast<const cmd_writeVbiasControl_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeVbiasControl_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeVbiasControl_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -10040,7 +10463,7 @@ void cmd_writeVbiasControl_response::MergeImpl(::google::protobuf::MessageLite& 
 }
 
 void cmd_writeVbiasControl_response::CopyFrom(const cmd_writeVbiasControl_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeVbiasControl_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeVbiasControl_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -10082,7 +10505,7 @@ cmd_readAFEReg::cmd_readAFEReg(::google::protobuf::Arena* PROTOBUF_NULLABLE aren
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readAFEReg)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readAFEReg)
 }
 cmd_readAFEReg::cmd_readAFEReg(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_readAFEReg& from)
@@ -10103,14 +10526,14 @@ PROTOBUF_NDEBUG_INLINE cmd_readAFEReg::Impl_::Impl_(
 inline void cmd_readAFEReg::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char *>(&_impl_) +
-               offsetof(Impl_, afeblock_),
+               offsetof(Impl_, id_),
            0,
            offsetof(Impl_, regaddress_) -
-               offsetof(Impl_, afeblock_) +
+               offsetof(Impl_, id_) +
                sizeof(Impl_::regaddress_));
 }
 cmd_readAFEReg::~cmd_readAFEReg() {
-  // @@protoc_insertion_point(destructor:cmd_readAFEReg)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readAFEReg)
   SharedDtor(*this);
 }
 inline void cmd_readAFEReg::SharedDtor(MessageLite& self) {
@@ -10163,39 +10586,46 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readAFEReg::
   return cmd_readAFEReg_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 0, 2>
 cmd_readAFEReg::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_._has_bits_),
     0, // no _extensions_
-    2, 8,  // max_field_number, fast_idx_mask
+    3, 24,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967292,  // skipmap
+    4294967288,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    2,  // num_field_entries
+    3,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_readAFEReg_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readAFEReg>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readAFEReg>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 regAddress = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readAFEReg, _impl_.regaddress_), 1>(),
-     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_.regaddress_)}},
-    // uint32 afeBlock = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readAFEReg, _impl_.afeblock_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_.afeblock_)}},
+    {::_pbi::TcParser::MiniParse, {}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readAFEReg, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_.id_)}},
+    // uint32 afeBlock = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readAFEReg, _impl_.afeblock_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_.afeblock_)}},
+    // uint32 regAddress = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readAFEReg, _impl_.regaddress_), 2>(),
+     {24, 2, 0, PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_.regaddress_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 afeBlock = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_.afeblock_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 afeBlock = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
-    // uint32 regAddress = 2;
-    {PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_.regaddress_), _Internal::kHasBitsOffset + 1, 0,
+    // uint32 regAddress = 3;
+    {PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_.regaddress_), _Internal::kHasBitsOffset + 2, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
@@ -10203,17 +10633,17 @@ cmd_readAFEReg::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_readAFEReg::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readAFEReg)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readAFEReg)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   cached_has_bits = _impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    ::memset(&_impl_.afeblock_, 0, static_cast<::size_t>(
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.regaddress_) -
-        reinterpret_cast<char*>(&_impl_.afeblock_)) + sizeof(_impl_.regaddress_));
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.regaddress_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -10230,25 +10660,34 @@ PROTOBUF_NOINLINE void cmd_readAFEReg::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readAFEReg& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readAFEReg)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readAFEReg)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
-    if (this_._internal_afeblock() != 0) {
-      target = stream->EnsureSpace(target);
-      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_afeblock(), target);
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
     }
   }
 
-  // uint32 regAddress = 2;
+  // uint32 afeBlock = 2;
   if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_afeblock() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
+          2, this_._internal_afeblock(), target);
+    }
+  }
+
+  // uint32 regAddress = 3;
+  if ((this_._impl_._has_bits_[0] & 0x00000004u) != 0) {
     if (this_._internal_regaddress() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          2, this_._internal_regaddress(), target);
+          3, this_._internal_regaddress(), target);
     }
   }
 
@@ -10257,7 +10696,7 @@ PROTOBUF_NOINLINE void cmd_readAFEReg::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readAFEReg)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readAFEReg)
   return target;
 }
 
@@ -10268,7 +10707,7 @@ PROTOBUF_NOINLINE void cmd_readAFEReg::Clear() {
 ::size_t cmd_readAFEReg::ByteSizeLong() const {
   const cmd_readAFEReg& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readAFEReg)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readAFEReg)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -10277,16 +10716,23 @@ PROTOBUF_NOINLINE void cmd_readAFEReg::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
-    // uint32 afeBlock = 1;
+  if ((cached_has_bits & 0x00000007u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 afeBlock = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
       }
     }
-    // uint32 regAddress = 2;
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    // uint32 regAddress = 3;
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (this_._internal_regaddress() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_regaddress());
@@ -10300,19 +10746,24 @@ PROTOBUF_NOINLINE void cmd_readAFEReg::Clear() {
 void cmd_readAFEReg::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readAFEReg*>(&to_msg);
   auto& from = static_cast<const cmd_readAFEReg&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readAFEReg)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readAFEReg)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000003u) != 0) {
+  if ((cached_has_bits & 0x00000007u) != 0) {
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (from._internal_afeblock() != 0) {
         _this->_impl_.afeblock_ = from._impl_.afeblock_;
       }
     }
-    if ((cached_has_bits & 0x00000002u) != 0) {
+    if ((cached_has_bits & 0x00000004u) != 0) {
       if (from._internal_regaddress() != 0) {
         _this->_impl_.regaddress_ = from._impl_.regaddress_;
       }
@@ -10323,7 +10774,7 @@ void cmd_readAFEReg::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::
 }
 
 void cmd_readAFEReg::CopyFrom(const cmd_readAFEReg& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readAFEReg)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readAFEReg)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -10337,9 +10788,9 @@ void cmd_readAFEReg::InternalSwap(cmd_readAFEReg* PROTOBUF_RESTRICT PROTOBUF_NON
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_.regaddress_)
       + sizeof(cmd_readAFEReg::_impl_.regaddress_)
-      - PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_.afeblock_)>(
-          reinterpret_cast<char*>(&_impl_.afeblock_),
-          reinterpret_cast<char*>(&other->_impl_.afeblock_));
+      - PROTOBUF_FIELD_OFFSET(cmd_readAFEReg, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_readAFEReg::GetMetadata() const {
@@ -10362,12 +10813,12 @@ cmd_readAFEReg_response::cmd_readAFEReg_response(::google::protobuf::Arena* PROT
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readAFEReg_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readAFEReg_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readAFEReg_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_readAFEReg_response& from_msg)
+    const ::daphne::cmd_readAFEReg_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -10393,7 +10844,7 @@ cmd_readAFEReg_response::cmd_readAFEReg_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::regvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readAFEReg_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_readAFEReg_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readAFEReg_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -10411,7 +10862,7 @@ inline void cmd_readAFEReg_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE 
                sizeof(Impl_::regvalue_));
 }
 cmd_readAFEReg_response::~cmd_readAFEReg_response() {
-  // @@protoc_insertion_point(destructor:cmd_readAFEReg_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readAFEReg_response)
   SharedDtor(*this);
 }
 inline void cmd_readAFEReg_response::SharedDtor(MessageLite& self) {
@@ -10465,7 +10916,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readAFEReg_r
   return cmd_readAFEReg_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 5, 0, 39, 2>
+const ::_pbi::TcParseTable<3, 5, 0, 46, 2>
 cmd_readAFEReg_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readAFEReg_response, _impl_._has_bits_),
@@ -10481,7 +10932,7 @@ cmd_readAFEReg_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readAFEReg_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readAFEReg_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -10523,13 +10974,13 @@ cmd_readAFEReg_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\27\0\7\0\0\0\0\0"
-    "cmd_readAFEReg_response"
+    "\36\0\7\0\0\0\0\0"
+    "daphne.cmd_readAFEReg_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_readAFEReg_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readAFEReg_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readAFEReg_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -10559,7 +11010,7 @@ PROTOBUF_NOINLINE void cmd_readAFEReg_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readAFEReg_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readAFEReg_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readAFEReg_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -10577,7 +11028,7 @@ PROTOBUF_NOINLINE void cmd_readAFEReg_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_readAFEReg_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_readAFEReg_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -10614,7 +11065,7 @@ PROTOBUF_NOINLINE void cmd_readAFEReg_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readAFEReg_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readAFEReg_response)
   return target;
 }
 
@@ -10625,7 +11076,7 @@ PROTOBUF_NOINLINE void cmd_readAFEReg_response::Clear() {
 ::size_t cmd_readAFEReg_response::ByteSizeLong() const {
   const cmd_readAFEReg_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readAFEReg_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readAFEReg_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -10677,7 +11128,7 @@ PROTOBUF_NOINLINE void cmd_readAFEReg_response::Clear() {
 void cmd_readAFEReg_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readAFEReg_response*>(&to_msg);
   auto& from = static_cast<const cmd_readAFEReg_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readAFEReg_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readAFEReg_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -10719,7 +11170,7 @@ void cmd_readAFEReg_response::MergeImpl(::google::protobuf::MessageLite& to_msg,
 }
 
 void cmd_readAFEReg_response::CopyFrom(const cmd_readAFEReg_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readAFEReg_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readAFEReg_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -10761,7 +11212,7 @@ cmd_readAFEVgain::cmd_readAFEVgain(::google::protobuf::Arena* PROTOBUF_NULLABLE 
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readAFEVgain)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readAFEVgain)
 }
 cmd_readAFEVgain::cmd_readAFEVgain(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_readAFEVgain& from)
@@ -10781,10 +11232,15 @@ PROTOBUF_NDEBUG_INLINE cmd_readAFEVgain::Impl_::Impl_(
 
 inline void cmd_readAFEVgain::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.afeblock_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, id_),
+           0,
+           offsetof(Impl_, afeblock_) -
+               offsetof(Impl_, id_) +
+               sizeof(Impl_::afeblock_));
 }
 cmd_readAFEVgain::~cmd_readAFEVgain() {
-  // @@protoc_insertion_point(destructor:cmd_readAFEVgain)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readAFEVgain)
   SharedDtor(*this);
 }
 inline void cmd_readAFEVgain::SharedDtor(MessageLite& self) {
@@ -10837,33 +11293,39 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readAFEVgain
   return cmd_readAFEVgain_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
 cmd_readAFEVgain::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readAFEVgain, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_readAFEVgain_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readAFEVgain>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readAFEVgain>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 afeBlock = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readAFEVgain, _impl_.afeblock_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readAFEVgain, _impl_.afeblock_)}},
+    // uint32 afeBlock = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readAFEVgain, _impl_.afeblock_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_readAFEVgain, _impl_.afeblock_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readAFEVgain, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readAFEVgain, _impl_.id_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 afeBlock = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_readAFEVgain, _impl_.afeblock_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_readAFEVgain, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 afeBlock = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_readAFEVgain, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
@@ -10871,13 +11333,18 @@ cmd_readAFEVgain::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_readAFEVgain::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readAFEVgain)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readAFEVgain)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.afeblock_ = 0u;
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.afeblock_) -
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.afeblock_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -10893,16 +11360,25 @@ PROTOBUF_NOINLINE void cmd_readAFEVgain::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readAFEVgain& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readAFEVgain)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readAFEVgain)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // uint32 afeBlock = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_afeblock() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_afeblock(), target);
+          2, this_._internal_afeblock(), target);
     }
   }
 
@@ -10911,7 +11387,7 @@ PROTOBUF_NOINLINE void cmd_readAFEVgain::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readAFEVgain)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readAFEVgain)
   return target;
 }
 
@@ -10922,17 +11398,25 @@ PROTOBUF_NOINLINE void cmd_readAFEVgain::Clear() {
 ::size_t cmd_readAFEVgain::ByteSizeLong() const {
   const cmd_readAFEVgain& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readAFEVgain)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readAFEVgain)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
-    // uint32 afeBlock = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 afeBlock = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
@@ -10946,15 +11430,22 @@ PROTOBUF_NOINLINE void cmd_readAFEVgain::Clear() {
 void cmd_readAFEVgain::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readAFEVgain*>(&to_msg);
   auto& from = static_cast<const cmd_readAFEVgain&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readAFEVgain)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readAFEVgain)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    if (from._internal_afeblock() != 0) {
-      _this->_impl_.afeblock_ = from._impl_.afeblock_;
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_afeblock() != 0) {
+        _this->_impl_.afeblock_ = from._impl_.afeblock_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -10962,7 +11453,7 @@ void cmd_readAFEVgain::MergeImpl(::google::protobuf::MessageLite& to_msg, const 
 }
 
 void cmd_readAFEVgain::CopyFrom(const cmd_readAFEVgain& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readAFEVgain)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readAFEVgain)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -10973,7 +11464,12 @@ void cmd_readAFEVgain::InternalSwap(cmd_readAFEVgain* PROTOBUF_RESTRICT PROTOBUF
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.afeblock_, other->_impl_.afeblock_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_readAFEVgain, _impl_.afeblock_)
+      + sizeof(cmd_readAFEVgain::_impl_.afeblock_)
+      - PROTOBUF_FIELD_OFFSET(cmd_readAFEVgain, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_readAFEVgain::GetMetadata() const {
@@ -10996,12 +11492,12 @@ cmd_readAFEVgain_response::cmd_readAFEVgain_response(::google::protobuf::Arena* 
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readAFEVgain_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readAFEVgain_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readAFEVgain_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_readAFEVgain_response& from_msg)
+    const ::daphne::cmd_readAFEVgain_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -11027,7 +11523,7 @@ cmd_readAFEVgain_response::cmd_readAFEVgain_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::vgainvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readAFEVgain_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_readAFEVgain_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readAFEVgain_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -11045,7 +11541,7 @@ inline void cmd_readAFEVgain_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABL
                sizeof(Impl_::vgainvalue_));
 }
 cmd_readAFEVgain_response::~cmd_readAFEVgain_response() {
-  // @@protoc_insertion_point(destructor:cmd_readAFEVgain_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readAFEVgain_response)
   SharedDtor(*this);
 }
 inline void cmd_readAFEVgain_response::SharedDtor(MessageLite& self) {
@@ -11099,7 +11595,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readAFEVgain
   return cmd_readAFEVgain_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 41, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 48, 2>
 cmd_readAFEVgain_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readAFEVgain_response, _impl_._has_bits_),
@@ -11115,7 +11611,7 @@ cmd_readAFEVgain_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readAFEVgain_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readAFEVgain_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // uint32 vgainValue = 4;
@@ -11148,13 +11644,13 @@ cmd_readAFEVgain_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\31\0\7\0\0\0\0\0"
-    "cmd_readAFEVgain_response"
+    "\40\0\7\0\0\0\0\0"
+    "daphne.cmd_readAFEVgain_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_readAFEVgain_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readAFEVgain_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readAFEVgain_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -11184,7 +11680,7 @@ PROTOBUF_NOINLINE void cmd_readAFEVgain_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readAFEVgain_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readAFEVgain_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readAFEVgain_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -11202,7 +11698,7 @@ PROTOBUF_NOINLINE void cmd_readAFEVgain_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_readAFEVgain_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_readAFEVgain_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -11230,7 +11726,7 @@ PROTOBUF_NOINLINE void cmd_readAFEVgain_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readAFEVgain_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readAFEVgain_response)
   return target;
 }
 
@@ -11241,7 +11737,7 @@ PROTOBUF_NOINLINE void cmd_readAFEVgain_response::Clear() {
 ::size_t cmd_readAFEVgain_response::ByteSizeLong() const {
   const cmd_readAFEVgain_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readAFEVgain_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readAFEVgain_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -11286,7 +11782,7 @@ PROTOBUF_NOINLINE void cmd_readAFEVgain_response::Clear() {
 void cmd_readAFEVgain_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readAFEVgain_response*>(&to_msg);
   auto& from = static_cast<const cmd_readAFEVgain_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readAFEVgain_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readAFEVgain_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -11323,7 +11819,7 @@ void cmd_readAFEVgain_response::MergeImpl(::google::protobuf::MessageLite& to_ms
 }
 
 void cmd_readAFEVgain_response::CopyFrom(const cmd_readAFEVgain_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readAFEVgain_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readAFEVgain_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -11365,7 +11861,7 @@ cmd_readAFEBiasSet::cmd_readAFEBiasSet(::google::protobuf::Arena* PROTOBUF_NULLA
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readAFEBiasSet)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readAFEBiasSet)
 }
 cmd_readAFEBiasSet::cmd_readAFEBiasSet(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_readAFEBiasSet& from)
@@ -11385,10 +11881,15 @@ PROTOBUF_NDEBUG_INLINE cmd_readAFEBiasSet::Impl_::Impl_(
 
 inline void cmd_readAFEBiasSet::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.afeblock_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, id_),
+           0,
+           offsetof(Impl_, afeblock_) -
+               offsetof(Impl_, id_) +
+               sizeof(Impl_::afeblock_));
 }
 cmd_readAFEBiasSet::~cmd_readAFEBiasSet() {
-  // @@protoc_insertion_point(destructor:cmd_readAFEBiasSet)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readAFEBiasSet)
   SharedDtor(*this);
 }
 inline void cmd_readAFEBiasSet::SharedDtor(MessageLite& self) {
@@ -11441,33 +11942,39 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readAFEBiasS
   return cmd_readAFEBiasSet_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
 cmd_readAFEBiasSet::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readAFEBiasSet, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_readAFEBiasSet_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readAFEBiasSet>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readAFEBiasSet>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 afeBlock = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readAFEBiasSet, _impl_.afeblock_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readAFEBiasSet, _impl_.afeblock_)}},
+    // uint32 afeBlock = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readAFEBiasSet, _impl_.afeblock_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_readAFEBiasSet, _impl_.afeblock_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readAFEBiasSet, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readAFEBiasSet, _impl_.id_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 afeBlock = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_readAFEBiasSet, _impl_.afeblock_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_readAFEBiasSet, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 afeBlock = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_readAFEBiasSet, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
@@ -11475,13 +11982,18 @@ cmd_readAFEBiasSet::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_readAFEBiasSet::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readAFEBiasSet)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readAFEBiasSet)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.afeblock_ = 0u;
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.afeblock_) -
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.afeblock_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -11497,16 +12009,25 @@ PROTOBUF_NOINLINE void cmd_readAFEBiasSet::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readAFEBiasSet& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readAFEBiasSet)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readAFEBiasSet)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // uint32 afeBlock = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_afeblock() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_afeblock(), target);
+          2, this_._internal_afeblock(), target);
     }
   }
 
@@ -11515,7 +12036,7 @@ PROTOBUF_NOINLINE void cmd_readAFEBiasSet::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readAFEBiasSet)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readAFEBiasSet)
   return target;
 }
 
@@ -11526,17 +12047,25 @@ PROTOBUF_NOINLINE void cmd_readAFEBiasSet::Clear() {
 ::size_t cmd_readAFEBiasSet::ByteSizeLong() const {
   const cmd_readAFEBiasSet& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readAFEBiasSet)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readAFEBiasSet)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
-    // uint32 afeBlock = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 afeBlock = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
@@ -11550,15 +12079,22 @@ PROTOBUF_NOINLINE void cmd_readAFEBiasSet::Clear() {
 void cmd_readAFEBiasSet::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readAFEBiasSet*>(&to_msg);
   auto& from = static_cast<const cmd_readAFEBiasSet&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readAFEBiasSet)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readAFEBiasSet)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    if (from._internal_afeblock() != 0) {
-      _this->_impl_.afeblock_ = from._impl_.afeblock_;
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_afeblock() != 0) {
+        _this->_impl_.afeblock_ = from._impl_.afeblock_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -11566,7 +12102,7 @@ void cmd_readAFEBiasSet::MergeImpl(::google::protobuf::MessageLite& to_msg, cons
 }
 
 void cmd_readAFEBiasSet::CopyFrom(const cmd_readAFEBiasSet& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readAFEBiasSet)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readAFEBiasSet)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -11577,7 +12113,12 @@ void cmd_readAFEBiasSet::InternalSwap(cmd_readAFEBiasSet* PROTOBUF_RESTRICT PROT
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.afeblock_, other->_impl_.afeblock_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_readAFEBiasSet, _impl_.afeblock_)
+      + sizeof(cmd_readAFEBiasSet::_impl_.afeblock_)
+      - PROTOBUF_FIELD_OFFSET(cmd_readAFEBiasSet, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_readAFEBiasSet::GetMetadata() const {
@@ -11600,12 +12141,12 @@ cmd_readAFEBiasSet_response::cmd_readAFEBiasSet_response(::google::protobuf::Are
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readAFEBiasSet_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readAFEBiasSet_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readAFEBiasSet_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_readAFEBiasSet_response& from_msg)
+    const ::daphne::cmd_readAFEBiasSet_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -11631,7 +12172,7 @@ cmd_readAFEBiasSet_response::cmd_readAFEBiasSet_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::biasvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readAFEBiasSet_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_readAFEBiasSet_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readAFEBiasSet_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -11649,7 +12190,7 @@ inline void cmd_readAFEBiasSet_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLA
                sizeof(Impl_::biasvalue_));
 }
 cmd_readAFEBiasSet_response::~cmd_readAFEBiasSet_response() {
-  // @@protoc_insertion_point(destructor:cmd_readAFEBiasSet_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readAFEBiasSet_response)
   SharedDtor(*this);
 }
 inline void cmd_readAFEBiasSet_response::SharedDtor(MessageLite& self) {
@@ -11703,7 +12244,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readAFEBiasS
   return cmd_readAFEBiasSet_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 43, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 50, 2>
 cmd_readAFEBiasSet_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readAFEBiasSet_response, _impl_._has_bits_),
@@ -11719,7 +12260,7 @@ cmd_readAFEBiasSet_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readAFEBiasSet_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readAFEBiasSet_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // uint32 biasValue = 4;
@@ -11752,13 +12293,13 @@ cmd_readAFEBiasSet_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\33\0\7\0\0\0\0\0"
-    "cmd_readAFEBiasSet_response"
+    "\42\0\7\0\0\0\0\0"
+    "daphne.cmd_readAFEBiasSet_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_readAFEBiasSet_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readAFEBiasSet_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readAFEBiasSet_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -11788,7 +12329,7 @@ PROTOBUF_NOINLINE void cmd_readAFEBiasSet_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readAFEBiasSet_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readAFEBiasSet_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readAFEBiasSet_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -11806,7 +12347,7 @@ PROTOBUF_NOINLINE void cmd_readAFEBiasSet_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_readAFEBiasSet_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_readAFEBiasSet_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -11834,7 +12375,7 @@ PROTOBUF_NOINLINE void cmd_readAFEBiasSet_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readAFEBiasSet_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readAFEBiasSet_response)
   return target;
 }
 
@@ -11845,7 +12386,7 @@ PROTOBUF_NOINLINE void cmd_readAFEBiasSet_response::Clear() {
 ::size_t cmd_readAFEBiasSet_response::ByteSizeLong() const {
   const cmd_readAFEBiasSet_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readAFEBiasSet_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readAFEBiasSet_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -11890,7 +12431,7 @@ PROTOBUF_NOINLINE void cmd_readAFEBiasSet_response::Clear() {
 void cmd_readAFEBiasSet_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readAFEBiasSet_response*>(&to_msg);
   auto& from = static_cast<const cmd_readAFEBiasSet_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readAFEBiasSet_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readAFEBiasSet_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -11927,7 +12468,7 @@ void cmd_readAFEBiasSet_response::MergeImpl(::google::protobuf::MessageLite& to_
 }
 
 void cmd_readAFEBiasSet_response::CopyFrom(const cmd_readAFEBiasSet_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readAFEBiasSet_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readAFEBiasSet_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -11956,30 +12497,50 @@ void cmd_readAFEBiasSet_response::InternalSwap(cmd_readAFEBiasSet_response* PROT
 
 class cmd_readTrim_allChannels::_Internal {
  public:
+  using HasBits =
+      decltype(std::declval<cmd_readTrim_allChannels>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(cmd_readTrim_allChannels, _impl_._has_bits_);
 };
 
 cmd_readTrim_allChannels::cmd_readTrim_allChannels(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(arena, cmd_readTrim_allChannels_class_data_.base()) {
+    : ::google::protobuf::Message(arena, cmd_readTrim_allChannels_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(arena_constructor:cmd_readTrim_allChannels)
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readTrim_allChannels)
 }
 cmd_readTrim_allChannels::cmd_readTrim_allChannels(
-    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
-    const cmd_readTrim_allChannels& from)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_readTrim_allChannels& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(arena, cmd_readTrim_allChannels_class_data_.base()) {
+    : ::google::protobuf::Message(arena, cmd_readTrim_allChannels_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+    : ::google::protobuf::Message(arena),
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  cmd_readTrim_allChannels* const _this = this;
-  (void)_this;
+      _impl_(from._impl_) {
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
+}
+PROTOBUF_NDEBUG_INLINE cmd_readTrim_allChannels::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0} {}
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readTrim_allChannels)
+inline void cmd_readTrim_allChannels::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.id_ = {};
+}
+cmd_readTrim_allChannels::~cmd_readTrim_allChannels() {
+  // @@protoc_insertion_point(destructor:daphne.cmd_readTrim_allChannels)
+  SharedDtor(*this);
+}
+inline void cmd_readTrim_allChannels::SharedDtor(MessageLite& self) {
+  cmd_readTrim_allChannels& this_ = static_cast<cmd_readTrim_allChannels&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
 }
 
 inline void* PROTOBUF_NONNULL cmd_readTrim_allChannels::PlacementNew_(
@@ -11999,10 +12560,10 @@ constexpr auto cmd_readTrim_allChannels::InternalGenerateClassData_() {
           nullptr,  // OnDemandRegisterArenaDtor
           nullptr,  // IsInitialized
           &cmd_readTrim_allChannels::MergeImpl,
-          ::google::protobuf::internal::ZeroFieldsBase::GetNewImpl<cmd_readTrim_allChannels>(),
+          ::google::protobuf::Message::GetNewImpl<cmd_readTrim_allChannels>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           &cmd_readTrim_allChannels::SharedDtor,
-          ::google::protobuf::internal::ZeroFieldsBase::GetClearImpl<cmd_readTrim_allChannels>(), &cmd_readTrim_allChannels::ByteSizeLong,
+          ::google::protobuf::Message::GetClearImpl<cmd_readTrim_allChannels>(), &cmd_readTrim_allChannels::ByteSizeLong,
               &cmd_readTrim_allChannels::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
           PROTOBUF_FIELD_OFFSET(cmd_readTrim_allChannels, _impl_._cached_size_),
@@ -12025,41 +12586,147 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readTrim_all
   return cmd_readTrim_allChannels_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 0, 0, 0, 2>
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
 cmd_readTrim_allChannels::_table_ = {
   {
-    0,  // no _has_bits_
+    PROTOBUF_FIELD_OFFSET(cmd_readTrim_allChannels, _impl_._has_bits_),
     0, // no _extensions_
-    0, 0,  // max_field_number, fast_idx_mask
+    1, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967295,  // skipmap
-    offsetof(decltype(_table_), field_names),  // no field_entries
-    0,  // num_field_entries
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_readTrim_allChannels_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readTrim_allChannels>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readTrim_allChannels>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readTrim_allChannels, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readTrim_allChannels, _impl_.id_)}},
   }}, {{
     65535, 65535
-  }}, // no field_entries, or aux_entries
+  }}, {{
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_readTrim_allChannels, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+  }},
+  // no aux_entries
   {{
   }},
 };
+PROTOBUF_NOINLINE void cmd_readTrim_allChannels::Clear() {
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readTrim_allChannels)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.id_ = 0;
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL cmd_readTrim_allChannels::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const cmd_readTrim_allChannels& this_ = static_cast<const cmd_readTrim_allChannels&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL cmd_readTrim_allChannels::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const cmd_readTrim_allChannels& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readTrim_allChannels)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // int32 id = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readTrim_allChannels)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t cmd_readTrim_allChannels::ByteSizeLong(const MessageLite& base) {
+  const cmd_readTrim_allChannels& this_ = static_cast<const cmd_readTrim_allChannels&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t cmd_readTrim_allChannels::ByteSizeLong() const {
+  const cmd_readTrim_allChannels& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readTrim_allChannels)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+   {
+    // int32 id = 1;
+    cached_has_bits = this_._impl_._has_bits_[0];
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void cmd_readTrim_allChannels::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<cmd_readTrim_allChannels*>(&to_msg);
+  auto& from = static_cast<const cmd_readTrim_allChannels&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readTrim_allChannels)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    if (from._internal_id() != 0) {
+      _this->_impl_.id_ = from._impl_.id_;
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void cmd_readTrim_allChannels::CopyFrom(const cmd_readTrim_allChannels& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readTrim_allChannels)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
 
 
-
-
-
-
+void cmd_readTrim_allChannels::InternalSwap(cmd_readTrim_allChannels* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  swap(_impl_.id_, other->_impl_.id_);
+}
 
 ::google::protobuf::Metadata cmd_readTrim_allChannels::GetMetadata() const {
-  return ::google::protobuf::internal::ZeroFieldsBase::GetMetadataImpl(GetClassData()->full());
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================
 
@@ -12078,12 +12745,12 @@ cmd_readTrim_allChannels_response::cmd_readTrim_allChannels_response(::google::p
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readTrim_allChannels_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readTrim_allChannels_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readTrim_allChannels_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_readTrim_allChannels_response& from_msg)
+    const ::daphne::cmd_readTrim_allChannels_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         trimvalues_{visibility, arena, from.trimvalues_},
@@ -12105,7 +12772,7 @@ cmd_readTrim_allChannels_response::cmd_readTrim_allChannels_response(
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   _impl_.success_ = from._impl_.success_;
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readTrim_allChannels_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_readTrim_allChannels_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readTrim_allChannels_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -12120,7 +12787,7 @@ inline void cmd_readTrim_allChannels_response::SharedCtor(::_pb::Arena* PROTOBUF
   _impl_.success_ = {};
 }
 cmd_readTrim_allChannels_response::~cmd_readTrim_allChannels_response() {
-  // @@protoc_insertion_point(destructor:cmd_readTrim_allChannels_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readTrim_allChannels_response)
   SharedDtor(*this);
 }
 inline void cmd_readTrim_allChannels_response::SharedDtor(MessageLite& self) {
@@ -12186,7 +12853,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readTrim_all
   return cmd_readTrim_allChannels_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 49, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 56, 2>
 cmd_readTrim_allChannels_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readTrim_allChannels_response, _impl_._has_bits_),
@@ -12202,7 +12869,7 @@ cmd_readTrim_allChannels_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readTrim_allChannels_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readTrim_allChannels_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -12230,13 +12897,13 @@ cmd_readTrim_allChannels_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\41\0\7\0\0\0\0\0"
-    "cmd_readTrim_allChannels_response"
+    "\50\0\7\0\0\0\0\0"
+    "daphne.cmd_readTrim_allChannels_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_readTrim_allChannels_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readTrim_allChannels_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readTrim_allChannels_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -12263,7 +12930,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_allChannels_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readTrim_allChannels_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readTrim_allChannels_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readTrim_allChannels_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -12281,7 +12948,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_allChannels_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_readTrim_allChannels_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_readTrim_allChannels_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -12300,7 +12967,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_allChannels_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readTrim_allChannels_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readTrim_allChannels_response)
   return target;
 }
 
@@ -12311,7 +12978,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_allChannels_response::Clear() {
 ::size_t cmd_readTrim_allChannels_response::ByteSizeLong() const {
   const cmd_readTrim_allChannels_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readTrim_allChannels_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readTrim_allChannels_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -12351,7 +13018,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_allChannels_response::Clear() {
 void cmd_readTrim_allChannels_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readTrim_allChannels_response*>(&to_msg);
   auto& from = static_cast<const cmd_readTrim_allChannels_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readTrim_allChannels_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readTrim_allChannels_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -12379,7 +13046,7 @@ void cmd_readTrim_allChannels_response::MergeImpl(::google::protobuf::MessageLit
 }
 
 void cmd_readTrim_allChannels_response::CopyFrom(const cmd_readTrim_allChannels_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readTrim_allChannels_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readTrim_allChannels_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -12417,7 +13084,7 @@ cmd_readTrim_allAFE::cmd_readTrim_allAFE(::google::protobuf::Arena* PROTOBUF_NUL
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readTrim_allAFE)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readTrim_allAFE)
 }
 cmd_readTrim_allAFE::cmd_readTrim_allAFE(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_readTrim_allAFE& from)
@@ -12437,10 +13104,15 @@ PROTOBUF_NDEBUG_INLINE cmd_readTrim_allAFE::Impl_::Impl_(
 
 inline void cmd_readTrim_allAFE::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.afeblock_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, id_),
+           0,
+           offsetof(Impl_, afeblock_) -
+               offsetof(Impl_, id_) +
+               sizeof(Impl_::afeblock_));
 }
 cmd_readTrim_allAFE::~cmd_readTrim_allAFE() {
-  // @@protoc_insertion_point(destructor:cmd_readTrim_allAFE)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readTrim_allAFE)
   SharedDtor(*this);
 }
 inline void cmd_readTrim_allAFE::SharedDtor(MessageLite& self) {
@@ -12493,33 +13165,39 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readTrim_all
   return cmd_readTrim_allAFE_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
 cmd_readTrim_allAFE::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readTrim_allAFE, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_readTrim_allAFE_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readTrim_allAFE>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readTrim_allAFE>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 afeBlock = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readTrim_allAFE, _impl_.afeblock_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readTrim_allAFE, _impl_.afeblock_)}},
+    // uint32 afeBlock = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readTrim_allAFE, _impl_.afeblock_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_readTrim_allAFE, _impl_.afeblock_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readTrim_allAFE, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readTrim_allAFE, _impl_.id_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 afeBlock = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_readTrim_allAFE, _impl_.afeblock_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_readTrim_allAFE, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 afeBlock = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_readTrim_allAFE, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
@@ -12527,13 +13205,18 @@ cmd_readTrim_allAFE::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_readTrim_allAFE::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readTrim_allAFE)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readTrim_allAFE)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.afeblock_ = 0u;
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.afeblock_) -
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.afeblock_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -12549,16 +13232,25 @@ PROTOBUF_NOINLINE void cmd_readTrim_allAFE::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readTrim_allAFE& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readTrim_allAFE)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readTrim_allAFE)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // uint32 afeBlock = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_afeblock() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_afeblock(), target);
+          2, this_._internal_afeblock(), target);
     }
   }
 
@@ -12567,7 +13259,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_allAFE::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readTrim_allAFE)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readTrim_allAFE)
   return target;
 }
 
@@ -12578,17 +13270,25 @@ PROTOBUF_NOINLINE void cmd_readTrim_allAFE::Clear() {
 ::size_t cmd_readTrim_allAFE::ByteSizeLong() const {
   const cmd_readTrim_allAFE& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readTrim_allAFE)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readTrim_allAFE)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
-    // uint32 afeBlock = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 afeBlock = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
@@ -12602,15 +13302,22 @@ PROTOBUF_NOINLINE void cmd_readTrim_allAFE::Clear() {
 void cmd_readTrim_allAFE::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readTrim_allAFE*>(&to_msg);
   auto& from = static_cast<const cmd_readTrim_allAFE&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readTrim_allAFE)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readTrim_allAFE)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    if (from._internal_afeblock() != 0) {
-      _this->_impl_.afeblock_ = from._impl_.afeblock_;
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_afeblock() != 0) {
+        _this->_impl_.afeblock_ = from._impl_.afeblock_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -12618,7 +13325,7 @@ void cmd_readTrim_allAFE::MergeImpl(::google::protobuf::MessageLite& to_msg, con
 }
 
 void cmd_readTrim_allAFE::CopyFrom(const cmd_readTrim_allAFE& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readTrim_allAFE)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readTrim_allAFE)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -12629,7 +13336,12 @@ void cmd_readTrim_allAFE::InternalSwap(cmd_readTrim_allAFE* PROTOBUF_RESTRICT PR
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.afeblock_, other->_impl_.afeblock_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_readTrim_allAFE, _impl_.afeblock_)
+      + sizeof(cmd_readTrim_allAFE::_impl_.afeblock_)
+      - PROTOBUF_FIELD_OFFSET(cmd_readTrim_allAFE, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_readTrim_allAFE::GetMetadata() const {
@@ -12652,12 +13364,12 @@ cmd_readTrim_allAFE_response::cmd_readTrim_allAFE_response(::google::protobuf::A
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readTrim_allAFE_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readTrim_allAFE_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readTrim_allAFE_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_readTrim_allAFE_response& from_msg)
+    const ::daphne::cmd_readTrim_allAFE_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         trimvalues_{visibility, arena, from.trimvalues_},
@@ -12685,7 +13397,7 @@ cmd_readTrim_allAFE_response::cmd_readTrim_allAFE_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::afeblock_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readTrim_allAFE_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_readTrim_allAFE_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readTrim_allAFE_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -12705,7 +13417,7 @@ inline void cmd_readTrim_allAFE_response::SharedCtor(::_pb::Arena* PROTOBUF_NULL
                sizeof(Impl_::afeblock_));
 }
 cmd_readTrim_allAFE_response::~cmd_readTrim_allAFE_response() {
-  // @@protoc_insertion_point(destructor:cmd_readTrim_allAFE_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readTrim_allAFE_response)
   SharedDtor(*this);
 }
 inline void cmd_readTrim_allAFE_response::SharedDtor(MessageLite& self) {
@@ -12771,7 +13483,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readTrim_all
   return cmd_readTrim_allAFE_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 44, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 51, 2>
 cmd_readTrim_allAFE_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readTrim_allAFE_response, _impl_._has_bits_),
@@ -12787,7 +13499,7 @@ cmd_readTrim_allAFE_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readTrim_allAFE_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readTrim_allAFE_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // repeated uint32 trimValues = 4;
@@ -12820,13 +13532,13 @@ cmd_readTrim_allAFE_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\34\0\7\0\0\0\0\0"
-    "cmd_readTrim_allAFE_response"
+    "\43\0\7\0\0\0\0\0"
+    "daphne.cmd_readTrim_allAFE_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_readTrim_allAFE_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readTrim_allAFE_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readTrim_allAFE_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -12857,7 +13569,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_allAFE_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readTrim_allAFE_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readTrim_allAFE_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readTrim_allAFE_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -12875,7 +13587,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_allAFE_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_readTrim_allAFE_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_readTrim_allAFE_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -12903,7 +13615,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_allAFE_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readTrim_allAFE_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readTrim_allAFE_response)
   return target;
 }
 
@@ -12914,7 +13626,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_allAFE_response::Clear() {
 ::size_t cmd_readTrim_allAFE_response::ByteSizeLong() const {
   const cmd_readTrim_allAFE_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readTrim_allAFE_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readTrim_allAFE_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -12961,7 +13673,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_allAFE_response::Clear() {
 void cmd_readTrim_allAFE_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readTrim_allAFE_response*>(&to_msg);
   auto& from = static_cast<const cmd_readTrim_allAFE_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readTrim_allAFE_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readTrim_allAFE_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -12994,7 +13706,7 @@ void cmd_readTrim_allAFE_response::MergeImpl(::google::protobuf::MessageLite& to
 }
 
 void cmd_readTrim_allAFE_response::CopyFrom(const cmd_readTrim_allAFE_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readTrim_allAFE_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readTrim_allAFE_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -13037,7 +13749,7 @@ cmd_readTrim_singleChannel::cmd_readTrim_singleChannel(::google::protobuf::Arena
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readTrim_singleChannel)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readTrim_singleChannel)
 }
 cmd_readTrim_singleChannel::cmd_readTrim_singleChannel(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_readTrim_singleChannel& from)
@@ -13057,10 +13769,15 @@ PROTOBUF_NDEBUG_INLINE cmd_readTrim_singleChannel::Impl_::Impl_(
 
 inline void cmd_readTrim_singleChannel::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.trimchannel_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, id_),
+           0,
+           offsetof(Impl_, trimchannel_) -
+               offsetof(Impl_, id_) +
+               sizeof(Impl_::trimchannel_));
 }
 cmd_readTrim_singleChannel::~cmd_readTrim_singleChannel() {
-  // @@protoc_insertion_point(destructor:cmd_readTrim_singleChannel)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readTrim_singleChannel)
   SharedDtor(*this);
 }
 inline void cmd_readTrim_singleChannel::SharedDtor(MessageLite& self) {
@@ -13113,33 +13830,39 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readTrim_sin
   return cmd_readTrim_singleChannel_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
 cmd_readTrim_singleChannel::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readTrim_singleChannel, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_readTrim_singleChannel_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readTrim_singleChannel>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readTrim_singleChannel>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 trimChannel = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readTrim_singleChannel, _impl_.trimchannel_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readTrim_singleChannel, _impl_.trimchannel_)}},
+    // uint32 trimChannel = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readTrim_singleChannel, _impl_.trimchannel_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_readTrim_singleChannel, _impl_.trimchannel_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readTrim_singleChannel, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readTrim_singleChannel, _impl_.id_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 trimChannel = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_readTrim_singleChannel, _impl_.trimchannel_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_readTrim_singleChannel, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 trimChannel = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_readTrim_singleChannel, _impl_.trimchannel_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
@@ -13147,13 +13870,18 @@ cmd_readTrim_singleChannel::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_readTrim_singleChannel::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readTrim_singleChannel)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readTrim_singleChannel)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.trimchannel_ = 0u;
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.trimchannel_) -
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.trimchannel_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -13169,16 +13897,25 @@ PROTOBUF_NOINLINE void cmd_readTrim_singleChannel::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readTrim_singleChannel& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readTrim_singleChannel)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readTrim_singleChannel)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 trimChannel = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // uint32 trimChannel = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_trimchannel() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_trimchannel(), target);
+          2, this_._internal_trimchannel(), target);
     }
   }
 
@@ -13187,7 +13924,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_singleChannel::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readTrim_singleChannel)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readTrim_singleChannel)
   return target;
 }
 
@@ -13198,17 +13935,25 @@ PROTOBUF_NOINLINE void cmd_readTrim_singleChannel::Clear() {
 ::size_t cmd_readTrim_singleChannel::ByteSizeLong() const {
   const cmd_readTrim_singleChannel& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readTrim_singleChannel)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readTrim_singleChannel)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
-    // uint32 trimChannel = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 trimChannel = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_trimchannel() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_trimchannel());
@@ -13222,15 +13967,22 @@ PROTOBUF_NOINLINE void cmd_readTrim_singleChannel::Clear() {
 void cmd_readTrim_singleChannel::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readTrim_singleChannel*>(&to_msg);
   auto& from = static_cast<const cmd_readTrim_singleChannel&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readTrim_singleChannel)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readTrim_singleChannel)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    if (from._internal_trimchannel() != 0) {
-      _this->_impl_.trimchannel_ = from._impl_.trimchannel_;
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_trimchannel() != 0) {
+        _this->_impl_.trimchannel_ = from._impl_.trimchannel_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -13238,7 +13990,7 @@ void cmd_readTrim_singleChannel::MergeImpl(::google::protobuf::MessageLite& to_m
 }
 
 void cmd_readTrim_singleChannel::CopyFrom(const cmd_readTrim_singleChannel& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readTrim_singleChannel)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readTrim_singleChannel)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -13249,7 +14001,12 @@ void cmd_readTrim_singleChannel::InternalSwap(cmd_readTrim_singleChannel* PROTOB
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.trimchannel_, other->_impl_.trimchannel_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_readTrim_singleChannel, _impl_.trimchannel_)
+      + sizeof(cmd_readTrim_singleChannel::_impl_.trimchannel_)
+      - PROTOBUF_FIELD_OFFSET(cmd_readTrim_singleChannel, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_readTrim_singleChannel::GetMetadata() const {
@@ -13272,12 +14029,12 @@ cmd_readTrim_singleChannel_response::cmd_readTrim_singleChannel_response(::googl
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readTrim_singleChannel_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readTrim_singleChannel_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readTrim_singleChannel_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_readTrim_singleChannel_response& from_msg)
+    const ::daphne::cmd_readTrim_singleChannel_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -13303,7 +14060,7 @@ cmd_readTrim_singleChannel_response::cmd_readTrim_singleChannel_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::trimvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readTrim_singleChannel_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_readTrim_singleChannel_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readTrim_singleChannel_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -13321,7 +14078,7 @@ inline void cmd_readTrim_singleChannel_response::SharedCtor(::_pb::Arena* PROTOB
                sizeof(Impl_::trimvalue_));
 }
 cmd_readTrim_singleChannel_response::~cmd_readTrim_singleChannel_response() {
-  // @@protoc_insertion_point(destructor:cmd_readTrim_singleChannel_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readTrim_singleChannel_response)
   SharedDtor(*this);
 }
 inline void cmd_readTrim_singleChannel_response::SharedDtor(MessageLite& self) {
@@ -13375,7 +14132,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readTrim_sin
   return cmd_readTrim_singleChannel_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 51, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 58, 2>
 cmd_readTrim_singleChannel_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readTrim_singleChannel_response, _impl_._has_bits_),
@@ -13391,7 +14148,7 @@ cmd_readTrim_singleChannel_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readTrim_singleChannel_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readTrim_singleChannel_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // uint32 trimValue = 4;
@@ -13424,13 +14181,13 @@ cmd_readTrim_singleChannel_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\43\0\7\0\0\0\0\0"
-    "cmd_readTrim_singleChannel_response"
+    "\52\0\7\0\0\0\0\0"
+    "daphne.cmd_readTrim_singleChannel_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_readTrim_singleChannel_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readTrim_singleChannel_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readTrim_singleChannel_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -13460,7 +14217,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_singleChannel_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readTrim_singleChannel_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readTrim_singleChannel_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readTrim_singleChannel_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -13478,7 +14235,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_singleChannel_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_readTrim_singleChannel_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_readTrim_singleChannel_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -13506,7 +14263,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_singleChannel_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readTrim_singleChannel_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readTrim_singleChannel_response)
   return target;
 }
 
@@ -13517,7 +14274,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_singleChannel_response::Clear() {
 ::size_t cmd_readTrim_singleChannel_response::ByteSizeLong() const {
   const cmd_readTrim_singleChannel_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readTrim_singleChannel_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readTrim_singleChannel_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -13562,7 +14319,7 @@ PROTOBUF_NOINLINE void cmd_readTrim_singleChannel_response::Clear() {
 void cmd_readTrim_singleChannel_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readTrim_singleChannel_response*>(&to_msg);
   auto& from = static_cast<const cmd_readTrim_singleChannel_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readTrim_singleChannel_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readTrim_singleChannel_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -13599,7 +14356,7 @@ void cmd_readTrim_singleChannel_response::MergeImpl(::google::protobuf::MessageL
 }
 
 void cmd_readTrim_singleChannel_response::CopyFrom(const cmd_readTrim_singleChannel_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readTrim_singleChannel_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readTrim_singleChannel_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -13628,30 +14385,50 @@ void cmd_readTrim_singleChannel_response::InternalSwap(cmd_readTrim_singleChanne
 
 class cmd_readOffset_allChannels::_Internal {
  public:
+  using HasBits =
+      decltype(std::declval<cmd_readOffset_allChannels>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(cmd_readOffset_allChannels, _impl_._has_bits_);
 };
 
 cmd_readOffset_allChannels::cmd_readOffset_allChannels(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(arena, cmd_readOffset_allChannels_class_data_.base()) {
+    : ::google::protobuf::Message(arena, cmd_readOffset_allChannels_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(arena_constructor:cmd_readOffset_allChannels)
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readOffset_allChannels)
 }
 cmd_readOffset_allChannels::cmd_readOffset_allChannels(
-    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
-    const cmd_readOffset_allChannels& from)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_readOffset_allChannels& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(arena, cmd_readOffset_allChannels_class_data_.base()) {
+    : ::google::protobuf::Message(arena, cmd_readOffset_allChannels_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+    : ::google::protobuf::Message(arena),
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  cmd_readOffset_allChannels* const _this = this;
-  (void)_this;
+      _impl_(from._impl_) {
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
+}
+PROTOBUF_NDEBUG_INLINE cmd_readOffset_allChannels::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0} {}
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readOffset_allChannels)
+inline void cmd_readOffset_allChannels::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.id_ = {};
+}
+cmd_readOffset_allChannels::~cmd_readOffset_allChannels() {
+  // @@protoc_insertion_point(destructor:daphne.cmd_readOffset_allChannels)
+  SharedDtor(*this);
+}
+inline void cmd_readOffset_allChannels::SharedDtor(MessageLite& self) {
+  cmd_readOffset_allChannels& this_ = static_cast<cmd_readOffset_allChannels&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
 }
 
 inline void* PROTOBUF_NONNULL cmd_readOffset_allChannels::PlacementNew_(
@@ -13671,10 +14448,10 @@ constexpr auto cmd_readOffset_allChannels::InternalGenerateClassData_() {
           nullptr,  // OnDemandRegisterArenaDtor
           nullptr,  // IsInitialized
           &cmd_readOffset_allChannels::MergeImpl,
-          ::google::protobuf::internal::ZeroFieldsBase::GetNewImpl<cmd_readOffset_allChannels>(),
+          ::google::protobuf::Message::GetNewImpl<cmd_readOffset_allChannels>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           &cmd_readOffset_allChannels::SharedDtor,
-          ::google::protobuf::internal::ZeroFieldsBase::GetClearImpl<cmd_readOffset_allChannels>(), &cmd_readOffset_allChannels::ByteSizeLong,
+          ::google::protobuf::Message::GetClearImpl<cmd_readOffset_allChannels>(), &cmd_readOffset_allChannels::ByteSizeLong,
               &cmd_readOffset_allChannels::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
           PROTOBUF_FIELD_OFFSET(cmd_readOffset_allChannels, _impl_._cached_size_),
@@ -13697,41 +14474,147 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readOffset_a
   return cmd_readOffset_allChannels_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 0, 0, 0, 2>
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
 cmd_readOffset_allChannels::_table_ = {
   {
-    0,  // no _has_bits_
+    PROTOBUF_FIELD_OFFSET(cmd_readOffset_allChannels, _impl_._has_bits_),
     0, // no _extensions_
-    0, 0,  // max_field_number, fast_idx_mask
+    1, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967295,  // skipmap
-    offsetof(decltype(_table_), field_names),  // no field_entries
-    0,  // num_field_entries
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_readOffset_allChannels_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readOffset_allChannels>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readOffset_allChannels>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readOffset_allChannels, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readOffset_allChannels, _impl_.id_)}},
   }}, {{
     65535, 65535
-  }}, // no field_entries, or aux_entries
+  }}, {{
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_readOffset_allChannels, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+  }},
+  // no aux_entries
   {{
   }},
 };
+PROTOBUF_NOINLINE void cmd_readOffset_allChannels::Clear() {
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readOffset_allChannels)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.id_ = 0;
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL cmd_readOffset_allChannels::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const cmd_readOffset_allChannels& this_ = static_cast<const cmd_readOffset_allChannels&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL cmd_readOffset_allChannels::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const cmd_readOffset_allChannels& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readOffset_allChannels)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // int32 id = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readOffset_allChannels)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t cmd_readOffset_allChannels::ByteSizeLong(const MessageLite& base) {
+  const cmd_readOffset_allChannels& this_ = static_cast<const cmd_readOffset_allChannels&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t cmd_readOffset_allChannels::ByteSizeLong() const {
+  const cmd_readOffset_allChannels& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readOffset_allChannels)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+   {
+    // int32 id = 1;
+    cached_has_bits = this_._impl_._has_bits_[0];
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void cmd_readOffset_allChannels::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<cmd_readOffset_allChannels*>(&to_msg);
+  auto& from = static_cast<const cmd_readOffset_allChannels&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readOffset_allChannels)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    if (from._internal_id() != 0) {
+      _this->_impl_.id_ = from._impl_.id_;
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void cmd_readOffset_allChannels::CopyFrom(const cmd_readOffset_allChannels& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readOffset_allChannels)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
 
 
-
-
-
-
+void cmd_readOffset_allChannels::InternalSwap(cmd_readOffset_allChannels* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  swap(_impl_.id_, other->_impl_.id_);
+}
 
 ::google::protobuf::Metadata cmd_readOffset_allChannels::GetMetadata() const {
-  return ::google::protobuf::internal::ZeroFieldsBase::GetMetadataImpl(GetClassData()->full());
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================
 
@@ -13750,12 +14633,12 @@ cmd_readOffset_allChannels_response::cmd_readOffset_allChannels_response(::googl
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readOffset_allChannels_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readOffset_allChannels_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readOffset_allChannels_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_readOffset_allChannels_response& from_msg)
+    const ::daphne::cmd_readOffset_allChannels_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         offsetvalues_{visibility, arena, from.offsetvalues_},
@@ -13777,7 +14660,7 @@ cmd_readOffset_allChannels_response::cmd_readOffset_allChannels_response(
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   _impl_.success_ = from._impl_.success_;
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readOffset_allChannels_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_readOffset_allChannels_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readOffset_allChannels_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -13792,7 +14675,7 @@ inline void cmd_readOffset_allChannels_response::SharedCtor(::_pb::Arena* PROTOB
   _impl_.success_ = {};
 }
 cmd_readOffset_allChannels_response::~cmd_readOffset_allChannels_response() {
-  // @@protoc_insertion_point(destructor:cmd_readOffset_allChannels_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readOffset_allChannels_response)
   SharedDtor(*this);
 }
 inline void cmd_readOffset_allChannels_response::SharedDtor(MessageLite& self) {
@@ -13858,7 +14741,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readOffset_a
   return cmd_readOffset_allChannels_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 51, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 58, 2>
 cmd_readOffset_allChannels_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readOffset_allChannels_response, _impl_._has_bits_),
@@ -13874,7 +14757,7 @@ cmd_readOffset_allChannels_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readOffset_allChannels_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readOffset_allChannels_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -13902,13 +14785,13 @@ cmd_readOffset_allChannels_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\43\0\7\0\0\0\0\0"
-    "cmd_readOffset_allChannels_response"
+    "\52\0\7\0\0\0\0\0"
+    "daphne.cmd_readOffset_allChannels_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_readOffset_allChannels_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readOffset_allChannels_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readOffset_allChannels_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -13935,7 +14818,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_allChannels_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readOffset_allChannels_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readOffset_allChannels_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readOffset_allChannels_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -13953,7 +14836,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_allChannels_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_readOffset_allChannels_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_readOffset_allChannels_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -13972,7 +14855,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_allChannels_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readOffset_allChannels_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readOffset_allChannels_response)
   return target;
 }
 
@@ -13983,7 +14866,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_allChannels_response::Clear() {
 ::size_t cmd_readOffset_allChannels_response::ByteSizeLong() const {
   const cmd_readOffset_allChannels_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readOffset_allChannels_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readOffset_allChannels_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -14023,7 +14906,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_allChannels_response::Clear() {
 void cmd_readOffset_allChannels_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readOffset_allChannels_response*>(&to_msg);
   auto& from = static_cast<const cmd_readOffset_allChannels_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readOffset_allChannels_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readOffset_allChannels_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -14051,7 +14934,7 @@ void cmd_readOffset_allChannels_response::MergeImpl(::google::protobuf::MessageL
 }
 
 void cmd_readOffset_allChannels_response::CopyFrom(const cmd_readOffset_allChannels_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readOffset_allChannels_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readOffset_allChannels_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -14089,7 +14972,7 @@ cmd_readOffset_allAFE::cmd_readOffset_allAFE(::google::protobuf::Arena* PROTOBUF
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readOffset_allAFE)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readOffset_allAFE)
 }
 cmd_readOffset_allAFE::cmd_readOffset_allAFE(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_readOffset_allAFE& from)
@@ -14109,10 +14992,15 @@ PROTOBUF_NDEBUG_INLINE cmd_readOffset_allAFE::Impl_::Impl_(
 
 inline void cmd_readOffset_allAFE::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.afeblock_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, id_),
+           0,
+           offsetof(Impl_, afeblock_) -
+               offsetof(Impl_, id_) +
+               sizeof(Impl_::afeblock_));
 }
 cmd_readOffset_allAFE::~cmd_readOffset_allAFE() {
-  // @@protoc_insertion_point(destructor:cmd_readOffset_allAFE)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readOffset_allAFE)
   SharedDtor(*this);
 }
 inline void cmd_readOffset_allAFE::SharedDtor(MessageLite& self) {
@@ -14165,33 +15053,39 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readOffset_a
   return cmd_readOffset_allAFE_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
 cmd_readOffset_allAFE::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readOffset_allAFE, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_readOffset_allAFE_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readOffset_allAFE>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readOffset_allAFE>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 afeBlock = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readOffset_allAFE, _impl_.afeblock_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readOffset_allAFE, _impl_.afeblock_)}},
+    // uint32 afeBlock = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readOffset_allAFE, _impl_.afeblock_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_readOffset_allAFE, _impl_.afeblock_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readOffset_allAFE, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readOffset_allAFE, _impl_.id_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 afeBlock = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_readOffset_allAFE, _impl_.afeblock_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_readOffset_allAFE, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 afeBlock = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_readOffset_allAFE, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
@@ -14199,13 +15093,18 @@ cmd_readOffset_allAFE::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_readOffset_allAFE::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readOffset_allAFE)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readOffset_allAFE)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.afeblock_ = 0u;
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.afeblock_) -
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.afeblock_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -14221,16 +15120,25 @@ PROTOBUF_NOINLINE void cmd_readOffset_allAFE::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readOffset_allAFE& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readOffset_allAFE)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readOffset_allAFE)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // uint32 afeBlock = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_afeblock() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_afeblock(), target);
+          2, this_._internal_afeblock(), target);
     }
   }
 
@@ -14239,7 +15147,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_allAFE::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readOffset_allAFE)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readOffset_allAFE)
   return target;
 }
 
@@ -14250,17 +15158,25 @@ PROTOBUF_NOINLINE void cmd_readOffset_allAFE::Clear() {
 ::size_t cmd_readOffset_allAFE::ByteSizeLong() const {
   const cmd_readOffset_allAFE& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readOffset_allAFE)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readOffset_allAFE)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
-    // uint32 afeBlock = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 afeBlock = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
@@ -14274,15 +15190,22 @@ PROTOBUF_NOINLINE void cmd_readOffset_allAFE::Clear() {
 void cmd_readOffset_allAFE::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readOffset_allAFE*>(&to_msg);
   auto& from = static_cast<const cmd_readOffset_allAFE&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readOffset_allAFE)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readOffset_allAFE)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    if (from._internal_afeblock() != 0) {
-      _this->_impl_.afeblock_ = from._impl_.afeblock_;
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_afeblock() != 0) {
+        _this->_impl_.afeblock_ = from._impl_.afeblock_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -14290,7 +15213,7 @@ void cmd_readOffset_allAFE::MergeImpl(::google::protobuf::MessageLite& to_msg, c
 }
 
 void cmd_readOffset_allAFE::CopyFrom(const cmd_readOffset_allAFE& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readOffset_allAFE)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readOffset_allAFE)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -14301,7 +15224,12 @@ void cmd_readOffset_allAFE::InternalSwap(cmd_readOffset_allAFE* PROTOBUF_RESTRIC
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.afeblock_, other->_impl_.afeblock_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_readOffset_allAFE, _impl_.afeblock_)
+      + sizeof(cmd_readOffset_allAFE::_impl_.afeblock_)
+      - PROTOBUF_FIELD_OFFSET(cmd_readOffset_allAFE, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_readOffset_allAFE::GetMetadata() const {
@@ -14324,12 +15252,12 @@ cmd_readOffset_allAFE_response::cmd_readOffset_allAFE_response(::google::protobu
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readOffset_allAFE_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readOffset_allAFE_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readOffset_allAFE_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_readOffset_allAFE_response& from_msg)
+    const ::daphne::cmd_readOffset_allAFE_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         offsetvalues_{visibility, arena, from.offsetvalues_},
@@ -14357,7 +15285,7 @@ cmd_readOffset_allAFE_response::cmd_readOffset_allAFE_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::afeblock_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readOffset_allAFE_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_readOffset_allAFE_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readOffset_allAFE_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -14377,7 +15305,7 @@ inline void cmd_readOffset_allAFE_response::SharedCtor(::_pb::Arena* PROTOBUF_NU
                sizeof(Impl_::afeblock_));
 }
 cmd_readOffset_allAFE_response::~cmd_readOffset_allAFE_response() {
-  // @@protoc_insertion_point(destructor:cmd_readOffset_allAFE_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readOffset_allAFE_response)
   SharedDtor(*this);
 }
 inline void cmd_readOffset_allAFE_response::SharedDtor(MessageLite& self) {
@@ -14443,7 +15371,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readOffset_a
   return cmd_readOffset_allAFE_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 46, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 53, 2>
 cmd_readOffset_allAFE_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readOffset_allAFE_response, _impl_._has_bits_),
@@ -14459,7 +15387,7 @@ cmd_readOffset_allAFE_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readOffset_allAFE_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readOffset_allAFE_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // repeated uint32 offsetValues = 4;
@@ -14492,13 +15420,13 @@ cmd_readOffset_allAFE_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\36\0\7\0\0\0\0\0"
-    "cmd_readOffset_allAFE_response"
+    "\45\0\7\0\0\0\0\0"
+    "daphne.cmd_readOffset_allAFE_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_readOffset_allAFE_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readOffset_allAFE_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readOffset_allAFE_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -14529,7 +15457,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_allAFE_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readOffset_allAFE_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readOffset_allAFE_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readOffset_allAFE_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -14547,7 +15475,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_allAFE_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_readOffset_allAFE_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_readOffset_allAFE_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -14575,7 +15503,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_allAFE_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readOffset_allAFE_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readOffset_allAFE_response)
   return target;
 }
 
@@ -14586,7 +15514,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_allAFE_response::Clear() {
 ::size_t cmd_readOffset_allAFE_response::ByteSizeLong() const {
   const cmd_readOffset_allAFE_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readOffset_allAFE_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readOffset_allAFE_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -14633,7 +15561,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_allAFE_response::Clear() {
 void cmd_readOffset_allAFE_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readOffset_allAFE_response*>(&to_msg);
   auto& from = static_cast<const cmd_readOffset_allAFE_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readOffset_allAFE_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readOffset_allAFE_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -14666,7 +15594,7 @@ void cmd_readOffset_allAFE_response::MergeImpl(::google::protobuf::MessageLite& 
 }
 
 void cmd_readOffset_allAFE_response::CopyFrom(const cmd_readOffset_allAFE_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readOffset_allAFE_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readOffset_allAFE_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -14709,7 +15637,7 @@ cmd_readOffset_singleChannel::cmd_readOffset_singleChannel(::google::protobuf::A
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readOffset_singleChannel)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readOffset_singleChannel)
 }
 cmd_readOffset_singleChannel::cmd_readOffset_singleChannel(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_readOffset_singleChannel& from)
@@ -14729,10 +15657,15 @@ PROTOBUF_NDEBUG_INLINE cmd_readOffset_singleChannel::Impl_::Impl_(
 
 inline void cmd_readOffset_singleChannel::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.offsetchannel_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, id_),
+           0,
+           offsetof(Impl_, offsetchannel_) -
+               offsetof(Impl_, id_) +
+               sizeof(Impl_::offsetchannel_));
 }
 cmd_readOffset_singleChannel::~cmd_readOffset_singleChannel() {
-  // @@protoc_insertion_point(destructor:cmd_readOffset_singleChannel)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readOffset_singleChannel)
   SharedDtor(*this);
 }
 inline void cmd_readOffset_singleChannel::SharedDtor(MessageLite& self) {
@@ -14785,33 +15718,39 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readOffset_s
   return cmd_readOffset_singleChannel_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
 cmd_readOffset_singleChannel::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readOffset_singleChannel, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_readOffset_singleChannel_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readOffset_singleChannel>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readOffset_singleChannel>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 offsetChannel = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readOffset_singleChannel, _impl_.offsetchannel_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readOffset_singleChannel, _impl_.offsetchannel_)}},
+    // uint32 offsetChannel = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readOffset_singleChannel, _impl_.offsetchannel_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_readOffset_singleChannel, _impl_.offsetchannel_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readOffset_singleChannel, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readOffset_singleChannel, _impl_.id_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 offsetChannel = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_readOffset_singleChannel, _impl_.offsetchannel_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_readOffset_singleChannel, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 offsetChannel = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_readOffset_singleChannel, _impl_.offsetchannel_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
@@ -14819,13 +15758,18 @@ cmd_readOffset_singleChannel::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_readOffset_singleChannel::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readOffset_singleChannel)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readOffset_singleChannel)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.offsetchannel_ = 0u;
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.offsetchannel_) -
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.offsetchannel_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -14841,16 +15785,25 @@ PROTOBUF_NOINLINE void cmd_readOffset_singleChannel::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readOffset_singleChannel& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readOffset_singleChannel)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readOffset_singleChannel)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 offsetChannel = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // uint32 offsetChannel = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_offsetchannel() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_offsetchannel(), target);
+          2, this_._internal_offsetchannel(), target);
     }
   }
 
@@ -14859,7 +15812,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_singleChannel::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readOffset_singleChannel)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readOffset_singleChannel)
   return target;
 }
 
@@ -14870,17 +15823,25 @@ PROTOBUF_NOINLINE void cmd_readOffset_singleChannel::Clear() {
 ::size_t cmd_readOffset_singleChannel::ByteSizeLong() const {
   const cmd_readOffset_singleChannel& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readOffset_singleChannel)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readOffset_singleChannel)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
-    // uint32 offsetChannel = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 offsetChannel = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_offsetchannel() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_offsetchannel());
@@ -14894,15 +15855,22 @@ PROTOBUF_NOINLINE void cmd_readOffset_singleChannel::Clear() {
 void cmd_readOffset_singleChannel::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readOffset_singleChannel*>(&to_msg);
   auto& from = static_cast<const cmd_readOffset_singleChannel&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readOffset_singleChannel)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readOffset_singleChannel)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    if (from._internal_offsetchannel() != 0) {
-      _this->_impl_.offsetchannel_ = from._impl_.offsetchannel_;
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_offsetchannel() != 0) {
+        _this->_impl_.offsetchannel_ = from._impl_.offsetchannel_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -14910,7 +15878,7 @@ void cmd_readOffset_singleChannel::MergeImpl(::google::protobuf::MessageLite& to
 }
 
 void cmd_readOffset_singleChannel::CopyFrom(const cmd_readOffset_singleChannel& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readOffset_singleChannel)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readOffset_singleChannel)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -14921,7 +15889,12 @@ void cmd_readOffset_singleChannel::InternalSwap(cmd_readOffset_singleChannel* PR
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.offsetchannel_, other->_impl_.offsetchannel_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_readOffset_singleChannel, _impl_.offsetchannel_)
+      + sizeof(cmd_readOffset_singleChannel::_impl_.offsetchannel_)
+      - PROTOBUF_FIELD_OFFSET(cmd_readOffset_singleChannel, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_readOffset_singleChannel::GetMetadata() const {
@@ -14944,12 +15917,12 @@ cmd_readOffset_singleChannel_response::cmd_readOffset_singleChannel_response(::g
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readOffset_singleChannel_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readOffset_singleChannel_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readOffset_singleChannel_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_readOffset_singleChannel_response& from_msg)
+    const ::daphne::cmd_readOffset_singleChannel_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -14975,7 +15948,7 @@ cmd_readOffset_singleChannel_response::cmd_readOffset_singleChannel_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::offsetvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readOffset_singleChannel_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_readOffset_singleChannel_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readOffset_singleChannel_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -14993,7 +15966,7 @@ inline void cmd_readOffset_singleChannel_response::SharedCtor(::_pb::Arena* PROT
                sizeof(Impl_::offsetvalue_));
 }
 cmd_readOffset_singleChannel_response::~cmd_readOffset_singleChannel_response() {
-  // @@protoc_insertion_point(destructor:cmd_readOffset_singleChannel_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readOffset_singleChannel_response)
   SharedDtor(*this);
 }
 inline void cmd_readOffset_singleChannel_response::SharedDtor(MessageLite& self) {
@@ -15047,7 +16020,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readOffset_s
   return cmd_readOffset_singleChannel_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 53, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 60, 2>
 cmd_readOffset_singleChannel_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readOffset_singleChannel_response, _impl_._has_bits_),
@@ -15063,7 +16036,7 @@ cmd_readOffset_singleChannel_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readOffset_singleChannel_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readOffset_singleChannel_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // uint32 offsetValue = 4;
@@ -15096,13 +16069,13 @@ cmd_readOffset_singleChannel_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\45\0\7\0\0\0\0\0"
-    "cmd_readOffset_singleChannel_response"
+    "\54\0\7\0\0\0\0\0"
+    "daphne.cmd_readOffset_singleChannel_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_readOffset_singleChannel_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readOffset_singleChannel_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readOffset_singleChannel_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -15132,7 +16105,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_singleChannel_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readOffset_singleChannel_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readOffset_singleChannel_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readOffset_singleChannel_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -15150,7 +16123,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_singleChannel_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_readOffset_singleChannel_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_readOffset_singleChannel_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -15178,7 +16151,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_singleChannel_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readOffset_singleChannel_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readOffset_singleChannel_response)
   return target;
 }
 
@@ -15189,7 +16162,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_singleChannel_response::Clear() {
 ::size_t cmd_readOffset_singleChannel_response::ByteSizeLong() const {
   const cmd_readOffset_singleChannel_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readOffset_singleChannel_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readOffset_singleChannel_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -15234,7 +16207,7 @@ PROTOBUF_NOINLINE void cmd_readOffset_singleChannel_response::Clear() {
 void cmd_readOffset_singleChannel_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readOffset_singleChannel_response*>(&to_msg);
   auto& from = static_cast<const cmd_readOffset_singleChannel_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readOffset_singleChannel_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readOffset_singleChannel_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -15271,7 +16244,7 @@ void cmd_readOffset_singleChannel_response::MergeImpl(::google::protobuf::Messag
 }
 
 void cmd_readOffset_singleChannel_response::CopyFrom(const cmd_readOffset_singleChannel_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readOffset_singleChannel_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readOffset_singleChannel_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -15300,30 +16273,50 @@ void cmd_readOffset_singleChannel_response::InternalSwap(cmd_readOffset_singleCh
 
 class cmd_readVbiasControl::_Internal {
  public:
+  using HasBits =
+      decltype(std::declval<cmd_readVbiasControl>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(cmd_readVbiasControl, _impl_._has_bits_);
 };
 
 cmd_readVbiasControl::cmd_readVbiasControl(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(arena, cmd_readVbiasControl_class_data_.base()) {
+    : ::google::protobuf::Message(arena, cmd_readVbiasControl_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(arena_constructor:cmd_readVbiasControl)
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readVbiasControl)
 }
 cmd_readVbiasControl::cmd_readVbiasControl(
-    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
-    const cmd_readVbiasControl& from)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_readVbiasControl& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(arena, cmd_readVbiasControl_class_data_.base()) {
+    : ::google::protobuf::Message(arena, cmd_readVbiasControl_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+    : ::google::protobuf::Message(arena),
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  cmd_readVbiasControl* const _this = this;
-  (void)_this;
+      _impl_(from._impl_) {
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
+}
+PROTOBUF_NDEBUG_INLINE cmd_readVbiasControl::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0} {}
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readVbiasControl)
+inline void cmd_readVbiasControl::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.id_ = {};
+}
+cmd_readVbiasControl::~cmd_readVbiasControl() {
+  // @@protoc_insertion_point(destructor:daphne.cmd_readVbiasControl)
+  SharedDtor(*this);
+}
+inline void cmd_readVbiasControl::SharedDtor(MessageLite& self) {
+  cmd_readVbiasControl& this_ = static_cast<cmd_readVbiasControl&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
 }
 
 inline void* PROTOBUF_NONNULL cmd_readVbiasControl::PlacementNew_(
@@ -15343,10 +16336,10 @@ constexpr auto cmd_readVbiasControl::InternalGenerateClassData_() {
           nullptr,  // OnDemandRegisterArenaDtor
           nullptr,  // IsInitialized
           &cmd_readVbiasControl::MergeImpl,
-          ::google::protobuf::internal::ZeroFieldsBase::GetNewImpl<cmd_readVbiasControl>(),
+          ::google::protobuf::Message::GetNewImpl<cmd_readVbiasControl>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           &cmd_readVbiasControl::SharedDtor,
-          ::google::protobuf::internal::ZeroFieldsBase::GetClearImpl<cmd_readVbiasControl>(), &cmd_readVbiasControl::ByteSizeLong,
+          ::google::protobuf::Message::GetClearImpl<cmd_readVbiasControl>(), &cmd_readVbiasControl::ByteSizeLong,
               &cmd_readVbiasControl::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
           PROTOBUF_FIELD_OFFSET(cmd_readVbiasControl, _impl_._cached_size_),
@@ -15369,41 +16362,147 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readVbiasCon
   return cmd_readVbiasControl_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 0, 0, 0, 2>
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
 cmd_readVbiasControl::_table_ = {
   {
-    0,  // no _has_bits_
+    PROTOBUF_FIELD_OFFSET(cmd_readVbiasControl, _impl_._has_bits_),
     0, // no _extensions_
-    0, 0,  // max_field_number, fast_idx_mask
+    1, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967295,  // skipmap
-    offsetof(decltype(_table_), field_names),  // no field_entries
-    0,  // num_field_entries
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_readVbiasControl_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readVbiasControl>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readVbiasControl>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readVbiasControl, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readVbiasControl, _impl_.id_)}},
   }}, {{
     65535, 65535
-  }}, // no field_entries, or aux_entries
+  }}, {{
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_readVbiasControl, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+  }},
+  // no aux_entries
   {{
   }},
 };
+PROTOBUF_NOINLINE void cmd_readVbiasControl::Clear() {
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readVbiasControl)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.id_ = 0;
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL cmd_readVbiasControl::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const cmd_readVbiasControl& this_ = static_cast<const cmd_readVbiasControl&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL cmd_readVbiasControl::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const cmd_readVbiasControl& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readVbiasControl)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // int32 id = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readVbiasControl)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t cmd_readVbiasControl::ByteSizeLong(const MessageLite& base) {
+  const cmd_readVbiasControl& this_ = static_cast<const cmd_readVbiasControl&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t cmd_readVbiasControl::ByteSizeLong() const {
+  const cmd_readVbiasControl& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readVbiasControl)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+   {
+    // int32 id = 1;
+    cached_has_bits = this_._impl_._has_bits_[0];
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void cmd_readVbiasControl::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<cmd_readVbiasControl*>(&to_msg);
+  auto& from = static_cast<const cmd_readVbiasControl&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readVbiasControl)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    if (from._internal_id() != 0) {
+      _this->_impl_.id_ = from._impl_.id_;
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void cmd_readVbiasControl::CopyFrom(const cmd_readVbiasControl& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readVbiasControl)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
 
 
-
-
-
-
+void cmd_readVbiasControl::InternalSwap(cmd_readVbiasControl* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  swap(_impl_.id_, other->_impl_.id_);
+}
 
 ::google::protobuf::Metadata cmd_readVbiasControl::GetMetadata() const {
-  return ::google::protobuf::internal::ZeroFieldsBase::GetMetadataImpl(GetClassData()->full());
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================
 
@@ -15422,12 +16521,12 @@ cmd_readVbiasControl_response::cmd_readVbiasControl_response(::google::protobuf:
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readVbiasControl_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readVbiasControl_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readVbiasControl_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_readVbiasControl_response& from_msg)
+    const ::daphne::cmd_readVbiasControl_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -15453,7 +16552,7 @@ cmd_readVbiasControl_response::cmd_readVbiasControl_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::vbiascontrolvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readVbiasControl_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_readVbiasControl_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readVbiasControl_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -15471,7 +16570,7 @@ inline void cmd_readVbiasControl_response::SharedCtor(::_pb::Arena* PROTOBUF_NUL
                sizeof(Impl_::vbiascontrolvalue_));
 }
 cmd_readVbiasControl_response::~cmd_readVbiasControl_response() {
-  // @@protoc_insertion_point(destructor:cmd_readVbiasControl_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readVbiasControl_response)
   SharedDtor(*this);
 }
 inline void cmd_readVbiasControl_response::SharedDtor(MessageLite& self) {
@@ -15525,7 +16624,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readVbiasCon
   return cmd_readVbiasControl_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 45, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 52, 2>
 cmd_readVbiasControl_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readVbiasControl_response, _impl_._has_bits_),
@@ -15541,7 +16640,7 @@ cmd_readVbiasControl_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readVbiasControl_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readVbiasControl_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -15569,13 +16668,13 @@ cmd_readVbiasControl_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\35\0\7\0\0\0\0\0"
-    "cmd_readVbiasControl_response"
+    "\44\0\7\0\0\0\0\0"
+    "daphne.cmd_readVbiasControl_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_readVbiasControl_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readVbiasControl_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readVbiasControl_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -15605,7 +16704,7 @@ PROTOBUF_NOINLINE void cmd_readVbiasControl_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readVbiasControl_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readVbiasControl_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readVbiasControl_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -15623,7 +16722,7 @@ PROTOBUF_NOINLINE void cmd_readVbiasControl_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_readVbiasControl_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_readVbiasControl_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -15642,7 +16741,7 @@ PROTOBUF_NOINLINE void cmd_readVbiasControl_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readVbiasControl_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readVbiasControl_response)
   return target;
 }
 
@@ -15653,7 +16752,7 @@ PROTOBUF_NOINLINE void cmd_readVbiasControl_response::Clear() {
 ::size_t cmd_readVbiasControl_response::ByteSizeLong() const {
   const cmd_readVbiasControl_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readVbiasControl_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readVbiasControl_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -15691,7 +16790,7 @@ PROTOBUF_NOINLINE void cmd_readVbiasControl_response::Clear() {
 void cmd_readVbiasControl_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readVbiasControl_response*>(&to_msg);
   auto& from = static_cast<const cmd_readVbiasControl_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readVbiasControl_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readVbiasControl_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -15723,7 +16822,7 @@ void cmd_readVbiasControl_response::MergeImpl(::google::protobuf::MessageLite& t
 }
 
 void cmd_readVbiasControl_response::CopyFrom(const cmd_readVbiasControl_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readVbiasControl_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readVbiasControl_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -15765,7 +16864,7 @@ cmd_readCurrentMonitor::cmd_readCurrentMonitor(::google::protobuf::Arena* PROTOB
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readCurrentMonitor)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readCurrentMonitor)
 }
 cmd_readCurrentMonitor::cmd_readCurrentMonitor(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_readCurrentMonitor& from)
@@ -15785,10 +16884,15 @@ PROTOBUF_NDEBUG_INLINE cmd_readCurrentMonitor::Impl_::Impl_(
 
 inline void cmd_readCurrentMonitor::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.currentmonitorchannel_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, id_),
+           0,
+           offsetof(Impl_, currentmonitorchannel_) -
+               offsetof(Impl_, id_) +
+               sizeof(Impl_::currentmonitorchannel_));
 }
 cmd_readCurrentMonitor::~cmd_readCurrentMonitor() {
-  // @@protoc_insertion_point(destructor:cmd_readCurrentMonitor)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readCurrentMonitor)
   SharedDtor(*this);
 }
 inline void cmd_readCurrentMonitor::SharedDtor(MessageLite& self) {
@@ -15841,33 +16945,39 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readCurrentM
   return cmd_readCurrentMonitor_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
 cmd_readCurrentMonitor::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readCurrentMonitor, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_readCurrentMonitor_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readCurrentMonitor>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readCurrentMonitor>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 currentMonitorChannel = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readCurrentMonitor, _impl_.currentmonitorchannel_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readCurrentMonitor, _impl_.currentmonitorchannel_)}},
+    // uint32 currentMonitorChannel = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readCurrentMonitor, _impl_.currentmonitorchannel_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_readCurrentMonitor, _impl_.currentmonitorchannel_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readCurrentMonitor, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readCurrentMonitor, _impl_.id_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 currentMonitorChannel = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_readCurrentMonitor, _impl_.currentmonitorchannel_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_readCurrentMonitor, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 currentMonitorChannel = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_readCurrentMonitor, _impl_.currentmonitorchannel_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
@@ -15875,13 +16985,18 @@ cmd_readCurrentMonitor::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_readCurrentMonitor::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readCurrentMonitor)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readCurrentMonitor)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.currentmonitorchannel_ = 0u;
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.currentmonitorchannel_) -
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.currentmonitorchannel_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -15897,16 +17012,25 @@ PROTOBUF_NOINLINE void cmd_readCurrentMonitor::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readCurrentMonitor& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readCurrentMonitor)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readCurrentMonitor)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 currentMonitorChannel = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // uint32 currentMonitorChannel = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_currentmonitorchannel() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_currentmonitorchannel(), target);
+          2, this_._internal_currentmonitorchannel(), target);
     }
   }
 
@@ -15915,7 +17039,7 @@ PROTOBUF_NOINLINE void cmd_readCurrentMonitor::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readCurrentMonitor)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readCurrentMonitor)
   return target;
 }
 
@@ -15926,17 +17050,25 @@ PROTOBUF_NOINLINE void cmd_readCurrentMonitor::Clear() {
 ::size_t cmd_readCurrentMonitor::ByteSizeLong() const {
   const cmd_readCurrentMonitor& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readCurrentMonitor)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readCurrentMonitor)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
-    // uint32 currentMonitorChannel = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 currentMonitorChannel = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_currentmonitorchannel() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_currentmonitorchannel());
@@ -15950,15 +17082,22 @@ PROTOBUF_NOINLINE void cmd_readCurrentMonitor::Clear() {
 void cmd_readCurrentMonitor::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readCurrentMonitor*>(&to_msg);
   auto& from = static_cast<const cmd_readCurrentMonitor&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readCurrentMonitor)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readCurrentMonitor)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    if (from._internal_currentmonitorchannel() != 0) {
-      _this->_impl_.currentmonitorchannel_ = from._impl_.currentmonitorchannel_;
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_currentmonitorchannel() != 0) {
+        _this->_impl_.currentmonitorchannel_ = from._impl_.currentmonitorchannel_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -15966,7 +17105,7 @@ void cmd_readCurrentMonitor::MergeImpl(::google::protobuf::MessageLite& to_msg, 
 }
 
 void cmd_readCurrentMonitor::CopyFrom(const cmd_readCurrentMonitor& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readCurrentMonitor)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readCurrentMonitor)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -15977,7 +17116,12 @@ void cmd_readCurrentMonitor::InternalSwap(cmd_readCurrentMonitor* PROTOBUF_RESTR
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.currentmonitorchannel_, other->_impl_.currentmonitorchannel_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_readCurrentMonitor, _impl_.currentmonitorchannel_)
+      + sizeof(cmd_readCurrentMonitor::_impl_.currentmonitorchannel_)
+      - PROTOBUF_FIELD_OFFSET(cmd_readCurrentMonitor, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_readCurrentMonitor::GetMetadata() const {
@@ -16000,12 +17144,12 @@ cmd_readCurrentMonitor_response::cmd_readCurrentMonitor_response(::google::proto
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readCurrentMonitor_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readCurrentMonitor_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readCurrentMonitor_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_readCurrentMonitor_response& from_msg)
+    const ::daphne::cmd_readCurrentMonitor_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -16031,7 +17175,7 @@ cmd_readCurrentMonitor_response::cmd_readCurrentMonitor_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::currentvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readCurrentMonitor_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_readCurrentMonitor_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readCurrentMonitor_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -16049,7 +17193,7 @@ inline void cmd_readCurrentMonitor_response::SharedCtor(::_pb::Arena* PROTOBUF_N
                sizeof(Impl_::currentvalue_));
 }
 cmd_readCurrentMonitor_response::~cmd_readCurrentMonitor_response() {
-  // @@protoc_insertion_point(destructor:cmd_readCurrentMonitor_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readCurrentMonitor_response)
   SharedDtor(*this);
 }
 inline void cmd_readCurrentMonitor_response::SharedDtor(MessageLite& self) {
@@ -16103,7 +17247,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readCurrentM
   return cmd_readCurrentMonitor_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 47, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 54, 2>
 cmd_readCurrentMonitor_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readCurrentMonitor_response, _impl_._has_bits_),
@@ -16119,7 +17263,7 @@ cmd_readCurrentMonitor_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readCurrentMonitor_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readCurrentMonitor_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // uint32 currentValue = 4;
@@ -16152,13 +17296,13 @@ cmd_readCurrentMonitor_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\37\0\7\0\0\0\0\0"
-    "cmd_readCurrentMonitor_response"
+    "\46\0\7\0\0\0\0\0"
+    "daphne.cmd_readCurrentMonitor_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_readCurrentMonitor_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readCurrentMonitor_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readCurrentMonitor_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -16188,7 +17332,7 @@ PROTOBUF_NOINLINE void cmd_readCurrentMonitor_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readCurrentMonitor_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readCurrentMonitor_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readCurrentMonitor_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -16206,7 +17350,7 @@ PROTOBUF_NOINLINE void cmd_readCurrentMonitor_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_readCurrentMonitor_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_readCurrentMonitor_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -16234,7 +17378,7 @@ PROTOBUF_NOINLINE void cmd_readCurrentMonitor_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readCurrentMonitor_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readCurrentMonitor_response)
   return target;
 }
 
@@ -16245,7 +17389,7 @@ PROTOBUF_NOINLINE void cmd_readCurrentMonitor_response::Clear() {
 ::size_t cmd_readCurrentMonitor_response::ByteSizeLong() const {
   const cmd_readCurrentMonitor_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readCurrentMonitor_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readCurrentMonitor_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -16290,7 +17434,7 @@ PROTOBUF_NOINLINE void cmd_readCurrentMonitor_response::Clear() {
 void cmd_readCurrentMonitor_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readCurrentMonitor_response*>(&to_msg);
   auto& from = static_cast<const cmd_readCurrentMonitor_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readCurrentMonitor_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readCurrentMonitor_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -16327,7 +17471,7 @@ void cmd_readCurrentMonitor_response::MergeImpl(::google::protobuf::MessageLite&
 }
 
 void cmd_readCurrentMonitor_response::CopyFrom(const cmd_readCurrentMonitor_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readCurrentMonitor_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readCurrentMonitor_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -16369,7 +17513,7 @@ cmd_readBiasVoltageMonitor::cmd_readBiasVoltageMonitor(::google::protobuf::Arena
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readBiasVoltageMonitor)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readBiasVoltageMonitor)
 }
 cmd_readBiasVoltageMonitor::cmd_readBiasVoltageMonitor(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_readBiasVoltageMonitor& from)
@@ -16389,10 +17533,15 @@ PROTOBUF_NDEBUG_INLINE cmd_readBiasVoltageMonitor::Impl_::Impl_(
 
 inline void cmd_readBiasVoltageMonitor::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.afeblock_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, id_),
+           0,
+           offsetof(Impl_, afeblock_) -
+               offsetof(Impl_, id_) +
+               sizeof(Impl_::afeblock_));
 }
 cmd_readBiasVoltageMonitor::~cmd_readBiasVoltageMonitor() {
-  // @@protoc_insertion_point(destructor:cmd_readBiasVoltageMonitor)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readBiasVoltageMonitor)
   SharedDtor(*this);
 }
 inline void cmd_readBiasVoltageMonitor::SharedDtor(MessageLite& self) {
@@ -16445,33 +17594,39 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readBiasVolt
   return cmd_readBiasVoltageMonitor_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
 cmd_readBiasVoltageMonitor::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readBiasVoltageMonitor, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_readBiasVoltageMonitor_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readBiasVoltageMonitor>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readBiasVoltageMonitor>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // uint32 afeBlock = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readBiasVoltageMonitor, _impl_.afeblock_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readBiasVoltageMonitor, _impl_.afeblock_)}},
+    // uint32 afeBlock = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readBiasVoltageMonitor, _impl_.afeblock_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_readBiasVoltageMonitor, _impl_.afeblock_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_readBiasVoltageMonitor, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_readBiasVoltageMonitor, _impl_.id_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // uint32 afeBlock = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_readBiasVoltageMonitor, _impl_.afeblock_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_readBiasVoltageMonitor, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // uint32 afeBlock = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_readBiasVoltageMonitor, _impl_.afeblock_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
   }},
   // no aux_entries
@@ -16479,13 +17634,18 @@ cmd_readBiasVoltageMonitor::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_readBiasVoltageMonitor::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readBiasVoltageMonitor)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readBiasVoltageMonitor)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.afeblock_ = 0u;
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.afeblock_) -
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.afeblock_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -16501,16 +17661,25 @@ PROTOBUF_NOINLINE void cmd_readBiasVoltageMonitor::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readBiasVoltageMonitor& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readBiasVoltageMonitor)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readBiasVoltageMonitor)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // uint32 afeBlock = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_afeblock() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
-          1, this_._internal_afeblock(), target);
+          2, this_._internal_afeblock(), target);
     }
   }
 
@@ -16519,7 +17688,7 @@ PROTOBUF_NOINLINE void cmd_readBiasVoltageMonitor::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readBiasVoltageMonitor)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readBiasVoltageMonitor)
   return target;
 }
 
@@ -16530,17 +17699,25 @@ PROTOBUF_NOINLINE void cmd_readBiasVoltageMonitor::Clear() {
 ::size_t cmd_readBiasVoltageMonitor::ByteSizeLong() const {
   const cmd_readBiasVoltageMonitor& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readBiasVoltageMonitor)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readBiasVoltageMonitor)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
-    // uint32 afeBlock = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // uint32 afeBlock = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_afeblock() != 0) {
         total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
             this_._internal_afeblock());
@@ -16554,15 +17731,22 @@ PROTOBUF_NOINLINE void cmd_readBiasVoltageMonitor::Clear() {
 void cmd_readBiasVoltageMonitor::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readBiasVoltageMonitor*>(&to_msg);
   auto& from = static_cast<const cmd_readBiasVoltageMonitor&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readBiasVoltageMonitor)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readBiasVoltageMonitor)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    if (from._internal_afeblock() != 0) {
-      _this->_impl_.afeblock_ = from._impl_.afeblock_;
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_afeblock() != 0) {
+        _this->_impl_.afeblock_ = from._impl_.afeblock_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -16570,7 +17754,7 @@ void cmd_readBiasVoltageMonitor::MergeImpl(::google::protobuf::MessageLite& to_m
 }
 
 void cmd_readBiasVoltageMonitor::CopyFrom(const cmd_readBiasVoltageMonitor& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readBiasVoltageMonitor)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readBiasVoltageMonitor)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -16581,7 +17765,12 @@ void cmd_readBiasVoltageMonitor::InternalSwap(cmd_readBiasVoltageMonitor* PROTOB
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.afeblock_, other->_impl_.afeblock_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_readBiasVoltageMonitor, _impl_.afeblock_)
+      + sizeof(cmd_readBiasVoltageMonitor::_impl_.afeblock_)
+      - PROTOBUF_FIELD_OFFSET(cmd_readBiasVoltageMonitor, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_readBiasVoltageMonitor::GetMetadata() const {
@@ -16604,12 +17793,12 @@ cmd_readBiasVoltageMonitor_response::cmd_readBiasVoltageMonitor_response(::googl
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_readBiasVoltageMonitor_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_readBiasVoltageMonitor_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readBiasVoltageMonitor_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_readBiasVoltageMonitor_response& from_msg)
+    const ::daphne::cmd_readBiasVoltageMonitor_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -16635,7 +17824,7 @@ cmd_readBiasVoltageMonitor_response::cmd_readBiasVoltageMonitor_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::biasvoltagevalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_readBiasVoltageMonitor_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_readBiasVoltageMonitor_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_readBiasVoltageMonitor_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -16653,7 +17842,7 @@ inline void cmd_readBiasVoltageMonitor_response::SharedCtor(::_pb::Arena* PROTOB
                sizeof(Impl_::biasvoltagevalue_));
 }
 cmd_readBiasVoltageMonitor_response::~cmd_readBiasVoltageMonitor_response() {
-  // @@protoc_insertion_point(destructor:cmd_readBiasVoltageMonitor_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_readBiasVoltageMonitor_response)
   SharedDtor(*this);
 }
 inline void cmd_readBiasVoltageMonitor_response::SharedDtor(MessageLite& self) {
@@ -16707,7 +17896,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_readBiasVolt
   return cmd_readBiasVoltageMonitor_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 51, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 58, 2>
 cmd_readBiasVoltageMonitor_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_readBiasVoltageMonitor_response, _impl_._has_bits_),
@@ -16723,7 +17912,7 @@ cmd_readBiasVoltageMonitor_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_readBiasVoltageMonitor_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_readBiasVoltageMonitor_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // uint32 biasVoltageValue = 4;
@@ -16756,13 +17945,13 @@ cmd_readBiasVoltageMonitor_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\43\0\7\0\0\0\0\0"
-    "cmd_readBiasVoltageMonitor_response"
+    "\52\0\7\0\0\0\0\0"
+    "daphne.cmd_readBiasVoltageMonitor_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_readBiasVoltageMonitor_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_readBiasVoltageMonitor_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_readBiasVoltageMonitor_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -16792,7 +17981,7 @@ PROTOBUF_NOINLINE void cmd_readBiasVoltageMonitor_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_readBiasVoltageMonitor_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_readBiasVoltageMonitor_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_readBiasVoltageMonitor_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -16810,7 +17999,7 @@ PROTOBUF_NOINLINE void cmd_readBiasVoltageMonitor_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_readBiasVoltageMonitor_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_readBiasVoltageMonitor_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -16838,7 +18027,7 @@ PROTOBUF_NOINLINE void cmd_readBiasVoltageMonitor_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_readBiasVoltageMonitor_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_readBiasVoltageMonitor_response)
   return target;
 }
 
@@ -16849,7 +18038,7 @@ PROTOBUF_NOINLINE void cmd_readBiasVoltageMonitor_response::Clear() {
 ::size_t cmd_readBiasVoltageMonitor_response::ByteSizeLong() const {
   const cmd_readBiasVoltageMonitor_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_readBiasVoltageMonitor_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_readBiasVoltageMonitor_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -16894,7 +18083,7 @@ PROTOBUF_NOINLINE void cmd_readBiasVoltageMonitor_response::Clear() {
 void cmd_readBiasVoltageMonitor_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_readBiasVoltageMonitor_response*>(&to_msg);
   auto& from = static_cast<const cmd_readBiasVoltageMonitor_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_readBiasVoltageMonitor_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_readBiasVoltageMonitor_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -16931,7 +18120,7 @@ void cmd_readBiasVoltageMonitor_response::MergeImpl(::google::protobuf::MessageL
 }
 
 void cmd_readBiasVoltageMonitor_response::CopyFrom(const cmd_readBiasVoltageMonitor_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_readBiasVoltageMonitor_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_readBiasVoltageMonitor_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -16973,7 +18162,7 @@ cmd_setAFEReset::cmd_setAFEReset(::google::protobuf::Arena* PROTOBUF_NULLABLE ar
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_setAFEReset)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_setAFEReset)
 }
 cmd_setAFEReset::cmd_setAFEReset(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_setAFEReset& from)
@@ -16993,10 +18182,15 @@ PROTOBUF_NDEBUG_INLINE cmd_setAFEReset::Impl_::Impl_(
 
 inline void cmd_setAFEReset::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.resetvalue_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, id_),
+           0,
+           offsetof(Impl_, resetvalue_) -
+               offsetof(Impl_, id_) +
+               sizeof(Impl_::resetvalue_));
 }
 cmd_setAFEReset::~cmd_setAFEReset() {
-  // @@protoc_insertion_point(destructor:cmd_setAFEReset)
+  // @@protoc_insertion_point(destructor:daphne.cmd_setAFEReset)
   SharedDtor(*this);
 }
 inline void cmd_setAFEReset::SharedDtor(MessageLite& self) {
@@ -17049,33 +18243,39 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_setAFEReset:
   return cmd_setAFEReset_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
 cmd_setAFEReset::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_setAFEReset, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_setAFEReset_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_setAFEReset>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_setAFEReset>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // bool resetValue = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_setAFEReset, _impl_.resetvalue_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_setAFEReset, _impl_.resetvalue_)}},
+    // bool resetValue = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_setAFEReset, _impl_.resetvalue_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_setAFEReset, _impl_.resetvalue_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_setAFEReset, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_setAFEReset, _impl_.id_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // bool resetValue = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_setAFEReset, _impl_.resetvalue_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_setAFEReset, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // bool resetValue = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_setAFEReset, _impl_.resetvalue_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
@@ -17083,13 +18283,18 @@ cmd_setAFEReset::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_setAFEReset::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_setAFEReset)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_setAFEReset)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.resetvalue_ = false;
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.resetvalue_) -
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.resetvalue_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -17105,16 +18310,25 @@ PROTOBUF_NOINLINE void cmd_setAFEReset::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_setAFEReset& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_setAFEReset)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_setAFEReset)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // bool resetValue = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // bool resetValue = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_resetvalue() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
-          1, this_._internal_resetvalue(), target);
+          2, this_._internal_resetvalue(), target);
     }
   }
 
@@ -17123,7 +18337,7 @@ PROTOBUF_NOINLINE void cmd_setAFEReset::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_setAFEReset)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_setAFEReset)
   return target;
 }
 
@@ -17134,17 +18348,25 @@ PROTOBUF_NOINLINE void cmd_setAFEReset::Clear() {
 ::size_t cmd_setAFEReset::ByteSizeLong() const {
   const cmd_setAFEReset& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_setAFEReset)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_setAFEReset)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
-    // bool resetValue = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // bool resetValue = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_resetvalue() != 0) {
         total_size += 2;
       }
@@ -17157,15 +18379,22 @@ PROTOBUF_NOINLINE void cmd_setAFEReset::Clear() {
 void cmd_setAFEReset::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_setAFEReset*>(&to_msg);
   auto& from = static_cast<const cmd_setAFEReset&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_setAFEReset)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_setAFEReset)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    if (from._internal_resetvalue() != 0) {
-      _this->_impl_.resetvalue_ = from._impl_.resetvalue_;
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_resetvalue() != 0) {
+        _this->_impl_.resetvalue_ = from._impl_.resetvalue_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -17173,7 +18402,7 @@ void cmd_setAFEReset::MergeImpl(::google::protobuf::MessageLite& to_msg, const :
 }
 
 void cmd_setAFEReset::CopyFrom(const cmd_setAFEReset& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_setAFEReset)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_setAFEReset)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -17184,7 +18413,12 @@ void cmd_setAFEReset::InternalSwap(cmd_setAFEReset* PROTOBUF_RESTRICT PROTOBUF_N
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.resetvalue_, other->_impl_.resetvalue_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_setAFEReset, _impl_.resetvalue_)
+      + sizeof(cmd_setAFEReset::_impl_.resetvalue_)
+      - PROTOBUF_FIELD_OFFSET(cmd_setAFEReset, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_setAFEReset::GetMetadata() const {
@@ -17207,12 +18441,12 @@ cmd_setAFEReset_response::cmd_setAFEReset_response(::google::protobuf::Arena* PR
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_setAFEReset_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_setAFEReset_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_setAFEReset_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_setAFEReset_response& from_msg)
+    const ::daphne::cmd_setAFEReset_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -17238,7 +18472,7 @@ cmd_setAFEReset_response::cmd_setAFEReset_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::resetvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_setAFEReset_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_setAFEReset_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_setAFEReset_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -17256,7 +18490,7 @@ inline void cmd_setAFEReset_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE
                sizeof(Impl_::resetvalue_));
 }
 cmd_setAFEReset_response::~cmd_setAFEReset_response() {
-  // @@protoc_insertion_point(destructor:cmd_setAFEReset_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_setAFEReset_response)
   SharedDtor(*this);
 }
 inline void cmd_setAFEReset_response::SharedDtor(MessageLite& self) {
@@ -17310,7 +18544,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_setAFEReset_
   return cmd_setAFEReset_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 40, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 47, 2>
 cmd_setAFEReset_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_setAFEReset_response, _impl_._has_bits_),
@@ -17326,7 +18560,7 @@ cmd_setAFEReset_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_setAFEReset_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_setAFEReset_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -17354,13 +18588,13 @@ cmd_setAFEReset_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\30\0\7\0\0\0\0\0"
-    "cmd_setAFEReset_response"
+    "\37\0\7\0\0\0\0\0"
+    "daphne.cmd_setAFEReset_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_setAFEReset_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_setAFEReset_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_setAFEReset_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -17388,7 +18622,7 @@ PROTOBUF_NOINLINE void cmd_setAFEReset_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_setAFEReset_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_setAFEReset_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_setAFEReset_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -17406,7 +18640,7 @@ PROTOBUF_NOINLINE void cmd_setAFEReset_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_setAFEReset_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_setAFEReset_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -17425,7 +18659,7 @@ PROTOBUF_NOINLINE void cmd_setAFEReset_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_setAFEReset_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_setAFEReset_response)
   return target;
 }
 
@@ -17436,7 +18670,7 @@ PROTOBUF_NOINLINE void cmd_setAFEReset_response::Clear() {
 ::size_t cmd_setAFEReset_response::ByteSizeLong() const {
   const cmd_setAFEReset_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_setAFEReset_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_setAFEReset_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -17473,7 +18707,7 @@ PROTOBUF_NOINLINE void cmd_setAFEReset_response::Clear() {
 void cmd_setAFEReset_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_setAFEReset_response*>(&to_msg);
   auto& from = static_cast<const cmd_setAFEReset_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_setAFEReset_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_setAFEReset_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -17505,7 +18739,7 @@ void cmd_setAFEReset_response::MergeImpl(::google::protobuf::MessageLite& to_msg
 }
 
 void cmd_setAFEReset_response::CopyFrom(const cmd_setAFEReset_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_setAFEReset_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_setAFEReset_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -17534,30 +18768,50 @@ void cmd_setAFEReset_response::InternalSwap(cmd_setAFEReset_response* PROTOBUF_R
 
 class cmd_doAFEReset::_Internal {
  public:
+  using HasBits =
+      decltype(std::declval<cmd_doAFEReset>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(cmd_doAFEReset, _impl_._has_bits_);
 };
 
 cmd_doAFEReset::cmd_doAFEReset(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(arena, cmd_doAFEReset_class_data_.base()) {
+    : ::google::protobuf::Message(arena, cmd_doAFEReset_class_data_.base()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(arena_constructor:cmd_doAFEReset)
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_doAFEReset)
 }
 cmd_doAFEReset::cmd_doAFEReset(
-    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
-    const cmd_doAFEReset& from)
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_doAFEReset& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(arena, cmd_doAFEReset_class_data_.base()) {
+    : ::google::protobuf::Message(arena, cmd_doAFEReset_class_data_.base()),
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+    : ::google::protobuf::Message(arena),
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  cmd_doAFEReset* const _this = this;
-  (void)_this;
+      _impl_(from._impl_) {
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
+}
+PROTOBUF_NDEBUG_INLINE cmd_doAFEReset::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0} {}
 
-  // @@protoc_insertion_point(copy_constructor:cmd_doAFEReset)
+inline void cmd_doAFEReset::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.id_ = {};
+}
+cmd_doAFEReset::~cmd_doAFEReset() {
+  // @@protoc_insertion_point(destructor:daphne.cmd_doAFEReset)
+  SharedDtor(*this);
+}
+inline void cmd_doAFEReset::SharedDtor(MessageLite& self) {
+  cmd_doAFEReset& this_ = static_cast<cmd_doAFEReset&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
 }
 
 inline void* PROTOBUF_NONNULL cmd_doAFEReset::PlacementNew_(
@@ -17577,10 +18831,10 @@ constexpr auto cmd_doAFEReset::InternalGenerateClassData_() {
           nullptr,  // OnDemandRegisterArenaDtor
           nullptr,  // IsInitialized
           &cmd_doAFEReset::MergeImpl,
-          ::google::protobuf::internal::ZeroFieldsBase::GetNewImpl<cmd_doAFEReset>(),
+          ::google::protobuf::Message::GetNewImpl<cmd_doAFEReset>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           &cmd_doAFEReset::SharedDtor,
-          ::google::protobuf::internal::ZeroFieldsBase::GetClearImpl<cmd_doAFEReset>(), &cmd_doAFEReset::ByteSizeLong,
+          ::google::protobuf::Message::GetClearImpl<cmd_doAFEReset>(), &cmd_doAFEReset::ByteSizeLong,
               &cmd_doAFEReset::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
           PROTOBUF_FIELD_OFFSET(cmd_doAFEReset, _impl_._cached_size_),
@@ -17603,41 +18857,147 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_doAFEReset::
   return cmd_doAFEReset_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 0, 0, 0, 2>
+const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
 cmd_doAFEReset::_table_ = {
   {
-    0,  // no _has_bits_
+    PROTOBUF_FIELD_OFFSET(cmd_doAFEReset, _impl_._has_bits_),
     0, // no _extensions_
-    0, 0,  // max_field_number, fast_idx_mask
+    1, 0,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967295,  // skipmap
-    offsetof(decltype(_table_), field_names),  // no field_entries
-    0,  // num_field_entries
+    4294967294,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    1,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_doAFEReset_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_doAFEReset>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_doAFEReset>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    {::_pbi::TcParser::MiniParse, {}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_doAFEReset, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_doAFEReset, _impl_.id_)}},
   }}, {{
     65535, 65535
-  }}, // no field_entries, or aux_entries
+  }}, {{
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_doAFEReset, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+  }},
+  // no aux_entries
   {{
   }},
 };
+PROTOBUF_NOINLINE void cmd_doAFEReset::Clear() {
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_doAFEReset)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  _impl_.id_ = 0;
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL cmd_doAFEReset::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const cmd_doAFEReset& this_ = static_cast<const cmd_doAFEReset&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL cmd_doAFEReset::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const cmd_doAFEReset& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_doAFEReset)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // int32 id = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_doAFEReset)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t cmd_doAFEReset::ByteSizeLong(const MessageLite& base) {
+  const cmd_doAFEReset& this_ = static_cast<const cmd_doAFEReset&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t cmd_doAFEReset::ByteSizeLong() const {
+  const cmd_doAFEReset& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_doAFEReset)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+   {
+    // int32 id = 1;
+    cached_has_bits = this_._impl_._has_bits_[0];
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void cmd_doAFEReset::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<cmd_doAFEReset*>(&to_msg);
+  auto& from = static_cast<const cmd_doAFEReset&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_doAFEReset)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    if (from._internal_id() != 0) {
+      _this->_impl_.id_ = from._impl_.id_;
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void cmd_doAFEReset::CopyFrom(const cmd_doAFEReset& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_doAFEReset)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
 
 
-
-
-
-
+void cmd_doAFEReset::InternalSwap(cmd_doAFEReset* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using std::swap;
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  swap(_impl_.id_, other->_impl_.id_);
+}
 
 ::google::protobuf::Metadata cmd_doAFEReset::GetMetadata() const {
-  return ::google::protobuf::internal::ZeroFieldsBase::GetMetadataImpl(GetClassData()->full());
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================
 
@@ -17656,12 +19016,12 @@ cmd_doAFEReset_response::cmd_doAFEReset_response(::google::protobuf::Arena* PROT
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_doAFEReset_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_doAFEReset_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_doAFEReset_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_doAFEReset_response& from_msg)
+    const ::daphne::cmd_doAFEReset_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -17681,7 +19041,7 @@ cmd_doAFEReset_response::cmd_doAFEReset_response(
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   _impl_.success_ = from._impl_.success_;
 
-  // @@protoc_insertion_point(copy_constructor:cmd_doAFEReset_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_doAFEReset_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_doAFEReset_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -17694,7 +19054,7 @@ inline void cmd_doAFEReset_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE 
   _impl_.success_ = {};
 }
 cmd_doAFEReset_response::~cmd_doAFEReset_response() {
-  // @@protoc_insertion_point(destructor:cmd_doAFEReset_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_doAFEReset_response)
   SharedDtor(*this);
 }
 inline void cmd_doAFEReset_response::SharedDtor(MessageLite& self) {
@@ -17748,7 +19108,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_doAFEReset_r
   return cmd_doAFEReset_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 39, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 46, 2>
 cmd_doAFEReset_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_doAFEReset_response, _impl_._has_bits_),
@@ -17764,7 +19124,7 @@ cmd_doAFEReset_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_doAFEReset_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_doAFEReset_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // string message = 2;
@@ -17785,13 +19145,13 @@ cmd_doAFEReset_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\27\0\7\0\0\0\0\0"
-    "cmd_doAFEReset_response"
+    "\36\0\7\0\0\0\0\0"
+    "daphne.cmd_doAFEReset_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_doAFEReset_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_doAFEReset_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_doAFEReset_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -17817,7 +19177,7 @@ PROTOBUF_NOINLINE void cmd_doAFEReset_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_doAFEReset_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_doAFEReset_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_doAFEReset_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -17835,7 +19195,7 @@ PROTOBUF_NOINLINE void cmd_doAFEReset_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_doAFEReset_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_doAFEReset_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -17845,7 +19205,7 @@ PROTOBUF_NOINLINE void cmd_doAFEReset_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_doAFEReset_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_doAFEReset_response)
   return target;
 }
 
@@ -17856,7 +19216,7 @@ PROTOBUF_NOINLINE void cmd_doAFEReset_response::Clear() {
 ::size_t cmd_doAFEReset_response::ByteSizeLong() const {
   const cmd_doAFEReset_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_doAFEReset_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_doAFEReset_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -17887,7 +19247,7 @@ PROTOBUF_NOINLINE void cmd_doAFEReset_response::Clear() {
 void cmd_doAFEReset_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_doAFEReset_response*>(&to_msg);
   auto& from = static_cast<const cmd_doAFEReset_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_doAFEReset_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_doAFEReset_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -17914,7 +19274,7 @@ void cmd_doAFEReset_response::MergeImpl(::google::protobuf::MessageLite& to_msg,
 }
 
 void cmd_doAFEReset_response::CopyFrom(const cmd_doAFEReset_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_doAFEReset_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_doAFEReset_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -17951,7 +19311,7 @@ cmd_setAFEPowerState::cmd_setAFEPowerState(::google::protobuf::Arena* PROTOBUF_N
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_setAFEPowerState)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_setAFEPowerState)
 }
 cmd_setAFEPowerState::cmd_setAFEPowerState(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_setAFEPowerState& from)
@@ -17971,10 +19331,15 @@ PROTOBUF_NDEBUG_INLINE cmd_setAFEPowerState::Impl_::Impl_(
 
 inline void cmd_setAFEPowerState::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
-  _impl_.powerstate_ = {};
+  ::memset(reinterpret_cast<char *>(&_impl_) +
+               offsetof(Impl_, id_),
+           0,
+           offsetof(Impl_, powerstate_) -
+               offsetof(Impl_, id_) +
+               sizeof(Impl_::powerstate_));
 }
 cmd_setAFEPowerState::~cmd_setAFEPowerState() {
-  // @@protoc_insertion_point(destructor:cmd_setAFEPowerState)
+  // @@protoc_insertion_point(destructor:daphne.cmd_setAFEPowerState)
   SharedDtor(*this);
 }
 inline void cmd_setAFEPowerState::SharedDtor(MessageLite& self) {
@@ -18027,33 +19392,39 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_setAFEPowerS
   return cmd_setAFEPowerState_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<0, 1, 0, 0, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
 cmd_setAFEPowerState::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_setAFEPowerState, _impl_._has_bits_),
     0, // no _extensions_
-    1, 0,  // max_field_number, fast_idx_mask
+    2, 8,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967294,  // skipmap
+    4294967292,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    1,  // num_field_entries
+    2,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     cmd_setAFEPowerState_class_data_.base(),
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_setAFEPowerState>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_setAFEPowerState>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // bool powerState = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_setAFEPowerState, _impl_.powerstate_), 0>(),
-     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_setAFEPowerState, _impl_.powerstate_)}},
+    // bool powerState = 2;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(cmd_setAFEPowerState, _impl_.powerstate_), 1>(),
+     {16, 1, 0, PROTOBUF_FIELD_OFFSET(cmd_setAFEPowerState, _impl_.powerstate_)}},
+    // int32 id = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(cmd_setAFEPowerState, _impl_.id_), 0>(),
+     {8, 0, 0, PROTOBUF_FIELD_OFFSET(cmd_setAFEPowerState, _impl_.id_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // bool powerState = 1;
-    {PROTOBUF_FIELD_OFFSET(cmd_setAFEPowerState, _impl_.powerstate_), _Internal::kHasBitsOffset + 0, 0,
+    // int32 id = 1;
+    {PROTOBUF_FIELD_OFFSET(cmd_setAFEPowerState, _impl_.id_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // bool powerState = 2;
+    {PROTOBUF_FIELD_OFFSET(cmd_setAFEPowerState, _impl_.powerstate_), _Internal::kHasBitsOffset + 1, 0,
     (0 | ::_fl::kFcOptional | ::_fl::kBool)},
   }},
   // no aux_entries
@@ -18061,13 +19432,18 @@ cmd_setAFEPowerState::_table_ = {
   }},
 };
 PROTOBUF_NOINLINE void cmd_setAFEPowerState::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_setAFEPowerState)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_setAFEPowerState)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  _impl_.powerstate_ = false;
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    ::memset(&_impl_.id_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.powerstate_) -
+        reinterpret_cast<char*>(&_impl_.id_)) + sizeof(_impl_.powerstate_));
+  }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
@@ -18083,16 +19459,25 @@ PROTOBUF_NOINLINE void cmd_setAFEPowerState::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_setAFEPowerState& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_setAFEPowerState)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_setAFEPowerState)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
-  // bool powerState = 1;
+  // int32 id = 1;
   if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (this_._internal_id() != 0) {
+      target =
+          ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
+              stream, this_._internal_id(), target);
+    }
+  }
+
+  // bool powerState = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
     if (this_._internal_powerstate() != 0) {
       target = stream->EnsureSpace(target);
       target = ::_pbi::WireFormatLite::WriteBoolToArray(
-          1, this_._internal_powerstate(), target);
+          2, this_._internal_powerstate(), target);
     }
   }
 
@@ -18101,7 +19486,7 @@ PROTOBUF_NOINLINE void cmd_setAFEPowerState::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_setAFEPowerState)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_setAFEPowerState)
   return target;
 }
 
@@ -18112,17 +19497,25 @@ PROTOBUF_NOINLINE void cmd_setAFEPowerState::Clear() {
 ::size_t cmd_setAFEPowerState::ByteSizeLong() const {
   const cmd_setAFEPowerState& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_setAFEPowerState)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_setAFEPowerState)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void)cached_has_bits;
 
-   {
-    // bool powerState = 1;
-    cached_has_bits = this_._impl_._has_bits_[0];
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // int32 id = 1;
     if ((cached_has_bits & 0x00000001u) != 0) {
+      if (this_._internal_id() != 0) {
+        total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+            this_._internal_id());
+      }
+    }
+    // bool powerState = 2;
+    if ((cached_has_bits & 0x00000002u) != 0) {
       if (this_._internal_powerstate() != 0) {
         total_size += 2;
       }
@@ -18135,15 +19528,22 @@ PROTOBUF_NOINLINE void cmd_setAFEPowerState::Clear() {
 void cmd_setAFEPowerState::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_setAFEPowerState*>(&to_msg);
   auto& from = static_cast<const cmd_setAFEPowerState&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_setAFEPowerState)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_setAFEPowerState)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if ((cached_has_bits & 0x00000001u) != 0) {
-    if (from._internal_powerstate() != 0) {
-      _this->_impl_.powerstate_ = from._impl_.powerstate_;
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (from._internal_id() != 0) {
+        _this->_impl_.id_ = from._impl_.id_;
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_powerstate() != 0) {
+        _this->_impl_.powerstate_ = from._impl_.powerstate_;
+      }
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -18151,7 +19551,7 @@ void cmd_setAFEPowerState::MergeImpl(::google::protobuf::MessageLite& to_msg, co
 }
 
 void cmd_setAFEPowerState::CopyFrom(const cmd_setAFEPowerState& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_setAFEPowerState)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_setAFEPowerState)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -18162,7 +19562,12 @@ void cmd_setAFEPowerState::InternalSwap(cmd_setAFEPowerState* PROTOBUF_RESTRICT 
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
-  swap(_impl_.powerstate_, other->_impl_.powerstate_);
+  ::google::protobuf::internal::memswap<
+      PROTOBUF_FIELD_OFFSET(cmd_setAFEPowerState, _impl_.powerstate_)
+      + sizeof(cmd_setAFEPowerState::_impl_.powerstate_)
+      - PROTOBUF_FIELD_OFFSET(cmd_setAFEPowerState, _impl_.id_)>(
+          reinterpret_cast<char*>(&_impl_.id_),
+          reinterpret_cast<char*>(&other->_impl_.id_));
 }
 
 ::google::protobuf::Metadata cmd_setAFEPowerState::GetMetadata() const {
@@ -18185,12 +19590,12 @@ cmd_setAFEPowerState_response::cmd_setAFEPowerState_response(::google::protobuf:
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_setAFEPowerState_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_setAFEPowerState_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_setAFEPowerState_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_setAFEPowerState_response& from_msg)
+    const ::daphne::cmd_setAFEPowerState_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -18216,7 +19621,7 @@ cmd_setAFEPowerState_response::cmd_setAFEPowerState_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::powerstate_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_setAFEPowerState_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_setAFEPowerState_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_setAFEPowerState_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -18234,7 +19639,7 @@ inline void cmd_setAFEPowerState_response::SharedCtor(::_pb::Arena* PROTOBUF_NUL
                sizeof(Impl_::powerstate_));
 }
 cmd_setAFEPowerState_response::~cmd_setAFEPowerState_response() {
-  // @@protoc_insertion_point(destructor:cmd_setAFEPowerState_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_setAFEPowerState_response)
   SharedDtor(*this);
 }
 inline void cmd_setAFEPowerState_response::SharedDtor(MessageLite& self) {
@@ -18288,7 +19693,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_setAFEPowerS
   return cmd_setAFEPowerState_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 45, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 52, 2>
 cmd_setAFEPowerState_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_setAFEPowerState_response, _impl_._has_bits_),
@@ -18304,7 +19709,7 @@ cmd_setAFEPowerState_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_setAFEPowerState_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_setAFEPowerState_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -18332,13 +19737,13 @@ cmd_setAFEPowerState_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\35\0\7\0\0\0\0\0"
-    "cmd_setAFEPowerState_response"
+    "\44\0\7\0\0\0\0\0"
+    "daphne.cmd_setAFEPowerState_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_setAFEPowerState_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_setAFEPowerState_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_setAFEPowerState_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -18368,7 +19773,7 @@ PROTOBUF_NOINLINE void cmd_setAFEPowerState_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_setAFEPowerState_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_setAFEPowerState_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_setAFEPowerState_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -18386,7 +19791,7 @@ PROTOBUF_NOINLINE void cmd_setAFEPowerState_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_setAFEPowerState_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_setAFEPowerState_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -18405,7 +19810,7 @@ PROTOBUF_NOINLINE void cmd_setAFEPowerState_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_setAFEPowerState_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_setAFEPowerState_response)
   return target;
 }
 
@@ -18416,7 +19821,7 @@ PROTOBUF_NOINLINE void cmd_setAFEPowerState_response::Clear() {
 ::size_t cmd_setAFEPowerState_response::ByteSizeLong() const {
   const cmd_setAFEPowerState_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_setAFEPowerState_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_setAFEPowerState_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -18454,7 +19859,7 @@ PROTOBUF_NOINLINE void cmd_setAFEPowerState_response::Clear() {
 void cmd_setAFEPowerState_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_setAFEPowerState_response*>(&to_msg);
   auto& from = static_cast<const cmd_setAFEPowerState_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_setAFEPowerState_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_setAFEPowerState_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -18486,7 +19891,7 @@ void cmd_setAFEPowerState_response::MergeImpl(::google::protobuf::MessageLite& t
 }
 
 void cmd_setAFEPowerState_response::CopyFrom(const cmd_setAFEPowerState_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_setAFEPowerState_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_setAFEPowerState_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -18513,6 +19918,296 @@ void cmd_setAFEPowerState_response::InternalSwap(cmd_setAFEPowerState_response* 
 }
 // ===================================================================
 
+class Status::_Internal {
+ public:
+  using HasBits =
+      decltype(std::declval<Status>()._impl_._has_bits_);
+  static constexpr ::int32_t kHasBitsOffset =
+      8 * PROTOBUF_FIELD_OFFSET(Status, _impl_._has_bits_);
+};
+
+Status::Status(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, Status_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
+  // @@protoc_insertion_point(arena_constructor:daphne.Status)
+}
+PROTOBUF_NDEBUG_INLINE Status::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    const ::daphne::Status& from_msg)
+      : _has_bits_{from._has_bits_},
+        _cached_size_{0},
+        extra_(arena, from.extra_) {}
+
+Status::Status(
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
+    const Status& from)
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+    : ::google::protobuf::Message(arena, Status_class_data_.base()) {
+#else   // PROTOBUF_CUSTOM_VTABLE
+    : ::google::protobuf::Message(arena) {
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  Status* const _this = this;
+  (void)_this;
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  _impl_.success_ = from._impl_.success_;
+
+  // @@protoc_insertion_point(copy_constructor:daphne.Status)
+}
+PROTOBUF_NDEBUG_INLINE Status::Impl_::Impl_(
+    ::google::protobuf::internal::InternalVisibility visibility,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _cached_size_{0},
+        extra_(arena) {}
+
+inline void Status::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+  _impl_.success_ = {};
+}
+Status::~Status() {
+  // @@protoc_insertion_point(destructor:daphne.Status)
+  SharedDtor(*this);
+}
+inline void Status::SharedDtor(MessageLite& self) {
+  Status& this_ = static_cast<Status&>(self);
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.extra_.Destroy();
+  this_._impl_.~Impl_();
+}
+
+inline void* PROTOBUF_NONNULL Status::PlacementNew_(
+    const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+    ::google::protobuf::Arena* PROTOBUF_NULLABLE arena) {
+  return ::new (mem) Status(arena);
+}
+constexpr auto Status::InternalNewImpl_() {
+  return ::google::protobuf::internal::MessageCreator::CopyInit(sizeof(Status),
+                                            alignof(Status));
+}
+constexpr auto Status::InternalGenerateClassData_() {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
+          &_Status_default_instance_._instance,
+          &_table_.header,
+          nullptr,  // OnDemandRegisterArenaDtor
+          nullptr,  // IsInitialized
+          &Status::MergeImpl,
+          ::google::protobuf::Message::GetNewImpl<Status>(),
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+          &Status::SharedDtor,
+          ::google::protobuf::Message::GetClearImpl<Status>(), &Status::ByteSizeLong,
+              &Status::_InternalSerialize,
+#endif  // PROTOBUF_CUSTOM_VTABLE
+          PROTOBUF_FIELD_OFFSET(Status, _impl_._cached_size_),
+          false,
+      },
+      &Status::kDescriptorMethods,
+      &descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto,
+      nullptr,  // tracker
+  };
+}
+
+PROTOBUF_CONSTINIT
+    PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const ::google::protobuf::internal::ClassDataFull
+        Status_class_data_ =
+            Status::InternalGenerateClassData_();
+
+const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL Status::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&Status_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(Status_class_data_.tc_table);
+  return Status_class_data_.base();
+}
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
+const ::_pbi::TcParseTable<1, 2, 0, 0, 2>
+Status::_table_ = {
+  {
+    PROTOBUF_FIELD_OFFSET(Status, _impl_._has_bits_),
+    0, // no _extensions_
+    2, 8,  // max_field_number, fast_idx_mask
+    offsetof(decltype(_table_), field_lookup_table),
+    4294967292,  // skipmap
+    offsetof(decltype(_table_), field_entries),
+    2,  // num_field_entries
+    0,  // num_aux_entries
+    offsetof(decltype(_table_), field_names),  // no aux_entries
+    Status_class_data_.base(),
+    nullptr,  // post_loop_handler
+    ::_pbi::TcParser::GenericFallback,  // fallback
+    #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
+    ::_pbi::TcParser::GetTable<::daphne::Status>(),  // to_prefetch
+    #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
+  }, {{
+    // bytes extra = 2;
+    {::_pbi::TcParser::FastBS1,
+     {18, 0, 0, PROTOBUF_FIELD_OFFSET(Status, _impl_.extra_)}},
+    // bool success = 1;
+    {::_pbi::TcParser::SingularVarintNoZag1<bool, offsetof(Status, _impl_.success_), 1>(),
+     {8, 1, 0, PROTOBUF_FIELD_OFFSET(Status, _impl_.success_)}},
+  }}, {{
+    65535, 65535
+  }}, {{
+    // bool success = 1;
+    {PROTOBUF_FIELD_OFFSET(Status, _impl_.success_), _Internal::kHasBitsOffset + 1, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBool)},
+    // bytes extra = 2;
+    {PROTOBUF_FIELD_OFFSET(Status, _impl_.extra_), _Internal::kHasBitsOffset + 0, 0,
+    (0 | ::_fl::kFcOptional | ::_fl::kBytes | ::_fl::kRepAString)},
+  }},
+  // no aux_entries
+  {{
+  }},
+};
+PROTOBUF_NOINLINE void Status::Clear() {
+// @@protoc_insertion_point(message_clear_start:daphne.Status)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  cached_has_bits = _impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000001u) != 0) {
+    _impl_.extra_.ClearNonDefaultToEmpty();
+  }
+  _impl_.success_ = false;
+  _impl_._has_bits_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL Status::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const Status& this_ = static_cast<const Status&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL Status::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const Status& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.Status)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  // bool success = 1;
+  if ((this_._impl_._has_bits_[0] & 0x00000002u) != 0) {
+    if (this_._internal_success() != 0) {
+      target = stream->EnsureSpace(target);
+      target = ::_pbi::WireFormatLite::WriteBoolToArray(
+          1, this_._internal_success(), target);
+    }
+  }
+
+  // bytes extra = 2;
+  if ((this_._impl_._has_bits_[0] & 0x00000001u) != 0) {
+    if (!this_._internal_extra().empty()) {
+      const std::string& _s = this_._internal_extra();
+      target = stream->WriteBytesMaybeAliased(2, _s, target);
+    }
+  }
+
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.Status)
+  return target;
+}
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t Status::ByteSizeLong(const MessageLite& base) {
+  const Status& this_ = static_cast<const Status&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t Status::ByteSizeLong() const {
+  const Status& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:daphne.Status)
+  ::size_t total_size = 0;
+
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
+
+  ::_pbi::Prefetch5LinesFrom7Lines(&this_);
+  cached_has_bits = this_._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    // bytes extra = 2;
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!this_._internal_extra().empty()) {
+        total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
+                                        this_._internal_extra());
+      }
+    }
+    // bool success = 1;
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (this_._internal_success() != 0) {
+        total_size += 2;
+      }
+    }
+  }
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void Status::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
+  auto* const _this = static_cast<Status*>(&to_msg);
+  auto& from = static_cast<const Status&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.Status)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  cached_has_bits = from._impl_._has_bits_[0];
+  if ((cached_has_bits & 0x00000003u) != 0) {
+    if ((cached_has_bits & 0x00000001u) != 0) {
+      if (!from._internal_extra().empty()) {
+        _this->_internal_set_extra(from._internal_extra());
+      } else {
+        if (_this->_impl_.extra_.IsDefault()) {
+          _this->_internal_set_extra("");
+        }
+      }
+    }
+    if ((cached_has_bits & 0x00000002u) != 0) {
+      if (from._internal_success() != 0) {
+        _this->_impl_.success_ = from._impl_.success_;
+      }
+    }
+  }
+  _this->_impl_._has_bits_[0] |= cached_has_bits;
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(from._internal_metadata_);
+}
+
+void Status::CopyFrom(const Status& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.Status)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+
+void Status::InternalSwap(Status* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using std::swap;
+  auto* arena = GetArena();
+  ABSL_DCHECK_EQ(arena, other->GetArena());
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+  swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
+  ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.extra_, &other->_impl_.extra_, arena);
+  swap(_impl_.success_, other->_impl_.success_);
+}
+
+::google::protobuf::Metadata Status::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
+// ===================================================================
+
 class cmd_alignAFEs::_Internal {
  public:
 };
@@ -18523,7 +20218,7 @@ cmd_alignAFEs::cmd_alignAFEs(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::internal::ZeroFieldsBase(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(arena_constructor:cmd_alignAFEs)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_alignAFEs)
 }
 cmd_alignAFEs::cmd_alignAFEs(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
@@ -18538,7 +20233,7 @@ cmd_alignAFEs::cmd_alignAFEs(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
 
-  // @@protoc_insertion_point(copy_constructor:cmd_alignAFEs)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_alignAFEs)
 }
 
 inline void* PROTOBUF_NONNULL cmd_alignAFEs::PlacementNew_(
@@ -18600,7 +20295,7 @@ cmd_alignAFEs::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_alignAFEs>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_alignAFEs>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -18637,12 +20332,12 @@ cmd_alignAFEs_response::cmd_alignAFEs_response(::google::protobuf::Arena* PROTOB
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_alignAFEs_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_alignAFEs_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_alignAFEs_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_alignAFEs_response& from_msg)
+    const ::daphne::cmd_alignAFEs_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         delay_{visibility, arena, from.delay_},
@@ -18666,7 +20361,7 @@ cmd_alignAFEs_response::cmd_alignAFEs_response(
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   _impl_.success_ = from._impl_.success_;
 
-  // @@protoc_insertion_point(copy_constructor:cmd_alignAFEs_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_alignAFEs_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_alignAFEs_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -18683,7 +20378,7 @@ inline void cmd_alignAFEs_response::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE a
   _impl_.success_ = {};
 }
 cmd_alignAFEs_response::~cmd_alignAFEs_response() {
-  // @@protoc_insertion_point(destructor:cmd_alignAFEs_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_alignAFEs_response)
   SharedDtor(*this);
 }
 inline void cmd_alignAFEs_response::SharedDtor(MessageLite& self) {
@@ -18753,7 +20448,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_alignAFEs_re
   return cmd_alignAFEs_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 38, 2>
+const ::_pbi::TcParseTable<2, 4, 0, 45, 2>
 cmd_alignAFEs_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_alignAFEs_response, _impl_._has_bits_),
@@ -18769,7 +20464,7 @@ cmd_alignAFEs_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_alignAFEs_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_alignAFEs_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // string message = 4;
@@ -18802,13 +20497,13 @@ cmd_alignAFEs_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\26\0\0\0\7\0\0\0"
-    "cmd_alignAFEs_response"
+    "\35\0\0\0\7\0\0\0"
+    "daphne.cmd_alignAFEs_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_alignAFEs_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_alignAFEs_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_alignAFEs_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -18836,7 +20531,7 @@ PROTOBUF_NOINLINE void cmd_alignAFEs_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_alignAFEs_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_alignAFEs_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_alignAFEs_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -18872,7 +20567,7 @@ PROTOBUF_NOINLINE void cmd_alignAFEs_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_alignAFEs_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_alignAFEs_response.message");
       target = stream->WriteStringMaybeAliased(4, _s, target);
     }
   }
@@ -18882,7 +20577,7 @@ PROTOBUF_NOINLINE void cmd_alignAFEs_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_alignAFEs_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_alignAFEs_response)
   return target;
 }
 
@@ -18893,7 +20588,7 @@ PROTOBUF_NOINLINE void cmd_alignAFEs_response::Clear() {
 ::size_t cmd_alignAFEs_response::ByteSizeLong() const {
   const cmd_alignAFEs_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_alignAFEs_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_alignAFEs_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -18940,7 +20635,7 @@ PROTOBUF_NOINLINE void cmd_alignAFEs_response::Clear() {
 void cmd_alignAFEs_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_alignAFEs_response*>(&to_msg);
   auto& from = static_cast<const cmd_alignAFEs_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_alignAFEs_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_alignAFEs_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -18969,7 +20664,7 @@ void cmd_alignAFEs_response::MergeImpl(::google::protobuf::MessageLite& to_msg, 
 }
 
 void cmd_alignAFEs_response::CopyFrom(const cmd_alignAFEs_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_alignAFEs_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_alignAFEs_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -19008,12 +20703,12 @@ cmd_writeAFEFunction::cmd_writeAFEFunction(::google::protobuf::Arena* PROTOBUF_N
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeAFEFunction)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeAFEFunction)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeAFEFunction::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_writeAFEFunction& from_msg)
+    const ::daphne::cmd_writeAFEFunction& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         function_(arena, from.function_) {}
@@ -19039,7 +20734,7 @@ cmd_writeAFEFunction::cmd_writeAFEFunction(
                offsetof(Impl_, afeblock_) +
                sizeof(Impl_::configvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_writeAFEFunction)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_writeAFEFunction)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeAFEFunction::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -19057,7 +20752,7 @@ inline void cmd_writeAFEFunction::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE are
                sizeof(Impl_::configvalue_));
 }
 cmd_writeAFEFunction::~cmd_writeAFEFunction() {
-  // @@protoc_insertion_point(destructor:cmd_writeAFEFunction)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeAFEFunction)
   SharedDtor(*this);
 }
 inline void cmd_writeAFEFunction::SharedDtor(MessageLite& self) {
@@ -19111,7 +20806,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeAFEFunc
   return cmd_writeAFEFunction_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 0, 37, 2>
+const ::_pbi::TcParseTable<2, 3, 0, 44, 2>
 cmd_writeAFEFunction::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeAFEFunction, _impl_._has_bits_),
@@ -19127,7 +20822,7 @@ cmd_writeAFEFunction::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeAFEFunction>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeAFEFunction>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -19155,13 +20850,13 @@ cmd_writeAFEFunction::_table_ = {
   }},
   // no aux_entries
   {{
-    "\24\0\10\0\0\0\0\0"
-    "cmd_writeAFEFunction"
+    "\33\0\10\0\0\0\0\0"
+    "daphne.cmd_writeAFEFunction"
     "function"
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeAFEFunction::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeAFEFunction)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeAFEFunction)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -19191,7 +20886,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEFunction::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeAFEFunction& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeAFEFunction)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeAFEFunction)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -19209,7 +20904,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEFunction::Clear() {
     if (!this_._internal_function().empty()) {
       const std::string& _s = this_._internal_function();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeAFEFunction.function");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeAFEFunction.function");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -19228,7 +20923,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEFunction::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeAFEFunction)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeAFEFunction)
   return target;
 }
 
@@ -19239,7 +20934,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEFunction::Clear() {
 ::size_t cmd_writeAFEFunction::ByteSizeLong() const {
   const cmd_writeAFEFunction& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeAFEFunction)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeAFEFunction)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -19278,7 +20973,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEFunction::Clear() {
 void cmd_writeAFEFunction::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeAFEFunction*>(&to_msg);
   auto& from = static_cast<const cmd_writeAFEFunction&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeAFEFunction)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeAFEFunction)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -19310,7 +21005,7 @@ void cmd_writeAFEFunction::MergeImpl(::google::protobuf::MessageLite& to_msg, co
 }
 
 void cmd_writeAFEFunction::CopyFrom(const cmd_writeAFEFunction& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeAFEFunction)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeAFEFunction)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -19352,12 +21047,12 @@ cmd_writeAFEFunction_response::cmd_writeAFEFunction_response(::google::protobuf:
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_writeAFEFunction_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_writeAFEFunction_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeAFEFunction_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_writeAFEFunction_response& from_msg)
+    const ::daphne::cmd_writeAFEFunction_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_),
@@ -19384,7 +21079,7 @@ cmd_writeAFEFunction_response::cmd_writeAFEFunction_response(
                offsetof(Impl_, success_) +
                sizeof(Impl_::configvalue_));
 
-  // @@protoc_insertion_point(copy_constructor:cmd_writeAFEFunction_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_writeAFEFunction_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_writeAFEFunction_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -19403,7 +21098,7 @@ inline void cmd_writeAFEFunction_response::SharedCtor(::_pb::Arena* PROTOBUF_NUL
                sizeof(Impl_::configvalue_));
 }
 cmd_writeAFEFunction_response::~cmd_writeAFEFunction_response() {
-  // @@protoc_insertion_point(destructor:cmd_writeAFEFunction_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_writeAFEFunction_response)
   SharedDtor(*this);
 }
 inline void cmd_writeAFEFunction_response::SharedDtor(MessageLite& self) {
@@ -19458,7 +21153,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_writeAFEFunc
   return cmd_writeAFEFunction_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<3, 5, 0, 53, 2>
+const ::_pbi::TcParseTable<3, 5, 0, 60, 2>
 cmd_writeAFEFunction_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_writeAFEFunction_response, _impl_._has_bits_),
@@ -19474,7 +21169,7 @@ cmd_writeAFEFunction_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_writeAFEFunction_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_writeAFEFunction_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -19516,14 +21211,14 @@ cmd_writeAFEFunction_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\35\0\7\0\10\0\0\0"
-    "cmd_writeAFEFunction_response"
+    "\44\0\7\0\10\0\0\0"
+    "daphne.cmd_writeAFEFunction_response"
     "message"
     "function"
   }},
 };
 PROTOBUF_NOINLINE void cmd_writeAFEFunction_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_writeAFEFunction_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_writeAFEFunction_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -19558,7 +21253,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEFunction_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_writeAFEFunction_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_writeAFEFunction_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_writeAFEFunction_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -19576,7 +21271,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEFunction_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeAFEFunction_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeAFEFunction_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -19595,7 +21290,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEFunction_response::Clear() {
     if (!this_._internal_function().empty()) {
       const std::string& _s = this_._internal_function();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_writeAFEFunction_response.function");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_writeAFEFunction_response.function");
       target = stream->WriteStringMaybeAliased(4, _s, target);
     }
   }
@@ -19614,7 +21309,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEFunction_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_writeAFEFunction_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_writeAFEFunction_response)
   return target;
 }
 
@@ -19625,7 +21320,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEFunction_response::Clear() {
 ::size_t cmd_writeAFEFunction_response::ByteSizeLong() const {
   const cmd_writeAFEFunction_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_writeAFEFunction_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_writeAFEFunction_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -19677,7 +21372,7 @@ PROTOBUF_NOINLINE void cmd_writeAFEFunction_response::Clear() {
 void cmd_writeAFEFunction_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_writeAFEFunction_response*>(&to_msg);
   auto& from = static_cast<const cmd_writeAFEFunction_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_writeAFEFunction_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_writeAFEFunction_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -19723,7 +21418,7 @@ void cmd_writeAFEFunction_response::MergeImpl(::google::protobuf::MessageLite& t
 }
 
 void cmd_writeAFEFunction_response::CopyFrom(const cmd_writeAFEFunction_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_writeAFEFunction_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_writeAFEFunction_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -19761,7 +21456,7 @@ cmd_doSoftwareTrigger::cmd_doSoftwareTrigger(::google::protobuf::Arena* PROTOBUF
 #else   // PROTOBUF_CUSTOM_VTABLE
     : ::google::protobuf::internal::ZeroFieldsBase(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(arena_constructor:cmd_doSoftwareTrigger)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_doSoftwareTrigger)
 }
 cmd_doSoftwareTrigger::cmd_doSoftwareTrigger(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
@@ -19776,7 +21471,7 @@ cmd_doSoftwareTrigger::cmd_doSoftwareTrigger(
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
 
-  // @@protoc_insertion_point(copy_constructor:cmd_doSoftwareTrigger)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_doSoftwareTrigger)
 }
 
 inline void* PROTOBUF_NONNULL cmd_doSoftwareTrigger::PlacementNew_(
@@ -19838,7 +21533,7 @@ cmd_doSoftwareTrigger::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_doSoftwareTrigger>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_doSoftwareTrigger>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     {::_pbi::TcParser::MiniParse, {}},
@@ -19875,12 +21570,12 @@ cmd_doSoftwareTrigger_response::cmd_doSoftwareTrigger_response(::google::protobu
     : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
-  // @@protoc_insertion_point(arena_constructor:cmd_doSoftwareTrigger_response)
+  // @@protoc_insertion_point(arena_constructor:daphne.cmd_doSoftwareTrigger_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_doSoftwareTrigger_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-    const ::cmd_doSoftwareTrigger_response& from_msg)
+    const ::daphne::cmd_doSoftwareTrigger_response& from_msg)
       : _has_bits_{from._has_bits_},
         _cached_size_{0},
         message_(arena, from.message_) {}
@@ -19900,7 +21595,7 @@ cmd_doSoftwareTrigger_response::cmd_doSoftwareTrigger_response(
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   _impl_.success_ = from._impl_.success_;
 
-  // @@protoc_insertion_point(copy_constructor:cmd_doSoftwareTrigger_response)
+  // @@protoc_insertion_point(copy_constructor:daphne.cmd_doSoftwareTrigger_response)
 }
 PROTOBUF_NDEBUG_INLINE cmd_doSoftwareTrigger_response::Impl_::Impl_(
     ::google::protobuf::internal::InternalVisibility visibility,
@@ -19913,7 +21608,7 @@ inline void cmd_doSoftwareTrigger_response::SharedCtor(::_pb::Arena* PROTOBUF_NU
   _impl_.success_ = {};
 }
 cmd_doSoftwareTrigger_response::~cmd_doSoftwareTrigger_response() {
-  // @@protoc_insertion_point(destructor:cmd_doSoftwareTrigger_response)
+  // @@protoc_insertion_point(destructor:daphne.cmd_doSoftwareTrigger_response)
   SharedDtor(*this);
 }
 inline void cmd_doSoftwareTrigger_response::SharedDtor(MessageLite& self) {
@@ -19967,7 +21662,7 @@ const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL cmd_doSoftwareTr
   return cmd_doSoftwareTrigger_response_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<1, 2, 0, 46, 2>
+const ::_pbi::TcParseTable<1, 2, 0, 53, 2>
 cmd_doSoftwareTrigger_response::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(cmd_doSoftwareTrigger_response, _impl_._has_bits_),
@@ -19983,7 +21678,7 @@ cmd_doSoftwareTrigger_response::_table_ = {
     nullptr,  // post_loop_handler
     ::_pbi::TcParser::GenericFallback,  // fallback
     #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
-    ::_pbi::TcParser::GetTable<::cmd_doSoftwareTrigger_response>(),  // to_prefetch
+    ::_pbi::TcParser::GetTable<::daphne::cmd_doSoftwareTrigger_response>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
     // string message = 2;
@@ -20004,13 +21699,13 @@ cmd_doSoftwareTrigger_response::_table_ = {
   }},
   // no aux_entries
   {{
-    "\36\0\7\0\0\0\0\0"
-    "cmd_doSoftwareTrigger_response"
+    "\45\0\7\0\0\0\0\0"
+    "daphne.cmd_doSoftwareTrigger_response"
     "message"
   }},
 };
 PROTOBUF_NOINLINE void cmd_doSoftwareTrigger_response::Clear() {
-// @@protoc_insertion_point(message_clear_start:cmd_doSoftwareTrigger_response)
+// @@protoc_insertion_point(message_clear_start:daphne.cmd_doSoftwareTrigger_response)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   ::uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
@@ -20036,7 +21731,7 @@ PROTOBUF_NOINLINE void cmd_doSoftwareTrigger_response::Clear() {
     ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
   const cmd_doSoftwareTrigger_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(serialize_to_array_start:cmd_doSoftwareTrigger_response)
+  // @@protoc_insertion_point(serialize_to_array_start:daphne.cmd_doSoftwareTrigger_response)
   ::uint32_t cached_has_bits = 0;
   (void)cached_has_bits;
 
@@ -20054,7 +21749,7 @@ PROTOBUF_NOINLINE void cmd_doSoftwareTrigger_response::Clear() {
     if (!this_._internal_message().empty()) {
       const std::string& _s = this_._internal_message();
       ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
-          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "cmd_doSoftwareTrigger_response.message");
+          _s.data(), static_cast<int>(_s.length()), ::google::protobuf::internal::WireFormatLite::SERIALIZE, "daphne.cmd_doSoftwareTrigger_response.message");
       target = stream->WriteStringMaybeAliased(2, _s, target);
     }
   }
@@ -20064,7 +21759,7 @@ PROTOBUF_NOINLINE void cmd_doSoftwareTrigger_response::Clear() {
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
             this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
-  // @@protoc_insertion_point(serialize_to_array_end:cmd_doSoftwareTrigger_response)
+  // @@protoc_insertion_point(serialize_to_array_end:daphne.cmd_doSoftwareTrigger_response)
   return target;
 }
 
@@ -20075,7 +21770,7 @@ PROTOBUF_NOINLINE void cmd_doSoftwareTrigger_response::Clear() {
 ::size_t cmd_doSoftwareTrigger_response::ByteSizeLong() const {
   const cmd_doSoftwareTrigger_response& this_ = *this;
 #endif  // PROTOBUF_CUSTOM_VTABLE
-  // @@protoc_insertion_point(message_byte_size_start:cmd_doSoftwareTrigger_response)
+  // @@protoc_insertion_point(message_byte_size_start:daphne.cmd_doSoftwareTrigger_response)
   ::size_t total_size = 0;
 
   ::uint32_t cached_has_bits = 0;
@@ -20106,7 +21801,7 @@ PROTOBUF_NOINLINE void cmd_doSoftwareTrigger_response::Clear() {
 void cmd_doSoftwareTrigger_response::MergeImpl(::google::protobuf::MessageLite& to_msg, const ::google::protobuf::MessageLite& from_msg) {
   auto* const _this = static_cast<cmd_doSoftwareTrigger_response*>(&to_msg);
   auto& from = static_cast<const cmd_doSoftwareTrigger_response&>(from_msg);
-  // @@protoc_insertion_point(class_specific_merge_from_start:cmd_doSoftwareTrigger_response)
+  // @@protoc_insertion_point(class_specific_merge_from_start:daphne.cmd_doSoftwareTrigger_response)
   ABSL_DCHECK_NE(&from, _this);
   ::uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
@@ -20133,7 +21828,7 @@ void cmd_doSoftwareTrigger_response::MergeImpl(::google::protobuf::MessageLite& 
 }
 
 void cmd_doSoftwareTrigger_response::CopyFrom(const cmd_doSoftwareTrigger_response& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:cmd_doSoftwareTrigger_response)
+// @@protoc_insertion_point(class_specific_copy_from_start:daphne.cmd_doSoftwareTrigger_response)
   if (&from == this) return;
   Clear();
   MergeFrom(from);
@@ -20154,6 +21849,7 @@ void cmd_doSoftwareTrigger_response::InternalSwap(cmd_doSoftwareTrigger_response
   return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace daphne
 namespace google {
 namespace protobuf {
 }  // namespace protobuf

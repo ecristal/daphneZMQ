@@ -2,6 +2,41 @@
 #include <unordered_map>
 #include <exception>
 #include <zmq.hpp>
+#include "daphneV3_high_level_confs.pb.h"
+#include "daphneV3_low_level_confs.pb.h"
+using namespace daphne;
+using daphne::MessageType;
+using daphne::ControlEnvelope;
+using daphne::ConfigureRequest; using daphne::ConfigureResponse;
+using daphne::DumpSpyBuffersRequest; using daphne::DumpSpyBuffersResponse;
+using daphne::DumpSpyBuffersChunkRequest; using daphne::DumpSpyBuffersChunkResponse;
+using daphne::cmd_alignAFEs; using daphne::cmd_alignAFEs_response;
+using daphne::cmd_writeAFEFunction; using daphne::cmd_writeAFEFunction_response;
+using daphne::cmd_doSoftwareTrigger; using daphne::cmd_doSoftwareTrigger_response;
+using daphne::cmd_writeAFEVGAIN; using daphne::cmd_writeAFEVGAIN_response;
+using daphne::cmd_writeAFEReg; using daphne::cmd_writeAFEReg_response;
+using daphne::cmd_writeAFEBiasSet; using daphne::cmd_writeAFEBiasSet_response;
+using daphne::cmd_writeAFEAttenuation; using daphne::cmd_writeAFEAttenuation_response;
+using daphne::cmd_writeTRIM_allChannels; using daphne::cmd_writeTRIM_allChannels_response;
+using daphne::cmd_writeTrim_allAFE; using daphne::cmd_writeTrim_allAFE_response;
+using daphne::cmd_writeTrim_singleChannel; using daphne::cmd_writeTrim_singleChannel_response;
+using daphne::cmd_writeOFFSET_allChannels; using daphne::cmd_writeOFFSET_allChannels_response;
+using daphne::cmd_writeOFFSET_allAFE; using daphne::cmd_writeOFFSET_allAFE_response;
+using daphne::cmd_writeOFFSET_singleChannel; using daphne::cmd_writeOFFSET_singleChannel_response;
+using daphne::cmd_writeVbiasControl; using daphne::cmd_writeVbiasControl_response;
+using daphne::cmd_readAFEReg; using daphne::cmd_readAFEReg_response;
+using daphne::cmd_readAFEVgain; using daphne::cmd_readAFEVgain_response;
+using daphne::cmd_readAFEBiasSet; using daphne::cmd_readAFEBiasSet_response;
+using daphne::cmd_readTrim_allChannels; using daphne::cmd_readTrim_allChannels_response;
+using daphne::cmd_readTrim_allAFE; using daphne::cmd_readTrim_allAFE_response;
+using daphne::cmd_readTrim_singleChannel; using daphne::cmd_readTrim_singleChannel_response;
+using daphne::cmd_readOffset_allChannels; using daphne::cmd_readOffset_allChannels_response;
+using daphne::cmd_readOffset_allAFE; using daphne::cmd_readOffset_allAFE_response;
+using daphne::cmd_readOffset_singleChannel; using daphne::cmd_readOffset_singleChannel_response;
+using daphne::cmd_readVbiasControl; using daphne::cmd_readVbiasControl_response;
+using daphne::cmd_readCurrentMonitor; using daphne::cmd_readCurrentMonitor_response;
+using daphne::cmd_readBiasVoltageMonitor; using daphne::cmd_readBiasVoltageMonitor_response;
+using namespace daphne;
 #include <optional>
 #include "CLI/CLI.hpp"
 #include <arpa/inet.h>
@@ -670,7 +705,7 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
         }
         case WRITE_AFE_VGAIN: {
             cmd_writeAFEVGAIN cmd_request;
-            cmd_writeAFEVgain_response cmd_response;
+            cmd_writeAFEVGAIN_response cmd_response;
             //std::cout << "The request is a WriteAfeVgainRequest" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;

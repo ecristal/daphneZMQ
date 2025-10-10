@@ -1,73 +1,125 @@
 cmake_minimum_required(VERSION 3.10)
-
 project(daphneZMQ LANGUAGES CXX)
 
-add_compile_options(-fopenmp)
-add_link_options(-fopenmp)
-
-
-add_library(GTest::gtest INTERFACE IMPORTED GLOBAL)
-add_library(GTest::gmock INTERFACE IMPORTED GLOBAL)
-
+# -------- Basics ----------------------------------------------------
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Add Abseil and cppzmq to the prefix path
-list(APPEND CMAKE_PREFIX_PATH "/usr/local" "$ENV{HOME}/software/abseil-install")
+# Prefer release unless the user says otherwise
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
+endif()
 
-# Find packages
+# Optional: OpenMP if available (quiet on Petalinux if not)
+find_package(OpenMP QUIET)
+if(OpenMP_CXX_FOUND)
+  message(STATUS "OpenMP found")
+else()
+  message(STATUS "OpenMP not found; continuing without it")
+endif()
+
+# -------- Options / Overrides --------------------------------------
+# You can pass these at configure time, e.g.
+#   -DCPPZMQ_INCLUDE_DIR=/usr/local/include
+#   -DCLI11_INCLUDE_DIR=/home/petalinux/.local/include
+option(ENABLE_ABSL "Link against Abseil if available" OFF)
+
+# -------- Protobuf (required) --------------------------------------
 find_package(Protobuf REQUIRED)
-find_package(cppzmq REQUIRED)
-find_package(absl REQUIRED)
+message(STATUS "Protobuf version: ${Protobuf_VERSION}")
+if(NOT Protobuf_PROTOC_EXECUTABLE)
+  message(FATAL_ERROR "protoc not found; set -DProtobuf_PROTOC_EXECUTABLE=/path/to/protoc")
+endif()
+
+# -------- cppzmq (header-only) + libzmq -----------------------------
+# Try CMake package first, then fall back to headers + lib search
+find_package(cppzmq CONFIG QUIET)
+if(cppzmq_FOUND)
+  message(STATUS "cppzmq package found")
+else()
+  message(STATUS "cppzmq package not found; using header-only fallback")
+  find_path(CPPZMQ_INCLUDE_DIR NAMES zmq.hpp
+            HINTS /usr/include /usr/local/include $ENV{HOME}/.local/include)
+  if(NOT CPPZMQ_INCLUDE_DIR)
+    message(FATAL_ERROR "zmq.hpp not found; set CPPZMQ_INCLUDE_DIR or install cppzmq headers")
+  endif()
+  add_library(cppzmq INTERFACE)
+  target_include_directories(cppzmq INTERFACE ${CPPZMQ_INCLUDE_DIR})
+endif()
+
+find_library(ZMQ_LIB NAMES zmq HINTS /usr/lib /usr/local/lib)
+if(NOT ZMQ_LIB)
+  message(FATAL_ERROR "libzmq not found; install zeromq (libzmq)")
+endif()
+
+# -------- CLI11 (header-only) --------------------------------------
+find_package(CLI11 CONFIG QUIET)
+if(CLI11_FOUND)
+  message(STATUS "CLI11 package found")
+else()
+  message(STATUS "CLI11 package not found; using header-only fallback")
+  # Allow override via -DCLI11_INCLUDE_DIR=...
+  if(NOT CLI11_INCLUDE_DIR)
+    # Try common locations
+    find_path(CLI11_INCLUDE_DIR NAMES CLI/CLI.hpp
+              HINTS /usr/include /usr/local/include $ENV{HOME}/.local/include)
+  endif()
+  if(NOT CLI11_INCLUDE_DIR)
+    message(FATAL_ERROR "CLI/CLI.hpp not found; set CLI11_INCLUDE_DIR or install CLI11 headers")
+  endif()
+  add_library(CLI11::CLI11 INTERFACE IMPORTED)
+  set_target_properties(CLI11::CLI11 PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES "${CLI11_INCLUDE_DIR}")
+endif()
+
+# -------- Abseil (optional) ----------------------------------------
+set(ABSL_LINK_LIBS "")
+if(ENABLE_ABSL)
+  find_package(absl QUIET)
+  if(absl_FOUND)
+    message(STATUS "Abseil found; linking base + log_severity")
+    list(APPEND ABSL_LINK_LIBS absl::base absl::log_severity)
+  else()
+    message(STATUS "Abseil not found; continuing without it")
+  endif()
+endif()
+
+# -------- Threads / libc / i2c -------------------------------------
 find_package(Threads REQUIRED)
-find_package(CLI11 CONFIG REQUIRED)
+find_library(I2C_LIB NAMES i2c HINTS /usr/lib /usr/local/lib)
+if(NOT I2C_LIB)
+  message(STATUS "libi2c not found; continuing without it (only needed if you call i2c API)")
+endif()
 
-# Auto-generate protobuf files
-set(PROTO_HIGH_LEVEL_FILE "${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf/daphneV3_high_level_confs.proto")
-set(PROTO_LOW_LEVEL_FILE "${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf/daphneV3_low_level_confs.proto")
-#protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_HIGH_LEVEL_FILE} ${PROTO_LOW_LEVEL_FILE})
+# -------- Protobuf codegen (C++ only; Python not needed here) -------
+set(PROTO_DIR            ${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf)
+set(PROTO_HIGH_LEVEL     ${PROTO_DIR}/daphneV3_high_level_confs.proto)
+set(PROTO_LOW_LEVEL      ${PROTO_DIR}/daphneV3_low_level_confs.proto)
 
-set(PROTO_DIR "${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf")
+foreach(PROTO_FILE ${PROTO_HIGH_LEVEL} ${PROTO_LOW_LEVEL})
+  get_filename_component(_name ${PROTO_FILE} NAME_WE)
+  set(_cc ${PROTO_DIR}/${_name}.pb.cc)
+  set(_hh ${PROTO_DIR}/${_name}.pb.h)
 
-foreach(PROTO_FILE ${PROTO_HIGH_LEVEL_FILE} ${PROTO_LOW_LEVEL_FILE})
-    get_filename_component(PROTO_FILE_NAME ${PROTO_FILE} NAME_WE)
-    set(pb_cc "${PROTO_DIR}/${PROTO_FILE_NAME}.pb.cc")
-    set(pb_h "${PROTO_DIR}/${PROTO_FILE_NAME}.pb.h")
-    set(pb_py "${PROTO_DIR}/${PROTO_FILE_NAME}.pb.py")
+  add_custom_command(
+    OUTPUT ${_cc} ${_hh}
+    COMMAND ${Protobuf_PROTOC_EXECUTABLE}
+    ARGS --cpp_out=${PROTO_DIR} --proto_path=${PROTO_DIR} ${PROTO_FILE}
+    DEPENDS ${PROTO_FILE}
+    COMMENT "Generating C++ protobuf for ${_name}"
+    VERBATIM
+  )
 
-    add_custom_command(
-        OUTPUT ${pb_cc} ${pb_h}
-        COMMAND ${Protobuf_PROTOC_EXECUTABLE}
-        ARGS --cpp_out=${PROTO_DIR} --proto_path=${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf ${PROTO_FILE}
-        DEPENDS ${PROTO_FILE}
-        COMMENT "Generating C++ protobuf files for ${PROTO_FILE_NAME}"
-    )
-
-    add_custom_command(
-        OUTPUT ${pb_py}
-        COMMAND ${Protobuf_PROTOC_EXECUTABLE}
-        ARGS --python_out=${PROTO_DIR} --proto_path=${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf ${PROTO_FILE}
-        DEPENDS ${PROTO_FILE}
-        COMMENT "Generating Python protobuf files for ${PROTO_FILE_NAME}"
-    )
-
-    list(APPEND PROTO_SRCS ${pb_cc})
-    list(APPEND PROTO_HDRS ${pb_h})
-    list(APPEND PROTO_PY_SRCS ${pb_py})
-
+  list(APPEND PROTO_SRCS ${_cc})
+  list(APPEND PROTO_HDRS ${_hh})
 endforeach()
 
-add_custom_target(protobuf_py ALL DEPENDS ${PROTO_PY_SRCS})
+add_library(daphne_proto STATIC ${PROTO_SRCS} ${PROTO_HDRS})
+target_include_directories(daphne_proto PUBLIC ${PROTO_DIR})
+target_link_libraries(daphne_proto PUBLIC protobuf::libprotobuf)
 
-include_directories(
-    include
-    ${PROTOBUF_INCLUDE_DIRS}
-    ${cppzmq_INCLUDE_DIRS}
-    ${absl_INCLUDE_DIRS}
-)
-
-# Source files
+# -------- Project sources ------------------------------------------
 set(SOURCES
     srcs/DevMem.cpp
     srcs/FpgaRegDict.cpp
@@ -84,105 +136,40 @@ set(SOURCES
     srcs/Endpoint.cpp
     srcs/Dac.cpp
     srcs/Daphne.cpp
-)
-
-# Executables
-# add_executable(publisher srcs/publisher.cpp srcs/DevMem.cpp)
-# target_link_libraries(publisher PRIVATE cppzmq)
-
-# add_executable(subscriber srcs/subscriber.cpp srcs/DevMem.cpp)
-# target_link_libraries(subscriber PRIVATE cppzmq)
-
-# add_executable(srv srcs/srv.cpp ${SOURCES})
-# target_link_libraries(srv PRIVATE cppzmq)
-
-# add_executable(srv_reg srcs/srv_reg.cpp ${SOURCES})
-# target_link_libraries(srv_reg PRIVATE cppzmq)
-
-# add_executable(daphne_test
-#     srcs/daphne_test.cpp
-#     ${SOURCES}
-#     ${PROTO_SRCS}
-#     ${PROTO_HDRS}
-# )
-# target_link_libraries(daphne_test
-#     PRIVATE
-#     cppzmq
-#     protobuf::libprotobuf
-#     absl::base
-#     absl::log_severity
-#     absl::raw_logging_internal
-#     absl::log_internal_check_op
-#     absl::log_internal_message
-# )
-
-add_executable(DaphneSlowController
     srcs/DaphneSlowController.cpp
-    ${SOURCES}
-    ${PROTO_SRCS}
-    ${PROTO_HDRS}
 )
+
+add_executable(DaphneSlowController ${SOURCES})
+target_include_directories(DaphneSlowController
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${PROTO_DIR}
+)
+
+# Link line kept simple and robust for Petalinux
 target_link_libraries(DaphneSlowController
-    PRIVATE
+  PRIVATE
+    daphne_proto
     cppzmq
+    ${ZMQ_LIB}
     protobuf::libprotobuf
-    absl::base
-    absl::log_severity
-    absl::raw_logging_internal
-    absl::log_internal_check_op
-    absl::log_internal_message
+    CLI11::CLI11
     Threads::Threads
-    -lc
-    i2c
 )
 
-# Print useful info
-message(STATUS "Protobuf version: ${Protobuf_VERSION}")
-message(STATUS "Abseil include: ${absl_INCLUDE_DIRS}")
-message(STATUS "Abseil libs: ${absl_LIBRARIES}")
+# Optional libs
+if(OpenMP_CXX_FOUND)
+  target_link_libraries(DaphneSlowController PRIVATE OpenMP::OpenMP_CXX)
+endif()
+if(I2C_LIB)
+  target_link_libraries(DaphneSlowController PRIVATE ${I2C_LIB})
+endif()
+if(ABSL_LINK_LIBS)
+  target_link_libraries(DaphneSlowController PRIVATE ${ABSL_LINK_LIBS})
+endif()
 
-# Deployment and installation 
-
-set(APP_NAME "DaphneSlowController")
-set(APP_EXEC "${APP_NAME}")
-set(APP_VERSION "V0_01_30")
-set(APP_ICON "daphe_slow_controller_logo")
-set(APP_COMMENT "Slow Control Interface for DAPHNE V3")
-set(APPDIR "${CMAKE_BINARY_DIR}/${APP_NAME}_${APP_VERSION}")
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/DaphneSlowController.desktop.in
-               ${CMAKE_CURRENT_BINARY_DIR}/DaphneSlowController.desktop @ONLY)
-
-# Install your executable
-install(TARGETS ${APP_NAME}
-        RUNTIME DESTINATION bin)
-
-# Install dependencies (if needed explicitly)
-# install(FILES <other_files> DESTINATION <destination>)
-
-# --- Deployment Target using linuxdeploy ---
-find_program(LINUXDEPLOY_EXECUTABLE linuxdeploy REQUIRED)
-
-add_custom_target(deploy
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${APPDIR}
-    COMMAND ${LINUXDEPLOY_EXECUTABLE}
-            --appdir=${APPDIR}
-            --executable=$<TARGET_FILE:${APP_NAME}>
-            --desktop-file=${CMAKE_CURRENT_BINARY_DIR}/${APP_NAME}.desktop
-            --icon-file=${CMAKE_CURRENT_SOURCE_DIR}/icons/daphe_slow_controller_logo.png
-            #--output appimage # too much lib requirements
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Deploying application ${APP_NAME} ${APP_VERSION}"
-    VERBATIM)
-
-# Ensure desktop file is generated before deployment
-add_dependencies(deploy ${APP_NAME})
-
-add_custom_target(package_tarball
-    COMMAND ${CMAKE_COMMAND} -E tar "cfvz"
-            ${CMAKE_BINARY_DIR}/${APP_NAME}_${APP_VERSION}.tar.gz
-            ${APPDIR}
-    DEPENDS deploy
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMENT "Compressing AppDir to tarball ${APP_NAME}_${APP_VERSION}.tar.gz"
-)
+# -------- Nice diagnostics -----------------------------------------
+message(STATUS "ZMQ lib: ${ZMQ_LIB}")
+message(STATUS "cppzmq target: " $<TARGET_EXISTS:cppzmq>)
+message(STATUS "CLI11 target: " $<TARGET_EXISTS:CLI11::CLI11>)
+message(STATUS "I2C lib: ${I2C_LIB}")

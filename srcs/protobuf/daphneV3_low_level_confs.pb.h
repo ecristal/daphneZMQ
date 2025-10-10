@@ -53,6 +53,11 @@ struct TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto {
 extern "C" {
 extern const ::google::protobuf::internal::DescriptorTable descriptor_table_daphneV3_5flow_5flevel_5fconfs_2eproto;
 }  // extern "C"
+namespace daphne {
+class Status;
+struct StatusDefaultTypeInternal;
+extern StatusDefaultTypeInternal _Status_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull Status_class_data_;
 class cmd_alignAFEs;
 struct cmd_alignAFEsDefaultTypeInternal;
 extern cmd_alignAFEsDefaultTypeInternal _cmd_alignAFEs_default_instance_;
@@ -225,10 +230,10 @@ class cmd_writeAFEVGAIN;
 struct cmd_writeAFEVGAINDefaultTypeInternal;
 extern cmd_writeAFEVGAINDefaultTypeInternal _cmd_writeAFEVGAIN_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEVGAIN_class_data_;
-class cmd_writeAFEVgain_response;
-struct cmd_writeAFEVgain_responseDefaultTypeInternal;
-extern cmd_writeAFEVgain_responseDefaultTypeInternal _cmd_writeAFEVgain_response_default_instance_;
-extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEVgain_response_class_data_;
+class cmd_writeAFEVGAIN_response;
+struct cmd_writeAFEVGAIN_responseDefaultTypeInternal;
+extern cmd_writeAFEVGAIN_responseDefaultTypeInternal _cmd_writeAFEVGAIN_response_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEVGAIN_response_class_data_;
 class cmd_writeOFFSET_allAFE;
 struct cmd_writeOFFSET_allAFEDefaultTypeInternal;
 extern cmd_writeOFFSET_allAFEDefaultTypeInternal _cmd_writeOFFSET_allAFE_default_instance_;
@@ -285,11 +290,13 @@ class cmd_writeVbiasControl_response;
 struct cmd_writeVbiasControl_responseDefaultTypeInternal;
 extern cmd_writeVbiasControl_responseDefaultTypeInternal _cmd_writeVbiasControl_response_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull cmd_writeVbiasControl_response_class_data_;
+}  // namespace daphne
 namespace google {
 namespace protobuf {
 }  // namespace protobuf
 }  // namespace google
 
+namespace daphne {
 
 // ===================================================================
 
@@ -297,7 +304,7 @@ namespace protobuf {
 // -------------------------------------------------------------------
 
 class cmd_writeVbiasControl_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeVbiasControl_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeVbiasControl_response) */ {
  public:
   inline cmd_writeVbiasControl_response() : cmd_writeVbiasControl_response(nullptr) {}
   ~cmd_writeVbiasControl_response() PROTOBUF_FINAL;
@@ -415,7 +422,7 @@ class cmd_writeVbiasControl_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeVbiasControl_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeVbiasControl_response"; }
 
  protected:
   explicit cmd_writeVbiasControl_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -478,12 +485,12 @@ class cmd_writeVbiasControl_response final : public ::google::protobuf::Message
   void _internal_set_vbiascontrolvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeVbiasControl_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeVbiasControl_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 3,
-                                   0, 46,
+                                   0, 53,
                                    2>
       _table_;
 
@@ -517,7 +524,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeVbiasControl_r
 // -------------------------------------------------------------------
 
 class cmd_writeVbiasControl final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeVbiasControl) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeVbiasControl) */ {
  public:
   inline cmd_writeVbiasControl() : cmd_writeVbiasControl(nullptr) {}
   ~cmd_writeVbiasControl() PROTOBUF_FINAL;
@@ -635,7 +642,7 @@ class cmd_writeVbiasControl final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeVbiasControl"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeVbiasControl"; }
 
  protected:
   explicit cmd_writeVbiasControl(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -659,10 +666,21 @@ class cmd_writeVbiasControl final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kVBiasControlValueFieldNumber = 1,
-    kEnableFieldNumber = 2,
+    kIdFieldNumber = 1,
+    kVBiasControlValueFieldNumber = 2,
+    kEnableFieldNumber = 3,
   };
-  // uint32 vBiasControlValue = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 vBiasControlValue = 2;
   void clear_vbiascontrolvalue() ;
   ::uint32_t vbiascontrolvalue() const;
   void set_vbiascontrolvalue(::uint32_t value);
@@ -672,7 +690,7 @@ class cmd_writeVbiasControl final : public ::google::protobuf::Message
   void _internal_set_vbiascontrolvalue(::uint32_t value);
 
   public:
-  // bool enable = 2;
+  // bool enable = 3;
   void clear_enable() ;
   bool enable() const;
   void set_enable(bool value);
@@ -682,11 +700,11 @@ class cmd_writeVbiasControl final : public ::google::protobuf::Message
   void _internal_set_enable(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeVbiasControl)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeVbiasControl)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    0, 0,
                                    2>
       _table_;
@@ -708,6 +726,7 @@ class cmd_writeVbiasControl final : public ::google::protobuf::Message
         const cmd_writeVbiasControl& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t vbiascontrolvalue_;
     bool enable_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -720,7 +739,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeVbiasControl_c
 // -------------------------------------------------------------------
 
 class cmd_writeTrim_singleChannel_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeTrim_singleChannel_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeTrim_singleChannel_response) */ {
  public:
   inline cmd_writeTrim_singleChannel_response() : cmd_writeTrim_singleChannel_response(nullptr) {}
   ~cmd_writeTrim_singleChannel_response() PROTOBUF_FINAL;
@@ -838,7 +857,7 @@ class cmd_writeTrim_singleChannel_response final : public ::google::protobuf::Me
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeTrim_singleChannel_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeTrim_singleChannel_response"; }
 
  protected:
   explicit cmd_writeTrim_singleChannel_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -923,12 +942,12 @@ class cmd_writeTrim_singleChannel_response final : public ::google::protobuf::Me
   void _internal_set_trimvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeTrim_singleChannel_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeTrim_singleChannel_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<3, 5,
-                                   0, 52,
+                                   0, 59,
                                    2>
       _table_;
 
@@ -964,7 +983,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeTrim_singleCha
 // -------------------------------------------------------------------
 
 class cmd_writeTrim_singleChannel final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeTrim_singleChannel) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeTrim_singleChannel) */ {
  public:
   inline cmd_writeTrim_singleChannel() : cmd_writeTrim_singleChannel(nullptr) {}
   ~cmd_writeTrim_singleChannel() PROTOBUF_FINAL;
@@ -1082,7 +1101,7 @@ class cmd_writeTrim_singleChannel final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeTrim_singleChannel"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeTrim_singleChannel"; }
 
  protected:
   explicit cmd_writeTrim_singleChannel(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -1106,11 +1125,22 @@ class cmd_writeTrim_singleChannel final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kTrimChannelFieldNumber = 1,
-    kTrimValueFieldNumber = 2,
-    kTrimGainFieldNumber = 3,
+    kIdFieldNumber = 1,
+    kTrimChannelFieldNumber = 2,
+    kTrimValueFieldNumber = 3,
+    kTrimGainFieldNumber = 4,
   };
-  // uint32 trimChannel = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 trimChannel = 2;
   void clear_trimchannel() ;
   ::uint32_t trimchannel() const;
   void set_trimchannel(::uint32_t value);
@@ -1120,7 +1150,7 @@ class cmd_writeTrim_singleChannel final : public ::google::protobuf::Message
   void _internal_set_trimchannel(::uint32_t value);
 
   public:
-  // uint32 trimValue = 2;
+  // uint32 trimValue = 3;
   void clear_trimvalue() ;
   ::uint32_t trimvalue() const;
   void set_trimvalue(::uint32_t value);
@@ -1130,7 +1160,7 @@ class cmd_writeTrim_singleChannel final : public ::google::protobuf::Message
   void _internal_set_trimvalue(::uint32_t value);
 
   public:
-  // bool trimGain = 3;
+  // bool trimGain = 4;
   void clear_trimgain() ;
   bool trimgain() const;
   void set_trimgain(bool value);
@@ -1140,11 +1170,11 @@ class cmd_writeTrim_singleChannel final : public ::google::protobuf::Message
   void _internal_set_trimgain(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeTrim_singleChannel)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeTrim_singleChannel)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
+  static const ::google::protobuf::internal::TcParseTable<2, 4,
                                    0, 0,
                                    2>
       _table_;
@@ -1166,6 +1196,7 @@ class cmd_writeTrim_singleChannel final : public ::google::protobuf::Message
         const cmd_writeTrim_singleChannel& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t trimchannel_;
     ::uint32_t trimvalue_;
     bool trimgain_;
@@ -1179,7 +1210,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeTrim_singleCha
 // -------------------------------------------------------------------
 
 class cmd_writeTrim_allAFE_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeTrim_allAFE_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeTrim_allAFE_response) */ {
  public:
   inline cmd_writeTrim_allAFE_response() : cmd_writeTrim_allAFE_response(nullptr) {}
   ~cmd_writeTrim_allAFE_response() PROTOBUF_FINAL;
@@ -1297,7 +1328,7 @@ class cmd_writeTrim_allAFE_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeTrim_allAFE_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeTrim_allAFE_response"; }
 
  protected:
   explicit cmd_writeTrim_allAFE_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -1382,12 +1413,12 @@ class cmd_writeTrim_allAFE_response final : public ::google::protobuf::Message
   void _internal_set_trimvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeTrim_allAFE_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeTrim_allAFE_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<3, 5,
-                                   0, 45,
+                                   0, 52,
                                    2>
       _table_;
 
@@ -1423,7 +1454,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeTrim_allAFE_re
 // -------------------------------------------------------------------
 
 class cmd_writeTrim_allAFE final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeTrim_allAFE) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeTrim_allAFE) */ {
  public:
   inline cmd_writeTrim_allAFE() : cmd_writeTrim_allAFE(nullptr) {}
   ~cmd_writeTrim_allAFE() PROTOBUF_FINAL;
@@ -1541,7 +1572,7 @@ class cmd_writeTrim_allAFE final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeTrim_allAFE"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeTrim_allAFE"; }
 
  protected:
   explicit cmd_writeTrim_allAFE(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -1565,11 +1596,22 @@ class cmd_writeTrim_allAFE final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kAfeBlockFieldNumber = 1,
-    kTrimValueFieldNumber = 2,
-    kTrimGainFieldNumber = 3,
+    kIdFieldNumber = 1,
+    kAfeBlockFieldNumber = 2,
+    kTrimValueFieldNumber = 3,
+    kTrimGainFieldNumber = 4,
   };
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 afeBlock = 2;
   void clear_afeblock() ;
   ::uint32_t afeblock() const;
   void set_afeblock(::uint32_t value);
@@ -1579,7 +1621,7 @@ class cmd_writeTrim_allAFE final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // uint32 trimValue = 2;
+  // uint32 trimValue = 3;
   void clear_trimvalue() ;
   ::uint32_t trimvalue() const;
   void set_trimvalue(::uint32_t value);
@@ -1589,7 +1631,7 @@ class cmd_writeTrim_allAFE final : public ::google::protobuf::Message
   void _internal_set_trimvalue(::uint32_t value);
 
   public:
-  // bool trimGain = 3;
+  // bool trimGain = 4;
   void clear_trimgain() ;
   bool trimgain() const;
   void set_trimgain(bool value);
@@ -1599,11 +1641,11 @@ class cmd_writeTrim_allAFE final : public ::google::protobuf::Message
   void _internal_set_trimgain(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeTrim_allAFE)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeTrim_allAFE)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
+  static const ::google::protobuf::internal::TcParseTable<2, 4,
                                    0, 0,
                                    2>
       _table_;
@@ -1625,6 +1667,7 @@ class cmd_writeTrim_allAFE final : public ::google::protobuf::Message
         const cmd_writeTrim_allAFE& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t afeblock_;
     ::uint32_t trimvalue_;
     bool trimgain_;
@@ -1638,7 +1681,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeTrim_allAFE_cl
 // -------------------------------------------------------------------
 
 class cmd_writeTRIM_allChannels_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeTRIM_allChannels_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeTRIM_allChannels_response) */ {
  public:
   inline cmd_writeTRIM_allChannels_response() : cmd_writeTRIM_allChannels_response(nullptr) {}
   ~cmd_writeTRIM_allChannels_response() PROTOBUF_FINAL;
@@ -1756,7 +1799,7 @@ class cmd_writeTRIM_allChannels_response final : public ::google::protobuf::Mess
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeTRIM_allChannels_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeTRIM_allChannels_response"; }
 
  protected:
   explicit cmd_writeTRIM_allChannels_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -1830,12 +1873,12 @@ class cmd_writeTRIM_allChannels_response final : public ::google::protobuf::Mess
   void _internal_set_trimvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeTRIM_allChannels_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeTRIM_allChannels_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 50,
+                                   0, 57,
                                    2>
       _table_;
 
@@ -1870,7 +1913,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeTRIM_allChanne
 // -------------------------------------------------------------------
 
 class cmd_writeTRIM_allChannels final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeTRIM_allChannels) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeTRIM_allChannels) */ {
  public:
   inline cmd_writeTRIM_allChannels() : cmd_writeTRIM_allChannels(nullptr) {}
   ~cmd_writeTRIM_allChannels() PROTOBUF_FINAL;
@@ -1988,7 +2031,7 @@ class cmd_writeTRIM_allChannels final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeTRIM_allChannels"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeTRIM_allChannels"; }
 
  protected:
   explicit cmd_writeTRIM_allChannels(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -2012,10 +2055,21 @@ class cmd_writeTRIM_allChannels final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kTrimValueFieldNumber = 1,
-    kTrimGainFieldNumber = 2,
+    kIdFieldNumber = 1,
+    kTrimValueFieldNumber = 2,
+    kTrimGainFieldNumber = 3,
   };
-  // uint32 trimValue = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 trimValue = 2;
   void clear_trimvalue() ;
   ::uint32_t trimvalue() const;
   void set_trimvalue(::uint32_t value);
@@ -2025,7 +2079,7 @@ class cmd_writeTRIM_allChannels final : public ::google::protobuf::Message
   void _internal_set_trimvalue(::uint32_t value);
 
   public:
-  // bool trimGain = 2;
+  // bool trimGain = 3;
   void clear_trimgain() ;
   bool trimgain() const;
   void set_trimgain(bool value);
@@ -2035,11 +2089,11 @@ class cmd_writeTRIM_allChannels final : public ::google::protobuf::Message
   void _internal_set_trimgain(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeTRIM_allChannels)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeTRIM_allChannels)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    0, 0,
                                    2>
       _table_;
@@ -2061,6 +2115,7 @@ class cmd_writeTRIM_allChannels final : public ::google::protobuf::Message
         const cmd_writeTRIM_allChannels& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t trimvalue_;
     bool trimgain_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -2073,7 +2128,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeTRIM_allChanne
 // -------------------------------------------------------------------
 
 class cmd_writeOFFSET_singleChannel_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeOFFSET_singleChannel_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeOFFSET_singleChannel_response) */ {
  public:
   inline cmd_writeOFFSET_singleChannel_response() : cmd_writeOFFSET_singleChannel_response(nullptr) {}
   ~cmd_writeOFFSET_singleChannel_response() PROTOBUF_FINAL;
@@ -2191,7 +2246,7 @@ class cmd_writeOFFSET_singleChannel_response final : public ::google::protobuf::
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeOFFSET_singleChannel_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeOFFSET_singleChannel_response"; }
 
  protected:
   explicit cmd_writeOFFSET_singleChannel_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -2276,12 +2331,12 @@ class cmd_writeOFFSET_singleChannel_response final : public ::google::protobuf::
   void _internal_set_offsetvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeOFFSET_singleChannel_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeOFFSET_singleChannel_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<3, 5,
-                                   0, 54,
+                                   0, 61,
                                    2>
       _table_;
 
@@ -2317,7 +2372,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeOFFSET_singleC
 // -------------------------------------------------------------------
 
 class cmd_writeOFFSET_singleChannel final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeOFFSET_singleChannel) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeOFFSET_singleChannel) */ {
  public:
   inline cmd_writeOFFSET_singleChannel() : cmd_writeOFFSET_singleChannel(nullptr) {}
   ~cmd_writeOFFSET_singleChannel() PROTOBUF_FINAL;
@@ -2435,7 +2490,7 @@ class cmd_writeOFFSET_singleChannel final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeOFFSET_singleChannel"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeOFFSET_singleChannel"; }
 
  protected:
   explicit cmd_writeOFFSET_singleChannel(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -2459,11 +2514,22 @@ class cmd_writeOFFSET_singleChannel final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kOffsetChannelFieldNumber = 1,
-    kOffsetValueFieldNumber = 2,
-    kOffsetGainFieldNumber = 3,
+    kIdFieldNumber = 1,
+    kOffsetChannelFieldNumber = 2,
+    kOffsetValueFieldNumber = 3,
+    kOffsetGainFieldNumber = 4,
   };
-  // uint32 offsetChannel = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 offsetChannel = 2;
   void clear_offsetchannel() ;
   ::uint32_t offsetchannel() const;
   void set_offsetchannel(::uint32_t value);
@@ -2473,7 +2539,7 @@ class cmd_writeOFFSET_singleChannel final : public ::google::protobuf::Message
   void _internal_set_offsetchannel(::uint32_t value);
 
   public:
-  // uint32 offsetValue = 2;
+  // uint32 offsetValue = 3;
   void clear_offsetvalue() ;
   ::uint32_t offsetvalue() const;
   void set_offsetvalue(::uint32_t value);
@@ -2483,7 +2549,7 @@ class cmd_writeOFFSET_singleChannel final : public ::google::protobuf::Message
   void _internal_set_offsetvalue(::uint32_t value);
 
   public:
-  // bool offsetGain = 3;
+  // bool offsetGain = 4;
   void clear_offsetgain() ;
   bool offsetgain() const;
   void set_offsetgain(bool value);
@@ -2493,11 +2559,11 @@ class cmd_writeOFFSET_singleChannel final : public ::google::protobuf::Message
   void _internal_set_offsetgain(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeOFFSET_singleChannel)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeOFFSET_singleChannel)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
+  static const ::google::protobuf::internal::TcParseTable<2, 4,
                                    0, 0,
                                    2>
       _table_;
@@ -2519,6 +2585,7 @@ class cmd_writeOFFSET_singleChannel final : public ::google::protobuf::Message
         const cmd_writeOFFSET_singleChannel& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t offsetchannel_;
     ::uint32_t offsetvalue_;
     bool offsetgain_;
@@ -2532,7 +2599,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeOFFSET_singleC
 // -------------------------------------------------------------------
 
 class cmd_writeOFFSET_allChannels_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeOFFSET_allChannels_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeOFFSET_allChannels_response) */ {
  public:
   inline cmd_writeOFFSET_allChannels_response() : cmd_writeOFFSET_allChannels_response(nullptr) {}
   ~cmd_writeOFFSET_allChannels_response() PROTOBUF_FINAL;
@@ -2650,7 +2717,7 @@ class cmd_writeOFFSET_allChannels_response final : public ::google::protobuf::Me
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeOFFSET_allChannels_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeOFFSET_allChannels_response"; }
 
  protected:
   explicit cmd_writeOFFSET_allChannels_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -2724,12 +2791,12 @@ class cmd_writeOFFSET_allChannels_response final : public ::google::protobuf::Me
   void _internal_set_offsetvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeOFFSET_allChannels_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeOFFSET_allChannels_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 52,
+                                   0, 59,
                                    2>
       _table_;
 
@@ -2764,7 +2831,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeOFFSET_allChan
 // -------------------------------------------------------------------
 
 class cmd_writeOFFSET_allChannels final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeOFFSET_allChannels) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeOFFSET_allChannels) */ {
  public:
   inline cmd_writeOFFSET_allChannels() : cmd_writeOFFSET_allChannels(nullptr) {}
   ~cmd_writeOFFSET_allChannels() PROTOBUF_FINAL;
@@ -2882,7 +2949,7 @@ class cmd_writeOFFSET_allChannels final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeOFFSET_allChannels"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeOFFSET_allChannels"; }
 
  protected:
   explicit cmd_writeOFFSET_allChannels(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -2940,7 +3007,7 @@ class cmd_writeOFFSET_allChannels final : public ::google::protobuf::Message
   void _internal_set_offsetgain(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeOFFSET_allChannels)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeOFFSET_allChannels)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
@@ -2979,7 +3046,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeOFFSET_allChan
 // -------------------------------------------------------------------
 
 class cmd_writeOFFSET_allAFE_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeOFFSET_allAFE_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeOFFSET_allAFE_response) */ {
  public:
   inline cmd_writeOFFSET_allAFE_response() : cmd_writeOFFSET_allAFE_response(nullptr) {}
   ~cmd_writeOFFSET_allAFE_response() PROTOBUF_FINAL;
@@ -3097,7 +3164,7 @@ class cmd_writeOFFSET_allAFE_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeOFFSET_allAFE_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeOFFSET_allAFE_response"; }
 
  protected:
   explicit cmd_writeOFFSET_allAFE_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -3182,12 +3249,12 @@ class cmd_writeOFFSET_allAFE_response final : public ::google::protobuf::Message
   void _internal_set_offsetvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeOFFSET_allAFE_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeOFFSET_allAFE_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<3, 5,
-                                   0, 47,
+                                   0, 54,
                                    2>
       _table_;
 
@@ -3223,7 +3290,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeOFFSET_allAFE_
 // -------------------------------------------------------------------
 
 class cmd_writeOFFSET_allAFE final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeOFFSET_allAFE) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeOFFSET_allAFE) */ {
  public:
   inline cmd_writeOFFSET_allAFE() : cmd_writeOFFSET_allAFE(nullptr) {}
   ~cmd_writeOFFSET_allAFE() PROTOBUF_FINAL;
@@ -3341,7 +3408,7 @@ class cmd_writeOFFSET_allAFE final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeOFFSET_allAFE"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeOFFSET_allAFE"; }
 
  protected:
   explicit cmd_writeOFFSET_allAFE(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -3365,11 +3432,22 @@ class cmd_writeOFFSET_allAFE final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kAfeBlockFieldNumber = 1,
-    kOffsetValueFieldNumber = 2,
-    kOffsetGainFieldNumber = 3,
+    kIdFieldNumber = 1,
+    kAfeBlockFieldNumber = 2,
+    kOffsetValueFieldNumber = 3,
+    kOffsetGainFieldNumber = 4,
   };
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 afeBlock = 2;
   void clear_afeblock() ;
   ::uint32_t afeblock() const;
   void set_afeblock(::uint32_t value);
@@ -3379,7 +3457,7 @@ class cmd_writeOFFSET_allAFE final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // uint32 offsetValue = 2;
+  // uint32 offsetValue = 3;
   void clear_offsetvalue() ;
   ::uint32_t offsetvalue() const;
   void set_offsetvalue(::uint32_t value);
@@ -3389,7 +3467,7 @@ class cmd_writeOFFSET_allAFE final : public ::google::protobuf::Message
   void _internal_set_offsetvalue(::uint32_t value);
 
   public:
-  // bool offsetGain = 3;
+  // bool offsetGain = 4;
   void clear_offsetgain() ;
   bool offsetgain() const;
   void set_offsetgain(bool value);
@@ -3399,11 +3477,11 @@ class cmd_writeOFFSET_allAFE final : public ::google::protobuf::Message
   void _internal_set_offsetgain(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeOFFSET_allAFE)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeOFFSET_allAFE)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
+  static const ::google::protobuf::internal::TcParseTable<2, 4,
                                    0, 0,
                                    2>
       _table_;
@@ -3425,6 +3503,7 @@ class cmd_writeOFFSET_allAFE final : public ::google::protobuf::Message
         const cmd_writeOFFSET_allAFE& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t afeblock_;
     ::uint32_t offsetvalue_;
     bool offsetgain_;
@@ -3437,30 +3516,30 @@ class cmd_writeOFFSET_allAFE final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull cmd_writeOFFSET_allAFE_class_data_;
 // -------------------------------------------------------------------
 
-class cmd_writeAFEVgain_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeAFEVgain_response) */ {
+class cmd_writeAFEVGAIN_response final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeAFEVGAIN_response) */ {
  public:
-  inline cmd_writeAFEVgain_response() : cmd_writeAFEVgain_response(nullptr) {}
-  ~cmd_writeAFEVgain_response() PROTOBUF_FINAL;
+  inline cmd_writeAFEVGAIN_response() : cmd_writeAFEVGAIN_response(nullptr) {}
+  ~cmd_writeAFEVGAIN_response() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-  void operator delete(cmd_writeAFEVgain_response* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+  void operator delete(cmd_writeAFEVGAIN_response* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
     SharedDtor(*msg);
-    ::google::protobuf::internal::SizedDelete(msg, sizeof(cmd_writeAFEVgain_response));
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(cmd_writeAFEVGAIN_response));
   }
 #endif
 
   template <typename = void>
-  explicit PROTOBUF_CONSTEXPR cmd_writeAFEVgain_response(::google::protobuf::internal::ConstantInitialized);
+  explicit PROTOBUF_CONSTEXPR cmd_writeAFEVGAIN_response(::google::protobuf::internal::ConstantInitialized);
 
-  inline cmd_writeAFEVgain_response(const cmd_writeAFEVgain_response& from) : cmd_writeAFEVgain_response(nullptr, from) {}
-  inline cmd_writeAFEVgain_response(cmd_writeAFEVgain_response&& from) noexcept
-      : cmd_writeAFEVgain_response(nullptr, std::move(from)) {}
-  inline cmd_writeAFEVgain_response& operator=(const cmd_writeAFEVgain_response& from) {
+  inline cmd_writeAFEVGAIN_response(const cmd_writeAFEVGAIN_response& from) : cmd_writeAFEVGAIN_response(nullptr, from) {}
+  inline cmd_writeAFEVGAIN_response(cmd_writeAFEVGAIN_response&& from) noexcept
+      : cmd_writeAFEVGAIN_response(nullptr, std::move(from)) {}
+  inline cmd_writeAFEVGAIN_response& operator=(const cmd_writeAFEVGAIN_response& from) {
     CopyFrom(from);
     return *this;
   }
-  inline cmd_writeAFEVgain_response& operator=(cmd_writeAFEVgain_response&& from) noexcept {
+  inline cmd_writeAFEVGAIN_response& operator=(cmd_writeAFEVGAIN_response&& from) noexcept {
     if (this == &from) return *this;
     if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
       InternalSwap(&from);
@@ -3488,13 +3567,13 @@ class cmd_writeAFEVgain_response final : public ::google::protobuf::Message
   static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const cmd_writeAFEVgain_response& default_instance() {
-    return *reinterpret_cast<const cmd_writeAFEVgain_response*>(
-        &_cmd_writeAFEVgain_response_default_instance_);
+  static const cmd_writeAFEVGAIN_response& default_instance() {
+    return *reinterpret_cast<const cmd_writeAFEVGAIN_response*>(
+        &_cmd_writeAFEVGAIN_response_default_instance_);
   }
   static constexpr int kIndexInFileMessages = 3;
-  friend void swap(cmd_writeAFEVgain_response& a, cmd_writeAFEVgain_response& b) { a.Swap(&b); }
-  inline void Swap(cmd_writeAFEVgain_response* PROTOBUF_NONNULL other) {
+  friend void swap(cmd_writeAFEVGAIN_response& a, cmd_writeAFEVGAIN_response& b) { a.Swap(&b); }
+  inline void Swap(cmd_writeAFEVGAIN_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
     if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
       InternalSwap(other);
@@ -3502,7 +3581,7 @@ class cmd_writeAFEVgain_response final : public ::google::protobuf::Message
       ::google::protobuf::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(cmd_writeAFEVgain_response* PROTOBUF_NONNULL other) {
+  void UnsafeArenaSwap(cmd_writeAFEVGAIN_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
     ABSL_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -3510,13 +3589,13 @@ class cmd_writeAFEVgain_response final : public ::google::protobuf::Message
 
   // implements Message ----------------------------------------------
 
-  cmd_writeAFEVgain_response* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::Message::DefaultConstruct<cmd_writeAFEVgain_response>(arena);
+  cmd_writeAFEVGAIN_response* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<cmd_writeAFEVGAIN_response>(arena);
   }
   using ::google::protobuf::Message::CopyFrom;
-  void CopyFrom(const cmd_writeAFEVgain_response& from);
+  void CopyFrom(const cmd_writeAFEVGAIN_response& from);
   using ::google::protobuf::Message::MergeFrom;
-  void MergeFrom(const cmd_writeAFEVgain_response& from) { cmd_writeAFEVgain_response::MergeImpl(*this, from); }
+  void MergeFrom(const cmd_writeAFEVGAIN_response& from) { cmd_writeAFEVGAIN_response::MergeImpl(*this, from); }
 
   private:
   static void MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -3552,18 +3631,18 @@ class cmd_writeAFEVgain_response final : public ::google::protobuf::Message
   private:
   void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
   static void SharedDtor(MessageLite& self);
-  void InternalSwap(cmd_writeAFEVgain_response* PROTOBUF_NONNULL other);
+  void InternalSwap(cmd_writeAFEVGAIN_response* PROTOBUF_NONNULL other);
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeAFEVgain_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeAFEVGAIN_response"; }
 
  protected:
-  explicit cmd_writeAFEVgain_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
-  cmd_writeAFEVgain_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeAFEVgain_response& from);
-  cmd_writeAFEVgain_response(
-      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, cmd_writeAFEVgain_response&& from) noexcept
-      : cmd_writeAFEVgain_response(arena) {
+  explicit cmd_writeAFEVGAIN_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  cmd_writeAFEVGAIN_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const cmd_writeAFEVGAIN_response& from);
+  cmd_writeAFEVGAIN_response(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, cmd_writeAFEVGAIN_response&& from) noexcept
+      : cmd_writeAFEVGAIN_response(arena) {
     *this = ::std::move(from);
   }
   const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
@@ -3630,12 +3709,12 @@ class cmd_writeAFEVgain_response final : public ::google::protobuf::Message
   void _internal_set_vgainvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeAFEVgain_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeAFEVGAIN_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 42,
+                                   0, 49,
                                    2>
       _table_;
 
@@ -3653,7 +3732,7 @@ class cmd_writeAFEVgain_response final : public ::google::protobuf::Message
     inline explicit Impl_(
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
-        const cmd_writeAFEVgain_response& from_msg);
+        const cmd_writeAFEVGAIN_response& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr message_;
@@ -3666,11 +3745,11 @@ class cmd_writeAFEVgain_response final : public ::google::protobuf::Message
   friend struct ::TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto;
 };
 
-extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEVgain_response_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEVGAIN_response_class_data_;
 // -------------------------------------------------------------------
 
 class cmd_writeAFEVGAIN final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeAFEVGAIN) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeAFEVGAIN) */ {
  public:
   inline cmd_writeAFEVGAIN() : cmd_writeAFEVGAIN(nullptr) {}
   ~cmd_writeAFEVGAIN() PROTOBUF_FINAL;
@@ -3788,7 +3867,7 @@ class cmd_writeAFEVGAIN final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeAFEVGAIN"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeAFEVGAIN"; }
 
  protected:
   explicit cmd_writeAFEVGAIN(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -3812,10 +3891,21 @@ class cmd_writeAFEVGAIN final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kAfeBlockFieldNumber = 1,
-    kVgainValueFieldNumber = 2,
+    kIdFieldNumber = 1,
+    kAfeBlockFieldNumber = 2,
+    kVgainValueFieldNumber = 3,
   };
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 afeBlock = 2;
   void clear_afeblock() ;
   ::uint32_t afeblock() const;
   void set_afeblock(::uint32_t value);
@@ -3825,7 +3915,7 @@ class cmd_writeAFEVGAIN final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // uint32 vgainValue = 2;
+  // uint32 vgainValue = 3;
   void clear_vgainvalue() ;
   ::uint32_t vgainvalue() const;
   void set_vgainvalue(::uint32_t value);
@@ -3835,11 +3925,11 @@ class cmd_writeAFEVGAIN final : public ::google::protobuf::Message
   void _internal_set_vgainvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeAFEVGAIN)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeAFEVGAIN)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    0, 0,
                                    2>
       _table_;
@@ -3861,6 +3951,7 @@ class cmd_writeAFEVGAIN final : public ::google::protobuf::Message
         const cmd_writeAFEVGAIN& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t afeblock_;
     ::uint32_t vgainvalue_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -3873,7 +3964,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEVGAIN_class
 // -------------------------------------------------------------------
 
 class cmd_writeAFEReg_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeAFEReg_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeAFEReg_response) */ {
  public:
   inline cmd_writeAFEReg_response() : cmd_writeAFEReg_response(nullptr) {}
   ~cmd_writeAFEReg_response() PROTOBUF_FINAL;
@@ -3991,7 +4082,7 @@ class cmd_writeAFEReg_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeAFEReg_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeAFEReg_response"; }
 
  protected:
   explicit cmd_writeAFEReg_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -4076,12 +4167,12 @@ class cmd_writeAFEReg_response final : public ::google::protobuf::Message
   void _internal_set_regvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeAFEReg_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeAFEReg_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<3, 5,
-                                   0, 40,
+                                   0, 47,
                                    2>
       _table_;
 
@@ -4117,7 +4208,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEReg_respons
 // -------------------------------------------------------------------
 
 class cmd_writeAFEReg final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeAFEReg) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeAFEReg) */ {
  public:
   inline cmd_writeAFEReg() : cmd_writeAFEReg(nullptr) {}
   ~cmd_writeAFEReg() PROTOBUF_FINAL;
@@ -4235,7 +4326,7 @@ class cmd_writeAFEReg final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeAFEReg"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeAFEReg"; }
 
  protected:
   explicit cmd_writeAFEReg(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -4259,11 +4350,22 @@ class cmd_writeAFEReg final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kAfeBlockFieldNumber = 1,
-    kRegAddressFieldNumber = 2,
-    kRegValueFieldNumber = 3,
+    kIdFieldNumber = 1,
+    kAfeBlockFieldNumber = 2,
+    kRegAddressFieldNumber = 3,
+    kRegValueFieldNumber = 4,
   };
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 afeBlock = 2;
   void clear_afeblock() ;
   ::uint32_t afeblock() const;
   void set_afeblock(::uint32_t value);
@@ -4273,7 +4375,7 @@ class cmd_writeAFEReg final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // uint32 regAddress = 2;
+  // uint32 regAddress = 3;
   void clear_regaddress() ;
   ::uint32_t regaddress() const;
   void set_regaddress(::uint32_t value);
@@ -4283,7 +4385,7 @@ class cmd_writeAFEReg final : public ::google::protobuf::Message
   void _internal_set_regaddress(::uint32_t value);
 
   public:
-  // uint32 regValue = 3;
+  // uint32 regValue = 4;
   void clear_regvalue() ;
   ::uint32_t regvalue() const;
   void set_regvalue(::uint32_t value);
@@ -4293,11 +4395,11 @@ class cmd_writeAFEReg final : public ::google::protobuf::Message
   void _internal_set_regvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeAFEReg)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeAFEReg)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
+  static const ::google::protobuf::internal::TcParseTable<2, 4,
                                    0, 0,
                                    2>
       _table_;
@@ -4319,6 +4421,7 @@ class cmd_writeAFEReg final : public ::google::protobuf::Message
         const cmd_writeAFEReg& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t afeblock_;
     ::uint32_t regaddress_;
     ::uint32_t regvalue_;
@@ -4332,7 +4435,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEReg_class_d
 // -------------------------------------------------------------------
 
 class cmd_writeAFEFunction_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeAFEFunction_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeAFEFunction_response) */ {
  public:
   inline cmd_writeAFEFunction_response() : cmd_writeAFEFunction_response(nullptr) {}
   ~cmd_writeAFEFunction_response() PROTOBUF_FINAL;
@@ -4386,7 +4489,7 @@ class cmd_writeAFEFunction_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeAFEFunction_response*>(
         &_cmd_writeAFEFunction_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 55;
+  static constexpr int kIndexInFileMessages = 56;
   friend void swap(cmd_writeAFEFunction_response& a, cmd_writeAFEFunction_response& b) { a.Swap(&b); }
   inline void Swap(cmd_writeAFEFunction_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -4450,7 +4553,7 @@ class cmd_writeAFEFunction_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeAFEFunction_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeAFEFunction_response"; }
 
  protected:
   explicit cmd_writeAFEFunction_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -4540,12 +4643,12 @@ class cmd_writeAFEFunction_response final : public ::google::protobuf::Message
   void _internal_set_configvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeAFEFunction_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeAFEFunction_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<3, 5,
-                                   0, 53,
+                                   0, 60,
                                    2>
       _table_;
 
@@ -4581,7 +4684,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEFunction_re
 // -------------------------------------------------------------------
 
 class cmd_writeAFEFunction final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeAFEFunction) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeAFEFunction) */ {
  public:
   inline cmd_writeAFEFunction() : cmd_writeAFEFunction(nullptr) {}
   ~cmd_writeAFEFunction() PROTOBUF_FINAL;
@@ -4635,7 +4738,7 @@ class cmd_writeAFEFunction final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_writeAFEFunction*>(
         &_cmd_writeAFEFunction_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 54;
+  static constexpr int kIndexInFileMessages = 55;
   friend void swap(cmd_writeAFEFunction& a, cmd_writeAFEFunction& b) { a.Swap(&b); }
   inline void Swap(cmd_writeAFEFunction* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -4699,7 +4802,7 @@ class cmd_writeAFEFunction final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeAFEFunction"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeAFEFunction"; }
 
  protected:
   explicit cmd_writeAFEFunction(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -4762,12 +4865,12 @@ class cmd_writeAFEFunction final : public ::google::protobuf::Message
   void _internal_set_configvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeAFEFunction)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeAFEFunction)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 3,
-                                   0, 37,
+                                   0, 44,
                                    2>
       _table_;
 
@@ -4801,7 +4904,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEFunction_cl
 // -------------------------------------------------------------------
 
 class cmd_writeAFEBiasSet_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeAFEBiasSet_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeAFEBiasSet_response) */ {
  public:
   inline cmd_writeAFEBiasSet_response() : cmd_writeAFEBiasSet_response(nullptr) {}
   ~cmd_writeAFEBiasSet_response() PROTOBUF_FINAL;
@@ -4919,7 +5022,7 @@ class cmd_writeAFEBiasSet_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeAFEBiasSet_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeAFEBiasSet_response"; }
 
  protected:
   explicit cmd_writeAFEBiasSet_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -4993,12 +5096,12 @@ class cmd_writeAFEBiasSet_response final : public ::google::protobuf::Message
   void _internal_set_biasvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeAFEBiasSet_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeAFEBiasSet_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 44,
+                                   0, 51,
                                    2>
       _table_;
 
@@ -5033,7 +5136,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEBiasSet_res
 // -------------------------------------------------------------------
 
 class cmd_writeAFEBiasSet final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeAFEBiasSet) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeAFEBiasSet) */ {
  public:
   inline cmd_writeAFEBiasSet() : cmd_writeAFEBiasSet(nullptr) {}
   ~cmd_writeAFEBiasSet() PROTOBUF_FINAL;
@@ -5151,7 +5254,7 @@ class cmd_writeAFEBiasSet final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeAFEBiasSet"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeAFEBiasSet"; }
 
  protected:
   explicit cmd_writeAFEBiasSet(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -5175,10 +5278,21 @@ class cmd_writeAFEBiasSet final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kAfeBlockFieldNumber = 1,
-    kBiasValueFieldNumber = 2,
+    kIdFieldNumber = 1,
+    kAfeBlockFieldNumber = 2,
+    kBiasValueFieldNumber = 3,
   };
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 afeBlock = 2;
   void clear_afeblock() ;
   ::uint32_t afeblock() const;
   void set_afeblock(::uint32_t value);
@@ -5188,7 +5302,7 @@ class cmd_writeAFEBiasSet final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // uint32 biasValue = 2;
+  // uint32 biasValue = 3;
   void clear_biasvalue() ;
   ::uint32_t biasvalue() const;
   void set_biasvalue(::uint32_t value);
@@ -5198,11 +5312,11 @@ class cmd_writeAFEBiasSet final : public ::google::protobuf::Message
   void _internal_set_biasvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeAFEBiasSet)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeAFEBiasSet)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    0, 0,
                                    2>
       _table_;
@@ -5224,6 +5338,7 @@ class cmd_writeAFEBiasSet final : public ::google::protobuf::Message
         const cmd_writeAFEBiasSet& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t afeblock_;
     ::uint32_t biasvalue_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -5236,7 +5351,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEBiasSet_cla
 // -------------------------------------------------------------------
 
 class cmd_writeAFEAttenuation_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeAFEAttenuation_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeAFEAttenuation_response) */ {
  public:
   inline cmd_writeAFEAttenuation_response() : cmd_writeAFEAttenuation_response(nullptr) {}
   ~cmd_writeAFEAttenuation_response() PROTOBUF_FINAL;
@@ -5354,7 +5469,7 @@ class cmd_writeAFEAttenuation_response final : public ::google::protobuf::Messag
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeAFEAttenuation_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeAFEAttenuation_response"; }
 
  protected:
   explicit cmd_writeAFEAttenuation_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -5428,12 +5543,12 @@ class cmd_writeAFEAttenuation_response final : public ::google::protobuf::Messag
   void _internal_set_attenuation(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeAFEAttenuation_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeAFEAttenuation_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 48,
+                                   0, 55,
                                    2>
       _table_;
 
@@ -5468,7 +5583,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEAttenuation
 // -------------------------------------------------------------------
 
 class cmd_writeAFEAttenuation final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_writeAFEAttenuation) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_writeAFEAttenuation) */ {
  public:
   inline cmd_writeAFEAttenuation() : cmd_writeAFEAttenuation(nullptr) {}
   ~cmd_writeAFEAttenuation() PROTOBUF_FINAL;
@@ -5586,7 +5701,7 @@ class cmd_writeAFEAttenuation final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_writeAFEAttenuation"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_writeAFEAttenuation"; }
 
  protected:
   explicit cmd_writeAFEAttenuation(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -5610,10 +5725,21 @@ class cmd_writeAFEAttenuation final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kAfeBlockFieldNumber = 1,
-    kAttenuationFieldNumber = 2,
+    kIdFieldNumber = 1,
+    kAfeBlockFieldNumber = 2,
+    kAttenuationFieldNumber = 3,
   };
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 afeBlock = 2;
   void clear_afeblock() ;
   ::uint32_t afeblock() const;
   void set_afeblock(::uint32_t value);
@@ -5623,7 +5749,7 @@ class cmd_writeAFEAttenuation final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // uint32 attenuation = 2;
+  // uint32 attenuation = 3;
   void clear_attenuation() ;
   ::uint32_t attenuation() const;
   void set_attenuation(::uint32_t value);
@@ -5633,11 +5759,11 @@ class cmd_writeAFEAttenuation final : public ::google::protobuf::Message
   void _internal_set_attenuation(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_writeAFEAttenuation)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_writeAFEAttenuation)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    0, 0,
                                    2>
       _table_;
@@ -5659,6 +5785,7 @@ class cmd_writeAFEAttenuation final : public ::google::protobuf::Message
         const cmd_writeAFEAttenuation& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t afeblock_;
     ::uint32_t attenuation_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -5671,7 +5798,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_writeAFEAttenuation
 // -------------------------------------------------------------------
 
 class cmd_setAFEReset_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_setAFEReset_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_setAFEReset_response) */ {
  public:
   inline cmd_setAFEReset_response() : cmd_setAFEReset_response(nullptr) {}
   ~cmd_setAFEReset_response() PROTOBUF_FINAL;
@@ -5789,7 +5916,7 @@ class cmd_setAFEReset_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_setAFEReset_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_setAFEReset_response"; }
 
  protected:
   explicit cmd_setAFEReset_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -5852,12 +5979,12 @@ class cmd_setAFEReset_response final : public ::google::protobuf::Message
   void _internal_set_resetvalue(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_setAFEReset_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_setAFEReset_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 3,
-                                   0, 40,
+                                   0, 47,
                                    2>
       _table_;
 
@@ -5891,7 +6018,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_setAFEReset_respons
 // -------------------------------------------------------------------
 
 class cmd_setAFEReset final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_setAFEReset) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_setAFEReset) */ {
  public:
   inline cmd_setAFEReset() : cmd_setAFEReset(nullptr) {}
   ~cmd_setAFEReset() PROTOBUF_FINAL;
@@ -6009,7 +6136,7 @@ class cmd_setAFEReset final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_setAFEReset"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_setAFEReset"; }
 
  protected:
   explicit cmd_setAFEReset(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -6033,9 +6160,20 @@ class cmd_setAFEReset final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kResetValueFieldNumber = 1,
+    kIdFieldNumber = 1,
+    kResetValueFieldNumber = 2,
   };
-  // bool resetValue = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // bool resetValue = 2;
   void clear_resetvalue() ;
   bool resetvalue() const;
   void set_resetvalue(bool value);
@@ -6045,11 +6183,11 @@ class cmd_setAFEReset final : public ::google::protobuf::Message
   void _internal_set_resetvalue(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_setAFEReset)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_setAFEReset)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
                                    0, 0,
                                    2>
       _table_;
@@ -6071,6 +6209,7 @@ class cmd_setAFEReset final : public ::google::protobuf::Message
         const cmd_setAFEReset& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     bool resetvalue_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -6082,7 +6221,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_setAFEReset_class_d
 // -------------------------------------------------------------------
 
 class cmd_setAFEPowerState_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_setAFEPowerState_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_setAFEPowerState_response) */ {
  public:
   inline cmd_setAFEPowerState_response() : cmd_setAFEPowerState_response(nullptr) {}
   ~cmd_setAFEPowerState_response() PROTOBUF_FINAL;
@@ -6200,7 +6339,7 @@ class cmd_setAFEPowerState_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_setAFEPowerState_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_setAFEPowerState_response"; }
 
  protected:
   explicit cmd_setAFEPowerState_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -6263,12 +6402,12 @@ class cmd_setAFEPowerState_response final : public ::google::protobuf::Message
   void _internal_set_powerstate(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_setAFEPowerState_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_setAFEPowerState_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 3,
-                                   0, 45,
+                                   0, 52,
                                    2>
       _table_;
 
@@ -6302,7 +6441,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_setAFEPowerState_re
 // -------------------------------------------------------------------
 
 class cmd_setAFEPowerState final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_setAFEPowerState) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_setAFEPowerState) */ {
  public:
   inline cmd_setAFEPowerState() : cmd_setAFEPowerState(nullptr) {}
   ~cmd_setAFEPowerState() PROTOBUF_FINAL;
@@ -6420,7 +6559,7 @@ class cmd_setAFEPowerState final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_setAFEPowerState"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_setAFEPowerState"; }
 
  protected:
   explicit cmd_setAFEPowerState(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -6444,9 +6583,20 @@ class cmd_setAFEPowerState final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kPowerStateFieldNumber = 1,
+    kIdFieldNumber = 1,
+    kPowerStateFieldNumber = 2,
   };
-  // bool powerState = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // bool powerState = 2;
   void clear_powerstate() ;
   bool powerstate() const;
   void set_powerstate(bool value);
@@ -6456,11 +6606,11 @@ class cmd_setAFEPowerState final : public ::google::protobuf::Message
   void _internal_set_powerstate(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_setAFEPowerState)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_setAFEPowerState)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
                                    0, 0,
                                    2>
       _table_;
@@ -6482,6 +6632,7 @@ class cmd_setAFEPowerState final : public ::google::protobuf::Message
         const cmd_setAFEPowerState& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     bool powerstate_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -6493,7 +6644,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_setAFEPowerState_cl
 // -------------------------------------------------------------------
 
 class cmd_readVbiasControl_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readVbiasControl_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readVbiasControl_response) */ {
  public:
   inline cmd_readVbiasControl_response() : cmd_readVbiasControl_response(nullptr) {}
   ~cmd_readVbiasControl_response() PROTOBUF_FINAL;
@@ -6611,7 +6762,7 @@ class cmd_readVbiasControl_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readVbiasControl_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readVbiasControl_response"; }
 
  protected:
   explicit cmd_readVbiasControl_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -6674,12 +6825,12 @@ class cmd_readVbiasControl_response final : public ::google::protobuf::Message
   void _internal_set_vbiascontrolvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readVbiasControl_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readVbiasControl_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 3,
-                                   0, 45,
+                                   0, 52,
                                    2>
       _table_;
 
@@ -6712,10 +6863,11 @@ class cmd_readVbiasControl_response final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull cmd_readVbiasControl_response_class_data_;
 // -------------------------------------------------------------------
 
-class cmd_readVbiasControl final : public ::google::protobuf::internal::ZeroFieldsBase
-/* @@protoc_insertion_point(class_definition:cmd_readVbiasControl) */ {
+class cmd_readVbiasControl final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readVbiasControl) */ {
  public:
   inline cmd_readVbiasControl() : cmd_readVbiasControl(nullptr) {}
+  ~cmd_readVbiasControl() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
   void operator delete(cmd_readVbiasControl* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
@@ -6785,25 +6937,52 @@ class cmd_readVbiasControl final : public ::google::protobuf::internal::ZeroFiel
   // implements Message ----------------------------------------------
 
   cmd_readVbiasControl* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::internal::ZeroFieldsBase::DefaultConstruct<cmd_readVbiasControl>(arena);
+    return ::google::protobuf::Message::DefaultConstruct<cmd_readVbiasControl>(arena);
   }
-  using ::google::protobuf::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const cmd_readVbiasControl& from) {
-    ::google::protobuf::internal::ZeroFieldsBase::CopyImpl(*this, from);
-  }
-  using ::google::protobuf::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const cmd_readVbiasControl& from) {
-    ::google::protobuf::internal::ZeroFieldsBase::MergeImpl(*this, from);
-  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const cmd_readVbiasControl& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const cmd_readVbiasControl& from) { cmd_readVbiasControl::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
     return true;
   }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(cmd_readVbiasControl* PROTOBUF_NONNULL other);
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readVbiasControl"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readVbiasControl"; }
 
  protected:
   explicit cmd_readVbiasControl(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -6826,11 +7005,24 @@ class cmd_readVbiasControl final : public ::google::protobuf::internal::ZeroFiel
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
-  // @@protoc_insertion_point(class_scope:cmd_readVbiasControl)
+  enum : int {
+    kIdFieldNumber = 1,
+  };
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readVbiasControl)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 0,
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
                                    0, 0,
                                    2>
       _table_;
@@ -6850,8 +7042,12 @@ class cmd_readVbiasControl final : public ::google::protobuf::internal::ZeroFiel
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
         const cmd_readVbiasControl& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
+  union { Impl_ _impl_; };
   friend struct ::TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto;
 };
 
@@ -6859,7 +7055,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readVbiasControl_cl
 // -------------------------------------------------------------------
 
 class cmd_readTrim_singleChannel_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readTrim_singleChannel_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readTrim_singleChannel_response) */ {
  public:
   inline cmd_readTrim_singleChannel_response() : cmd_readTrim_singleChannel_response(nullptr) {}
   ~cmd_readTrim_singleChannel_response() PROTOBUF_FINAL;
@@ -6977,7 +7173,7 @@ class cmd_readTrim_singleChannel_response final : public ::google::protobuf::Mes
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readTrim_singleChannel_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readTrim_singleChannel_response"; }
 
  protected:
   explicit cmd_readTrim_singleChannel_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -7051,12 +7247,12 @@ class cmd_readTrim_singleChannel_response final : public ::google::protobuf::Mes
   void _internal_set_trimvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readTrim_singleChannel_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readTrim_singleChannel_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 51,
+                                   0, 58,
                                    2>
       _table_;
 
@@ -7091,7 +7287,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readTrim_singleChan
 // -------------------------------------------------------------------
 
 class cmd_readTrim_singleChannel final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readTrim_singleChannel) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readTrim_singleChannel) */ {
  public:
   inline cmd_readTrim_singleChannel() : cmd_readTrim_singleChannel(nullptr) {}
   ~cmd_readTrim_singleChannel() PROTOBUF_FINAL;
@@ -7209,7 +7405,7 @@ class cmd_readTrim_singleChannel final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readTrim_singleChannel"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readTrim_singleChannel"; }
 
  protected:
   explicit cmd_readTrim_singleChannel(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -7233,9 +7429,20 @@ class cmd_readTrim_singleChannel final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kTrimChannelFieldNumber = 1,
+    kIdFieldNumber = 1,
+    kTrimChannelFieldNumber = 2,
   };
-  // uint32 trimChannel = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 trimChannel = 2;
   void clear_trimchannel() ;
   ::uint32_t trimchannel() const;
   void set_trimchannel(::uint32_t value);
@@ -7245,11 +7452,11 @@ class cmd_readTrim_singleChannel final : public ::google::protobuf::Message
   void _internal_set_trimchannel(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readTrim_singleChannel)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readTrim_singleChannel)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
                                    0, 0,
                                    2>
       _table_;
@@ -7271,6 +7478,7 @@ class cmd_readTrim_singleChannel final : public ::google::protobuf::Message
         const cmd_readTrim_singleChannel& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t trimchannel_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -7282,7 +7490,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readTrim_singleChan
 // -------------------------------------------------------------------
 
 class cmd_readTrim_allChannels_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readTrim_allChannels_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readTrim_allChannels_response) */ {
  public:
   inline cmd_readTrim_allChannels_response() : cmd_readTrim_allChannels_response(nullptr) {}
   ~cmd_readTrim_allChannels_response() PROTOBUF_FINAL;
@@ -7400,7 +7608,7 @@ class cmd_readTrim_allChannels_response final : public ::google::protobuf::Messa
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readTrim_allChannels_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readTrim_allChannels_response"; }
 
  protected:
   explicit cmd_readTrim_allChannels_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -7471,12 +7679,12 @@ class cmd_readTrim_allChannels_response final : public ::google::protobuf::Messa
   void _internal_set_success(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readTrim_allChannels_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readTrim_allChannels_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 3,
-                                   0, 49,
+                                   0, 56,
                                    2>
       _table_;
 
@@ -7510,10 +7718,11 @@ class cmd_readTrim_allChannels_response final : public ::google::protobuf::Messa
 extern const ::google::protobuf::internal::ClassDataFull cmd_readTrim_allChannels_response_class_data_;
 // -------------------------------------------------------------------
 
-class cmd_readTrim_allChannels final : public ::google::protobuf::internal::ZeroFieldsBase
-/* @@protoc_insertion_point(class_definition:cmd_readTrim_allChannels) */ {
+class cmd_readTrim_allChannels final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readTrim_allChannels) */ {
  public:
   inline cmd_readTrim_allChannels() : cmd_readTrim_allChannels(nullptr) {}
+  ~cmd_readTrim_allChannels() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
   void operator delete(cmd_readTrim_allChannels* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
@@ -7583,25 +7792,52 @@ class cmd_readTrim_allChannels final : public ::google::protobuf::internal::Zero
   // implements Message ----------------------------------------------
 
   cmd_readTrim_allChannels* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::internal::ZeroFieldsBase::DefaultConstruct<cmd_readTrim_allChannels>(arena);
+    return ::google::protobuf::Message::DefaultConstruct<cmd_readTrim_allChannels>(arena);
   }
-  using ::google::protobuf::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const cmd_readTrim_allChannels& from) {
-    ::google::protobuf::internal::ZeroFieldsBase::CopyImpl(*this, from);
-  }
-  using ::google::protobuf::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const cmd_readTrim_allChannels& from) {
-    ::google::protobuf::internal::ZeroFieldsBase::MergeImpl(*this, from);
-  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const cmd_readTrim_allChannels& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const cmd_readTrim_allChannels& from) { cmd_readTrim_allChannels::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
     return true;
   }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(cmd_readTrim_allChannels* PROTOBUF_NONNULL other);
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readTrim_allChannels"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readTrim_allChannels"; }
 
  protected:
   explicit cmd_readTrim_allChannels(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -7624,11 +7860,24 @@ class cmd_readTrim_allChannels final : public ::google::protobuf::internal::Zero
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
-  // @@protoc_insertion_point(class_scope:cmd_readTrim_allChannels)
+  enum : int {
+    kIdFieldNumber = 1,
+  };
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readTrim_allChannels)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 0,
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
                                    0, 0,
                                    2>
       _table_;
@@ -7648,8 +7897,12 @@ class cmd_readTrim_allChannels final : public ::google::protobuf::internal::Zero
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
         const cmd_readTrim_allChannels& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
+  union { Impl_ _impl_; };
   friend struct ::TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto;
 };
 
@@ -7657,7 +7910,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readTrim_allChannel
 // -------------------------------------------------------------------
 
 class cmd_readTrim_allAFE_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readTrim_allAFE_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readTrim_allAFE_response) */ {
  public:
   inline cmd_readTrim_allAFE_response() : cmd_readTrim_allAFE_response(nullptr) {}
   ~cmd_readTrim_allAFE_response() PROTOBUF_FINAL;
@@ -7775,7 +8028,7 @@ class cmd_readTrim_allAFE_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readTrim_allAFE_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readTrim_allAFE_response"; }
 
  protected:
   explicit cmd_readTrim_allAFE_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -7857,12 +8110,12 @@ class cmd_readTrim_allAFE_response final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readTrim_allAFE_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readTrim_allAFE_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 44,
+                                   0, 51,
                                    2>
       _table_;
 
@@ -7898,7 +8151,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readTrim_allAFE_res
 // -------------------------------------------------------------------
 
 class cmd_readTrim_allAFE final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readTrim_allAFE) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readTrim_allAFE) */ {
  public:
   inline cmd_readTrim_allAFE() : cmd_readTrim_allAFE(nullptr) {}
   ~cmd_readTrim_allAFE() PROTOBUF_FINAL;
@@ -8016,7 +8269,7 @@ class cmd_readTrim_allAFE final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readTrim_allAFE"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readTrim_allAFE"; }
 
  protected:
   explicit cmd_readTrim_allAFE(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -8040,9 +8293,20 @@ class cmd_readTrim_allAFE final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kAfeBlockFieldNumber = 1,
+    kIdFieldNumber = 1,
+    kAfeBlockFieldNumber = 2,
   };
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 afeBlock = 2;
   void clear_afeblock() ;
   ::uint32_t afeblock() const;
   void set_afeblock(::uint32_t value);
@@ -8052,11 +8316,11 @@ class cmd_readTrim_allAFE final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readTrim_allAFE)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readTrim_allAFE)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
                                    0, 0,
                                    2>
       _table_;
@@ -8078,6 +8342,7 @@ class cmd_readTrim_allAFE final : public ::google::protobuf::Message
         const cmd_readTrim_allAFE& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t afeblock_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -8089,7 +8354,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readTrim_allAFE_cla
 // -------------------------------------------------------------------
 
 class cmd_readOffset_singleChannel_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readOffset_singleChannel_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readOffset_singleChannel_response) */ {
  public:
   inline cmd_readOffset_singleChannel_response() : cmd_readOffset_singleChannel_response(nullptr) {}
   ~cmd_readOffset_singleChannel_response() PROTOBUF_FINAL;
@@ -8207,7 +8472,7 @@ class cmd_readOffset_singleChannel_response final : public ::google::protobuf::M
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readOffset_singleChannel_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readOffset_singleChannel_response"; }
 
  protected:
   explicit cmd_readOffset_singleChannel_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -8281,12 +8546,12 @@ class cmd_readOffset_singleChannel_response final : public ::google::protobuf::M
   void _internal_set_offsetvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readOffset_singleChannel_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readOffset_singleChannel_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 53,
+                                   0, 60,
                                    2>
       _table_;
 
@@ -8321,7 +8586,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readOffset_singleCh
 // -------------------------------------------------------------------
 
 class cmd_readOffset_singleChannel final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readOffset_singleChannel) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readOffset_singleChannel) */ {
  public:
   inline cmd_readOffset_singleChannel() : cmd_readOffset_singleChannel(nullptr) {}
   ~cmd_readOffset_singleChannel() PROTOBUF_FINAL;
@@ -8439,7 +8704,7 @@ class cmd_readOffset_singleChannel final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readOffset_singleChannel"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readOffset_singleChannel"; }
 
  protected:
   explicit cmd_readOffset_singleChannel(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -8463,9 +8728,20 @@ class cmd_readOffset_singleChannel final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kOffsetChannelFieldNumber = 1,
+    kIdFieldNumber = 1,
+    kOffsetChannelFieldNumber = 2,
   };
-  // uint32 offsetChannel = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 offsetChannel = 2;
   void clear_offsetchannel() ;
   ::uint32_t offsetchannel() const;
   void set_offsetchannel(::uint32_t value);
@@ -8475,11 +8751,11 @@ class cmd_readOffset_singleChannel final : public ::google::protobuf::Message
   void _internal_set_offsetchannel(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readOffset_singleChannel)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readOffset_singleChannel)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
                                    0, 0,
                                    2>
       _table_;
@@ -8501,6 +8777,7 @@ class cmd_readOffset_singleChannel final : public ::google::protobuf::Message
         const cmd_readOffset_singleChannel& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t offsetchannel_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -8512,7 +8789,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readOffset_singleCh
 // -------------------------------------------------------------------
 
 class cmd_readOffset_allChannels_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readOffset_allChannels_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readOffset_allChannels_response) */ {
  public:
   inline cmd_readOffset_allChannels_response() : cmd_readOffset_allChannels_response(nullptr) {}
   ~cmd_readOffset_allChannels_response() PROTOBUF_FINAL;
@@ -8630,7 +8907,7 @@ class cmd_readOffset_allChannels_response final : public ::google::protobuf::Mes
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readOffset_allChannels_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readOffset_allChannels_response"; }
 
  protected:
   explicit cmd_readOffset_allChannels_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -8701,12 +8978,12 @@ class cmd_readOffset_allChannels_response final : public ::google::protobuf::Mes
   void _internal_set_success(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readOffset_allChannels_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readOffset_allChannels_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 3,
-                                   0, 51,
+                                   0, 58,
                                    2>
       _table_;
 
@@ -8740,10 +9017,11 @@ class cmd_readOffset_allChannels_response final : public ::google::protobuf::Mes
 extern const ::google::protobuf::internal::ClassDataFull cmd_readOffset_allChannels_response_class_data_;
 // -------------------------------------------------------------------
 
-class cmd_readOffset_allChannels final : public ::google::protobuf::internal::ZeroFieldsBase
-/* @@protoc_insertion_point(class_definition:cmd_readOffset_allChannels) */ {
+class cmd_readOffset_allChannels final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readOffset_allChannels) */ {
  public:
   inline cmd_readOffset_allChannels() : cmd_readOffset_allChannels(nullptr) {}
+  ~cmd_readOffset_allChannels() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
   void operator delete(cmd_readOffset_allChannels* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
@@ -8813,25 +9091,52 @@ class cmd_readOffset_allChannels final : public ::google::protobuf::internal::Ze
   // implements Message ----------------------------------------------
 
   cmd_readOffset_allChannels* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::internal::ZeroFieldsBase::DefaultConstruct<cmd_readOffset_allChannels>(arena);
+    return ::google::protobuf::Message::DefaultConstruct<cmd_readOffset_allChannels>(arena);
   }
-  using ::google::protobuf::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const cmd_readOffset_allChannels& from) {
-    ::google::protobuf::internal::ZeroFieldsBase::CopyImpl(*this, from);
-  }
-  using ::google::protobuf::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const cmd_readOffset_allChannels& from) {
-    ::google::protobuf::internal::ZeroFieldsBase::MergeImpl(*this, from);
-  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const cmd_readOffset_allChannels& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const cmd_readOffset_allChannels& from) { cmd_readOffset_allChannels::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
     return true;
   }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(cmd_readOffset_allChannels* PROTOBUF_NONNULL other);
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readOffset_allChannels"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readOffset_allChannels"; }
 
  protected:
   explicit cmd_readOffset_allChannels(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -8854,11 +9159,24 @@ class cmd_readOffset_allChannels final : public ::google::protobuf::internal::Ze
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
-  // @@protoc_insertion_point(class_scope:cmd_readOffset_allChannels)
+  enum : int {
+    kIdFieldNumber = 1,
+  };
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readOffset_allChannels)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 0,
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
                                    0, 0,
                                    2>
       _table_;
@@ -8878,8 +9196,12 @@ class cmd_readOffset_allChannels final : public ::google::protobuf::internal::Ze
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
         const cmd_readOffset_allChannels& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
+  union { Impl_ _impl_; };
   friend struct ::TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto;
 };
 
@@ -8887,7 +9209,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readOffset_allChann
 // -------------------------------------------------------------------
 
 class cmd_readOffset_allAFE_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readOffset_allAFE_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readOffset_allAFE_response) */ {
  public:
   inline cmd_readOffset_allAFE_response() : cmd_readOffset_allAFE_response(nullptr) {}
   ~cmd_readOffset_allAFE_response() PROTOBUF_FINAL;
@@ -9005,7 +9327,7 @@ class cmd_readOffset_allAFE_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readOffset_allAFE_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readOffset_allAFE_response"; }
 
  protected:
   explicit cmd_readOffset_allAFE_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -9087,12 +9409,12 @@ class cmd_readOffset_allAFE_response final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readOffset_allAFE_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readOffset_allAFE_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 46,
+                                   0, 53,
                                    2>
       _table_;
 
@@ -9128,7 +9450,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readOffset_allAFE_r
 // -------------------------------------------------------------------
 
 class cmd_readOffset_allAFE final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readOffset_allAFE) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readOffset_allAFE) */ {
  public:
   inline cmd_readOffset_allAFE() : cmd_readOffset_allAFE(nullptr) {}
   ~cmd_readOffset_allAFE() PROTOBUF_FINAL;
@@ -9246,7 +9568,7 @@ class cmd_readOffset_allAFE final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readOffset_allAFE"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readOffset_allAFE"; }
 
  protected:
   explicit cmd_readOffset_allAFE(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -9270,9 +9592,20 @@ class cmd_readOffset_allAFE final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kAfeBlockFieldNumber = 1,
+    kIdFieldNumber = 1,
+    kAfeBlockFieldNumber = 2,
   };
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 afeBlock = 2;
   void clear_afeblock() ;
   ::uint32_t afeblock() const;
   void set_afeblock(::uint32_t value);
@@ -9282,11 +9615,11 @@ class cmd_readOffset_allAFE final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readOffset_allAFE)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readOffset_allAFE)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
                                    0, 0,
                                    2>
       _table_;
@@ -9308,6 +9641,7 @@ class cmd_readOffset_allAFE final : public ::google::protobuf::Message
         const cmd_readOffset_allAFE& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t afeblock_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -9319,7 +9653,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readOffset_allAFE_c
 // -------------------------------------------------------------------
 
 class cmd_readCurrentMonitor_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readCurrentMonitor_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readCurrentMonitor_response) */ {
  public:
   inline cmd_readCurrentMonitor_response() : cmd_readCurrentMonitor_response(nullptr) {}
   ~cmd_readCurrentMonitor_response() PROTOBUF_FINAL;
@@ -9437,7 +9771,7 @@ class cmd_readCurrentMonitor_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readCurrentMonitor_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readCurrentMonitor_response"; }
 
  protected:
   explicit cmd_readCurrentMonitor_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -9511,12 +9845,12 @@ class cmd_readCurrentMonitor_response final : public ::google::protobuf::Message
   void _internal_set_currentvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readCurrentMonitor_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readCurrentMonitor_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 47,
+                                   0, 54,
                                    2>
       _table_;
 
@@ -9551,7 +9885,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readCurrentMonitor_
 // -------------------------------------------------------------------
 
 class cmd_readCurrentMonitor final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readCurrentMonitor) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readCurrentMonitor) */ {
  public:
   inline cmd_readCurrentMonitor() : cmd_readCurrentMonitor(nullptr) {}
   ~cmd_readCurrentMonitor() PROTOBUF_FINAL;
@@ -9669,7 +10003,7 @@ class cmd_readCurrentMonitor final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readCurrentMonitor"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readCurrentMonitor"; }
 
  protected:
   explicit cmd_readCurrentMonitor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -9693,9 +10027,20 @@ class cmd_readCurrentMonitor final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kCurrentMonitorChannelFieldNumber = 1,
+    kIdFieldNumber = 1,
+    kCurrentMonitorChannelFieldNumber = 2,
   };
-  // uint32 currentMonitorChannel = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 currentMonitorChannel = 2;
   void clear_currentmonitorchannel() ;
   ::uint32_t currentmonitorchannel() const;
   void set_currentmonitorchannel(::uint32_t value);
@@ -9705,11 +10050,11 @@ class cmd_readCurrentMonitor final : public ::google::protobuf::Message
   void _internal_set_currentmonitorchannel(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readCurrentMonitor)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readCurrentMonitor)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
                                    0, 0,
                                    2>
       _table_;
@@ -9731,6 +10076,7 @@ class cmd_readCurrentMonitor final : public ::google::protobuf::Message
         const cmd_readCurrentMonitor& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t currentmonitorchannel_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -9742,7 +10088,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readCurrentMonitor_
 // -------------------------------------------------------------------
 
 class cmd_readBiasVoltageMonitor_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readBiasVoltageMonitor_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readBiasVoltageMonitor_response) */ {
  public:
   inline cmd_readBiasVoltageMonitor_response() : cmd_readBiasVoltageMonitor_response(nullptr) {}
   ~cmd_readBiasVoltageMonitor_response() PROTOBUF_FINAL;
@@ -9860,7 +10206,7 @@ class cmd_readBiasVoltageMonitor_response final : public ::google::protobuf::Mes
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readBiasVoltageMonitor_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readBiasVoltageMonitor_response"; }
 
  protected:
   explicit cmd_readBiasVoltageMonitor_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -9934,12 +10280,12 @@ class cmd_readBiasVoltageMonitor_response final : public ::google::protobuf::Mes
   void _internal_set_biasvoltagevalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readBiasVoltageMonitor_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readBiasVoltageMonitor_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 51,
+                                   0, 58,
                                    2>
       _table_;
 
@@ -9974,7 +10320,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readBiasVoltageMoni
 // -------------------------------------------------------------------
 
 class cmd_readBiasVoltageMonitor final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readBiasVoltageMonitor) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readBiasVoltageMonitor) */ {
  public:
   inline cmd_readBiasVoltageMonitor() : cmd_readBiasVoltageMonitor(nullptr) {}
   ~cmd_readBiasVoltageMonitor() PROTOBUF_FINAL;
@@ -10092,7 +10438,7 @@ class cmd_readBiasVoltageMonitor final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readBiasVoltageMonitor"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readBiasVoltageMonitor"; }
 
  protected:
   explicit cmd_readBiasVoltageMonitor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -10116,9 +10462,20 @@ class cmd_readBiasVoltageMonitor final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kAfeBlockFieldNumber = 1,
+    kIdFieldNumber = 1,
+    kAfeBlockFieldNumber = 2,
   };
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 afeBlock = 2;
   void clear_afeblock() ;
   ::uint32_t afeblock() const;
   void set_afeblock(::uint32_t value);
@@ -10128,11 +10485,11 @@ class cmd_readBiasVoltageMonitor final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readBiasVoltageMonitor)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readBiasVoltageMonitor)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
                                    0, 0,
                                    2>
       _table_;
@@ -10154,6 +10511,7 @@ class cmd_readBiasVoltageMonitor final : public ::google::protobuf::Message
         const cmd_readBiasVoltageMonitor& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t afeblock_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -10165,7 +10523,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readBiasVoltageMoni
 // -------------------------------------------------------------------
 
 class cmd_readAFEVgain_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readAFEVgain_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readAFEVgain_response) */ {
  public:
   inline cmd_readAFEVgain_response() : cmd_readAFEVgain_response(nullptr) {}
   ~cmd_readAFEVgain_response() PROTOBUF_FINAL;
@@ -10283,7 +10641,7 @@ class cmd_readAFEVgain_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readAFEVgain_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readAFEVgain_response"; }
 
  protected:
   explicit cmd_readAFEVgain_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -10357,12 +10715,12 @@ class cmd_readAFEVgain_response final : public ::google::protobuf::Message
   void _internal_set_vgainvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readAFEVgain_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readAFEVgain_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 41,
+                                   0, 48,
                                    2>
       _table_;
 
@@ -10397,7 +10755,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readAFEVgain_respon
 // -------------------------------------------------------------------
 
 class cmd_readAFEVgain final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readAFEVgain) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readAFEVgain) */ {
  public:
   inline cmd_readAFEVgain() : cmd_readAFEVgain(nullptr) {}
   ~cmd_readAFEVgain() PROTOBUF_FINAL;
@@ -10515,7 +10873,7 @@ class cmd_readAFEVgain final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readAFEVgain"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readAFEVgain"; }
 
  protected:
   explicit cmd_readAFEVgain(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -10539,9 +10897,20 @@ class cmd_readAFEVgain final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kAfeBlockFieldNumber = 1,
+    kIdFieldNumber = 1,
+    kAfeBlockFieldNumber = 2,
   };
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 afeBlock = 2;
   void clear_afeblock() ;
   ::uint32_t afeblock() const;
   void set_afeblock(::uint32_t value);
@@ -10551,11 +10920,11 @@ class cmd_readAFEVgain final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readAFEVgain)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readAFEVgain)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
                                    0, 0,
                                    2>
       _table_;
@@ -10577,6 +10946,7 @@ class cmd_readAFEVgain final : public ::google::protobuf::Message
         const cmd_readAFEVgain& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t afeblock_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -10588,7 +10958,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readAFEVgain_class_
 // -------------------------------------------------------------------
 
 class cmd_readAFEReg_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readAFEReg_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readAFEReg_response) */ {
  public:
   inline cmd_readAFEReg_response() : cmd_readAFEReg_response(nullptr) {}
   ~cmd_readAFEReg_response() PROTOBUF_FINAL;
@@ -10706,7 +11076,7 @@ class cmd_readAFEReg_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readAFEReg_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readAFEReg_response"; }
 
  protected:
   explicit cmd_readAFEReg_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -10791,12 +11161,12 @@ class cmd_readAFEReg_response final : public ::google::protobuf::Message
   void _internal_set_regvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readAFEReg_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readAFEReg_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<3, 5,
-                                   0, 39,
+                                   0, 46,
                                    2>
       _table_;
 
@@ -10832,7 +11202,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readAFEReg_response
 // -------------------------------------------------------------------
 
 class cmd_readAFEReg final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readAFEReg) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readAFEReg) */ {
  public:
   inline cmd_readAFEReg() : cmd_readAFEReg(nullptr) {}
   ~cmd_readAFEReg() PROTOBUF_FINAL;
@@ -10950,7 +11320,7 @@ class cmd_readAFEReg final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readAFEReg"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readAFEReg"; }
 
  protected:
   explicit cmd_readAFEReg(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -10974,10 +11344,21 @@ class cmd_readAFEReg final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kAfeBlockFieldNumber = 1,
-    kRegAddressFieldNumber = 2,
+    kIdFieldNumber = 1,
+    kAfeBlockFieldNumber = 2,
+    kRegAddressFieldNumber = 3,
   };
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 afeBlock = 2;
   void clear_afeblock() ;
   ::uint32_t afeblock() const;
   void set_afeblock(::uint32_t value);
@@ -10987,7 +11368,7 @@ class cmd_readAFEReg final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // uint32 regAddress = 2;
+  // uint32 regAddress = 3;
   void clear_regaddress() ;
   ::uint32_t regaddress() const;
   void set_regaddress(::uint32_t value);
@@ -10997,11 +11378,11 @@ class cmd_readAFEReg final : public ::google::protobuf::Message
   void _internal_set_regaddress(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readAFEReg)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readAFEReg)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<1, 2,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    0, 0,
                                    2>
       _table_;
@@ -11023,6 +11404,7 @@ class cmd_readAFEReg final : public ::google::protobuf::Message
         const cmd_readAFEReg& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t afeblock_;
     ::uint32_t regaddress_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -11035,7 +11417,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readAFEReg_class_da
 // -------------------------------------------------------------------
 
 class cmd_readAFEBiasSet_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readAFEBiasSet_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readAFEBiasSet_response) */ {
  public:
   inline cmd_readAFEBiasSet_response() : cmd_readAFEBiasSet_response(nullptr) {}
   ~cmd_readAFEBiasSet_response() PROTOBUF_FINAL;
@@ -11153,7 +11535,7 @@ class cmd_readAFEBiasSet_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readAFEBiasSet_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readAFEBiasSet_response"; }
 
  protected:
   explicit cmd_readAFEBiasSet_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -11227,12 +11609,12 @@ class cmd_readAFEBiasSet_response final : public ::google::protobuf::Message
   void _internal_set_biasvalue(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readAFEBiasSet_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readAFEBiasSet_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 43,
+                                   0, 50,
                                    2>
       _table_;
 
@@ -11267,7 +11649,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readAFEBiasSet_resp
 // -------------------------------------------------------------------
 
 class cmd_readAFEBiasSet final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_readAFEBiasSet) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_readAFEBiasSet) */ {
  public:
   inline cmd_readAFEBiasSet() : cmd_readAFEBiasSet(nullptr) {}
   ~cmd_readAFEBiasSet() PROTOBUF_FINAL;
@@ -11385,7 +11767,7 @@ class cmd_readAFEBiasSet final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_readAFEBiasSet"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_readAFEBiasSet"; }
 
  protected:
   explicit cmd_readAFEBiasSet(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -11409,9 +11791,20 @@ class cmd_readAFEBiasSet final : public ::google::protobuf::Message
 
   // accessors -------------------------------------------------------
   enum : int {
-    kAfeBlockFieldNumber = 1,
+    kIdFieldNumber = 1,
+    kAfeBlockFieldNumber = 2,
   };
-  // uint32 afeBlock = 1;
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // uint32 afeBlock = 2;
   void clear_afeblock() ;
   ::uint32_t afeblock() const;
   void set_afeblock(::uint32_t value);
@@ -11421,11 +11814,11 @@ class cmd_readAFEBiasSet final : public ::google::protobuf::Message
   void _internal_set_afeblock(::uint32_t value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_readAFEBiasSet)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_readAFEBiasSet)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
                                    0, 0,
                                    2>
       _table_;
@@ -11447,6 +11840,7 @@ class cmd_readAFEBiasSet final : public ::google::protobuf::Message
         const cmd_readAFEBiasSet& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     ::uint32_t afeblock_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -11458,7 +11852,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_readAFEBiasSet_clas
 // -------------------------------------------------------------------
 
 class cmd_doSoftwareTrigger_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_doSoftwareTrigger_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_doSoftwareTrigger_response) */ {
  public:
   inline cmd_doSoftwareTrigger_response() : cmd_doSoftwareTrigger_response(nullptr) {}
   ~cmd_doSoftwareTrigger_response() PROTOBUF_FINAL;
@@ -11512,7 +11906,7 @@ class cmd_doSoftwareTrigger_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_doSoftwareTrigger_response*>(
         &_cmd_doSoftwareTrigger_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 57;
+  static constexpr int kIndexInFileMessages = 58;
   friend void swap(cmd_doSoftwareTrigger_response& a, cmd_doSoftwareTrigger_response& b) { a.Swap(&b); }
   inline void Swap(cmd_doSoftwareTrigger_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -11576,7 +11970,7 @@ class cmd_doSoftwareTrigger_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_doSoftwareTrigger_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_doSoftwareTrigger_response"; }
 
  protected:
   explicit cmd_doSoftwareTrigger_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -11628,12 +12022,12 @@ class cmd_doSoftwareTrigger_response final : public ::google::protobuf::Message
   void _internal_set_success(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_doSoftwareTrigger_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_doSoftwareTrigger_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<1, 2,
-                                   0, 46,
+                                   0, 53,
                                    2>
       _table_;
 
@@ -11666,7 +12060,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_doSoftwareTrigger_r
 // -------------------------------------------------------------------
 
 class cmd_doSoftwareTrigger final : public ::google::protobuf::internal::ZeroFieldsBase
-/* @@protoc_insertion_point(class_definition:cmd_doSoftwareTrigger) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_doSoftwareTrigger) */ {
  public:
   inline cmd_doSoftwareTrigger() : cmd_doSoftwareTrigger(nullptr) {}
 
@@ -11719,7 +12113,7 @@ class cmd_doSoftwareTrigger final : public ::google::protobuf::internal::ZeroFie
     return *reinterpret_cast<const cmd_doSoftwareTrigger*>(
         &_cmd_doSoftwareTrigger_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 56;
+  static constexpr int kIndexInFileMessages = 57;
   friend void swap(cmd_doSoftwareTrigger& a, cmd_doSoftwareTrigger& b) { a.Swap(&b); }
   inline void Swap(cmd_doSoftwareTrigger* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -11756,7 +12150,7 @@ class cmd_doSoftwareTrigger final : public ::google::protobuf::internal::ZeroFie
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_doSoftwareTrigger"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_doSoftwareTrigger"; }
 
  protected:
   explicit cmd_doSoftwareTrigger(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -11779,7 +12173,7 @@ class cmd_doSoftwareTrigger final : public ::google::protobuf::internal::ZeroFie
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
-  // @@protoc_insertion_point(class_scope:cmd_doSoftwareTrigger)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_doSoftwareTrigger)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
@@ -11812,7 +12206,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_doSoftwareTrigger_c
 // -------------------------------------------------------------------
 
 class cmd_doAFEReset_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_doAFEReset_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_doAFEReset_response) */ {
  public:
   inline cmd_doAFEReset_response() : cmd_doAFEReset_response(nullptr) {}
   ~cmd_doAFEReset_response() PROTOBUF_FINAL;
@@ -11930,7 +12324,7 @@ class cmd_doAFEReset_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_doAFEReset_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_doAFEReset_response"; }
 
  protected:
   explicit cmd_doAFEReset_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -11982,12 +12376,12 @@ class cmd_doAFEReset_response final : public ::google::protobuf::Message
   void _internal_set_success(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_doAFEReset_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_doAFEReset_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<1, 2,
-                                   0, 39,
+                                   0, 46,
                                    2>
       _table_;
 
@@ -12019,10 +12413,11 @@ class cmd_doAFEReset_response final : public ::google::protobuf::Message
 extern const ::google::protobuf::internal::ClassDataFull cmd_doAFEReset_response_class_data_;
 // -------------------------------------------------------------------
 
-class cmd_doAFEReset final : public ::google::protobuf::internal::ZeroFieldsBase
-/* @@protoc_insertion_point(class_definition:cmd_doAFEReset) */ {
+class cmd_doAFEReset final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:daphne.cmd_doAFEReset) */ {
  public:
   inline cmd_doAFEReset() : cmd_doAFEReset(nullptr) {}
+  ~cmd_doAFEReset() PROTOBUF_FINAL;
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
   void operator delete(cmd_doAFEReset* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
@@ -12092,25 +12487,52 @@ class cmd_doAFEReset final : public ::google::protobuf::internal::ZeroFieldsBase
   // implements Message ----------------------------------------------
 
   cmd_doAFEReset* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::internal::ZeroFieldsBase::DefaultConstruct<cmd_doAFEReset>(arena);
+    return ::google::protobuf::Message::DefaultConstruct<cmd_doAFEReset>(arena);
   }
-  using ::google::protobuf::internal::ZeroFieldsBase::CopyFrom;
-  inline void CopyFrom(const cmd_doAFEReset& from) {
-    ::google::protobuf::internal::ZeroFieldsBase::CopyImpl(*this, from);
-  }
-  using ::google::protobuf::internal::ZeroFieldsBase::MergeFrom;
-  void MergeFrom(const cmd_doAFEReset& from) {
-    ::google::protobuf::internal::ZeroFieldsBase::MergeImpl(*this, from);
-  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const cmd_doAFEReset& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const cmd_doAFEReset& from) { cmd_doAFEReset::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
 
   public:
   bool IsInitialized() const {
     return true;
   }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(cmd_doAFEReset* PROTOBUF_NONNULL other);
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_doAFEReset"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_doAFEReset"; }
 
  protected:
   explicit cmd_doAFEReset(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -12133,11 +12555,24 @@ class cmd_doAFEReset final : public ::google::protobuf::internal::ZeroFieldsBase
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
-  // @@protoc_insertion_point(class_scope:cmd_doAFEReset)
+  enum : int {
+    kIdFieldNumber = 1,
+  };
+  // int32 id = 1;
+  void clear_id() ;
+  ::int32_t id() const;
+  void set_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_id() const;
+  void _internal_set_id(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:daphne.cmd_doAFEReset)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 0,
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
                                    0, 0,
                                    2>
       _table_;
@@ -12157,8 +12592,12 @@ class cmd_doAFEReset final : public ::google::protobuf::internal::ZeroFieldsBase
         ::google::protobuf::internal::InternalVisibility visibility,
         ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
         const cmd_doAFEReset& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::int32_t id_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
+  union { Impl_ _impl_; };
   friend struct ::TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto;
 };
 
@@ -12166,7 +12605,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_doAFEReset_class_da
 // -------------------------------------------------------------------
 
 class cmd_alignAFEs_response final : public ::google::protobuf::Message
-/* @@protoc_insertion_point(class_definition:cmd_alignAFEs_response) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_alignAFEs_response) */ {
  public:
   inline cmd_alignAFEs_response() : cmd_alignAFEs_response(nullptr) {}
   ~cmd_alignAFEs_response() PROTOBUF_FINAL;
@@ -12220,7 +12659,7 @@ class cmd_alignAFEs_response final : public ::google::protobuf::Message
     return *reinterpret_cast<const cmd_alignAFEs_response*>(
         &_cmd_alignAFEs_response_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 53;
+  static constexpr int kIndexInFileMessages = 54;
   friend void swap(cmd_alignAFEs_response& a, cmd_alignAFEs_response& b) { a.Swap(&b); }
   inline void Swap(cmd_alignAFEs_response* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -12284,7 +12723,7 @@ class cmd_alignAFEs_response final : public ::google::protobuf::Message
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_alignAFEs_response"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_alignAFEs_response"; }
 
  protected:
   explicit cmd_alignAFEs_response(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -12374,12 +12813,12 @@ class cmd_alignAFEs_response final : public ::google::protobuf::Message
   void _internal_set_success(bool value);
 
   public:
-  // @@protoc_insertion_point(class_scope:cmd_alignAFEs_response)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_alignAFEs_response)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<2, 4,
-                                   0, 38,
+                                   0, 45,
                                    2>
       _table_;
 
@@ -12416,7 +12855,7 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_alignAFEs_response_
 // -------------------------------------------------------------------
 
 class cmd_alignAFEs final : public ::google::protobuf::internal::ZeroFieldsBase
-/* @@protoc_insertion_point(class_definition:cmd_alignAFEs) */ {
+/* @@protoc_insertion_point(class_definition:daphne.cmd_alignAFEs) */ {
  public:
   inline cmd_alignAFEs() : cmd_alignAFEs(nullptr) {}
 
@@ -12469,7 +12908,7 @@ class cmd_alignAFEs final : public ::google::protobuf::internal::ZeroFieldsBase
     return *reinterpret_cast<const cmd_alignAFEs*>(
         &_cmd_alignAFEs_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 52;
+  static constexpr int kIndexInFileMessages = 53;
   friend void swap(cmd_alignAFEs& a, cmd_alignAFEs& b) { a.Swap(&b); }
   inline void Swap(cmd_alignAFEs* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -12506,7 +12945,7 @@ class cmd_alignAFEs final : public ::google::protobuf::internal::ZeroFieldsBase
  private:
   template <typename T>
   friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
-  static ::absl::string_view FullMessageName() { return "cmd_alignAFEs"; }
+  static ::absl::string_view FullMessageName() { return "daphne.cmd_alignAFEs"; }
 
  protected:
   explicit cmd_alignAFEs(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
@@ -12529,7 +12968,7 @@ class cmd_alignAFEs final : public ::google::protobuf::internal::ZeroFieldsBase
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
-  // @@protoc_insertion_point(class_scope:cmd_alignAFEs)
+  // @@protoc_insertion_point(class_scope:daphne.cmd_alignAFEs)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
@@ -12559,6 +12998,214 @@ class cmd_alignAFEs final : public ::google::protobuf::internal::ZeroFieldsBase
 };
 
 extern const ::google::protobuf::internal::ClassDataFull cmd_alignAFEs_class_data_;
+// -------------------------------------------------------------------
+
+class Status final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:daphne.Status) */ {
+ public:
+  inline Status() : Status(nullptr) {}
+  ~Status() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(Status* PROTOBUF_NONNULL msg, std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(Status));
+  }
+#endif
+
+  template <typename = void>
+  explicit PROTOBUF_CONSTEXPR Status(::google::protobuf::internal::ConstantInitialized);
+
+  inline Status(const Status& from) : Status(nullptr, from) {}
+  inline Status(Status&& from) noexcept
+      : Status(nullptr, std::move(from)) {}
+  inline Status& operator=(const Status& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Status& operator=(Status&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL mutable_unknown_fields()
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Status& default_instance() {
+    return *reinterpret_cast<const Status*>(
+        &_Status_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 52;
+  friend void swap(Status& a, Status& b) { a.Swap(&b); }
+  inline void Swap(Status* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Status* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Status* PROTOBUF_NONNULL New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<Status>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const Status& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const Status& from) { Status::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  ::size_t ByteSizeLong() const final;
+  ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  int GetCachedSize() const { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(Status* PROTOBUF_NONNULL other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "daphne.Status"; }
+
+ protected:
+  explicit Status(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  Status(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Status& from);
+  Status(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, Status&& from) noexcept
+      : Status(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kExtraFieldNumber = 2,
+    kSuccessFieldNumber = 1,
+  };
+  // bytes extra = 2;
+  void clear_extra() ;
+  const std::string& extra() const;
+  template <typename Arg_ = const std::string&, typename... Args_>
+  void set_extra(Arg_&& arg, Args_... args);
+  std::string* PROTOBUF_NONNULL mutable_extra();
+  [[nodiscard]] std::string* PROTOBUF_NULLABLE release_extra();
+  void set_allocated_extra(std::string* PROTOBUF_NULLABLE value);
+
+  private:
+  const std::string& _internal_extra() const;
+  PROTOBUF_ALWAYS_INLINE void _internal_set_extra(const std::string& value);
+  std::string* PROTOBUF_NONNULL _internal_mutable_extra();
+
+  public:
+  // bool success = 1;
+  void clear_success() ;
+  bool success() const;
+  void set_success(bool value);
+
+  private:
+  bool _internal_success() const;
+  void _internal_set_success(bool value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:daphne.Status)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<1, 2,
+                                   0, 0,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const Status& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::internal::ArenaStringPtr extra_;
+    bool success_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_daphneV3_5flow_5flevel_5fconfs_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull Status_class_data_;
 
 // ===================================================================
 
@@ -12576,20 +13223,44 @@ extern const ::google::protobuf::internal::ClassDataFull cmd_alignAFEs_class_dat
 
 // cmd_writeAFEReg
 
-// uint32 afeBlock = 1;
+// int32 id = 1;
+inline void cmd_writeAFEReg::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_writeAFEReg::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEReg.id)
+  return _internal_id();
+}
+inline void cmd_writeAFEReg::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEReg.id)
+}
+inline ::int32_t cmd_writeAFEReg::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_writeAFEReg::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 afeBlock = 2;
 inline void cmd_writeAFEReg::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeAFEReg::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEReg.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEReg.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_writeAFEReg::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEReg.afeBlock)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEReg.afeBlock)
 }
 inline ::uint32_t cmd_writeAFEReg::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -12600,20 +13271,20 @@ inline void cmd_writeAFEReg::_internal_set_afeblock(::uint32_t value) {
   _impl_.afeblock_ = value;
 }
 
-// uint32 regAddress = 2;
+// uint32 regAddress = 3;
 inline void cmd_writeAFEReg::clear_regaddress() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.regaddress_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_writeAFEReg::regaddress() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEReg.regAddress)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEReg.regAddress)
   return _internal_regaddress();
 }
 inline void cmd_writeAFEReg::set_regaddress(::uint32_t value) {
   _internal_set_regaddress(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEReg.regAddress)
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEReg.regAddress)
 }
 inline ::uint32_t cmd_writeAFEReg::_internal_regaddress() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -12624,20 +13295,20 @@ inline void cmd_writeAFEReg::_internal_set_regaddress(::uint32_t value) {
   _impl_.regaddress_ = value;
 }
 
-// uint32 regValue = 3;
+// uint32 regValue = 4;
 inline void cmd_writeAFEReg::clear_regvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.regvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_writeAFEReg::regvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEReg.regValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEReg.regValue)
   return _internal_regvalue();
 }
 inline void cmd_writeAFEReg::set_regvalue(::uint32_t value) {
   _internal_set_regvalue(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEReg.regValue)
+  _impl_._has_bits_[0] |= 0x00000008u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEReg.regValue)
 }
 inline ::uint32_t cmd_writeAFEReg::_internal_regvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -12659,13 +13330,13 @@ inline void cmd_writeAFEReg_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_writeAFEReg_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEReg_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEReg_response.success)
   return _internal_success();
 }
 inline void cmd_writeAFEReg_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEReg_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEReg_response.success)
 }
 inline bool cmd_writeAFEReg_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -12684,7 +13355,7 @@ inline void cmd_writeAFEReg_response::clear_message() {
 }
 inline const std::string& cmd_writeAFEReg_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEReg_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEReg_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -12692,12 +13363,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_writeAFEReg_response::set_message(Arg_&& arg, Ar
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeAFEReg_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEReg_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_writeAFEReg_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_writeAFEReg_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeAFEReg_response.message)
   return _s;
 }
 inline const std::string& cmd_writeAFEReg_response::_internal_message() const {
@@ -12716,7 +13387,7 @@ inline std::string* PROTOBUF_NONNULL cmd_writeAFEReg_response::_internal_mutable
 }
 inline std::string* PROTOBUF_NULLABLE cmd_writeAFEReg_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeAFEReg_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeAFEReg_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -12738,7 +13409,7 @@ inline void cmd_writeAFEReg_response::set_allocated_message(std::string* PROTOBU
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeAFEReg_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeAFEReg_response.message)
 }
 
 // uint32 afeBlock = 3;
@@ -12748,13 +13419,13 @@ inline void cmd_writeAFEReg_response::clear_afeblock() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_writeAFEReg_response::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEReg_response.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEReg_response.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_writeAFEReg_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEReg_response.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEReg_response.afeBlock)
 }
 inline ::uint32_t cmd_writeAFEReg_response::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -12772,13 +13443,13 @@ inline void cmd_writeAFEReg_response::clear_regaddress() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_writeAFEReg_response::regaddress() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEReg_response.regAddress)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEReg_response.regAddress)
   return _internal_regaddress();
 }
 inline void cmd_writeAFEReg_response::set_regaddress(::uint32_t value) {
   _internal_set_regaddress(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEReg_response.regAddress)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEReg_response.regAddress)
 }
 inline ::uint32_t cmd_writeAFEReg_response::_internal_regaddress() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -12796,13 +13467,13 @@ inline void cmd_writeAFEReg_response::clear_regvalue() {
   _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::uint32_t cmd_writeAFEReg_response::regvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEReg_response.regValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEReg_response.regValue)
   return _internal_regvalue();
 }
 inline void cmd_writeAFEReg_response::set_regvalue(::uint32_t value) {
   _internal_set_regvalue(value);
   _impl_._has_bits_[0] |= 0x00000010u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEReg_response.regValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEReg_response.regValue)
 }
 inline ::uint32_t cmd_writeAFEReg_response::_internal_regvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -12817,20 +13488,44 @@ inline void cmd_writeAFEReg_response::_internal_set_regvalue(::uint32_t value) {
 
 // cmd_writeAFEVGAIN
 
-// uint32 afeBlock = 1;
+// int32 id = 1;
+inline void cmd_writeAFEVGAIN::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_writeAFEVGAIN::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEVGAIN.id)
+  return _internal_id();
+}
+inline void cmd_writeAFEVGAIN::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEVGAIN.id)
+}
+inline ::int32_t cmd_writeAFEVGAIN::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_writeAFEVGAIN::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 afeBlock = 2;
 inline void cmd_writeAFEVGAIN::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeAFEVGAIN::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEVGAIN.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEVGAIN.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_writeAFEVGAIN::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEVGAIN.afeBlock)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEVGAIN.afeBlock)
 }
 inline ::uint32_t cmd_writeAFEVGAIN::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -12841,20 +13536,20 @@ inline void cmd_writeAFEVGAIN::_internal_set_afeblock(::uint32_t value) {
   _impl_.afeblock_ = value;
 }
 
-// uint32 vgainValue = 2;
+// uint32 vgainValue = 3;
 inline void cmd_writeAFEVGAIN::clear_vgainvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.vgainvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_writeAFEVGAIN::vgainvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEVGAIN.vgainValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEVGAIN.vgainValue)
   return _internal_vgainvalue();
 }
 inline void cmd_writeAFEVGAIN::set_vgainvalue(::uint32_t value) {
   _internal_set_vgainvalue(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEVGAIN.vgainValue)
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEVGAIN.vgainValue)
 }
 inline ::uint32_t cmd_writeAFEVGAIN::_internal_vgainvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -12867,73 +13562,73 @@ inline void cmd_writeAFEVGAIN::_internal_set_vgainvalue(::uint32_t value) {
 
 // -------------------------------------------------------------------
 
-// cmd_writeAFEVgain_response
+// cmd_writeAFEVGAIN_response
 
 // bool success = 1;
-inline void cmd_writeAFEVgain_response::clear_success() {
+inline void cmd_writeAFEVGAIN_response::clear_success() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.success_ = false;
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
-inline bool cmd_writeAFEVgain_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEVgain_response.success)
+inline bool cmd_writeAFEVGAIN_response::success() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEVGAIN_response.success)
   return _internal_success();
 }
-inline void cmd_writeAFEVgain_response::set_success(bool value) {
+inline void cmd_writeAFEVGAIN_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEVgain_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEVGAIN_response.success)
 }
-inline bool cmd_writeAFEVgain_response::_internal_success() const {
+inline bool cmd_writeAFEVGAIN_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.success_;
 }
-inline void cmd_writeAFEVgain_response::_internal_set_success(bool value) {
+inline void cmd_writeAFEVGAIN_response::_internal_set_success(bool value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.success_ = value;
 }
 
 // string message = 2;
-inline void cmd_writeAFEVgain_response::clear_message() {
+inline void cmd_writeAFEVGAIN_response::clear_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.message_.ClearToEmpty();
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string& cmd_writeAFEVgain_response::message() const
+inline const std::string& cmd_writeAFEVGAIN_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEVgain_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEVGAIN_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
-PROTOBUF_ALWAYS_INLINE void cmd_writeAFEVgain_response::set_message(Arg_&& arg, Args_... args) {
+PROTOBUF_ALWAYS_INLINE void cmd_writeAFEVGAIN_response::set_message(Arg_&& arg, Args_... args) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeAFEVgain_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEVGAIN_response.message)
 }
-inline std::string* PROTOBUF_NONNULL cmd_writeAFEVgain_response::mutable_message()
+inline std::string* PROTOBUF_NONNULL cmd_writeAFEVGAIN_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_writeAFEVgain_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeAFEVGAIN_response.message)
   return _s;
 }
-inline const std::string& cmd_writeAFEVgain_response::_internal_message() const {
+inline const std::string& cmd_writeAFEVGAIN_response::_internal_message() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.message_.Get();
 }
-inline void cmd_writeAFEVgain_response::_internal_set_message(const std::string& value) {
+inline void cmd_writeAFEVGAIN_response::_internal_set_message(const std::string& value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(value, GetArena());
 }
-inline std::string* PROTOBUF_NONNULL cmd_writeAFEVgain_response::_internal_mutable_message() {
+inline std::string* PROTOBUF_NONNULL cmd_writeAFEVGAIN_response::_internal_mutable_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   return _impl_.message_.Mutable( GetArena());
 }
-inline std::string* PROTOBUF_NULLABLE cmd_writeAFEVgain_response::release_message() {
+inline std::string* PROTOBUF_NULLABLE cmd_writeAFEVGAIN_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeAFEVgain_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeAFEVGAIN_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -12944,7 +13639,7 @@ inline std::string* PROTOBUF_NULLABLE cmd_writeAFEVgain_response::release_messag
   }
   return released;
 }
-inline void cmd_writeAFEVgain_response::set_allocated_message(std::string* PROTOBUF_NULLABLE value) {
+inline void cmd_writeAFEVGAIN_response::set_allocated_message(std::string* PROTOBUF_NULLABLE value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (value != nullptr) {
     _impl_._has_bits_[0] |= 0x00000001u;
@@ -12955,53 +13650,53 @@ inline void cmd_writeAFEVgain_response::set_allocated_message(std::string* PROTO
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeAFEVgain_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeAFEVGAIN_response.message)
 }
 
 // uint32 afeBlock = 3;
-inline void cmd_writeAFEVgain_response::clear_afeblock() {
+inline void cmd_writeAFEVGAIN_response::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
-inline ::uint32_t cmd_writeAFEVgain_response::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEVgain_response.afeBlock)
+inline ::uint32_t cmd_writeAFEVGAIN_response::afeblock() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEVGAIN_response.afeBlock)
   return _internal_afeblock();
 }
-inline void cmd_writeAFEVgain_response::set_afeblock(::uint32_t value) {
+inline void cmd_writeAFEVGAIN_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEVgain_response.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEVGAIN_response.afeBlock)
 }
-inline ::uint32_t cmd_writeAFEVgain_response::_internal_afeblock() const {
+inline ::uint32_t cmd_writeAFEVGAIN_response::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.afeblock_;
 }
-inline void cmd_writeAFEVgain_response::_internal_set_afeblock(::uint32_t value) {
+inline void cmd_writeAFEVGAIN_response::_internal_set_afeblock(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = value;
 }
 
 // uint32 vgainValue = 4;
-inline void cmd_writeAFEVgain_response::clear_vgainvalue() {
+inline void cmd_writeAFEVGAIN_response::clear_vgainvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.vgainvalue_ = 0u;
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
-inline ::uint32_t cmd_writeAFEVgain_response::vgainvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEVgain_response.vgainValue)
+inline ::uint32_t cmd_writeAFEVGAIN_response::vgainvalue() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEVGAIN_response.vgainValue)
   return _internal_vgainvalue();
 }
-inline void cmd_writeAFEVgain_response::set_vgainvalue(::uint32_t value) {
+inline void cmd_writeAFEVGAIN_response::set_vgainvalue(::uint32_t value) {
   _internal_set_vgainvalue(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEVgain_response.vgainValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEVGAIN_response.vgainValue)
 }
-inline ::uint32_t cmd_writeAFEVgain_response::_internal_vgainvalue() const {
+inline ::uint32_t cmd_writeAFEVGAIN_response::_internal_vgainvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.vgainvalue_;
 }
-inline void cmd_writeAFEVgain_response::_internal_set_vgainvalue(::uint32_t value) {
+inline void cmd_writeAFEVGAIN_response::_internal_set_vgainvalue(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.vgainvalue_ = value;
 }
@@ -13010,20 +13705,44 @@ inline void cmd_writeAFEVgain_response::_internal_set_vgainvalue(::uint32_t valu
 
 // cmd_writeAFEAttenuation
 
-// uint32 afeBlock = 1;
+// int32 id = 1;
+inline void cmd_writeAFEAttenuation::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_writeAFEAttenuation::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEAttenuation.id)
+  return _internal_id();
+}
+inline void cmd_writeAFEAttenuation::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEAttenuation.id)
+}
+inline ::int32_t cmd_writeAFEAttenuation::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_writeAFEAttenuation::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 afeBlock = 2;
 inline void cmd_writeAFEAttenuation::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeAFEAttenuation::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEAttenuation.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEAttenuation.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_writeAFEAttenuation::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEAttenuation.afeBlock)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEAttenuation.afeBlock)
 }
 inline ::uint32_t cmd_writeAFEAttenuation::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13034,20 +13753,20 @@ inline void cmd_writeAFEAttenuation::_internal_set_afeblock(::uint32_t value) {
   _impl_.afeblock_ = value;
 }
 
-// uint32 attenuation = 2;
+// uint32 attenuation = 3;
 inline void cmd_writeAFEAttenuation::clear_attenuation() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.attenuation_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_writeAFEAttenuation::attenuation() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEAttenuation.attenuation)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEAttenuation.attenuation)
   return _internal_attenuation();
 }
 inline void cmd_writeAFEAttenuation::set_attenuation(::uint32_t value) {
   _internal_set_attenuation(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEAttenuation.attenuation)
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEAttenuation.attenuation)
 }
 inline ::uint32_t cmd_writeAFEAttenuation::_internal_attenuation() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13069,13 +13788,13 @@ inline void cmd_writeAFEAttenuation_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_writeAFEAttenuation_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEAttenuation_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEAttenuation_response.success)
   return _internal_success();
 }
 inline void cmd_writeAFEAttenuation_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEAttenuation_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEAttenuation_response.success)
 }
 inline bool cmd_writeAFEAttenuation_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13094,7 +13813,7 @@ inline void cmd_writeAFEAttenuation_response::clear_message() {
 }
 inline const std::string& cmd_writeAFEAttenuation_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEAttenuation_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEAttenuation_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -13102,12 +13821,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_writeAFEAttenuation_response::set_message(Arg_&&
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeAFEAttenuation_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEAttenuation_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_writeAFEAttenuation_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_writeAFEAttenuation_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeAFEAttenuation_response.message)
   return _s;
 }
 inline const std::string& cmd_writeAFEAttenuation_response::_internal_message() const {
@@ -13126,7 +13845,7 @@ inline std::string* PROTOBUF_NONNULL cmd_writeAFEAttenuation_response::_internal
 }
 inline std::string* PROTOBUF_NULLABLE cmd_writeAFEAttenuation_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeAFEAttenuation_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeAFEAttenuation_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -13148,7 +13867,7 @@ inline void cmd_writeAFEAttenuation_response::set_allocated_message(std::string*
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeAFEAttenuation_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeAFEAttenuation_response.message)
 }
 
 // uint32 afeBlock = 3;
@@ -13158,13 +13877,13 @@ inline void cmd_writeAFEAttenuation_response::clear_afeblock() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_writeAFEAttenuation_response::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEAttenuation_response.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEAttenuation_response.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_writeAFEAttenuation_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEAttenuation_response.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEAttenuation_response.afeBlock)
 }
 inline ::uint32_t cmd_writeAFEAttenuation_response::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13182,13 +13901,13 @@ inline void cmd_writeAFEAttenuation_response::clear_attenuation() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_writeAFEAttenuation_response::attenuation() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEAttenuation_response.attenuation)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEAttenuation_response.attenuation)
   return _internal_attenuation();
 }
 inline void cmd_writeAFEAttenuation_response::set_attenuation(::uint32_t value) {
   _internal_set_attenuation(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEAttenuation_response.attenuation)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEAttenuation_response.attenuation)
 }
 inline ::uint32_t cmd_writeAFEAttenuation_response::_internal_attenuation() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13203,20 +13922,44 @@ inline void cmd_writeAFEAttenuation_response::_internal_set_attenuation(::uint32
 
 // cmd_writeAFEBiasSet
 
-// uint32 afeBlock = 1;
+// int32 id = 1;
+inline void cmd_writeAFEBiasSet::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_writeAFEBiasSet::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEBiasSet.id)
+  return _internal_id();
+}
+inline void cmd_writeAFEBiasSet::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEBiasSet.id)
+}
+inline ::int32_t cmd_writeAFEBiasSet::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_writeAFEBiasSet::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 afeBlock = 2;
 inline void cmd_writeAFEBiasSet::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeAFEBiasSet::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEBiasSet.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEBiasSet.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_writeAFEBiasSet::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEBiasSet.afeBlock)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEBiasSet.afeBlock)
 }
 inline ::uint32_t cmd_writeAFEBiasSet::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13227,20 +13970,20 @@ inline void cmd_writeAFEBiasSet::_internal_set_afeblock(::uint32_t value) {
   _impl_.afeblock_ = value;
 }
 
-// uint32 biasValue = 2;
+// uint32 biasValue = 3;
 inline void cmd_writeAFEBiasSet::clear_biasvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.biasvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_writeAFEBiasSet::biasvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEBiasSet.biasValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEBiasSet.biasValue)
   return _internal_biasvalue();
 }
 inline void cmd_writeAFEBiasSet::set_biasvalue(::uint32_t value) {
   _internal_set_biasvalue(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEBiasSet.biasValue)
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEBiasSet.biasValue)
 }
 inline ::uint32_t cmd_writeAFEBiasSet::_internal_biasvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13262,13 +14005,13 @@ inline void cmd_writeAFEBiasSet_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_writeAFEBiasSet_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEBiasSet_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEBiasSet_response.success)
   return _internal_success();
 }
 inline void cmd_writeAFEBiasSet_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEBiasSet_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEBiasSet_response.success)
 }
 inline bool cmd_writeAFEBiasSet_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13287,7 +14030,7 @@ inline void cmd_writeAFEBiasSet_response::clear_message() {
 }
 inline const std::string& cmd_writeAFEBiasSet_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEBiasSet_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEBiasSet_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -13295,12 +14038,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_writeAFEBiasSet_response::set_message(Arg_&& arg
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeAFEBiasSet_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEBiasSet_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_writeAFEBiasSet_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_writeAFEBiasSet_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeAFEBiasSet_response.message)
   return _s;
 }
 inline const std::string& cmd_writeAFEBiasSet_response::_internal_message() const {
@@ -13319,7 +14062,7 @@ inline std::string* PROTOBUF_NONNULL cmd_writeAFEBiasSet_response::_internal_mut
 }
 inline std::string* PROTOBUF_NULLABLE cmd_writeAFEBiasSet_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeAFEBiasSet_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeAFEBiasSet_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -13341,7 +14084,7 @@ inline void cmd_writeAFEBiasSet_response::set_allocated_message(std::string* PRO
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeAFEBiasSet_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeAFEBiasSet_response.message)
 }
 
 // uint32 afeBlock = 3;
@@ -13351,13 +14094,13 @@ inline void cmd_writeAFEBiasSet_response::clear_afeblock() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_writeAFEBiasSet_response::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEBiasSet_response.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEBiasSet_response.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_writeAFEBiasSet_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEBiasSet_response.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEBiasSet_response.afeBlock)
 }
 inline ::uint32_t cmd_writeAFEBiasSet_response::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13375,13 +14118,13 @@ inline void cmd_writeAFEBiasSet_response::clear_biasvalue() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_writeAFEBiasSet_response::biasvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEBiasSet_response.biasValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEBiasSet_response.biasValue)
   return _internal_biasvalue();
 }
 inline void cmd_writeAFEBiasSet_response::set_biasvalue(::uint32_t value) {
   _internal_set_biasvalue(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEBiasSet_response.biasValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEBiasSet_response.biasValue)
 }
 inline ::uint32_t cmd_writeAFEBiasSet_response::_internal_biasvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13396,20 +14139,44 @@ inline void cmd_writeAFEBiasSet_response::_internal_set_biasvalue(::uint32_t val
 
 // cmd_writeTRIM_allChannels
 
-// uint32 trimValue = 1;
+// int32 id = 1;
+inline void cmd_writeTRIM_allChannels::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_writeTRIM_allChannels::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTRIM_allChannels.id)
+  return _internal_id();
+}
+inline void cmd_writeTRIM_allChannels::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTRIM_allChannels.id)
+}
+inline ::int32_t cmd_writeTRIM_allChannels::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_writeTRIM_allChannels::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 trimValue = 2;
 inline void cmd_writeTRIM_allChannels::clear_trimvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeTRIM_allChannels::trimvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTRIM_allChannels.trimValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTRIM_allChannels.trimValue)
   return _internal_trimvalue();
 }
 inline void cmd_writeTRIM_allChannels::set_trimvalue(::uint32_t value) {
   _internal_set_trimvalue(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_writeTRIM_allChannels.trimValue)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTRIM_allChannels.trimValue)
 }
 inline ::uint32_t cmd_writeTRIM_allChannels::_internal_trimvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13420,20 +14187,20 @@ inline void cmd_writeTRIM_allChannels::_internal_set_trimvalue(::uint32_t value)
   _impl_.trimvalue_ = value;
 }
 
-// bool trimGain = 2;
+// bool trimGain = 3;
 inline void cmd_writeTRIM_allChannels::clear_trimgain() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimgain_ = false;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeTRIM_allChannels::trimgain() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTRIM_allChannels.trimGain)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTRIM_allChannels.trimGain)
   return _internal_trimgain();
 }
 inline void cmd_writeTRIM_allChannels::set_trimgain(bool value) {
   _internal_set_trimgain(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeTRIM_allChannels.trimGain)
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTRIM_allChannels.trimGain)
 }
 inline bool cmd_writeTRIM_allChannels::_internal_trimgain() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13455,13 +14222,13 @@ inline void cmd_writeTRIM_allChannels_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_writeTRIM_allChannels_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTRIM_allChannels_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTRIM_allChannels_response.success)
   return _internal_success();
 }
 inline void cmd_writeTRIM_allChannels_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeTRIM_allChannels_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTRIM_allChannels_response.success)
 }
 inline bool cmd_writeTRIM_allChannels_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13480,7 +14247,7 @@ inline void cmd_writeTRIM_allChannels_response::clear_message() {
 }
 inline const std::string& cmd_writeTRIM_allChannels_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeTRIM_allChannels_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTRIM_allChannels_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -13488,12 +14255,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_writeTRIM_allChannels_response::set_message(Arg_
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeTRIM_allChannels_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTRIM_allChannels_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_writeTRIM_allChannels_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_writeTRIM_allChannels_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeTRIM_allChannels_response.message)
   return _s;
 }
 inline const std::string& cmd_writeTRIM_allChannels_response::_internal_message() const {
@@ -13512,7 +14279,7 @@ inline std::string* PROTOBUF_NONNULL cmd_writeTRIM_allChannels_response::_intern
 }
 inline std::string* PROTOBUF_NULLABLE cmd_writeTRIM_allChannels_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeTRIM_allChannels_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeTRIM_allChannels_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -13534,7 +14301,7 @@ inline void cmd_writeTRIM_allChannels_response::set_allocated_message(std::strin
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeTRIM_allChannels_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeTRIM_allChannels_response.message)
 }
 
 // uint32 trimValue = 3;
@@ -13544,13 +14311,13 @@ inline void cmd_writeTRIM_allChannels_response::clear_trimvalue() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_writeTRIM_allChannels_response::trimvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTRIM_allChannels_response.trimValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTRIM_allChannels_response.trimValue)
   return _internal_trimvalue();
 }
 inline void cmd_writeTRIM_allChannels_response::set_trimvalue(::uint32_t value) {
   _internal_set_trimvalue(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_writeTRIM_allChannels_response.trimValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTRIM_allChannels_response.trimValue)
 }
 inline ::uint32_t cmd_writeTRIM_allChannels_response::_internal_trimvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13568,13 +14335,13 @@ inline void cmd_writeTRIM_allChannels_response::clear_trimgain() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeTRIM_allChannels_response::trimgain() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTRIM_allChannels_response.trimGain)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTRIM_allChannels_response.trimGain)
   return _internal_trimgain();
 }
 inline void cmd_writeTRIM_allChannels_response::set_trimgain(bool value) {
   _internal_set_trimgain(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeTRIM_allChannels_response.trimGain)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTRIM_allChannels_response.trimGain)
 }
 inline bool cmd_writeTRIM_allChannels_response::_internal_trimgain() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13589,20 +14356,44 @@ inline void cmd_writeTRIM_allChannels_response::_internal_set_trimgain(bool valu
 
 // cmd_writeTrim_allAFE
 
-// uint32 afeBlock = 1;
+// int32 id = 1;
+inline void cmd_writeTrim_allAFE::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_writeTrim_allAFE::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_allAFE.id)
+  return _internal_id();
+}
+inline void cmd_writeTrim_allAFE::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_allAFE.id)
+}
+inline ::int32_t cmd_writeTrim_allAFE::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_writeTrim_allAFE::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 afeBlock = 2;
 inline void cmd_writeTrim_allAFE::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeTrim_allAFE::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_allAFE.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_allAFE.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_writeTrim_allAFE::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_allAFE.afeBlock)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_allAFE.afeBlock)
 }
 inline ::uint32_t cmd_writeTrim_allAFE::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13613,20 +14404,20 @@ inline void cmd_writeTrim_allAFE::_internal_set_afeblock(::uint32_t value) {
   _impl_.afeblock_ = value;
 }
 
-// uint32 trimValue = 2;
+// uint32 trimValue = 3;
 inline void cmd_writeTrim_allAFE::clear_trimvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_writeTrim_allAFE::trimvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_allAFE.trimValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_allAFE.trimValue)
   return _internal_trimvalue();
 }
 inline void cmd_writeTrim_allAFE::set_trimvalue(::uint32_t value) {
   _internal_set_trimvalue(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_allAFE.trimValue)
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_allAFE.trimValue)
 }
 inline ::uint32_t cmd_writeTrim_allAFE::_internal_trimvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13637,20 +14428,20 @@ inline void cmd_writeTrim_allAFE::_internal_set_trimvalue(::uint32_t value) {
   _impl_.trimvalue_ = value;
 }
 
-// bool trimGain = 3;
+// bool trimGain = 4;
 inline void cmd_writeTrim_allAFE::clear_trimgain() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimgain_ = false;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline bool cmd_writeTrim_allAFE::trimgain() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_allAFE.trimGain)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_allAFE.trimGain)
   return _internal_trimgain();
 }
 inline void cmd_writeTrim_allAFE::set_trimgain(bool value) {
   _internal_set_trimgain(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_allAFE.trimGain)
+  _impl_._has_bits_[0] |= 0x00000008u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_allAFE.trimGain)
 }
 inline bool cmd_writeTrim_allAFE::_internal_trimgain() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13672,13 +14463,13 @@ inline void cmd_writeTrim_allAFE_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeTrim_allAFE_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_allAFE_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_allAFE_response.success)
   return _internal_success();
 }
 inline void cmd_writeTrim_allAFE_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_allAFE_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_allAFE_response.success)
 }
 inline bool cmd_writeTrim_allAFE_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13697,7 +14488,7 @@ inline void cmd_writeTrim_allAFE_response::clear_message() {
 }
 inline const std::string& cmd_writeTrim_allAFE_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_allAFE_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_allAFE_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -13705,12 +14496,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_writeTrim_allAFE_response::set_message(Arg_&& ar
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_allAFE_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_allAFE_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_writeTrim_allAFE_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_writeTrim_allAFE_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeTrim_allAFE_response.message)
   return _s;
 }
 inline const std::string& cmd_writeTrim_allAFE_response::_internal_message() const {
@@ -13729,7 +14520,7 @@ inline std::string* PROTOBUF_NONNULL cmd_writeTrim_allAFE_response::_internal_mu
 }
 inline std::string* PROTOBUF_NULLABLE cmd_writeTrim_allAFE_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeTrim_allAFE_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeTrim_allAFE_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -13751,7 +14542,7 @@ inline void cmd_writeTrim_allAFE_response::set_allocated_message(std::string* PR
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeTrim_allAFE_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeTrim_allAFE_response.message)
 }
 
 // uint32 afeBlock = 3;
@@ -13761,13 +14552,13 @@ inline void cmd_writeTrim_allAFE_response::clear_afeblock() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeTrim_allAFE_response::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_allAFE_response.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_allAFE_response.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_writeTrim_allAFE_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_allAFE_response.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_allAFE_response.afeBlock)
 }
 inline ::uint32_t cmd_writeTrim_allAFE_response::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13785,13 +14576,13 @@ inline void cmd_writeTrim_allAFE_response::clear_trimvalue() {
   _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::uint32_t cmd_writeTrim_allAFE_response::trimvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_allAFE_response.trimValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_allAFE_response.trimValue)
   return _internal_trimvalue();
 }
 inline void cmd_writeTrim_allAFE_response::set_trimvalue(::uint32_t value) {
   _internal_set_trimvalue(value);
   _impl_._has_bits_[0] |= 0x00000010u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_allAFE_response.trimValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_allAFE_response.trimValue)
 }
 inline ::uint32_t cmd_writeTrim_allAFE_response::_internal_trimvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13809,13 +14600,13 @@ inline void cmd_writeTrim_allAFE_response::clear_trimgain() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline bool cmd_writeTrim_allAFE_response::trimgain() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_allAFE_response.trimGain)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_allAFE_response.trimGain)
   return _internal_trimgain();
 }
 inline void cmd_writeTrim_allAFE_response::set_trimgain(bool value) {
   _internal_set_trimgain(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_allAFE_response.trimGain)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_allAFE_response.trimGain)
 }
 inline bool cmd_writeTrim_allAFE_response::_internal_trimgain() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13830,20 +14621,44 @@ inline void cmd_writeTrim_allAFE_response::_internal_set_trimgain(bool value) {
 
 // cmd_writeTrim_singleChannel
 
-// uint32 trimChannel = 1;
+// int32 id = 1;
+inline void cmd_writeTrim_singleChannel::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_writeTrim_singleChannel::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_singleChannel.id)
+  return _internal_id();
+}
+inline void cmd_writeTrim_singleChannel::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_singleChannel.id)
+}
+inline ::int32_t cmd_writeTrim_singleChannel::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_writeTrim_singleChannel::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 trimChannel = 2;
 inline void cmd_writeTrim_singleChannel::clear_trimchannel() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimchannel_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeTrim_singleChannel::trimchannel() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_singleChannel.trimChannel)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_singleChannel.trimChannel)
   return _internal_trimchannel();
 }
 inline void cmd_writeTrim_singleChannel::set_trimchannel(::uint32_t value) {
   _internal_set_trimchannel(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_singleChannel.trimChannel)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_singleChannel.trimChannel)
 }
 inline ::uint32_t cmd_writeTrim_singleChannel::_internal_trimchannel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13854,20 +14669,20 @@ inline void cmd_writeTrim_singleChannel::_internal_set_trimchannel(::uint32_t va
   _impl_.trimchannel_ = value;
 }
 
-// uint32 trimValue = 2;
+// uint32 trimValue = 3;
 inline void cmd_writeTrim_singleChannel::clear_trimvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_writeTrim_singleChannel::trimvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_singleChannel.trimValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_singleChannel.trimValue)
   return _internal_trimvalue();
 }
 inline void cmd_writeTrim_singleChannel::set_trimvalue(::uint32_t value) {
   _internal_set_trimvalue(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_singleChannel.trimValue)
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_singleChannel.trimValue)
 }
 inline ::uint32_t cmd_writeTrim_singleChannel::_internal_trimvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13878,20 +14693,20 @@ inline void cmd_writeTrim_singleChannel::_internal_set_trimvalue(::uint32_t valu
   _impl_.trimvalue_ = value;
 }
 
-// bool trimGain = 3;
+// bool trimGain = 4;
 inline void cmd_writeTrim_singleChannel::clear_trimgain() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimgain_ = false;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline bool cmd_writeTrim_singleChannel::trimgain() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_singleChannel.trimGain)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_singleChannel.trimGain)
   return _internal_trimgain();
 }
 inline void cmd_writeTrim_singleChannel::set_trimgain(bool value) {
   _internal_set_trimgain(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_singleChannel.trimGain)
+  _impl_._has_bits_[0] |= 0x00000008u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_singleChannel.trimGain)
 }
 inline bool cmd_writeTrim_singleChannel::_internal_trimgain() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13913,13 +14728,13 @@ inline void cmd_writeTrim_singleChannel_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeTrim_singleChannel_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_singleChannel_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_singleChannel_response.success)
   return _internal_success();
 }
 inline void cmd_writeTrim_singleChannel_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_singleChannel_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_singleChannel_response.success)
 }
 inline bool cmd_writeTrim_singleChannel_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -13938,7 +14753,7 @@ inline void cmd_writeTrim_singleChannel_response::clear_message() {
 }
 inline const std::string& cmd_writeTrim_singleChannel_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_singleChannel_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_singleChannel_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -13946,12 +14761,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_writeTrim_singleChannel_response::set_message(Ar
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_singleChannel_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_singleChannel_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_writeTrim_singleChannel_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_writeTrim_singleChannel_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeTrim_singleChannel_response.message)
   return _s;
 }
 inline const std::string& cmd_writeTrim_singleChannel_response::_internal_message() const {
@@ -13970,7 +14785,7 @@ inline std::string* PROTOBUF_NONNULL cmd_writeTrim_singleChannel_response::_inte
 }
 inline std::string* PROTOBUF_NULLABLE cmd_writeTrim_singleChannel_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeTrim_singleChannel_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeTrim_singleChannel_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -13992,7 +14807,7 @@ inline void cmd_writeTrim_singleChannel_response::set_allocated_message(std::str
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeTrim_singleChannel_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeTrim_singleChannel_response.message)
 }
 
 // uint32 trimChannel = 3;
@@ -14002,13 +14817,13 @@ inline void cmd_writeTrim_singleChannel_response::clear_trimchannel() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeTrim_singleChannel_response::trimchannel() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_singleChannel_response.trimChannel)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_singleChannel_response.trimChannel)
   return _internal_trimchannel();
 }
 inline void cmd_writeTrim_singleChannel_response::set_trimchannel(::uint32_t value) {
   _internal_set_trimchannel(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_singleChannel_response.trimChannel)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_singleChannel_response.trimChannel)
 }
 inline ::uint32_t cmd_writeTrim_singleChannel_response::_internal_trimchannel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14026,13 +14841,13 @@ inline void cmd_writeTrim_singleChannel_response::clear_trimvalue() {
   _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::uint32_t cmd_writeTrim_singleChannel_response::trimvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_singleChannel_response.trimValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_singleChannel_response.trimValue)
   return _internal_trimvalue();
 }
 inline void cmd_writeTrim_singleChannel_response::set_trimvalue(::uint32_t value) {
   _internal_set_trimvalue(value);
   _impl_._has_bits_[0] |= 0x00000010u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_singleChannel_response.trimValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_singleChannel_response.trimValue)
 }
 inline ::uint32_t cmd_writeTrim_singleChannel_response::_internal_trimvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14050,13 +14865,13 @@ inline void cmd_writeTrim_singleChannel_response::clear_trimgain() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline bool cmd_writeTrim_singleChannel_response::trimgain() const {
-  // @@protoc_insertion_point(field_get:cmd_writeTrim_singleChannel_response.trimGain)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeTrim_singleChannel_response.trimGain)
   return _internal_trimgain();
 }
 inline void cmd_writeTrim_singleChannel_response::set_trimgain(bool value) {
   _internal_set_trimgain(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_writeTrim_singleChannel_response.trimGain)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeTrim_singleChannel_response.trimGain)
 }
 inline bool cmd_writeTrim_singleChannel_response::_internal_trimgain() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14078,13 +14893,13 @@ inline void cmd_writeOFFSET_allChannels::clear_id() {
   _impl_._has_bits_[0] &= ~0x00000001u;
 }
 inline ::int32_t cmd_writeOFFSET_allChannels::id() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allChannels.id)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allChannels.id)
   return _internal_id();
 }
 inline void cmd_writeOFFSET_allChannels::set_id(::int32_t value) {
   _internal_set_id(value);
   _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allChannels.id)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allChannels.id)
 }
 inline ::int32_t cmd_writeOFFSET_allChannels::_internal_id() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14102,13 +14917,13 @@ inline void cmd_writeOFFSET_allChannels::clear_offsetvalue() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeOFFSET_allChannels::offsetvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allChannels.offsetValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allChannels.offsetValue)
   return _internal_offsetvalue();
 }
 inline void cmd_writeOFFSET_allChannels::set_offsetvalue(::uint32_t value) {
   _internal_set_offsetvalue(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allChannels.offsetValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allChannels.offsetValue)
 }
 inline ::uint32_t cmd_writeOFFSET_allChannels::_internal_offsetvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14126,13 +14941,13 @@ inline void cmd_writeOFFSET_allChannels::clear_offsetgain() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeOFFSET_allChannels::offsetgain() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allChannels.offsetGain)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allChannels.offsetGain)
   return _internal_offsetgain();
 }
 inline void cmd_writeOFFSET_allChannels::set_offsetgain(bool value) {
   _internal_set_offsetgain(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allChannels.offsetGain)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allChannels.offsetGain)
 }
 inline bool cmd_writeOFFSET_allChannels::_internal_offsetgain() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14154,13 +14969,13 @@ inline void cmd_writeOFFSET_allChannels_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_writeOFFSET_allChannels_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allChannels_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allChannels_response.success)
   return _internal_success();
 }
 inline void cmd_writeOFFSET_allChannels_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allChannels_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allChannels_response.success)
 }
 inline bool cmd_writeOFFSET_allChannels_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14179,7 +14994,7 @@ inline void cmd_writeOFFSET_allChannels_response::clear_message() {
 }
 inline const std::string& cmd_writeOFFSET_allChannels_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allChannels_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allChannels_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -14187,12 +15002,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_writeOFFSET_allChannels_response::set_message(Ar
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allChannels_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allChannels_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_writeOFFSET_allChannels_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_writeOFFSET_allChannels_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeOFFSET_allChannels_response.message)
   return _s;
 }
 inline const std::string& cmd_writeOFFSET_allChannels_response::_internal_message() const {
@@ -14211,7 +15026,7 @@ inline std::string* PROTOBUF_NONNULL cmd_writeOFFSET_allChannels_response::_inte
 }
 inline std::string* PROTOBUF_NULLABLE cmd_writeOFFSET_allChannels_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeOFFSET_allChannels_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeOFFSET_allChannels_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -14233,7 +15048,7 @@ inline void cmd_writeOFFSET_allChannels_response::set_allocated_message(std::str
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeOFFSET_allChannels_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeOFFSET_allChannels_response.message)
 }
 
 // uint32 offsetValue = 3;
@@ -14243,13 +15058,13 @@ inline void cmd_writeOFFSET_allChannels_response::clear_offsetvalue() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_writeOFFSET_allChannels_response::offsetvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allChannels_response.offsetValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allChannels_response.offsetValue)
   return _internal_offsetvalue();
 }
 inline void cmd_writeOFFSET_allChannels_response::set_offsetvalue(::uint32_t value) {
   _internal_set_offsetvalue(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allChannels_response.offsetValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allChannels_response.offsetValue)
 }
 inline ::uint32_t cmd_writeOFFSET_allChannels_response::_internal_offsetvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14267,13 +15082,13 @@ inline void cmd_writeOFFSET_allChannels_response::clear_offsetgain() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeOFFSET_allChannels_response::offsetgain() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allChannels_response.offsetGain)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allChannels_response.offsetGain)
   return _internal_offsetgain();
 }
 inline void cmd_writeOFFSET_allChannels_response::set_offsetgain(bool value) {
   _internal_set_offsetgain(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allChannels_response.offsetGain)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allChannels_response.offsetGain)
 }
 inline bool cmd_writeOFFSET_allChannels_response::_internal_offsetgain() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14288,20 +15103,44 @@ inline void cmd_writeOFFSET_allChannels_response::_internal_set_offsetgain(bool 
 
 // cmd_writeOFFSET_allAFE
 
-// uint32 afeBlock = 1;
+// int32 id = 1;
+inline void cmd_writeOFFSET_allAFE::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_writeOFFSET_allAFE::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allAFE.id)
+  return _internal_id();
+}
+inline void cmd_writeOFFSET_allAFE::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allAFE.id)
+}
+inline ::int32_t cmd_writeOFFSET_allAFE::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_writeOFFSET_allAFE::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 afeBlock = 2;
 inline void cmd_writeOFFSET_allAFE::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeOFFSET_allAFE::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allAFE.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allAFE.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_writeOFFSET_allAFE::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allAFE.afeBlock)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allAFE.afeBlock)
 }
 inline ::uint32_t cmd_writeOFFSET_allAFE::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14312,20 +15151,20 @@ inline void cmd_writeOFFSET_allAFE::_internal_set_afeblock(::uint32_t value) {
   _impl_.afeblock_ = value;
 }
 
-// uint32 offsetValue = 2;
+// uint32 offsetValue = 3;
 inline void cmd_writeOFFSET_allAFE::clear_offsetvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.offsetvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_writeOFFSET_allAFE::offsetvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allAFE.offsetValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allAFE.offsetValue)
   return _internal_offsetvalue();
 }
 inline void cmd_writeOFFSET_allAFE::set_offsetvalue(::uint32_t value) {
   _internal_set_offsetvalue(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allAFE.offsetValue)
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allAFE.offsetValue)
 }
 inline ::uint32_t cmd_writeOFFSET_allAFE::_internal_offsetvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14336,20 +15175,20 @@ inline void cmd_writeOFFSET_allAFE::_internal_set_offsetvalue(::uint32_t value) 
   _impl_.offsetvalue_ = value;
 }
 
-// bool offsetGain = 3;
+// bool offsetGain = 4;
 inline void cmd_writeOFFSET_allAFE::clear_offsetgain() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.offsetgain_ = false;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline bool cmd_writeOFFSET_allAFE::offsetgain() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allAFE.offsetGain)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allAFE.offsetGain)
   return _internal_offsetgain();
 }
 inline void cmd_writeOFFSET_allAFE::set_offsetgain(bool value) {
   _internal_set_offsetgain(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allAFE.offsetGain)
+  _impl_._has_bits_[0] |= 0x00000008u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allAFE.offsetGain)
 }
 inline bool cmd_writeOFFSET_allAFE::_internal_offsetgain() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14371,13 +15210,13 @@ inline void cmd_writeOFFSET_allAFE_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeOFFSET_allAFE_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allAFE_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allAFE_response.success)
   return _internal_success();
 }
 inline void cmd_writeOFFSET_allAFE_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allAFE_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allAFE_response.success)
 }
 inline bool cmd_writeOFFSET_allAFE_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14396,7 +15235,7 @@ inline void cmd_writeOFFSET_allAFE_response::clear_message() {
 }
 inline const std::string& cmd_writeOFFSET_allAFE_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allAFE_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allAFE_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -14404,12 +15243,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_writeOFFSET_allAFE_response::set_message(Arg_&& 
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allAFE_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allAFE_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_writeOFFSET_allAFE_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_writeOFFSET_allAFE_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeOFFSET_allAFE_response.message)
   return _s;
 }
 inline const std::string& cmd_writeOFFSET_allAFE_response::_internal_message() const {
@@ -14428,7 +15267,7 @@ inline std::string* PROTOBUF_NONNULL cmd_writeOFFSET_allAFE_response::_internal_
 }
 inline std::string* PROTOBUF_NULLABLE cmd_writeOFFSET_allAFE_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeOFFSET_allAFE_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeOFFSET_allAFE_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -14450,7 +15289,7 @@ inline void cmd_writeOFFSET_allAFE_response::set_allocated_message(std::string* 
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeOFFSET_allAFE_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeOFFSET_allAFE_response.message)
 }
 
 // uint32 afeBlock = 3;
@@ -14460,13 +15299,13 @@ inline void cmd_writeOFFSET_allAFE_response::clear_afeblock() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeOFFSET_allAFE_response::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allAFE_response.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allAFE_response.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_writeOFFSET_allAFE_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allAFE_response.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allAFE_response.afeBlock)
 }
 inline ::uint32_t cmd_writeOFFSET_allAFE_response::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14484,13 +15323,13 @@ inline void cmd_writeOFFSET_allAFE_response::clear_offsetvalue() {
   _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::uint32_t cmd_writeOFFSET_allAFE_response::offsetvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allAFE_response.offsetValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allAFE_response.offsetValue)
   return _internal_offsetvalue();
 }
 inline void cmd_writeOFFSET_allAFE_response::set_offsetvalue(::uint32_t value) {
   _internal_set_offsetvalue(value);
   _impl_._has_bits_[0] |= 0x00000010u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allAFE_response.offsetValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allAFE_response.offsetValue)
 }
 inline ::uint32_t cmd_writeOFFSET_allAFE_response::_internal_offsetvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14508,13 +15347,13 @@ inline void cmd_writeOFFSET_allAFE_response::clear_offsetgain() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline bool cmd_writeOFFSET_allAFE_response::offsetgain() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_allAFE_response.offsetGain)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_allAFE_response.offsetGain)
   return _internal_offsetgain();
 }
 inline void cmd_writeOFFSET_allAFE_response::set_offsetgain(bool value) {
   _internal_set_offsetgain(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_allAFE_response.offsetGain)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_allAFE_response.offsetGain)
 }
 inline bool cmd_writeOFFSET_allAFE_response::_internal_offsetgain() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14529,20 +15368,44 @@ inline void cmd_writeOFFSET_allAFE_response::_internal_set_offsetgain(bool value
 
 // cmd_writeOFFSET_singleChannel
 
-// uint32 offsetChannel = 1;
+// int32 id = 1;
+inline void cmd_writeOFFSET_singleChannel::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_writeOFFSET_singleChannel::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_singleChannel.id)
+  return _internal_id();
+}
+inline void cmd_writeOFFSET_singleChannel::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_singleChannel.id)
+}
+inline ::int32_t cmd_writeOFFSET_singleChannel::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_writeOFFSET_singleChannel::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 offsetChannel = 2;
 inline void cmd_writeOFFSET_singleChannel::clear_offsetchannel() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.offsetchannel_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeOFFSET_singleChannel::offsetchannel() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel.offsetChannel)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_singleChannel.offsetChannel)
   return _internal_offsetchannel();
 }
 inline void cmd_writeOFFSET_singleChannel::set_offsetchannel(::uint32_t value) {
   _internal_set_offsetchannel(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel.offsetChannel)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_singleChannel.offsetChannel)
 }
 inline ::uint32_t cmd_writeOFFSET_singleChannel::_internal_offsetchannel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14553,20 +15416,20 @@ inline void cmd_writeOFFSET_singleChannel::_internal_set_offsetchannel(::uint32_
   _impl_.offsetchannel_ = value;
 }
 
-// uint32 offsetValue = 2;
+// uint32 offsetValue = 3;
 inline void cmd_writeOFFSET_singleChannel::clear_offsetvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.offsetvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_writeOFFSET_singleChannel::offsetvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel.offsetValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_singleChannel.offsetValue)
   return _internal_offsetvalue();
 }
 inline void cmd_writeOFFSET_singleChannel::set_offsetvalue(::uint32_t value) {
   _internal_set_offsetvalue(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel.offsetValue)
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_singleChannel.offsetValue)
 }
 inline ::uint32_t cmd_writeOFFSET_singleChannel::_internal_offsetvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14577,20 +15440,20 @@ inline void cmd_writeOFFSET_singleChannel::_internal_set_offsetvalue(::uint32_t 
   _impl_.offsetvalue_ = value;
 }
 
-// bool offsetGain = 3;
+// bool offsetGain = 4;
 inline void cmd_writeOFFSET_singleChannel::clear_offsetgain() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.offsetgain_ = false;
-  _impl_._has_bits_[0] &= ~0x00000004u;
+  _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline bool cmd_writeOFFSET_singleChannel::offsetgain() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel.offsetGain)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_singleChannel.offsetGain)
   return _internal_offsetgain();
 }
 inline void cmd_writeOFFSET_singleChannel::set_offsetgain(bool value) {
   _internal_set_offsetgain(value);
-  _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel.offsetGain)
+  _impl_._has_bits_[0] |= 0x00000008u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_singleChannel.offsetGain)
 }
 inline bool cmd_writeOFFSET_singleChannel::_internal_offsetgain() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14612,13 +15475,13 @@ inline void cmd_writeOFFSET_singleChannel_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeOFFSET_singleChannel_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_singleChannel_response.success)
   return _internal_success();
 }
 inline void cmd_writeOFFSET_singleChannel_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_singleChannel_response.success)
 }
 inline bool cmd_writeOFFSET_singleChannel_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14637,7 +15500,7 @@ inline void cmd_writeOFFSET_singleChannel_response::clear_message() {
 }
 inline const std::string& cmd_writeOFFSET_singleChannel_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_singleChannel_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -14645,12 +15508,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_writeOFFSET_singleChannel_response::set_message(
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_singleChannel_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_writeOFFSET_singleChannel_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_writeOFFSET_singleChannel_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeOFFSET_singleChannel_response.message)
   return _s;
 }
 inline const std::string& cmd_writeOFFSET_singleChannel_response::_internal_message() const {
@@ -14669,7 +15532,7 @@ inline std::string* PROTOBUF_NONNULL cmd_writeOFFSET_singleChannel_response::_in
 }
 inline std::string* PROTOBUF_NULLABLE cmd_writeOFFSET_singleChannel_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeOFFSET_singleChannel_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeOFFSET_singleChannel_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -14691,7 +15554,7 @@ inline void cmd_writeOFFSET_singleChannel_response::set_allocated_message(std::s
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeOFFSET_singleChannel_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeOFFSET_singleChannel_response.message)
 }
 
 // uint32 offsetChannel = 3;
@@ -14701,13 +15564,13 @@ inline void cmd_writeOFFSET_singleChannel_response::clear_offsetchannel() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeOFFSET_singleChannel_response::offsetchannel() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel_response.offsetChannel)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_singleChannel_response.offsetChannel)
   return _internal_offsetchannel();
 }
 inline void cmd_writeOFFSET_singleChannel_response::set_offsetchannel(::uint32_t value) {
   _internal_set_offsetchannel(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel_response.offsetChannel)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_singleChannel_response.offsetChannel)
 }
 inline ::uint32_t cmd_writeOFFSET_singleChannel_response::_internal_offsetchannel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14725,13 +15588,13 @@ inline void cmd_writeOFFSET_singleChannel_response::clear_offsetvalue() {
   _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::uint32_t cmd_writeOFFSET_singleChannel_response::offsetvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel_response.offsetValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_singleChannel_response.offsetValue)
   return _internal_offsetvalue();
 }
 inline void cmd_writeOFFSET_singleChannel_response::set_offsetvalue(::uint32_t value) {
   _internal_set_offsetvalue(value);
   _impl_._has_bits_[0] |= 0x00000010u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel_response.offsetValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_singleChannel_response.offsetValue)
 }
 inline ::uint32_t cmd_writeOFFSET_singleChannel_response::_internal_offsetvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14749,13 +15612,13 @@ inline void cmd_writeOFFSET_singleChannel_response::clear_offsetgain() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline bool cmd_writeOFFSET_singleChannel_response::offsetgain() const {
-  // @@protoc_insertion_point(field_get:cmd_writeOFFSET_singleChannel_response.offsetGain)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeOFFSET_singleChannel_response.offsetGain)
   return _internal_offsetgain();
 }
 inline void cmd_writeOFFSET_singleChannel_response::set_offsetgain(bool value) {
   _internal_set_offsetgain(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_writeOFFSET_singleChannel_response.offsetGain)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeOFFSET_singleChannel_response.offsetGain)
 }
 inline bool cmd_writeOFFSET_singleChannel_response::_internal_offsetgain() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14770,20 +15633,44 @@ inline void cmd_writeOFFSET_singleChannel_response::_internal_set_offsetgain(boo
 
 // cmd_writeVbiasControl
 
-// uint32 vBiasControlValue = 1;
+// int32 id = 1;
+inline void cmd_writeVbiasControl::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_writeVbiasControl::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeVbiasControl.id)
+  return _internal_id();
+}
+inline void cmd_writeVbiasControl::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeVbiasControl.id)
+}
+inline ::int32_t cmd_writeVbiasControl::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_writeVbiasControl::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 vBiasControlValue = 2;
 inline void cmd_writeVbiasControl::clear_vbiascontrolvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.vbiascontrolvalue_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeVbiasControl::vbiascontrolvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeVbiasControl.vBiasControlValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeVbiasControl.vBiasControlValue)
   return _internal_vbiascontrolvalue();
 }
 inline void cmd_writeVbiasControl::set_vbiascontrolvalue(::uint32_t value) {
   _internal_set_vbiascontrolvalue(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_writeVbiasControl.vBiasControlValue)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeVbiasControl.vBiasControlValue)
 }
 inline ::uint32_t cmd_writeVbiasControl::_internal_vbiascontrolvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14794,20 +15681,20 @@ inline void cmd_writeVbiasControl::_internal_set_vbiascontrolvalue(::uint32_t va
   _impl_.vbiascontrolvalue_ = value;
 }
 
-// bool enable = 2;
+// bool enable = 3;
 inline void cmd_writeVbiasControl::clear_enable() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.enable_ = false;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeVbiasControl::enable() const {
-  // @@protoc_insertion_point(field_get:cmd_writeVbiasControl.enable)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeVbiasControl.enable)
   return _internal_enable();
 }
 inline void cmd_writeVbiasControl::set_enable(bool value) {
   _internal_set_enable(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeVbiasControl.enable)
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeVbiasControl.enable)
 }
 inline bool cmd_writeVbiasControl::_internal_enable() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14829,13 +15716,13 @@ inline void cmd_writeVbiasControl_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_writeVbiasControl_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_writeVbiasControl_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeVbiasControl_response.success)
   return _internal_success();
 }
 inline void cmd_writeVbiasControl_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeVbiasControl_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeVbiasControl_response.success)
 }
 inline bool cmd_writeVbiasControl_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14854,7 +15741,7 @@ inline void cmd_writeVbiasControl_response::clear_message() {
 }
 inline const std::string& cmd_writeVbiasControl_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeVbiasControl_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeVbiasControl_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -14862,12 +15749,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_writeVbiasControl_response::set_message(Arg_&& a
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeVbiasControl_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeVbiasControl_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_writeVbiasControl_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_writeVbiasControl_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeVbiasControl_response.message)
   return _s;
 }
 inline const std::string& cmd_writeVbiasControl_response::_internal_message() const {
@@ -14886,7 +15773,7 @@ inline std::string* PROTOBUF_NONNULL cmd_writeVbiasControl_response::_internal_m
 }
 inline std::string* PROTOBUF_NULLABLE cmd_writeVbiasControl_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeVbiasControl_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeVbiasControl_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -14908,7 +15795,7 @@ inline void cmd_writeVbiasControl_response::set_allocated_message(std::string* P
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeVbiasControl_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeVbiasControl_response.message)
 }
 
 // uint32 vBiasControlValue = 3;
@@ -14918,13 +15805,13 @@ inline void cmd_writeVbiasControl_response::clear_vbiascontrolvalue() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_writeVbiasControl_response::vbiascontrolvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeVbiasControl_response.vBiasControlValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeVbiasControl_response.vBiasControlValue)
   return _internal_vbiascontrolvalue();
 }
 inline void cmd_writeVbiasControl_response::set_vbiascontrolvalue(::uint32_t value) {
   _internal_set_vbiascontrolvalue(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeVbiasControl_response.vBiasControlValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeVbiasControl_response.vBiasControlValue)
 }
 inline ::uint32_t cmd_writeVbiasControl_response::_internal_vbiascontrolvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14939,20 +15826,44 @@ inline void cmd_writeVbiasControl_response::_internal_set_vbiascontrolvalue(::ui
 
 // cmd_readAFEReg
 
-// uint32 afeBlock = 1;
+// int32 id = 1;
+inline void cmd_readAFEReg::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_readAFEReg::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEReg.id)
+  return _internal_id();
+}
+inline void cmd_readAFEReg::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEReg.id)
+}
+inline ::int32_t cmd_readAFEReg::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_readAFEReg::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 afeBlock = 2;
 inline void cmd_readAFEReg::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_readAFEReg::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEReg.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEReg.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_readAFEReg::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEReg.afeBlock)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEReg.afeBlock)
 }
 inline ::uint32_t cmd_readAFEReg::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14963,20 +15874,20 @@ inline void cmd_readAFEReg::_internal_set_afeblock(::uint32_t value) {
   _impl_.afeblock_ = value;
 }
 
-// uint32 regAddress = 2;
+// uint32 regAddress = 3;
 inline void cmd_readAFEReg::clear_regaddress() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.regaddress_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000002u;
+  _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_readAFEReg::regaddress() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEReg.regAddress)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEReg.regAddress)
   return _internal_regaddress();
 }
 inline void cmd_readAFEReg::set_regaddress(::uint32_t value) {
   _internal_set_regaddress(value);
-  _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEReg.regAddress)
+  _impl_._has_bits_[0] |= 0x00000004u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEReg.regAddress)
 }
 inline ::uint32_t cmd_readAFEReg::_internal_regaddress() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -14998,13 +15909,13 @@ inline void cmd_readAFEReg_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_readAFEReg_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEReg_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEReg_response.success)
   return _internal_success();
 }
 inline void cmd_readAFEReg_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEReg_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEReg_response.success)
 }
 inline bool cmd_readAFEReg_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15023,7 +15934,7 @@ inline void cmd_readAFEReg_response::clear_message() {
 }
 inline const std::string& cmd_readAFEReg_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_readAFEReg_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEReg_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -15031,12 +15942,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_readAFEReg_response::set_message(Arg_&& arg, Arg
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_readAFEReg_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEReg_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_readAFEReg_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_readAFEReg_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_readAFEReg_response.message)
   return _s;
 }
 inline const std::string& cmd_readAFEReg_response::_internal_message() const {
@@ -15055,7 +15966,7 @@ inline std::string* PROTOBUF_NONNULL cmd_readAFEReg_response::_internal_mutable_
 }
 inline std::string* PROTOBUF_NULLABLE cmd_readAFEReg_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_readAFEReg_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_readAFEReg_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -15077,7 +15988,7 @@ inline void cmd_readAFEReg_response::set_allocated_message(std::string* PROTOBUF
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_readAFEReg_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_readAFEReg_response.message)
 }
 
 // uint32 afeBlock = 3;
@@ -15087,13 +15998,13 @@ inline void cmd_readAFEReg_response::clear_afeblock() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_readAFEReg_response::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEReg_response.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEReg_response.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_readAFEReg_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEReg_response.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEReg_response.afeBlock)
 }
 inline ::uint32_t cmd_readAFEReg_response::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15111,13 +16022,13 @@ inline void cmd_readAFEReg_response::clear_regaddress() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_readAFEReg_response::regaddress() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEReg_response.regAddress)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEReg_response.regAddress)
   return _internal_regaddress();
 }
 inline void cmd_readAFEReg_response::set_regaddress(::uint32_t value) {
   _internal_set_regaddress(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEReg_response.regAddress)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEReg_response.regAddress)
 }
 inline ::uint32_t cmd_readAFEReg_response::_internal_regaddress() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15135,13 +16046,13 @@ inline void cmd_readAFEReg_response::clear_regvalue() {
   _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::uint32_t cmd_readAFEReg_response::regvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEReg_response.regValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEReg_response.regValue)
   return _internal_regvalue();
 }
 inline void cmd_readAFEReg_response::set_regvalue(::uint32_t value) {
   _internal_set_regvalue(value);
   _impl_._has_bits_[0] |= 0x00000010u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEReg_response.regValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEReg_response.regValue)
 }
 inline ::uint32_t cmd_readAFEReg_response::_internal_regvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15156,20 +16067,44 @@ inline void cmd_readAFEReg_response::_internal_set_regvalue(::uint32_t value) {
 
 // cmd_readAFEVgain
 
-// uint32 afeBlock = 1;
+// int32 id = 1;
+inline void cmd_readAFEVgain::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_readAFEVgain::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEVgain.id)
+  return _internal_id();
+}
+inline void cmd_readAFEVgain::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEVgain.id)
+}
+inline ::int32_t cmd_readAFEVgain::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_readAFEVgain::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 afeBlock = 2;
 inline void cmd_readAFEVgain::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_readAFEVgain::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEVgain.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEVgain.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_readAFEVgain::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEVgain.afeBlock)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEVgain.afeBlock)
 }
 inline ::uint32_t cmd_readAFEVgain::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15191,13 +16126,13 @@ inline void cmd_readAFEVgain_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_readAFEVgain_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEVgain_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEVgain_response.success)
   return _internal_success();
 }
 inline void cmd_readAFEVgain_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEVgain_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEVgain_response.success)
 }
 inline bool cmd_readAFEVgain_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15216,7 +16151,7 @@ inline void cmd_readAFEVgain_response::clear_message() {
 }
 inline const std::string& cmd_readAFEVgain_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_readAFEVgain_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEVgain_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -15224,12 +16159,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_readAFEVgain_response::set_message(Arg_&& arg, A
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_readAFEVgain_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEVgain_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_readAFEVgain_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_readAFEVgain_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_readAFEVgain_response.message)
   return _s;
 }
 inline const std::string& cmd_readAFEVgain_response::_internal_message() const {
@@ -15248,7 +16183,7 @@ inline std::string* PROTOBUF_NONNULL cmd_readAFEVgain_response::_internal_mutabl
 }
 inline std::string* PROTOBUF_NULLABLE cmd_readAFEVgain_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_readAFEVgain_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_readAFEVgain_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -15270,7 +16205,7 @@ inline void cmd_readAFEVgain_response::set_allocated_message(std::string* PROTOB
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_readAFEVgain_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_readAFEVgain_response.message)
 }
 
 // uint32 afeBlock = 3;
@@ -15280,13 +16215,13 @@ inline void cmd_readAFEVgain_response::clear_afeblock() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_readAFEVgain_response::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEVgain_response.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEVgain_response.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_readAFEVgain_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEVgain_response.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEVgain_response.afeBlock)
 }
 inline ::uint32_t cmd_readAFEVgain_response::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15304,13 +16239,13 @@ inline void cmd_readAFEVgain_response::clear_vgainvalue() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_readAFEVgain_response::vgainvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEVgain_response.vgainValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEVgain_response.vgainValue)
   return _internal_vgainvalue();
 }
 inline void cmd_readAFEVgain_response::set_vgainvalue(::uint32_t value) {
   _internal_set_vgainvalue(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEVgain_response.vgainValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEVgain_response.vgainValue)
 }
 inline ::uint32_t cmd_readAFEVgain_response::_internal_vgainvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15325,20 +16260,44 @@ inline void cmd_readAFEVgain_response::_internal_set_vgainvalue(::uint32_t value
 
 // cmd_readAFEBiasSet
 
-// uint32 afeBlock = 1;
+// int32 id = 1;
+inline void cmd_readAFEBiasSet::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_readAFEBiasSet::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEBiasSet.id)
+  return _internal_id();
+}
+inline void cmd_readAFEBiasSet::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEBiasSet.id)
+}
+inline ::int32_t cmd_readAFEBiasSet::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_readAFEBiasSet::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 afeBlock = 2;
 inline void cmd_readAFEBiasSet::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_readAFEBiasSet::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEBiasSet.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEBiasSet.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_readAFEBiasSet::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEBiasSet.afeBlock)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEBiasSet.afeBlock)
 }
 inline ::uint32_t cmd_readAFEBiasSet::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15360,13 +16319,13 @@ inline void cmd_readAFEBiasSet_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_readAFEBiasSet_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEBiasSet_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEBiasSet_response.success)
   return _internal_success();
 }
 inline void cmd_readAFEBiasSet_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEBiasSet_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEBiasSet_response.success)
 }
 inline bool cmd_readAFEBiasSet_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15385,7 +16344,7 @@ inline void cmd_readAFEBiasSet_response::clear_message() {
 }
 inline const std::string& cmd_readAFEBiasSet_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_readAFEBiasSet_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEBiasSet_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -15393,12 +16352,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_readAFEBiasSet_response::set_message(Arg_&& arg,
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_readAFEBiasSet_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEBiasSet_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_readAFEBiasSet_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_readAFEBiasSet_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_readAFEBiasSet_response.message)
   return _s;
 }
 inline const std::string& cmd_readAFEBiasSet_response::_internal_message() const {
@@ -15417,7 +16376,7 @@ inline std::string* PROTOBUF_NONNULL cmd_readAFEBiasSet_response::_internal_muta
 }
 inline std::string* PROTOBUF_NULLABLE cmd_readAFEBiasSet_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_readAFEBiasSet_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_readAFEBiasSet_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -15439,7 +16398,7 @@ inline void cmd_readAFEBiasSet_response::set_allocated_message(std::string* PROT
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_readAFEBiasSet_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_readAFEBiasSet_response.message)
 }
 
 // uint32 afeBlock = 3;
@@ -15449,13 +16408,13 @@ inline void cmd_readAFEBiasSet_response::clear_afeblock() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_readAFEBiasSet_response::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEBiasSet_response.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEBiasSet_response.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_readAFEBiasSet_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEBiasSet_response.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEBiasSet_response.afeBlock)
 }
 inline ::uint32_t cmd_readAFEBiasSet_response::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15473,13 +16432,13 @@ inline void cmd_readAFEBiasSet_response::clear_biasvalue() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_readAFEBiasSet_response::biasvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_readAFEBiasSet_response.biasValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readAFEBiasSet_response.biasValue)
   return _internal_biasvalue();
 }
 inline void cmd_readAFEBiasSet_response::set_biasvalue(::uint32_t value) {
   _internal_set_biasvalue(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_readAFEBiasSet_response.biasValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readAFEBiasSet_response.biasValue)
 }
 inline ::uint32_t cmd_readAFEBiasSet_response::_internal_biasvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15494,6 +16453,30 @@ inline void cmd_readAFEBiasSet_response::_internal_set_biasvalue(::uint32_t valu
 
 // cmd_readTrim_allChannels
 
+// int32 id = 1;
+inline void cmd_readTrim_allChannels::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_readTrim_allChannels::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_allChannels.id)
+  return _internal_id();
+}
+inline void cmd_readTrim_allChannels::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_allChannels.id)
+}
+inline ::int32_t cmd_readTrim_allChannels::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_readTrim_allChannels::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // cmd_readTrim_allChannels_response
@@ -15505,13 +16488,13 @@ inline void cmd_readTrim_allChannels_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_readTrim_allChannels_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_readTrim_allChannels_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_allChannels_response.success)
   return _internal_success();
 }
 inline void cmd_readTrim_allChannels_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_readTrim_allChannels_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_allChannels_response.success)
 }
 inline bool cmd_readTrim_allChannels_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15530,7 +16513,7 @@ inline void cmd_readTrim_allChannels_response::clear_message() {
 }
 inline const std::string& cmd_readTrim_allChannels_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_readTrim_allChannels_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_allChannels_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -15538,12 +16521,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_readTrim_allChannels_response::set_message(Arg_&
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_readTrim_allChannels_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_allChannels_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_readTrim_allChannels_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_readTrim_allChannels_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_readTrim_allChannels_response.message)
   return _s;
 }
 inline const std::string& cmd_readTrim_allChannels_response::_internal_message() const {
@@ -15562,7 +16545,7 @@ inline std::string* PROTOBUF_NONNULL cmd_readTrim_allChannels_response::_interna
 }
 inline std::string* PROTOBUF_NULLABLE cmd_readTrim_allChannels_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_readTrim_allChannels_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_readTrim_allChannels_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -15584,7 +16567,7 @@ inline void cmd_readTrim_allChannels_response::set_allocated_message(std::string
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_readTrim_allChannels_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_readTrim_allChannels_response.message)
 }
 
 // repeated uint32 trimValues = 3;
@@ -15599,26 +16582,26 @@ inline void cmd_readTrim_allChannels_response::clear_trimvalues() {
   _impl_.trimvalues_.Clear();
 }
 inline ::uint32_t cmd_readTrim_allChannels_response::trimvalues(int index) const {
-  // @@protoc_insertion_point(field_get:cmd_readTrim_allChannels_response.trimValues)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_allChannels_response.trimValues)
   return _internal_trimvalues().Get(index);
 }
 inline void cmd_readTrim_allChannels_response::set_trimvalues(int index, ::uint32_t value) {
   _internal_mutable_trimvalues()->Set(index, value);
-  // @@protoc_insertion_point(field_set:cmd_readTrim_allChannels_response.trimValues)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_allChannels_response.trimValues)
 }
 inline void cmd_readTrim_allChannels_response::add_trimvalues(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _internal_mutable_trimvalues()->Add(value);
-  // @@protoc_insertion_point(field_add:cmd_readTrim_allChannels_response.trimValues)
+  // @@protoc_insertion_point(field_add:daphne.cmd_readTrim_allChannels_response.trimValues)
 }
 inline const ::google::protobuf::RepeatedField<::uint32_t>& cmd_readTrim_allChannels_response::trimvalues() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:cmd_readTrim_allChannels_response.trimValues)
+  // @@protoc_insertion_point(field_list:daphne.cmd_readTrim_allChannels_response.trimValues)
   return _internal_trimvalues();
 }
 inline ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL cmd_readTrim_allChannels_response::mutable_trimvalues()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:cmd_readTrim_allChannels_response.trimValues)
+  // @@protoc_insertion_point(field_mutable_list:daphne.cmd_readTrim_allChannels_response.trimValues)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_trimvalues();
 }
@@ -15637,20 +16620,44 @@ cmd_readTrim_allChannels_response::_internal_mutable_trimvalues() {
 
 // cmd_readTrim_allAFE
 
-// uint32 afeBlock = 1;
+// int32 id = 1;
+inline void cmd_readTrim_allAFE::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_readTrim_allAFE::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_allAFE.id)
+  return _internal_id();
+}
+inline void cmd_readTrim_allAFE::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_allAFE.id)
+}
+inline ::int32_t cmd_readTrim_allAFE::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_readTrim_allAFE::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 afeBlock = 2;
 inline void cmd_readTrim_allAFE::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_readTrim_allAFE::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_readTrim_allAFE.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_allAFE.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_readTrim_allAFE::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_readTrim_allAFE.afeBlock)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_allAFE.afeBlock)
 }
 inline ::uint32_t cmd_readTrim_allAFE::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15672,13 +16679,13 @@ inline void cmd_readTrim_allAFE_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_readTrim_allAFE_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_readTrim_allAFE_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_allAFE_response.success)
   return _internal_success();
 }
 inline void cmd_readTrim_allAFE_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_readTrim_allAFE_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_allAFE_response.success)
 }
 inline bool cmd_readTrim_allAFE_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15697,7 +16704,7 @@ inline void cmd_readTrim_allAFE_response::clear_message() {
 }
 inline const std::string& cmd_readTrim_allAFE_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_readTrim_allAFE_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_allAFE_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -15705,12 +16712,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_readTrim_allAFE_response::set_message(Arg_&& arg
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_readTrim_allAFE_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_allAFE_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_readTrim_allAFE_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_readTrim_allAFE_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_readTrim_allAFE_response.message)
   return _s;
 }
 inline const std::string& cmd_readTrim_allAFE_response::_internal_message() const {
@@ -15729,7 +16736,7 @@ inline std::string* PROTOBUF_NONNULL cmd_readTrim_allAFE_response::_internal_mut
 }
 inline std::string* PROTOBUF_NULLABLE cmd_readTrim_allAFE_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_readTrim_allAFE_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_readTrim_allAFE_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -15751,7 +16758,7 @@ inline void cmd_readTrim_allAFE_response::set_allocated_message(std::string* PRO
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_readTrim_allAFE_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_readTrim_allAFE_response.message)
 }
 
 // uint32 afeBlock = 3;
@@ -15761,13 +16768,13 @@ inline void cmd_readTrim_allAFE_response::clear_afeblock() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_readTrim_allAFE_response::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_readTrim_allAFE_response.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_allAFE_response.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_readTrim_allAFE_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_readTrim_allAFE_response.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_allAFE_response.afeBlock)
 }
 inline ::uint32_t cmd_readTrim_allAFE_response::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15790,26 +16797,26 @@ inline void cmd_readTrim_allAFE_response::clear_trimvalues() {
   _impl_.trimvalues_.Clear();
 }
 inline ::uint32_t cmd_readTrim_allAFE_response::trimvalues(int index) const {
-  // @@protoc_insertion_point(field_get:cmd_readTrim_allAFE_response.trimValues)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_allAFE_response.trimValues)
   return _internal_trimvalues().Get(index);
 }
 inline void cmd_readTrim_allAFE_response::set_trimvalues(int index, ::uint32_t value) {
   _internal_mutable_trimvalues()->Set(index, value);
-  // @@protoc_insertion_point(field_set:cmd_readTrim_allAFE_response.trimValues)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_allAFE_response.trimValues)
 }
 inline void cmd_readTrim_allAFE_response::add_trimvalues(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _internal_mutable_trimvalues()->Add(value);
-  // @@protoc_insertion_point(field_add:cmd_readTrim_allAFE_response.trimValues)
+  // @@protoc_insertion_point(field_add:daphne.cmd_readTrim_allAFE_response.trimValues)
 }
 inline const ::google::protobuf::RepeatedField<::uint32_t>& cmd_readTrim_allAFE_response::trimvalues() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:cmd_readTrim_allAFE_response.trimValues)
+  // @@protoc_insertion_point(field_list:daphne.cmd_readTrim_allAFE_response.trimValues)
   return _internal_trimvalues();
 }
 inline ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL cmd_readTrim_allAFE_response::mutable_trimvalues()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:cmd_readTrim_allAFE_response.trimValues)
+  // @@protoc_insertion_point(field_mutable_list:daphne.cmd_readTrim_allAFE_response.trimValues)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_trimvalues();
 }
@@ -15828,20 +16835,44 @@ cmd_readTrim_allAFE_response::_internal_mutable_trimvalues() {
 
 // cmd_readTrim_singleChannel
 
-// uint32 trimChannel = 1;
+// int32 id = 1;
+inline void cmd_readTrim_singleChannel::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_readTrim_singleChannel::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_singleChannel.id)
+  return _internal_id();
+}
+inline void cmd_readTrim_singleChannel::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_singleChannel.id)
+}
+inline ::int32_t cmd_readTrim_singleChannel::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_readTrim_singleChannel::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 trimChannel = 2;
 inline void cmd_readTrim_singleChannel::clear_trimchannel() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.trimchannel_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_readTrim_singleChannel::trimchannel() const {
-  // @@protoc_insertion_point(field_get:cmd_readTrim_singleChannel.trimChannel)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_singleChannel.trimChannel)
   return _internal_trimchannel();
 }
 inline void cmd_readTrim_singleChannel::set_trimchannel(::uint32_t value) {
   _internal_set_trimchannel(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_readTrim_singleChannel.trimChannel)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_singleChannel.trimChannel)
 }
 inline ::uint32_t cmd_readTrim_singleChannel::_internal_trimchannel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15863,13 +16894,13 @@ inline void cmd_readTrim_singleChannel_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_readTrim_singleChannel_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_readTrim_singleChannel_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_singleChannel_response.success)
   return _internal_success();
 }
 inline void cmd_readTrim_singleChannel_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_readTrim_singleChannel_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_singleChannel_response.success)
 }
 inline bool cmd_readTrim_singleChannel_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15888,7 +16919,7 @@ inline void cmd_readTrim_singleChannel_response::clear_message() {
 }
 inline const std::string& cmd_readTrim_singleChannel_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_readTrim_singleChannel_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_singleChannel_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -15896,12 +16927,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_readTrim_singleChannel_response::set_message(Arg
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_readTrim_singleChannel_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_singleChannel_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_readTrim_singleChannel_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_readTrim_singleChannel_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_readTrim_singleChannel_response.message)
   return _s;
 }
 inline const std::string& cmd_readTrim_singleChannel_response::_internal_message() const {
@@ -15920,7 +16951,7 @@ inline std::string* PROTOBUF_NONNULL cmd_readTrim_singleChannel_response::_inter
 }
 inline std::string* PROTOBUF_NULLABLE cmd_readTrim_singleChannel_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_readTrim_singleChannel_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_readTrim_singleChannel_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -15942,7 +16973,7 @@ inline void cmd_readTrim_singleChannel_response::set_allocated_message(std::stri
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_readTrim_singleChannel_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_readTrim_singleChannel_response.message)
 }
 
 // uint32 trimChannel = 3;
@@ -15952,13 +16983,13 @@ inline void cmd_readTrim_singleChannel_response::clear_trimchannel() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_readTrim_singleChannel_response::trimchannel() const {
-  // @@protoc_insertion_point(field_get:cmd_readTrim_singleChannel_response.trimChannel)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_singleChannel_response.trimChannel)
   return _internal_trimchannel();
 }
 inline void cmd_readTrim_singleChannel_response::set_trimchannel(::uint32_t value) {
   _internal_set_trimchannel(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_readTrim_singleChannel_response.trimChannel)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_singleChannel_response.trimChannel)
 }
 inline ::uint32_t cmd_readTrim_singleChannel_response::_internal_trimchannel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15976,13 +17007,13 @@ inline void cmd_readTrim_singleChannel_response::clear_trimvalue() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_readTrim_singleChannel_response::trimvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_readTrim_singleChannel_response.trimValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readTrim_singleChannel_response.trimValue)
   return _internal_trimvalue();
 }
 inline void cmd_readTrim_singleChannel_response::set_trimvalue(::uint32_t value) {
   _internal_set_trimvalue(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_readTrim_singleChannel_response.trimValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readTrim_singleChannel_response.trimValue)
 }
 inline ::uint32_t cmd_readTrim_singleChannel_response::_internal_trimvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -15997,6 +17028,30 @@ inline void cmd_readTrim_singleChannel_response::_internal_set_trimvalue(::uint3
 
 // cmd_readOffset_allChannels
 
+// int32 id = 1;
+inline void cmd_readOffset_allChannels::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_readOffset_allChannels::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_allChannels.id)
+  return _internal_id();
+}
+inline void cmd_readOffset_allChannels::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_allChannels.id)
+}
+inline ::int32_t cmd_readOffset_allChannels::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_readOffset_allChannels::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // cmd_readOffset_allChannels_response
@@ -16008,13 +17063,13 @@ inline void cmd_readOffset_allChannels_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_readOffset_allChannels_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_readOffset_allChannels_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_allChannels_response.success)
   return _internal_success();
 }
 inline void cmd_readOffset_allChannels_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_readOffset_allChannels_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_allChannels_response.success)
 }
 inline bool cmd_readOffset_allChannels_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16033,7 +17088,7 @@ inline void cmd_readOffset_allChannels_response::clear_message() {
 }
 inline const std::string& cmd_readOffset_allChannels_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_readOffset_allChannels_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_allChannels_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -16041,12 +17096,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_readOffset_allChannels_response::set_message(Arg
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_readOffset_allChannels_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_allChannels_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_readOffset_allChannels_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_readOffset_allChannels_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_readOffset_allChannels_response.message)
   return _s;
 }
 inline const std::string& cmd_readOffset_allChannels_response::_internal_message() const {
@@ -16065,7 +17120,7 @@ inline std::string* PROTOBUF_NONNULL cmd_readOffset_allChannels_response::_inter
 }
 inline std::string* PROTOBUF_NULLABLE cmd_readOffset_allChannels_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_readOffset_allChannels_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_readOffset_allChannels_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -16087,7 +17142,7 @@ inline void cmd_readOffset_allChannels_response::set_allocated_message(std::stri
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_readOffset_allChannels_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_readOffset_allChannels_response.message)
 }
 
 // repeated uint32 offsetValues = 3;
@@ -16102,26 +17157,26 @@ inline void cmd_readOffset_allChannels_response::clear_offsetvalues() {
   _impl_.offsetvalues_.Clear();
 }
 inline ::uint32_t cmd_readOffset_allChannels_response::offsetvalues(int index) const {
-  // @@protoc_insertion_point(field_get:cmd_readOffset_allChannels_response.offsetValues)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_allChannels_response.offsetValues)
   return _internal_offsetvalues().Get(index);
 }
 inline void cmd_readOffset_allChannels_response::set_offsetvalues(int index, ::uint32_t value) {
   _internal_mutable_offsetvalues()->Set(index, value);
-  // @@protoc_insertion_point(field_set:cmd_readOffset_allChannels_response.offsetValues)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_allChannels_response.offsetValues)
 }
 inline void cmd_readOffset_allChannels_response::add_offsetvalues(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _internal_mutable_offsetvalues()->Add(value);
-  // @@protoc_insertion_point(field_add:cmd_readOffset_allChannels_response.offsetValues)
+  // @@protoc_insertion_point(field_add:daphne.cmd_readOffset_allChannels_response.offsetValues)
 }
 inline const ::google::protobuf::RepeatedField<::uint32_t>& cmd_readOffset_allChannels_response::offsetvalues() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:cmd_readOffset_allChannels_response.offsetValues)
+  // @@protoc_insertion_point(field_list:daphne.cmd_readOffset_allChannels_response.offsetValues)
   return _internal_offsetvalues();
 }
 inline ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL cmd_readOffset_allChannels_response::mutable_offsetvalues()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:cmd_readOffset_allChannels_response.offsetValues)
+  // @@protoc_insertion_point(field_mutable_list:daphne.cmd_readOffset_allChannels_response.offsetValues)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_offsetvalues();
 }
@@ -16140,20 +17195,44 @@ cmd_readOffset_allChannels_response::_internal_mutable_offsetvalues() {
 
 // cmd_readOffset_allAFE
 
-// uint32 afeBlock = 1;
+// int32 id = 1;
+inline void cmd_readOffset_allAFE::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_readOffset_allAFE::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_allAFE.id)
+  return _internal_id();
+}
+inline void cmd_readOffset_allAFE::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_allAFE.id)
+}
+inline ::int32_t cmd_readOffset_allAFE::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_readOffset_allAFE::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 afeBlock = 2;
 inline void cmd_readOffset_allAFE::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_readOffset_allAFE::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_readOffset_allAFE.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_allAFE.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_readOffset_allAFE::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_readOffset_allAFE.afeBlock)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_allAFE.afeBlock)
 }
 inline ::uint32_t cmd_readOffset_allAFE::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16175,13 +17254,13 @@ inline void cmd_readOffset_allAFE_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_readOffset_allAFE_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_readOffset_allAFE_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_allAFE_response.success)
   return _internal_success();
 }
 inline void cmd_readOffset_allAFE_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_readOffset_allAFE_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_allAFE_response.success)
 }
 inline bool cmd_readOffset_allAFE_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16200,7 +17279,7 @@ inline void cmd_readOffset_allAFE_response::clear_message() {
 }
 inline const std::string& cmd_readOffset_allAFE_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_readOffset_allAFE_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_allAFE_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -16208,12 +17287,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_readOffset_allAFE_response::set_message(Arg_&& a
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_readOffset_allAFE_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_allAFE_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_readOffset_allAFE_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_readOffset_allAFE_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_readOffset_allAFE_response.message)
   return _s;
 }
 inline const std::string& cmd_readOffset_allAFE_response::_internal_message() const {
@@ -16232,7 +17311,7 @@ inline std::string* PROTOBUF_NONNULL cmd_readOffset_allAFE_response::_internal_m
 }
 inline std::string* PROTOBUF_NULLABLE cmd_readOffset_allAFE_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_readOffset_allAFE_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_readOffset_allAFE_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -16254,7 +17333,7 @@ inline void cmd_readOffset_allAFE_response::set_allocated_message(std::string* P
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_readOffset_allAFE_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_readOffset_allAFE_response.message)
 }
 
 // uint32 afeBlock = 3;
@@ -16264,13 +17343,13 @@ inline void cmd_readOffset_allAFE_response::clear_afeblock() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_readOffset_allAFE_response::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_readOffset_allAFE_response.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_allAFE_response.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_readOffset_allAFE_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_readOffset_allAFE_response.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_allAFE_response.afeBlock)
 }
 inline ::uint32_t cmd_readOffset_allAFE_response::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16293,26 +17372,26 @@ inline void cmd_readOffset_allAFE_response::clear_offsetvalues() {
   _impl_.offsetvalues_.Clear();
 }
 inline ::uint32_t cmd_readOffset_allAFE_response::offsetvalues(int index) const {
-  // @@protoc_insertion_point(field_get:cmd_readOffset_allAFE_response.offsetValues)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_allAFE_response.offsetValues)
   return _internal_offsetvalues().Get(index);
 }
 inline void cmd_readOffset_allAFE_response::set_offsetvalues(int index, ::uint32_t value) {
   _internal_mutable_offsetvalues()->Set(index, value);
-  // @@protoc_insertion_point(field_set:cmd_readOffset_allAFE_response.offsetValues)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_allAFE_response.offsetValues)
 }
 inline void cmd_readOffset_allAFE_response::add_offsetvalues(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _internal_mutable_offsetvalues()->Add(value);
-  // @@protoc_insertion_point(field_add:cmd_readOffset_allAFE_response.offsetValues)
+  // @@protoc_insertion_point(field_add:daphne.cmd_readOffset_allAFE_response.offsetValues)
 }
 inline const ::google::protobuf::RepeatedField<::uint32_t>& cmd_readOffset_allAFE_response::offsetvalues() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:cmd_readOffset_allAFE_response.offsetValues)
+  // @@protoc_insertion_point(field_list:daphne.cmd_readOffset_allAFE_response.offsetValues)
   return _internal_offsetvalues();
 }
 inline ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL cmd_readOffset_allAFE_response::mutable_offsetvalues()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:cmd_readOffset_allAFE_response.offsetValues)
+  // @@protoc_insertion_point(field_mutable_list:daphne.cmd_readOffset_allAFE_response.offsetValues)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_offsetvalues();
 }
@@ -16331,20 +17410,44 @@ cmd_readOffset_allAFE_response::_internal_mutable_offsetvalues() {
 
 // cmd_readOffset_singleChannel
 
-// uint32 offsetChannel = 1;
+// int32 id = 1;
+inline void cmd_readOffset_singleChannel::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_readOffset_singleChannel::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_singleChannel.id)
+  return _internal_id();
+}
+inline void cmd_readOffset_singleChannel::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_singleChannel.id)
+}
+inline ::int32_t cmd_readOffset_singleChannel::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_readOffset_singleChannel::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 offsetChannel = 2;
 inline void cmd_readOffset_singleChannel::clear_offsetchannel() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.offsetchannel_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_readOffset_singleChannel::offsetchannel() const {
-  // @@protoc_insertion_point(field_get:cmd_readOffset_singleChannel.offsetChannel)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_singleChannel.offsetChannel)
   return _internal_offsetchannel();
 }
 inline void cmd_readOffset_singleChannel::set_offsetchannel(::uint32_t value) {
   _internal_set_offsetchannel(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_readOffset_singleChannel.offsetChannel)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_singleChannel.offsetChannel)
 }
 inline ::uint32_t cmd_readOffset_singleChannel::_internal_offsetchannel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16366,13 +17469,13 @@ inline void cmd_readOffset_singleChannel_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_readOffset_singleChannel_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_readOffset_singleChannel_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_singleChannel_response.success)
   return _internal_success();
 }
 inline void cmd_readOffset_singleChannel_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_readOffset_singleChannel_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_singleChannel_response.success)
 }
 inline bool cmd_readOffset_singleChannel_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16391,7 +17494,7 @@ inline void cmd_readOffset_singleChannel_response::clear_message() {
 }
 inline const std::string& cmd_readOffset_singleChannel_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_readOffset_singleChannel_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_singleChannel_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -16399,12 +17502,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_readOffset_singleChannel_response::set_message(A
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_readOffset_singleChannel_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_singleChannel_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_readOffset_singleChannel_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_readOffset_singleChannel_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_readOffset_singleChannel_response.message)
   return _s;
 }
 inline const std::string& cmd_readOffset_singleChannel_response::_internal_message() const {
@@ -16423,7 +17526,7 @@ inline std::string* PROTOBUF_NONNULL cmd_readOffset_singleChannel_response::_int
 }
 inline std::string* PROTOBUF_NULLABLE cmd_readOffset_singleChannel_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_readOffset_singleChannel_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_readOffset_singleChannel_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -16445,7 +17548,7 @@ inline void cmd_readOffset_singleChannel_response::set_allocated_message(std::st
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_readOffset_singleChannel_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_readOffset_singleChannel_response.message)
 }
 
 // uint32 offsetChannel = 3;
@@ -16455,13 +17558,13 @@ inline void cmd_readOffset_singleChannel_response::clear_offsetchannel() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_readOffset_singleChannel_response::offsetchannel() const {
-  // @@protoc_insertion_point(field_get:cmd_readOffset_singleChannel_response.offsetChannel)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_singleChannel_response.offsetChannel)
   return _internal_offsetchannel();
 }
 inline void cmd_readOffset_singleChannel_response::set_offsetchannel(::uint32_t value) {
   _internal_set_offsetchannel(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_readOffset_singleChannel_response.offsetChannel)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_singleChannel_response.offsetChannel)
 }
 inline ::uint32_t cmd_readOffset_singleChannel_response::_internal_offsetchannel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16479,13 +17582,13 @@ inline void cmd_readOffset_singleChannel_response::clear_offsetvalue() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_readOffset_singleChannel_response::offsetvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_readOffset_singleChannel_response.offsetValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readOffset_singleChannel_response.offsetValue)
   return _internal_offsetvalue();
 }
 inline void cmd_readOffset_singleChannel_response::set_offsetvalue(::uint32_t value) {
   _internal_set_offsetvalue(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_readOffset_singleChannel_response.offsetValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readOffset_singleChannel_response.offsetValue)
 }
 inline ::uint32_t cmd_readOffset_singleChannel_response::_internal_offsetvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16500,6 +17603,30 @@ inline void cmd_readOffset_singleChannel_response::_internal_set_offsetvalue(::u
 
 // cmd_readVbiasControl
 
+// int32 id = 1;
+inline void cmd_readVbiasControl::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_readVbiasControl::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_readVbiasControl.id)
+  return _internal_id();
+}
+inline void cmd_readVbiasControl::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readVbiasControl.id)
+}
+inline ::int32_t cmd_readVbiasControl::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_readVbiasControl::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // cmd_readVbiasControl_response
@@ -16511,13 +17638,13 @@ inline void cmd_readVbiasControl_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_readVbiasControl_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_readVbiasControl_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readVbiasControl_response.success)
   return _internal_success();
 }
 inline void cmd_readVbiasControl_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_readVbiasControl_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readVbiasControl_response.success)
 }
 inline bool cmd_readVbiasControl_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16536,7 +17663,7 @@ inline void cmd_readVbiasControl_response::clear_message() {
 }
 inline const std::string& cmd_readVbiasControl_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_readVbiasControl_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readVbiasControl_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -16544,12 +17671,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_readVbiasControl_response::set_message(Arg_&& ar
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_readVbiasControl_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readVbiasControl_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_readVbiasControl_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_readVbiasControl_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_readVbiasControl_response.message)
   return _s;
 }
 inline const std::string& cmd_readVbiasControl_response::_internal_message() const {
@@ -16568,7 +17695,7 @@ inline std::string* PROTOBUF_NONNULL cmd_readVbiasControl_response::_internal_mu
 }
 inline std::string* PROTOBUF_NULLABLE cmd_readVbiasControl_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_readVbiasControl_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_readVbiasControl_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -16590,7 +17717,7 @@ inline void cmd_readVbiasControl_response::set_allocated_message(std::string* PR
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_readVbiasControl_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_readVbiasControl_response.message)
 }
 
 // uint32 vBiasControlValue = 3;
@@ -16600,13 +17727,13 @@ inline void cmd_readVbiasControl_response::clear_vbiascontrolvalue() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_readVbiasControl_response::vbiascontrolvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_readVbiasControl_response.vBiasControlValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readVbiasControl_response.vBiasControlValue)
   return _internal_vbiascontrolvalue();
 }
 inline void cmd_readVbiasControl_response::set_vbiascontrolvalue(::uint32_t value) {
   _internal_set_vbiascontrolvalue(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_readVbiasControl_response.vBiasControlValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readVbiasControl_response.vBiasControlValue)
 }
 inline ::uint32_t cmd_readVbiasControl_response::_internal_vbiascontrolvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16621,20 +17748,44 @@ inline void cmd_readVbiasControl_response::_internal_set_vbiascontrolvalue(::uin
 
 // cmd_readCurrentMonitor
 
-// uint32 currentMonitorChannel = 1;
+// int32 id = 1;
+inline void cmd_readCurrentMonitor::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_readCurrentMonitor::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_readCurrentMonitor.id)
+  return _internal_id();
+}
+inline void cmd_readCurrentMonitor::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readCurrentMonitor.id)
+}
+inline ::int32_t cmd_readCurrentMonitor::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_readCurrentMonitor::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 currentMonitorChannel = 2;
 inline void cmd_readCurrentMonitor::clear_currentmonitorchannel() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.currentmonitorchannel_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_readCurrentMonitor::currentmonitorchannel() const {
-  // @@protoc_insertion_point(field_get:cmd_readCurrentMonitor.currentMonitorChannel)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readCurrentMonitor.currentMonitorChannel)
   return _internal_currentmonitorchannel();
 }
 inline void cmd_readCurrentMonitor::set_currentmonitorchannel(::uint32_t value) {
   _internal_set_currentmonitorchannel(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_readCurrentMonitor.currentMonitorChannel)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readCurrentMonitor.currentMonitorChannel)
 }
 inline ::uint32_t cmd_readCurrentMonitor::_internal_currentmonitorchannel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16656,13 +17807,13 @@ inline void cmd_readCurrentMonitor_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_readCurrentMonitor_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_readCurrentMonitor_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readCurrentMonitor_response.success)
   return _internal_success();
 }
 inline void cmd_readCurrentMonitor_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_readCurrentMonitor_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readCurrentMonitor_response.success)
 }
 inline bool cmd_readCurrentMonitor_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16681,7 +17832,7 @@ inline void cmd_readCurrentMonitor_response::clear_message() {
 }
 inline const std::string& cmd_readCurrentMonitor_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_readCurrentMonitor_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readCurrentMonitor_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -16689,12 +17840,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_readCurrentMonitor_response::set_message(Arg_&& 
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_readCurrentMonitor_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readCurrentMonitor_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_readCurrentMonitor_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_readCurrentMonitor_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_readCurrentMonitor_response.message)
   return _s;
 }
 inline const std::string& cmd_readCurrentMonitor_response::_internal_message() const {
@@ -16713,7 +17864,7 @@ inline std::string* PROTOBUF_NONNULL cmd_readCurrentMonitor_response::_internal_
 }
 inline std::string* PROTOBUF_NULLABLE cmd_readCurrentMonitor_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_readCurrentMonitor_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_readCurrentMonitor_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -16735,7 +17886,7 @@ inline void cmd_readCurrentMonitor_response::set_allocated_message(std::string* 
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_readCurrentMonitor_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_readCurrentMonitor_response.message)
 }
 
 // uint32 currentMonitorChannel = 3;
@@ -16745,13 +17896,13 @@ inline void cmd_readCurrentMonitor_response::clear_currentmonitorchannel() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_readCurrentMonitor_response::currentmonitorchannel() const {
-  // @@protoc_insertion_point(field_get:cmd_readCurrentMonitor_response.currentMonitorChannel)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readCurrentMonitor_response.currentMonitorChannel)
   return _internal_currentmonitorchannel();
 }
 inline void cmd_readCurrentMonitor_response::set_currentmonitorchannel(::uint32_t value) {
   _internal_set_currentmonitorchannel(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_readCurrentMonitor_response.currentMonitorChannel)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readCurrentMonitor_response.currentMonitorChannel)
 }
 inline ::uint32_t cmd_readCurrentMonitor_response::_internal_currentmonitorchannel() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16769,13 +17920,13 @@ inline void cmd_readCurrentMonitor_response::clear_currentvalue() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_readCurrentMonitor_response::currentvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_readCurrentMonitor_response.currentValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readCurrentMonitor_response.currentValue)
   return _internal_currentvalue();
 }
 inline void cmd_readCurrentMonitor_response::set_currentvalue(::uint32_t value) {
   _internal_set_currentvalue(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_readCurrentMonitor_response.currentValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readCurrentMonitor_response.currentValue)
 }
 inline ::uint32_t cmd_readCurrentMonitor_response::_internal_currentvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16790,20 +17941,44 @@ inline void cmd_readCurrentMonitor_response::_internal_set_currentvalue(::uint32
 
 // cmd_readBiasVoltageMonitor
 
-// uint32 afeBlock = 1;
+// int32 id = 1;
+inline void cmd_readBiasVoltageMonitor::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_readBiasVoltageMonitor::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_readBiasVoltageMonitor.id)
+  return _internal_id();
+}
+inline void cmd_readBiasVoltageMonitor::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readBiasVoltageMonitor.id)
+}
+inline ::int32_t cmd_readBiasVoltageMonitor::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_readBiasVoltageMonitor::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// uint32 afeBlock = 2;
 inline void cmd_readBiasVoltageMonitor::clear_afeblock() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.afeblock_ = 0u;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_readBiasVoltageMonitor::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_readBiasVoltageMonitor.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readBiasVoltageMonitor.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_readBiasVoltageMonitor::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_readBiasVoltageMonitor.afeBlock)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_readBiasVoltageMonitor.afeBlock)
 }
 inline ::uint32_t cmd_readBiasVoltageMonitor::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16825,13 +18000,13 @@ inline void cmd_readBiasVoltageMonitor_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_readBiasVoltageMonitor_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_readBiasVoltageMonitor_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readBiasVoltageMonitor_response.success)
   return _internal_success();
 }
 inline void cmd_readBiasVoltageMonitor_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_readBiasVoltageMonitor_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readBiasVoltageMonitor_response.success)
 }
 inline bool cmd_readBiasVoltageMonitor_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16850,7 +18025,7 @@ inline void cmd_readBiasVoltageMonitor_response::clear_message() {
 }
 inline const std::string& cmd_readBiasVoltageMonitor_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_readBiasVoltageMonitor_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readBiasVoltageMonitor_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -16858,12 +18033,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_readBiasVoltageMonitor_response::set_message(Arg
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_readBiasVoltageMonitor_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readBiasVoltageMonitor_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_readBiasVoltageMonitor_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_readBiasVoltageMonitor_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_readBiasVoltageMonitor_response.message)
   return _s;
 }
 inline const std::string& cmd_readBiasVoltageMonitor_response::_internal_message() const {
@@ -16882,7 +18057,7 @@ inline std::string* PROTOBUF_NONNULL cmd_readBiasVoltageMonitor_response::_inter
 }
 inline std::string* PROTOBUF_NULLABLE cmd_readBiasVoltageMonitor_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_readBiasVoltageMonitor_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_readBiasVoltageMonitor_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -16904,7 +18079,7 @@ inline void cmd_readBiasVoltageMonitor_response::set_allocated_message(std::stri
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_readBiasVoltageMonitor_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_readBiasVoltageMonitor_response.message)
 }
 
 // uint32 afeBlock = 3;
@@ -16914,13 +18089,13 @@ inline void cmd_readBiasVoltageMonitor_response::clear_afeblock() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_readBiasVoltageMonitor_response::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_readBiasVoltageMonitor_response.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readBiasVoltageMonitor_response.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_readBiasVoltageMonitor_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_readBiasVoltageMonitor_response.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readBiasVoltageMonitor_response.afeBlock)
 }
 inline ::uint32_t cmd_readBiasVoltageMonitor_response::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16938,13 +18113,13 @@ inline void cmd_readBiasVoltageMonitor_response::clear_biasvoltagevalue() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_readBiasVoltageMonitor_response::biasvoltagevalue() const {
-  // @@protoc_insertion_point(field_get:cmd_readBiasVoltageMonitor_response.biasVoltageValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_readBiasVoltageMonitor_response.biasVoltageValue)
   return _internal_biasvoltagevalue();
 }
 inline void cmd_readBiasVoltageMonitor_response::set_biasvoltagevalue(::uint32_t value) {
   _internal_set_biasvoltagevalue(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_readBiasVoltageMonitor_response.biasVoltageValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_readBiasVoltageMonitor_response.biasVoltageValue)
 }
 inline ::uint32_t cmd_readBiasVoltageMonitor_response::_internal_biasvoltagevalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16959,20 +18134,44 @@ inline void cmd_readBiasVoltageMonitor_response::_internal_set_biasvoltagevalue(
 
 // cmd_setAFEReset
 
-// bool resetValue = 1;
+// int32 id = 1;
+inline void cmd_setAFEReset::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_setAFEReset::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_setAFEReset.id)
+  return _internal_id();
+}
+inline void cmd_setAFEReset::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_setAFEReset.id)
+}
+inline ::int32_t cmd_setAFEReset::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_setAFEReset::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// bool resetValue = 2;
 inline void cmd_setAFEReset::clear_resetvalue() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.resetvalue_ = false;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_setAFEReset::resetvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_setAFEReset.resetValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_setAFEReset.resetValue)
   return _internal_resetvalue();
 }
 inline void cmd_setAFEReset::set_resetvalue(bool value) {
   _internal_set_resetvalue(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_setAFEReset.resetValue)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_setAFEReset.resetValue)
 }
 inline bool cmd_setAFEReset::_internal_resetvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -16994,13 +18193,13 @@ inline void cmd_setAFEReset_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_setAFEReset_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_setAFEReset_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_setAFEReset_response.success)
   return _internal_success();
 }
 inline void cmd_setAFEReset_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_setAFEReset_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_setAFEReset_response.success)
 }
 inline bool cmd_setAFEReset_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -17019,7 +18218,7 @@ inline void cmd_setAFEReset_response::clear_message() {
 }
 inline const std::string& cmd_setAFEReset_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_setAFEReset_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_setAFEReset_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -17027,12 +18226,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_setAFEReset_response::set_message(Arg_&& arg, Ar
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_setAFEReset_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_setAFEReset_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_setAFEReset_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_setAFEReset_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_setAFEReset_response.message)
   return _s;
 }
 inline const std::string& cmd_setAFEReset_response::_internal_message() const {
@@ -17051,7 +18250,7 @@ inline std::string* PROTOBUF_NONNULL cmd_setAFEReset_response::_internal_mutable
 }
 inline std::string* PROTOBUF_NULLABLE cmd_setAFEReset_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_setAFEReset_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_setAFEReset_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -17073,7 +18272,7 @@ inline void cmd_setAFEReset_response::set_allocated_message(std::string* PROTOBU
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_setAFEReset_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_setAFEReset_response.message)
 }
 
 // bool resetValue = 3;
@@ -17083,13 +18282,13 @@ inline void cmd_setAFEReset_response::clear_resetvalue() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_setAFEReset_response::resetvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_setAFEReset_response.resetValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_setAFEReset_response.resetValue)
   return _internal_resetvalue();
 }
 inline void cmd_setAFEReset_response::set_resetvalue(bool value) {
   _internal_set_resetvalue(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_setAFEReset_response.resetValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_setAFEReset_response.resetValue)
 }
 inline bool cmd_setAFEReset_response::_internal_resetvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -17104,6 +18303,30 @@ inline void cmd_setAFEReset_response::_internal_set_resetvalue(bool value) {
 
 // cmd_doAFEReset
 
+// int32 id = 1;
+inline void cmd_doAFEReset::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_doAFEReset::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_doAFEReset.id)
+  return _internal_id();
+}
+inline void cmd_doAFEReset::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_doAFEReset.id)
+}
+inline ::int32_t cmd_doAFEReset::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_doAFEReset::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // cmd_doAFEReset_response
@@ -17115,13 +18338,13 @@ inline void cmd_doAFEReset_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_doAFEReset_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_doAFEReset_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_doAFEReset_response.success)
   return _internal_success();
 }
 inline void cmd_doAFEReset_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_doAFEReset_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_doAFEReset_response.success)
 }
 inline bool cmd_doAFEReset_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -17140,7 +18363,7 @@ inline void cmd_doAFEReset_response::clear_message() {
 }
 inline const std::string& cmd_doAFEReset_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_doAFEReset_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_doAFEReset_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -17148,12 +18371,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_doAFEReset_response::set_message(Arg_&& arg, Arg
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_doAFEReset_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_doAFEReset_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_doAFEReset_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_doAFEReset_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_doAFEReset_response.message)
   return _s;
 }
 inline const std::string& cmd_doAFEReset_response::_internal_message() const {
@@ -17172,7 +18395,7 @@ inline std::string* PROTOBUF_NONNULL cmd_doAFEReset_response::_internal_mutable_
 }
 inline std::string* PROTOBUF_NULLABLE cmd_doAFEReset_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_doAFEReset_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_doAFEReset_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -17194,27 +18417,51 @@ inline void cmd_doAFEReset_response::set_allocated_message(std::string* PROTOBUF
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_doAFEReset_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_doAFEReset_response.message)
 }
 
 // -------------------------------------------------------------------
 
 // cmd_setAFEPowerState
 
-// bool powerState = 1;
+// int32 id = 1;
+inline void cmd_setAFEPowerState::clear_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = 0;
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline ::int32_t cmd_setAFEPowerState::id() const {
+  // @@protoc_insertion_point(field_get:daphne.cmd_setAFEPowerState.id)
+  return _internal_id();
+}
+inline void cmd_setAFEPowerState::set_id(::int32_t value) {
+  _internal_set_id(value);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_setAFEPowerState.id)
+}
+inline ::int32_t cmd_setAFEPowerState::_internal_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.id_;
+}
+inline void cmd_setAFEPowerState::_internal_set_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.id_ = value;
+}
+
+// bool powerState = 2;
 inline void cmd_setAFEPowerState::clear_powerstate() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.powerstate_ = false;
-  _impl_._has_bits_[0] &= ~0x00000001u;
+  _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_setAFEPowerState::powerstate() const {
-  // @@protoc_insertion_point(field_get:cmd_setAFEPowerState.powerState)
+  // @@protoc_insertion_point(field_get:daphne.cmd_setAFEPowerState.powerState)
   return _internal_powerstate();
 }
 inline void cmd_setAFEPowerState::set_powerstate(bool value) {
   _internal_set_powerstate(value);
-  _impl_._has_bits_[0] |= 0x00000001u;
-  // @@protoc_insertion_point(field_set:cmd_setAFEPowerState.powerState)
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.cmd_setAFEPowerState.powerState)
 }
 inline bool cmd_setAFEPowerState::_internal_powerstate() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -17236,13 +18483,13 @@ inline void cmd_setAFEPowerState_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_setAFEPowerState_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_setAFEPowerState_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_setAFEPowerState_response.success)
   return _internal_success();
 }
 inline void cmd_setAFEPowerState_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_setAFEPowerState_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_setAFEPowerState_response.success)
 }
 inline bool cmd_setAFEPowerState_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -17261,7 +18508,7 @@ inline void cmd_setAFEPowerState_response::clear_message() {
 }
 inline const std::string& cmd_setAFEPowerState_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_setAFEPowerState_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_setAFEPowerState_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -17269,12 +18516,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_setAFEPowerState_response::set_message(Arg_&& ar
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_setAFEPowerState_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_setAFEPowerState_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_setAFEPowerState_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_setAFEPowerState_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_setAFEPowerState_response.message)
   return _s;
 }
 inline const std::string& cmd_setAFEPowerState_response::_internal_message() const {
@@ -17293,7 +18540,7 @@ inline std::string* PROTOBUF_NONNULL cmd_setAFEPowerState_response::_internal_mu
 }
 inline std::string* PROTOBUF_NULLABLE cmd_setAFEPowerState_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_setAFEPowerState_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_setAFEPowerState_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -17315,7 +18562,7 @@ inline void cmd_setAFEPowerState_response::set_allocated_message(std::string* PR
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_setAFEPowerState_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_setAFEPowerState_response.message)
 }
 
 // uint32 powerState = 3;
@@ -17325,13 +18572,13 @@ inline void cmd_setAFEPowerState_response::clear_powerstate() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_setAFEPowerState_response::powerstate() const {
-  // @@protoc_insertion_point(field_get:cmd_setAFEPowerState_response.powerState)
+  // @@protoc_insertion_point(field_get:daphne.cmd_setAFEPowerState_response.powerState)
   return _internal_powerstate();
 }
 inline void cmd_setAFEPowerState_response::set_powerstate(::uint32_t value) {
   _internal_set_powerstate(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_setAFEPowerState_response.powerState)
+  // @@protoc_insertion_point(field_set:daphne.cmd_setAFEPowerState_response.powerState)
 }
 inline ::uint32_t cmd_setAFEPowerState_response::_internal_powerstate() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -17340,6 +18587,99 @@ inline ::uint32_t cmd_setAFEPowerState_response::_internal_powerstate() const {
 inline void cmd_setAFEPowerState_response::_internal_set_powerstate(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.powerstate_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// Status
+
+// bool success = 1;
+inline void Status::clear_success() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.success_ = false;
+  _impl_._has_bits_[0] &= ~0x00000002u;
+}
+inline bool Status::success() const {
+  // @@protoc_insertion_point(field_get:daphne.Status.success)
+  return _internal_success();
+}
+inline void Status::set_success(bool value) {
+  _internal_set_success(value);
+  _impl_._has_bits_[0] |= 0x00000002u;
+  // @@protoc_insertion_point(field_set:daphne.Status.success)
+}
+inline bool Status::_internal_success() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.success_;
+}
+inline void Status::_internal_set_success(bool value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.success_ = value;
+}
+
+// bytes extra = 2;
+inline void Status::clear_extra() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.extra_.ClearToEmpty();
+  _impl_._has_bits_[0] &= ~0x00000001u;
+}
+inline const std::string& Status::extra() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:daphne.Status.extra)
+  return _internal_extra();
+}
+template <typename Arg_, typename... Args_>
+PROTOBUF_ALWAYS_INLINE void Status::set_extra(Arg_&& arg, Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.extra_.SetBytes(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:daphne.Status.extra)
+}
+inline std::string* PROTOBUF_NONNULL Status::mutable_extra()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  std::string* _s = _internal_mutable_extra();
+  // @@protoc_insertion_point(field_mutable:daphne.Status.extra)
+  return _s;
+}
+inline const std::string& Status::_internal_extra() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.extra_.Get();
+}
+inline void Status::_internal_set_extra(const std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  _impl_.extra_.Set(value, GetArena());
+}
+inline std::string* PROTOBUF_NONNULL Status::_internal_mutable_extra() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_._has_bits_[0] |= 0x00000001u;
+  return _impl_.extra_.Mutable( GetArena());
+}
+inline std::string* PROTOBUF_NULLABLE Status::release_extra() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:daphne.Status.extra)
+  if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
+    return nullptr;
+  }
+  _impl_._has_bits_[0] &= ~0x00000001u;
+  auto* released = _impl_.extra_.Release();
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
+    _impl_.extra_.Set("", GetArena());
+  }
+  return released;
+}
+inline void Status::set_allocated_extra(std::string* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (value != nullptr) {
+    _impl_._has_bits_[0] |= 0x00000001u;
+  } else {
+    _impl_._has_bits_[0] &= ~0x00000001u;
+  }
+  _impl_.extra_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.extra_.IsDefault()) {
+    _impl_.extra_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:daphne.Status.extra)
 }
 
 // -------------------------------------------------------------------
@@ -17357,13 +18697,13 @@ inline void cmd_alignAFEs_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_alignAFEs_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_alignAFEs_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_alignAFEs_response.success)
   return _internal_success();
 }
 inline void cmd_alignAFEs_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_alignAFEs_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_alignAFEs_response.success)
 }
 inline bool cmd_alignAFEs_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -17386,26 +18726,26 @@ inline void cmd_alignAFEs_response::clear_delay() {
   _impl_.delay_.Clear();
 }
 inline ::uint32_t cmd_alignAFEs_response::delay(int index) const {
-  // @@protoc_insertion_point(field_get:cmd_alignAFEs_response.delay)
+  // @@protoc_insertion_point(field_get:daphne.cmd_alignAFEs_response.delay)
   return _internal_delay().Get(index);
 }
 inline void cmd_alignAFEs_response::set_delay(int index, ::uint32_t value) {
   _internal_mutable_delay()->Set(index, value);
-  // @@protoc_insertion_point(field_set:cmd_alignAFEs_response.delay)
+  // @@protoc_insertion_point(field_set:daphne.cmd_alignAFEs_response.delay)
 }
 inline void cmd_alignAFEs_response::add_delay(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _internal_mutable_delay()->Add(value);
-  // @@protoc_insertion_point(field_add:cmd_alignAFEs_response.delay)
+  // @@protoc_insertion_point(field_add:daphne.cmd_alignAFEs_response.delay)
 }
 inline const ::google::protobuf::RepeatedField<::uint32_t>& cmd_alignAFEs_response::delay() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:cmd_alignAFEs_response.delay)
+  // @@protoc_insertion_point(field_list:daphne.cmd_alignAFEs_response.delay)
   return _internal_delay();
 }
 inline ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL cmd_alignAFEs_response::mutable_delay()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:cmd_alignAFEs_response.delay)
+  // @@protoc_insertion_point(field_mutable_list:daphne.cmd_alignAFEs_response.delay)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_delay();
 }
@@ -17432,26 +18772,26 @@ inline void cmd_alignAFEs_response::clear_bitslip() {
   _impl_.bitslip_.Clear();
 }
 inline ::uint32_t cmd_alignAFEs_response::bitslip(int index) const {
-  // @@protoc_insertion_point(field_get:cmd_alignAFEs_response.bitslip)
+  // @@protoc_insertion_point(field_get:daphne.cmd_alignAFEs_response.bitslip)
   return _internal_bitslip().Get(index);
 }
 inline void cmd_alignAFEs_response::set_bitslip(int index, ::uint32_t value) {
   _internal_mutable_bitslip()->Set(index, value);
-  // @@protoc_insertion_point(field_set:cmd_alignAFEs_response.bitslip)
+  // @@protoc_insertion_point(field_set:daphne.cmd_alignAFEs_response.bitslip)
 }
 inline void cmd_alignAFEs_response::add_bitslip(::uint32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _internal_mutable_bitslip()->Add(value);
-  // @@protoc_insertion_point(field_add:cmd_alignAFEs_response.bitslip)
+  // @@protoc_insertion_point(field_add:daphne.cmd_alignAFEs_response.bitslip)
 }
 inline const ::google::protobuf::RepeatedField<::uint32_t>& cmd_alignAFEs_response::bitslip() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:cmd_alignAFEs_response.bitslip)
+  // @@protoc_insertion_point(field_list:daphne.cmd_alignAFEs_response.bitslip)
   return _internal_bitslip();
 }
 inline ::google::protobuf::RepeatedField<::uint32_t>* PROTOBUF_NONNULL cmd_alignAFEs_response::mutable_bitslip()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable_list:cmd_alignAFEs_response.bitslip)
+  // @@protoc_insertion_point(field_mutable_list:daphne.cmd_alignAFEs_response.bitslip)
   ::google::protobuf::internal::TSanWrite(&_impl_);
   return _internal_mutable_bitslip();
 }
@@ -17474,7 +18814,7 @@ inline void cmd_alignAFEs_response::clear_message() {
 }
 inline const std::string& cmd_alignAFEs_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_alignAFEs_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_alignAFEs_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -17482,12 +18822,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_alignAFEs_response::set_message(Arg_&& arg, Args
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_alignAFEs_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_alignAFEs_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_alignAFEs_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_alignAFEs_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_alignAFEs_response.message)
   return _s;
 }
 inline const std::string& cmd_alignAFEs_response::_internal_message() const {
@@ -17506,7 +18846,7 @@ inline std::string* PROTOBUF_NONNULL cmd_alignAFEs_response::_internal_mutable_m
 }
 inline std::string* PROTOBUF_NULLABLE cmd_alignAFEs_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_alignAFEs_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_alignAFEs_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -17528,7 +18868,7 @@ inline void cmd_alignAFEs_response::set_allocated_message(std::string* PROTOBUF_
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_alignAFEs_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_alignAFEs_response.message)
 }
 
 // -------------------------------------------------------------------
@@ -17542,13 +18882,13 @@ inline void cmd_writeAFEFunction::clear_afeblock() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline ::uint32_t cmd_writeAFEFunction::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEFunction.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEFunction.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_writeAFEFunction::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEFunction.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEFunction.afeBlock)
 }
 inline ::uint32_t cmd_writeAFEFunction::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -17567,7 +18907,7 @@ inline void cmd_writeAFEFunction::clear_function() {
 }
 inline const std::string& cmd_writeAFEFunction::function() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEFunction.function)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEFunction.function)
   return _internal_function();
 }
 template <typename Arg_, typename... Args_>
@@ -17575,12 +18915,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_writeAFEFunction::set_function(Arg_&& arg, Args_
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.function_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeAFEFunction.function)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEFunction.function)
 }
 inline std::string* PROTOBUF_NONNULL cmd_writeAFEFunction::mutable_function()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_function();
-  // @@protoc_insertion_point(field_mutable:cmd_writeAFEFunction.function)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeAFEFunction.function)
   return _s;
 }
 inline const std::string& cmd_writeAFEFunction::_internal_function() const {
@@ -17599,7 +18939,7 @@ inline std::string* PROTOBUF_NONNULL cmd_writeAFEFunction::_internal_mutable_fun
 }
 inline std::string* PROTOBUF_NULLABLE cmd_writeAFEFunction::release_function() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeAFEFunction.function)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeAFEFunction.function)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -17621,7 +18961,7 @@ inline void cmd_writeAFEFunction::set_allocated_function(std::string* PROTOBUF_N
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.function_.IsDefault()) {
     _impl_.function_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeAFEFunction.function)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeAFEFunction.function)
 }
 
 // uint32 configValue = 3;
@@ -17631,13 +18971,13 @@ inline void cmd_writeAFEFunction::clear_configvalue() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline ::uint32_t cmd_writeAFEFunction::configvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEFunction.configValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEFunction.configValue)
   return _internal_configvalue();
 }
 inline void cmd_writeAFEFunction::set_configvalue(::uint32_t value) {
   _internal_set_configvalue(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEFunction.configValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEFunction.configValue)
 }
 inline ::uint32_t cmd_writeAFEFunction::_internal_configvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -17659,13 +18999,13 @@ inline void cmd_writeAFEFunction_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000004u;
 }
 inline bool cmd_writeAFEFunction_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEFunction_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEFunction_response.success)
   return _internal_success();
 }
 inline void cmd_writeAFEFunction_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000004u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEFunction_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEFunction_response.success)
 }
 inline bool cmd_writeAFEFunction_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -17684,7 +19024,7 @@ inline void cmd_writeAFEFunction_response::clear_message() {
 }
 inline const std::string& cmd_writeAFEFunction_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEFunction_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEFunction_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -17692,12 +19032,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_writeAFEFunction_response::set_message(Arg_&& ar
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeAFEFunction_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEFunction_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_writeAFEFunction_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_writeAFEFunction_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeAFEFunction_response.message)
   return _s;
 }
 inline const std::string& cmd_writeAFEFunction_response::_internal_message() const {
@@ -17716,7 +19056,7 @@ inline std::string* PROTOBUF_NONNULL cmd_writeAFEFunction_response::_internal_mu
 }
 inline std::string* PROTOBUF_NULLABLE cmd_writeAFEFunction_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeAFEFunction_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeAFEFunction_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -17738,7 +19078,7 @@ inline void cmd_writeAFEFunction_response::set_allocated_message(std::string* PR
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeAFEFunction_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeAFEFunction_response.message)
 }
 
 // uint32 afeBlock = 3;
@@ -17748,13 +19088,13 @@ inline void cmd_writeAFEFunction_response::clear_afeblock() {
   _impl_._has_bits_[0] &= ~0x00000008u;
 }
 inline ::uint32_t cmd_writeAFEFunction_response::afeblock() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEFunction_response.afeBlock)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEFunction_response.afeBlock)
   return _internal_afeblock();
 }
 inline void cmd_writeAFEFunction_response::set_afeblock(::uint32_t value) {
   _internal_set_afeblock(value);
   _impl_._has_bits_[0] |= 0x00000008u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEFunction_response.afeBlock)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEFunction_response.afeBlock)
 }
 inline ::uint32_t cmd_writeAFEFunction_response::_internal_afeblock() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -17773,7 +19113,7 @@ inline void cmd_writeAFEFunction_response::clear_function() {
 }
 inline const std::string& cmd_writeAFEFunction_response::function() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEFunction_response.function)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEFunction_response.function)
   return _internal_function();
 }
 template <typename Arg_, typename... Args_>
@@ -17781,12 +19121,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_writeAFEFunction_response::set_function(Arg_&& a
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000002u;
   _impl_.function_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_writeAFEFunction_response.function)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEFunction_response.function)
 }
 inline std::string* PROTOBUF_NONNULL cmd_writeAFEFunction_response::mutable_function()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_function();
-  // @@protoc_insertion_point(field_mutable:cmd_writeAFEFunction_response.function)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_writeAFEFunction_response.function)
   return _s;
 }
 inline const std::string& cmd_writeAFEFunction_response::_internal_function() const {
@@ -17805,7 +19145,7 @@ inline std::string* PROTOBUF_NONNULL cmd_writeAFEFunction_response::_internal_mu
 }
 inline std::string* PROTOBUF_NULLABLE cmd_writeAFEFunction_response::release_function() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_writeAFEFunction_response.function)
+  // @@protoc_insertion_point(field_release:daphne.cmd_writeAFEFunction_response.function)
   if ((_impl_._has_bits_[0] & 0x00000002u) == 0) {
     return nullptr;
   }
@@ -17827,7 +19167,7 @@ inline void cmd_writeAFEFunction_response::set_allocated_function(std::string* P
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.function_.IsDefault()) {
     _impl_.function_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_writeAFEFunction_response.function)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_writeAFEFunction_response.function)
 }
 
 // uint32 configValue = 5;
@@ -17837,13 +19177,13 @@ inline void cmd_writeAFEFunction_response::clear_configvalue() {
   _impl_._has_bits_[0] &= ~0x00000010u;
 }
 inline ::uint32_t cmd_writeAFEFunction_response::configvalue() const {
-  // @@protoc_insertion_point(field_get:cmd_writeAFEFunction_response.configValue)
+  // @@protoc_insertion_point(field_get:daphne.cmd_writeAFEFunction_response.configValue)
   return _internal_configvalue();
 }
 inline void cmd_writeAFEFunction_response::set_configvalue(::uint32_t value) {
   _internal_set_configvalue(value);
   _impl_._has_bits_[0] |= 0x00000010u;
-  // @@protoc_insertion_point(field_set:cmd_writeAFEFunction_response.configValue)
+  // @@protoc_insertion_point(field_set:daphne.cmd_writeAFEFunction_response.configValue)
 }
 inline ::uint32_t cmd_writeAFEFunction_response::_internal_configvalue() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -17869,13 +19209,13 @@ inline void cmd_doSoftwareTrigger_response::clear_success() {
   _impl_._has_bits_[0] &= ~0x00000002u;
 }
 inline bool cmd_doSoftwareTrigger_response::success() const {
-  // @@protoc_insertion_point(field_get:cmd_doSoftwareTrigger_response.success)
+  // @@protoc_insertion_point(field_get:daphne.cmd_doSoftwareTrigger_response.success)
   return _internal_success();
 }
 inline void cmd_doSoftwareTrigger_response::set_success(bool value) {
   _internal_set_success(value);
   _impl_._has_bits_[0] |= 0x00000002u;
-  // @@protoc_insertion_point(field_set:cmd_doSoftwareTrigger_response.success)
+  // @@protoc_insertion_point(field_set:daphne.cmd_doSoftwareTrigger_response.success)
 }
 inline bool cmd_doSoftwareTrigger_response::_internal_success() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
@@ -17894,7 +19234,7 @@ inline void cmd_doSoftwareTrigger_response::clear_message() {
 }
 inline const std::string& cmd_doSoftwareTrigger_response::message() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:cmd_doSoftwareTrigger_response.message)
+  // @@protoc_insertion_point(field_get:daphne.cmd_doSoftwareTrigger_response.message)
   return _internal_message();
 }
 template <typename Arg_, typename... Args_>
@@ -17902,12 +19242,12 @@ PROTOBUF_ALWAYS_INLINE void cmd_doSoftwareTrigger_response::set_message(Arg_&& a
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_._has_bits_[0] |= 0x00000001u;
   _impl_.message_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
-  // @@protoc_insertion_point(field_set:cmd_doSoftwareTrigger_response.message)
+  // @@protoc_insertion_point(field_set:daphne.cmd_doSoftwareTrigger_response.message)
 }
 inline std::string* PROTOBUF_NONNULL cmd_doSoftwareTrigger_response::mutable_message()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   std::string* _s = _internal_mutable_message();
-  // @@protoc_insertion_point(field_mutable:cmd_doSoftwareTrigger_response.message)
+  // @@protoc_insertion_point(field_mutable:daphne.cmd_doSoftwareTrigger_response.message)
   return _s;
 }
 inline const std::string& cmd_doSoftwareTrigger_response::_internal_message() const {
@@ -17926,7 +19266,7 @@ inline std::string* PROTOBUF_NONNULL cmd_doSoftwareTrigger_response::_internal_m
 }
 inline std::string* PROTOBUF_NULLABLE cmd_doSoftwareTrigger_response::release_message() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  // @@protoc_insertion_point(field_release:cmd_doSoftwareTrigger_response.message)
+  // @@protoc_insertion_point(field_release:daphne.cmd_doSoftwareTrigger_response.message)
   if ((_impl_._has_bits_[0] & 0x00000001u) == 0) {
     return nullptr;
   }
@@ -17948,7 +19288,7 @@ inline void cmd_doSoftwareTrigger_response::set_allocated_message(std::string* P
   if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.message_.IsDefault()) {
     _impl_.message_.Set("", GetArena());
   }
-  // @@protoc_insertion_point(field_set_allocated:cmd_doSoftwareTrigger_response.message)
+  // @@protoc_insertion_point(field_set_allocated:daphne.cmd_doSoftwareTrigger_response.message)
 }
 
 #ifdef __GNUC__
@@ -17956,6 +19296,7 @@ inline void cmd_doSoftwareTrigger_response::set_allocated_message(std::string* P
 #endif  // __GNUC__
 
 // @@protoc_insertion_point(namespace_scope)
+}  // namespace daphne
 
 
 // @@protoc_insertion_point(global_scope)
