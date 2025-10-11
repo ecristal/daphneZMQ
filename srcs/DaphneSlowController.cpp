@@ -157,6 +157,7 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
             daphne.setChTrimDictValue(ch, ch_config.trim());
             daphne.getDac()->setDacOffset(afe_pl, idx, ch_config.offset(), false, false);
             daphne.setChOffsetDictValue(ch, ch_config.offset());
+        response_str += "Applied TRIM/OFFSET for 40 channels (e.g. ch0=" + std::to_string(daphne.getChOffsetDictValue(0)) + ").\n";
         }
 
         for (const AFEConfig &afe_config : requested_cfg.afes()){
