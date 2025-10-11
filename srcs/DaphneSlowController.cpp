@@ -144,6 +144,20 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
         // --- NEW: do a global AFE reset and power-on before function writes
         daphne.getAfe()->doReset();
         daphne.getAfe()->setPowerState(1);
+        // --- NEW: write per-channel TRIM and OFFSET (pedestals) ---
+        for (const ChannelConfig &ch_config : requested_cfg.channels()) {
+            const uint32_t ch = ch_config.id();
+            if (ch > 39) {
+                throw std::invalid_argument("Channel out of range (0..39): " + std::to_string(ch));
+            }
+            const uint32_t afe_board = ch / 8;
+            const uint32_t afe_pl    = afe_definitions::AFE_board2PL_map.at(afe_board);
+            const uint32_t idx       = ch % 8;
+            daphne.getDac()->setDacTrim(afe_pl, idx, ch_config.trim(), false, false);
+            daphne.setChTrimDictValue(ch, ch_config.trim());
+            daphne.getDac()->setDacOffset(afe_pl, idx, ch_config.offset(), false, false);
+            daphne.setChOffsetDictValue(ch, ch_config.offset());
+        }
 
         for (const AFEConfig &afe_config : requested_cfg.afes()){
             response_str += "AFE ID : " + std::to_string(afe_config.id()) + "\n";
