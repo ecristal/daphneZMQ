@@ -352,32 +352,3 @@ message Status {
   bytes extra   = 2;
 }
 
-message cmd_alignAFEs {}
-
-message cmd_alignAFEs_response {
-  bool success = 1;
-  repeated uint32 delay   = 2;
-  repeated uint32 bitslip = 3;
-  string message = 4;
-}
-
-message cmd_writeAFEFunction {
-  uint32 afeBlock    = 1;
-  string function    = 2;
-  uint32 configValue = 3;
-}
-
-message cmd_writeAFEFunction_response {
-  bool   success     = 1;
-  string message     = 2;
-  uint32 afeBlock    = 3;
-  string function    = 4;
-  uint32 configValue = 5;
-}
-
-message cmd_doSoftwareTrigger {}
-
-message cmd_doSoftwareTrigger_response {
-  bool   success = 1;
-  string message = 2;
-}
