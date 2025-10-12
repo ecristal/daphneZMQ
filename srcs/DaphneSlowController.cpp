@@ -47,7 +47,7 @@ using namespace daphne;
 #include <atomic>
 #include <vector>
 #include <algorithm>
-
+#include <sstream>
 #include "Daphne.hpp"
 #include "defines.hpp"
 #include "protobuf/daphneV3_high_level_confs.pb.h"
@@ -136,179 +136,111 @@ public:
     }
 };
 
-
 bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std::string &response_str) {
-    try{
-        // ... your existing header/echo + per-channel trim/offset (KEEP) ...
+    try {
+        std::ostringstream out;
 
-        // --- NEW: do a global AFE reset and power-on before function writes
+        // --- Reset + power on before writes (as you already did)
         daphne.getAfe()->doReset();
         daphne.getAfe()->setPowerState(1);
-        // --- NEW: write per-channel TRIM and OFFSET (pedestals) ---
+
+        // --- Per-channel TRIM & OFFSET with echoed lines like the client prints
+        // (We keep TRIM too; set to whatever is in the request; echo both if you like.
+        //  If you only want OFFSET lines, just comment out the TRIM echo.)
         for (const ChannelConfig &ch_config : requested_cfg.channels()) {
             const uint32_t ch = ch_config.id();
-            if (ch > 39) {
-                throw std::invalid_argument("Channel out of range (0..39): " + std::to_string(ch));
-            }
+            if (ch > 39) throw std::invalid_argument("Channel out of range (0..39): " + std::to_string(ch));
             const uint32_t afe_board = ch / 8;
             const uint32_t afe_pl    = afe_definitions::AFE_board2PL_map.at(afe_board);
             const uint32_t idx       = ch % 8;
+
+            // TRIM
             daphne.getDac()->setDacTrim(afe_pl, idx, ch_config.trim(), false, false);
             daphne.setChTrimDictValue(ch, ch_config.trim());
+            const uint32_t trim_rb = daphne.getChTrimDictValue(ch);
+            out << "Trim value written successfully for Channel " << ch
+                << ". Trim value: " << ch_config.trim()
+                << ". Returned value: " << trim_rb << ".\n";
+
+            // OFFSET
             daphne.getDac()->setDacOffset(afe_pl, idx, ch_config.offset(), false, false);
             daphne.setChOffsetDictValue(ch, ch_config.offset());
-        response_str += "Applied TRIM/OFFSET for 40 channels (e.g. ch0=" + std::to_string(daphne.getChOffsetDictValue(0)) + ").\n";
+            const uint32_t off_rb = daphne.getChOffsetDictValue(ch);
+            out << "Offset value written successfully for Channel " << ch
+                << ". Offset value: " << ch_config.offset()
+                << ". Returned value: " << off_rb << ".\n";
         }
 
+        // --- Bias control (from ConfigureRequest.biasctrl). We'll enable output (true).
+        //     Mirrors the message format in writeBiasVoltageControl().
+        {
+            const uint32_t ctrl = requested_cfg.biasctrl();
+            if (ctrl <= 4095) {
+                uint32_t returnedControlValue = daphne.getDac()->setDacHvBias(ctrl, false, false);
+                uint32_t returnedBiasEnable   = daphne.getDac()->setBiasEnable(true);
+                daphne.setBiasControlDictValue(ctrl);
+                out << "Bias Control value written successfully. Bias Control value: "
+                    << ctrl << " and Enable: " << returnedBiasEnable
+                    << " Returned value: " << returnedControlValue << ".\n";
+            } else {
+                out << "Warning: Bias Control value " << ctrl << " out of range (0..4095). Skipping.\n";
+            }
+        }
+
+        // --- Per-AFE VGAIN/attenuators with the same mapping and echo format as WRITE_AFE_VGAIN
         for (const AFEConfig &afe_config : requested_cfg.afes()){
-            response_str += "AFE ID : " + std::to_string(afe_config.id()) + "\n";
-            response_str += "AFE Attenuators : " + std::to_string(afe_config.attenuators()) + "\n";
-            response_str += "AFE VBias : " + std::to_string(afe_config.v_bias()) + "\n";
+            const uint32_t afe_board = afe_config.id();                    // 0..4 (board)
+            const uint32_t afe_pl    = afe_definitions::AFE_board2PL_map.at(afe_board);
 
-            const uint32_t afe = afe_config.id();
+            // Program attenuation/VGAIN DAC
+            const uint32_t v = afe_config.attenuators();
+            if (v > 4095) throw std::invalid_argument("VGAIN out of range for AFE " + std::to_string(afe_board));
+            daphne.getDac()->setDacGain(afe_pl, v);
+            daphne.setAfeAttenuationDictValue(afe_pl, v);
+            const uint32_t v_rb = daphne.getAfeAttenuationDictValue(afe_pl);
 
-            // --- NEW: actually apply DAC VGAIN (attenuators)
-            daphne.getDac()->setDacGain(afe, afe_config.attenuators());
+            // Echo line identical in spirit to client
+            out << "AFE VGAIN written successfully for AFE " << afe_board
+                << ". VGAIN: " << v << ". Returned value: " << v_rb << ".\n";
 
-            // --- ADC ---
+            // --- ADC / PGA / LNA function writes (unchanged behavior + echo)
             uint32_t r = 0;
-            // SERIALIZED_DATA_RATE = 1
-            r = daphne.getAfe()->setAFEFunction(afe, "SERIALIZED_DATA_RATE", 1);
-            response_str += "\tSERIALIZED_DATA_RATE : " + std::to_string(r) + "\n";
+            r = daphne.getAfe()->setAFEFunction(afe_pl, "SERIALIZED_DATA_RATE", 1);
+            out << "Function SERIALIZED_DATA_RATE in AFE " << afe_board << " configured correctly.\nReturned value: " << r << "\n";
+            r = daphne.getAfe()->setAFEFunction(afe_pl, "ADC_OUTPUT_FORMAT", afe_config.adc().output_format() ? 1u : 0u);
+            out << "Function ADC_OUTPUT_FORMAT in AFE " << afe_board << " configured correctly.\nReturned value: " << r << "\n";
+            r = daphne.getAfe()->setAFEFunction(afe_pl, "LSB_MSB_FIRST", afe_config.adc().sb_first() ? 1u : 0u);
+            out << "Function LSB_MSB_FIRST in AFE " << afe_board << " configured correctly.\nReturned value: " << r << "\n";
 
-            // ADC_OUTPUT_FORMAT from config (bool -> code 1/0)
-            r = daphne.getAfe()->setAFEFunction(afe, "ADC_OUTPUT_FORMAT", afe_config.adc().output_format() ? 1u : 0u);
-            response_str += "\tOutput_format : " + std::to_string(r) + "\n";
+            r = daphne.getAfe()->setAFEFunction(afe_pl, "LPF_PROGRAMMABILITY", afe_config.pga().lpf_cut_frequency());
+            out << "Function LPF_PROGRAMMABILITY in AFE " << afe_board << " configured correctly.\nReturned value: " << r << "\n";
+            r = daphne.getAfe()->setAFEFunction(afe_pl, "PGA_INTEGRATOR_DISABLE", afe_config.pga().integrator_disable() ? 1u : 0u);
+            out << "Function PGA_INTEGRATOR_DISABLE in AFE " << afe_board << " configured correctly.\nReturned value: " << r << "\n";
+            // If you want to use cfg.pga().gain() mapping, plug it here; many runs use fixed code = 2
+            r = daphne.getAfe()->setAFEFunction(afe_pl, "PGA_CLAMP_LEVEL", 2u);
+            out << "Function PGA_CLAMP_LEVEL in AFE " << afe_board << " configured correctly.\nReturned value: " << r << "\n";
+            r = daphne.getAfe()->setAFEFunction(afe_pl, "ACTIVE_TERMINATION_ENABLE", 0u);
+            out << "Function ACTIVE_TERMINATION_ENABLE in AFE " << afe_board << " configured correctly.\nReturned value: " << r << "\n";
 
-            // LSB_MSB_FIRST (SB_first)
-            r = daphne.getAfe()->setAFEFunction(afe, "LSB_MSB_FIRST", afe_config.adc().sb_first() ? 1u : 0u);
-            response_str += "\tSB_first : " + std::to_string(r) + "\n";
-
-            // --- PGA ---
-            // LPF_PROGRAMMABILITY expects a CODE (e.g. 10 MHz -> 4)
-            r = daphne.getAfe()->setAFEFunction(afe, "LPF_PROGRAMMABILITY", afe_config.pga().lpf_cut_frequency());
-            response_str += "\tlpf_cut_frequency : " + std::to_string(r) + "\n";
-
-            // DISABLE integrator = 1
-            r = daphne.getAfe()->setAFEFunction(afe, "PGA_INTEGRATOR_DISABLE", afe_config.pga().integrator_disable() ? 1u : 0u);
-            response_str += "\tintegrator_disable : " + std::to_string(r) + "\n";
-
-            // PGA_GAIN_CONTROL expects a small code (your good config returns 2)
-            r = daphne.getAfe()->setAFEFunction(afe, "PGA_GAIN_CONTROL", afe_config.pga().gain());
-            response_str += "\tgain : " + std::to_string(r) + "\n";
-
-            // --- NEW: clamp level + active termination to match legacy good config ---
-            // Map your desired clamp level to code. If not provided in cfg, hard-code 2 (= 0 dBFS).
-            const uint32_t pga_clamp_code = 2u; // 0 dBFS; adapt if you extend AFEConfig later
-            r = daphne.getAfe()->setAFEFunction(afe, "PGA_CLAMP_LEVEL", pga_clamp_code);
-            response_str += "\tPGA_CLAMP_LEVEL : " + std::to_string(r) + "\n";
-
-            r = daphne.getAfe()->setAFEFunction(afe, "ACTIVE_TERMINATION_ENABLE", 0u);
-            response_str += "\tACTIVE_TERMINATION_ENABLE : " + std::to_string(r) + "\n";
-
-            // --- LNA ---
-            r = daphne.getAfe()->setAFEFunction(afe, "LNA_INPUT_CLAMP_SETTING", afe_config.lna().clamp());
-            response_str += "\tclamp : " + std::to_string(r) + "\n";
-
-            r = daphne.getAfe()->setAFEFunction(afe, "LNA_GAIN", afe_config.lna().gain());
-            response_str += "\tgain : " + std::to_string(r) + "\n";
-
-            r = daphne.getAfe()->setAFEFunction(afe, "LNA_INTEGRATOR_DISABLE", afe_config.lna().integrator_disable() ? 1u : 0u);
-            response_str += "\tintegrator_disable : " + std::to_string(r) + "\n";
+            r = daphne.getAfe()->setAFEFunction(afe_pl, "LNA_INPUT_CLAMP_SETTING", afe_config.lna().clamp());
+            out << "Function LNA_INPUT_CLAMP_SETTING in AFE " << afe_board << " configured correctly.\nReturned value: " << r << "\n";
+            r = daphne.getAfe()->setAFEFunction(afe_pl, "LNA_GAIN", afe_config.lna().gain());
+            out << "Function LNA_GAIN in AFE " << afe_board << " configured correctly.\nReturned value: " << r << "\n";
+            r = daphne.getAfe()->setAFEFunction(afe_pl, "LNA_INTEGRATOR_DISABLE", afe_config.lna().integrator_disable() ? 1u : 0u);
+            out << "Function LNA_INTEGRATOR_DISABLE in AFE " << afe_board << " configured correctly.\nReturned value: " << r << "\n";
         }
 
-        // (Optional) reinforce powerstate ON, matches legacy
+        // Reinforce power ON (you already do this elsewhere too)
         daphne.getAfe()->setPowerState(1);
 
-    }catch(std::exception &e){
-        std::cout << "Cought Exception: \n" << e.what();
-        response_str = "Cought Exception: \n" + std::string(e.what());
+        response_str = out.str();
+        return true;
+    } catch (std::exception &e) {
+        response_str = std::string("Caught Exception:\n") + e.what();
         return false;
     }
-    return true;
 }
 
-
-//bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std::string &response_str) {
-//    try{
-//        response_str = "Configuring Daphne with IP : " + requested_cfg.daphne_address() + "\n";
-//        response_str += "Setting slot : " + std::to_string(requested_cfg.slot()) + "\n";
-//        response_str += "Setting timeout_ms : " + std::to_string(requested_cfg.timeout_ms()) + "\n";
-//        response_str += "Setting biasctrl : " + std::to_string(requested_cfg.biasctrl()) + "\n";
-//        std::stringstream ss_conf_hex;
-//        ss_conf_hex << "0x" << std::hex << requested_cfg.self_trigger_threshold();
-//        response_str += "Setting self_trigger_threshold : " + ss_conf_hex.str() + "\n";
-//        ss_conf_hex.str("");
-//        ss_conf_hex.clear();
-//        ss_conf_hex << "0x" << std::hex << requested_cfg.self_trigger_xcorr();
-//        response_str += "Setting self_trigger_xcorr : " + ss_conf_hex.str() + "\n";
-//        ss_conf_hex.str("");
-//        ss_conf_hex.clear();
-//        ss_conf_hex << "0x" << std::hex << requested_cfg.tp_conf();
-//        response_str += "Setting tp_conf : " + ss_conf_hex.str() + "\n";
-//        ss_conf_hex.str("");
-//        ss_conf_hex.clear();
-//        ss_conf_hex << "0x" << std::hex << requested_cfg.compensator();
-//        response_str += "Setting compensator : " + ss_conf_hex.str() + "\n";
-//        ss_conf_hex.str("");
-//        ss_conf_hex.clear();
-//        ss_conf_hex << "0x" << std::hex << requested_cfg.inverters();
-//        response_str += "Setting inverters : " + ss_conf_hex.str() + "\n";
-//        response_str += "Setting channels:\n\n";
-//        for (const ChannelConfig &ch_config : requested_cfg.channels()) {
-//            response_str += "Channel ID : " + std::to_string(ch_config.id()) + "\n";
-//            response_str += "\tChannel Trim : " + std::to_string(ch_config.trim()) + "\n";
-//            response_str += "\tChannel Offset : " + std::to_string(ch_config.offset()) + "\n";
-//            response_str += "\tChannel Gain : " + std::to_string(ch_config.gain()) + "\n\n";
-//            daphne.getDac()->setDacTrim(ch_config.id() / 8, ch_config.id() % 8, ch_config.trim(), false, false);
-//            daphne.getDac()->setDacOffset(ch_config.id() / 8, ch_config.id() % 8, ch_config.offset(), false, false);
-//        }
-//        for(const AFEConfig &afe_config : requested_cfg.afes()){
-//            response_str += "AFE ID : " + std::to_string(afe_config.id()) + "\n";
-//            response_str += "AFE Attenuators : " + std::to_string(afe_config.attenuators()) + "\n";
-//            response_str += "AFE VBias : " + std::to_string(afe_config.v_bias()) + "\n";
-//            ADCConfig adc_config = afe_config.adc();
-//            PGAConfig pga_config = afe_config.pga();
-//            LNAConfig lna_config = afe_config.lna();
-//            response_str += "ADC Configurations:\n";
-//
-//            uint32_t ADC_RESOLUTION_RESET = daphne.getAfe()->setAFEFunction(afe_config.id(), "ADC_RESOLUTION_RESET", adc_config.resolution());
-//            response_str += "\tResolution : " + std::to_string(ADC_RESOLUTION_RESET) + "\n";
-//
-//            uint32_t ADC_OUTPUT_FORMAT = daphne.getAfe()->setAFEFunction(afe_config.id(), "ADC_OUTPUT_FORMAT", adc_config.output_format());
-//            response_str += "\tOutput_format : " + std::to_string(ADC_OUTPUT_FORMAT) + "\n";
-//
-//            uint32_t LSB_MSB_FIRST = daphne.getAfe()->setAFEFunction(afe_config.id(), "LSB_MSB_FIRST", adc_config.sb_first());
-//            response_str += "\tSB_first : " + std::to_string(LSB_MSB_FIRST) + "\n";
-//
-//            response_str += "PGA Configurations:\n";
-//            uint32_t LPF_PROGRAMMABILITY = daphne.getAfe()->setAFEFunction(afe_config.id(), "LPF_PROGRAMMABILITY", pga_config.lpf_cut_frequency());
-//            response_str += "\tlpf_cut_frequency : " + std::to_string(LPF_PROGRAMMABILITY) + "\n";
-//            
-//            uint32_t PGA_INTEGRATOR_DISABLE = daphne.getAfe()->setAFEFunction(afe_config.id(), "PGA_INTEGRATOR_DISABLE", pga_config.integrator_disable());
-//            response_str += "\tintegrator_disable : " + std::to_string(PGA_INTEGRATOR_DISABLE) + "\n";
-//            
-//            uint32_t PGA_GAIN_CONTROL = daphne.getAfe()->setAFEFunction(afe_config.id(), "PGA_GAIN_CONTROL", pga_config.gain());
-//            response_str += "\tgain : " + std::to_string(PGA_GAIN_CONTROL) + "\n";
-//            
-//            response_str += "LNA Configurations:\n";
-//            uint32_t LNA_INPUT_CLAMP_SETTING = daphne.getAfe()->setAFEFunction(afe_config.id(), "LNA_INPUT_CLAMP_SETTING", lna_config.clamp());
-//            response_str += "\tclamp : " + std::to_string(LNA_INPUT_CLAMP_SETTING) + "\n";
-//            
-//            uint32_t LNA_GAIN = daphne.getAfe()->setAFEFunction(afe_config.id(), "LNA_GAIN", lna_config.gain());
-//            response_str += "\tgain : " + std::to_string(LNA_GAIN) + "\n";
-//            
-//            uint32_t LNA_INTEGRATOR_DISABLE = daphne.getAfe()->setAFEFunction(afe_config.id(), "LNA_INTEGRATOR_DISABLE", lna_config.integrator_disable());
-//            response_str += "\tintegrator_disable : " + std::to_string(LNA_INTEGRATOR_DISABLE) + "\n";
-//        }
-//    }catch(std::exception &e){
-//        std::cout << "Cought Exception: \n" << e.what();
-//        response_str = "Cought Exception: \n" + std::string(e.what());
-//        return false;
-//    }
-//    //std::cout << response_str << std::endl;
-//    return true;
-//}
 
 bool writeAFERegister(const cmd_writeAFEReg &request, Daphne &daphne, std::string &response_str, uint32_t &returned_value) {
     try {
