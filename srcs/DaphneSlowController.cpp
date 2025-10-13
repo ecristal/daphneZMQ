@@ -123,7 +123,10 @@ static std::unordered_map<daphne::MessageTypeV2, V2Handler> g_v2_handlers;
 // ---------- V2 helpers (CONFIGURE_FE only) ----------
 static inline uint64_t now_ns() {
   using namespace std::chrono;
-  return duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
+  return duration_cast<std::chrono::nanoseconds>(
+           std::chrono::steady_clock::now().time_since_epoch()
+         ).count();
+
 }
 
 static inline bool parse_v2(const void* data, int size, daphne::ControlEnvelopeV2& out) {
@@ -671,115 +674,11 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse 
 // this function handles the unique dumpSpybuffer in chunk mode,
 // i.e. a pipelined approach to send waveforms in chunks to avoid
 // memory issues when sending large number of waveforms
-static void dumpSpyBufferChunk(const DumpSpyBuffersChunkRequest &request, Daphne &daphne, zmq::socket_t &router, const zmq::message_t &client_id){
-
-    const auto &channelList = request.channellist();
-    uint32_t numberOfSamples = request.numberofsamples();
-    uint32_t numberOfWaveforms = request.numberofwaveforms();
-    bool softwareTrigger = request.softwaretrigger();
-    std::string requestId = request.requestid();
-    uint32_t chunkSize = request.chunksize();
-
-    if (channelList.empty()) {
-        throw std::invalid_argument("Channel list is empty.");
-    }
-    if (numberOfSamples <= 0 || numberOfSamples > 2048) {
-        throw std::invalid_argument("Number of samples must be greater than zero and no greater than 2048.");
-    }
-    if(numberOfWaveforms == 0) {
-        throw std::invalid_argument("Number of waveforms must be greater than zero");
-    }
-    if(chunkSize == 0 || chunkSize > 1024) {
-        throw std::invalid_argument("Chunk size must be greater than zero and no greater than 1024.");
-    }
-    for(int i=0; i<channelList.size(); ++i){
-        if(channelList[i] > 39) throw std::invalid_argument("The channel value " + std::to_string(channelList[i]) + " is out of range. Range 0-39");
-    }
-
-    std::vector<uint32_t> mappedChannels;
-    for (const auto& channel : channelList) {
-        uint32_t afeBlock = afe_definitions::AFE_board2PL_map.at(channel / 8);
-        uint32_t afe_channel = channel % 8;
-        mappedChannels.push_back(afeBlock * 8 + afe_channel); // Map to PL channel index
-    }
-        
-    struct ChunkPacket {
-        uint32_t chunk_seq;
-        uint32_t wf_start;
-        uint32_t wf_count;
-        std::vector<uint32_t> data;
-    };
-    BoundedQueue<ChunkPacket> queue(2);
-    std::atomic<bool> had_error(false);
-    
-    auto* spyBuffer = daphne.getSpyBuffer();
-    auto* frontEnd = daphne.getFrontEnd();
-
-    std::thread producer([&]{
-        try{
-            uint32_t seq = 0;
-            for (uint32_t wf_start = 0; wf_start < numberOfWaveforms; wf_start += chunkSize) {
-                uint32_t wf_count = std::min(chunkSize, numberOfWaveforms - wf_start); // how many waveforms to process in this chunk. 
-                                                                                       // If wf_start + chunkSize exceeds numberOfWaveforms, 
-                                                                                       // it will take the remaining waveforms.
-                ChunkPacket packet;
-                packet.chunk_seq = seq++;
-                packet.wf_start = wf_start;
-                packet.wf_count = wf_count;
-                packet.data.resize(wf_count * numberOfSamples * mappedChannels.size(), 0);
-                //std::cout << "Processing chunk " << packet.chunk_seq 
-                //          << " with waveform start " << packet.wf_start 
-                //          << " and count " << packet.wf_count
-                //          << ". Processed: " << packet.wf_start + packet.wf_count << std::endl;
-
-                for (uint32_t i = 0; i < wf_count; ++i) {
-                    if (softwareTrigger) frontEnd->doTrigger();
-                    for (size_t j = 0; j < mappedChannels.size(); ++j) {
-                        uint32_t channel = mappedChannels[j];
-                        uint32_t* waveform_start = packet.data.data() + (i * mappedChannels.size() + j) * numberOfSamples;
-                        spyBuffer->extractMappedDataBulkSIMD(waveform_start, numberOfSamples, channel);
-                    }
-                }
-                queue.push(std::move(packet));
-            }
-        }catch(const std::exception &e) {
-            had_error = true;
-        }
-        queue.close(); // Signal that no more packets will be produced
-    });
-    // Now, the consumer than pops the queue and sends the packets
-    ChunkPacket pack;
-    while (queue.pop(pack)) { // the while loop will continue until the queue is closed and empty
-        DumpSpyBuffersChunkResponse resp;
-        resp.set_success(!had_error);
-        resp.set_requestid(requestId);
-        resp.set_chunkseq(pack.chunk_seq);
-        resp.set_isfinal((pack.wf_start + pack.wf_count) >= numberOfWaveforms);
-        resp.set_waveformstart(pack.wf_start);
-        resp.set_waveformcount(pack.wf_count);
-        resp.set_requesttotalwaveforms(numberOfWaveforms);
-        resp.set_numberofsamples(numberOfSamples);
-        auto *out_chl = resp.mutable_channellist();
-        out_chl->Clear();
-        out_chl->Reserve(channelList.size());
-        for (auto ch : channelList){
-            out_chl->Add(ch);
-        }
-        auto *out_data = resp.mutable_data();
-        out_data->Add(pack.data.data(), pack.data.data() + pack.data.size());
-
-        send_enveloped_over_router(router, client_id, resp, DUMP_SPYBUFFER_CHUNK);
-    }
-
-    if (producer.joinable()) producer.join();
-}
-
-// ==== V2 chunked sender: same logic as dumpSpyBufferChunk, but sends EnvelopeV2 ====
-static void dumpSpyBufferChunkV2(const daphne::DumpSpyBuffersChunkRequest &request,
-                                 const daphne::ControlEnvelopeV2 &v2req,
-                                 Daphne &daphne,
-                                 zmq::socket_t &router,
-                                 const zmq::message_t &client_id)
+// ---- unified spybuffer chunk producer/consumer ----
+static void for_each_spybuffer_chunk(
+    const daphne::DumpSpyBuffersChunkRequest &request,
+    Daphne &daphne,
+    const std::function<void(const daphne::DumpSpyBuffersChunkResponse&)>& on_chunk)
 {
     using namespace daphne;
 
@@ -790,16 +689,15 @@ static void dumpSpyBufferChunkV2(const daphne::DumpSpyBuffersChunkRequest &reque
     std::string requestId      = request.requestid();
     uint32_t chunkSize         = request.chunksize();
 
-    if (channelList.empty())                         throw std::invalid_argument("Channel list is empty.");
-    if (numberOfSamples == 0 || numberOfSamples > 2048)  throw std::invalid_argument("Invalid numberOfSamples");
-    if (numberOfWaveforms == 0)                      throw std::invalid_argument("Invalid numberOfWaveforms");
-    if (chunkSize == 0 || chunkSize > 1024)          throw std::invalid_argument("Invalid chunkSize");
+    if (channelList.empty())                           throw std::invalid_argument("Channel list is empty.");
+    if (numberOfSamples == 0 || numberOfSamples > 2048) throw std::invalid_argument("Invalid numberOfSamples");
+    if (numberOfWaveforms == 0)                        throw std::invalid_argument("Invalid numberOfWaveforms");
+    if (chunkSize == 0 || chunkSize > 1024)            throw std::invalid_argument("Invalid chunkSize");
 
-    for (int i=0; i<channelList.size(); ++i) {
+    for (int i=0; i<channelList.size(); ++i)
         if (channelList[i] > 39) throw std::invalid_argument("Channel out of range (0..39)");
-    }
 
-    // Map requested channels to PL indices (same as legacy)
+    // Map requested channels to PL indices
     std::vector<uint32_t> mappedChannels;
     mappedChannels.reserve(channelList.size());
     for (auto ch : channelList) {
@@ -821,13 +719,12 @@ static void dumpSpyBufferChunkV2(const daphne::DumpSpyBuffersChunkRequest &reque
     auto* spyBuffer = daphne.getSpyBuffer();
     auto* frontEnd  = daphne.getFrontEnd();
 
-    // Producer: fills packets
+    // Producer
     std::thread producer([&]{
         try {
             uint32_t seq = 0;
             for (uint32_t wf_start = 0; wf_start < numberOfWaveforms; wf_start += chunkSize) {
                 uint32_t wf_count = std::min(chunkSize, numberOfWaveforms - wf_start);
-
                 ChunkPacket p;
                 p.seq      = seq++;
                 p.wf_start = wf_start;
@@ -850,7 +747,7 @@ static void dumpSpyBufferChunkV2(const daphne::DumpSpyBuffersChunkRequest &reque
         queue.close();
     });
 
-    // Consumer: pops and sends each chunk wrapped in EnvelopeV2
+    // Consumer -> convert to proto and call on_chunk
     ChunkPacket pack;
     while (queue.pop(pack)) {
         DumpSpyBuffersChunkResponse resp;
@@ -864,23 +761,39 @@ static void dumpSpyBufferChunkV2(const daphne::DumpSpyBuffersChunkRequest &reque
         resp.set_numberofsamples(numberOfSamples);
 
         auto *out_chl = resp.mutable_channellist();
-        out_chl->Clear();
-        out_chl->Reserve(channelList.size());
+        out_chl->Clear(); out_chl->Reserve(channelList.size());
         for (auto ch : channelList) out_chl->Add(ch);
 
         auto *out_data = resp.mutable_data();
         out_data->Add(pack.data.data(), pack.data.data() + pack.data.size());
 
-        // Wrap this chunk as a V2 response
-        std::string pay; resp.SerializeToString(&pay);
-        auto v2out = mezz::make_v2_resp(v2req, MT2_DUMP_SPYBUFFER_CHUNK_RESP, pay);
-
-        std::string bytes; v2out.SerializeToString(&bytes);
-        router.send(zmq::buffer(client_id.data(), client_id.size()), zmq::send_flags::sndmore);
-        router.send(zmq::buffer(bytes), zmq::send_flags::none);
+        on_chunk(resp);
     }
 
     if (producer.joinable()) producer.join();
+}
+static void dumpSpyBufferChunk(const DumpSpyBuffersChunkRequest &request, Daphne &daphne, zmq::socket_t &router, const zmq::message_t &client_id){
+for_each_spybuffer_chunk(request, daphne, [&](const daphne::DumpSpyBuffersChunkResponse& resp){
+        send_enveloped_over_router(router, client_id, resp, daphne::DUMP_SPYBUFFER_CHUNK);
+    });
+    return;
+}
+
+// ==== V2 chunked sender: same logic as dumpSpyBufferChunk, but sends EnvelopeV2 ====
+static void dumpSpyBufferChunkV2(const daphne::DumpSpyBuffersChunkRequest &request,
+                                 const daphne::ControlEnvelopeV2 &v2req,
+                                 Daphne &daphne,
+                                 zmq::socket_t &router,
+                                 const zmq::message_t &client_id)
+{
+for_each_spybuffer_chunk(request, daphne, [&](const daphne::DumpSpyBuffersChunkResponse& resp){
+        std::string pay; resp.SerializeToString(&pay);
+        auto v2out = mezz::make_v2_resp(v2req, daphne::MT2_DUMP_SPYBUFFER_CHUNK_RESP, pay);
+        std::string bytes; v2out.SerializeToString(&bytes);
+        router.send(zmq::buffer(client_id.data(), client_id.size()), zmq::send_flags::sndmore);
+        router.send(zmq::buffer(bytes), zmq::send_flags::none);
+    });
+    return;
 }
 
 
