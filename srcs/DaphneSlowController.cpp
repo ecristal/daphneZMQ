@@ -53,6 +53,38 @@ using namespace daphne;
 #include "protobuf/daphneV3_high_level_confs.pb.h"
 #include "protobuf/daphneV3_low_level_confs.pb.h"
 
+
+// ---------- V2 helpers (CONFIGURE_FE only) ----------
+static inline uint64_t now_ns() {
+  using namespace std::chrono;
+  return duration_cast<nanoseconds>(steady_clock::now().time_since_epoch()).count();
+}
+
+static inline bool parse_v2(const void* data, int size, daphne::ControlEnvelopeV2& out) {
+  return out.ParseFromArray(data, size);
+}
+
+static inline daphne::ControlEnvelopeV2 make_v2_response_for_configure(
+    const daphne::ControlEnvelopeV2& req_env,
+    const daphne::ConfigureResponse& resp_msg)
+{
+  daphne::ControlEnvelopeV2 out;
+  out.set_version(2);
+  out.set_dir(daphne::DIR_RESPONSE);
+  out.set_type(daphne::MT2_CONFIGURE_FE_RESP);
+  out.set_task_id(req_env.task_id());
+  out.set_correl_id(req_env.msg_id());
+  out.set_msg_id(req_env.msg_id() + 1);
+  out.set_timestamp_ns(now_ns());
+
+  std::string payload;
+  resp_msg.SerializeToString(&payload);
+  out.set_payload(std::move(payload));
+  return out;
+}
+
+
+
 template <typename payloadMsg> void fill_zmq_message(payloadMsg& payload_message, MessageType message_type, ControlEnvelope& response_envelope, zmq::message_t& zmq_response){
     std::string payload;
     payload.resize(payload_message.ByteSizeLong());
@@ -1216,7 +1248,54 @@ static void server_loop_router(zmq::context_t &ctx, const std::string &bind_endp
 
         zmq::message_t &id = frames[0];
         
-        zmq::message_t &payload = frames.back();
+	zmq::message_t &payload = frames.back();
+	// ----- V2 path ONLY for CONFIGURE_FE -----
+	daphne::ControlEnvelopeV2 v2_env;
+	if (parse_v2(payload.data(), static_cast<int>(payload.size()), v2_env)) {
+	// Accept only CONFIGURE_FE on V2 (others fall through to legacy)
+	if (v2_env.dir() == daphne::DIR_REQUEST &&
+	    v2_env.type() == daphne::MT2_CONFIGURE_FE_REQ)
+	{
+	    // 1) parse the typed payload: ConfigureRequest
+	    daphne::ConfigureRequest cfg_req;
+	    daphne::ConfigureResponse cfg_resp;
+	    bool ok_parse = cfg_req.ParseFromString(v2_env.payload());
+
+	    if (!ok_parse) {
+		cfg_resp.set_success(false);
+		cfg_resp.set_message("Bad ConfigureRequest payload (V2).");
+	    } else {
+		// 2) run your existing business logic
+		std::string msg;
+		bool ok = configureDaphne(cfg_req, daphne, msg);
+
+		// optional: align after configure like you do in legacy
+		if (ok) {
+		    daphne::cmd_alignAFEs a_req;
+		    daphne::cmd_alignAFEs_response a_resp;
+		    std::string align_msg;
+		    bool ok_align = alignAFE(a_req, a_resp, daphne, align_msg);
+		    msg += std::string("\n\n[ALIGN_AFE]\n") + align_msg;
+		    ok = ok && ok_align;
+		}
+		cfg_resp.set_success(ok);
+		cfg_resp.set_message(msg);
+	    }
+
+	    // 3) wrap typed response back into V2 envelope
+	    daphne::ControlEnvelopeV2 v2_reply = make_v2_response_for_configure(v2_env, cfg_resp);
+
+	    std::string bytes;
+	    v2_reply.SerializeToString(&bytes);
+
+	    // ROUTER reply: [id][payload]
+	    router.send(zmq::buffer(id.data(), id.size()), zmq::send_flags::sndmore);
+	    router.send(zmq::buffer(bytes), zmq::send_flags::none);
+	    continue; // IMPORTANT: skip legacy path
+	}
+	// Any other V2 message → fall through to legacy handling (unchanged)
+	}
+
 
         ControlEnvelope req_env;
         if (!req_env.ParseFromArray(payload.data(), static_cast<int>(payload.size()))) {

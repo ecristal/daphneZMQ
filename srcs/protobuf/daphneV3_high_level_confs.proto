@@ -185,6 +185,82 @@ enum MessageType {
   DUMP_SPYBUFFER_CHUNK    = 100;
 }
 
+// ======================= Transport V2 (additive) ==========================
+// New transport is self-contained and doesn't disturb existing codes.
+
+enum Direction {
+  DIR_REQUEST  = 0;
+  DIR_RESPONSE = 1;
+  DIR_EVENT    = 2; // for async notifications
+}
+
+// Requests are EVEN, responses are ODD = (request + 1)
+// Start at a high range to avoid collisions with legacy MessageType.
+enum MessageTypeV2 {
+  MT2_UNSPECIFIED                    = 0;   // <-- required first entry
+  
+  // High-level
+  MT2_CONFIGURE_CLKS_REQ             = 200;
+  MT2_CONFIGURE_CLKS_RESP            = 201;
+  MT2_CONFIGURE_FE_REQ               = 202;
+  MT2_CONFIGURE_FE_RESP              = 203;
+
+  // Low-level writes/reads (mirrors of your cmd_* in daphne_control_low.proto)
+  MT2_WRITE_AFE_REG_REQ              = 204; MT2_WRITE_AFE_REG_RESP              = 205;
+  MT2_WRITE_AFE_VGAIN_REQ            = 206; MT2_WRITE_AFE_VGAIN_RESP            = 207;
+  MT2_WRITE_AFE_BIAS_SET_REQ         = 208; MT2_WRITE_AFE_BIAS_SET_RESP         = 209;
+  MT2_WRITE_TRIM_ALL_CH_REQ          = 210; MT2_WRITE_TRIM_ALL_CH_RESP          = 211;
+  MT2_WRITE_TRIM_ALL_AFE_REQ         = 212; MT2_WRITE_TRIM_ALL_AFE_RESP         = 213;
+  MT2_WRITE_TRIM_CH_REQ              = 214; MT2_WRITE_TRIM_CH_RESP              = 215;
+  MT2_WRITE_OFFSET_ALL_CH_REQ        = 216; MT2_WRITE_OFFSET_ALL_CH_RESP        = 217;
+  MT2_WRITE_OFFSET_ALL_AFE_REQ       = 218; MT2_WRITE_OFFSET_ALL_AFE_RESP       = 219;
+  MT2_WRITE_OFFSET_CH_REQ            = 220; MT2_WRITE_OFFSET_CH_RESP            = 221;
+  MT2_WRITE_VBIAS_CONTROL_REQ        = 222; MT2_WRITE_VBIAS_CONTROL_RESP        = 223;
+  MT2_READ_AFE_REG_REQ               = 224; MT2_READ_AFE_REG_RESP               = 225;
+  MT2_READ_AFE_VGAIN_REQ             = 226; MT2_READ_AFE_VGAIN_RESP             = 227;
+  MT2_READ_AFE_BIAS_SET_REQ          = 228; MT2_READ_AFE_BIAS_SET_RESP          = 229;
+  MT2_READ_TRIM_ALL_CH_REQ           = 230; MT2_READ_TRIM_ALL_CH_RESP           = 231;
+  MT2_READ_TRIM_ALL_AFE_REQ          = 232; MT2_READ_TRIM_ALL_AFE_RESP          = 233;
+  MT2_READ_TRIM_CH_REQ               = 234; MT2_READ_TRIM_CH_RESP               = 235;
+  MT2_READ_OFFSET_ALL_CH_REQ         = 236; MT2_READ_OFFSET_ALL_CH_RESP         = 237;
+  MT2_READ_OFFSET_ALL_AFE_REQ        = 238; MT2_READ_OFFSET_ALL_AFE_RESP        = 239;
+  MT2_READ_OFFSET_CH_REQ             = 240; MT2_READ_OFFSET_CH_RESP             = 241;
+  MT2_READ_VBIAS_CONTROL_REQ         = 242; MT2_READ_VBIAS_CONTROL_RESP         = 243;
+  MT2_READ_CURRENT_MONITOR_REQ       = 244; MT2_READ_CURRENT_MONITOR_RESP       = 245;
+  MT2_READ_BIAS_VOLTAGE_MONITOR_REQ  = 246; MT2_READ_BIAS_VOLTAGE_MONITOR_RESP  = 247;
+  MT2_SET_AFE_RESET_REQ              = 248; MT2_SET_AFE_RESET_RESP              = 249;
+  MT2_DO_AFE_RESET_REQ               = 250; MT2_DO_AFE_RESET_RESP               = 251;
+  MT2_SET_AFE_POWERSTATE_REQ         = 252; MT2_SET_AFE_POWERSTATE_RESP         = 253;
+
+  // V3 add-ons
+  MT2_WRITE_AFE_ATTENUATION_REQ      = 254; MT2_WRITE_AFE_ATTENUATION_RESP      = 255;
+  MT2_DUMP_SPYBUFFER_REQ             = 256; MT2_DUMP_SPYBUFFER_RESP             = 257;
+  MT2_ALIGN_AFE_REQ                  = 258; MT2_ALIGN_AFE_RESP                  = 259;
+  MT2_WRITE_AFE_FUNCTION_REQ         = 260; MT2_WRITE_AFE_FUNCTION_RESP         = 261;
+  MT2_DO_SOFTWARE_TRIGGER_REQ        = 262; MT2_DO_SOFTWARE_TRIGGER_RESP        = 263;
+
+  // Chunked dump (multi-message sequence keeps same task_id)
+  MT2_DUMP_SPYBUFFER_CHUNK_REQ       = 300; MT2_DUMP_SPYBUFFER_CHUNK_RESP       = 301;
+}
+
+message ControlEnvelopeV2 {
+  uint32         version       = 1; // set to 2
+  Direction      dir           = 2;
+  MessageTypeV2  type          = 3;
+  bytes          payload       = 4; // serialized cmd_* or Configure* message
+
+  // Correlation
+  uint64         task_id       = 10; // stable across a multi-step operation
+  uint64         msg_id        = 11; // unique per message from sender
+  uint64         correl_id     = 12; // response points to request's msg_id
+  string         route         = 13; // optional logical target, e.g. "mezz/0"
+
+  // Timing (optional, useful when debugging)
+  uint64         timestamp_ns  = 20;
+}
+
+
+
 message ControlEnvelope {
   MessageType type = 1;
   bytes       payload = 2;
