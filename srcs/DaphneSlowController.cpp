@@ -55,6 +55,61 @@ using namespace daphne;
 #include <functional>
 #include <unordered_map>
 #include "MezzCommon.hpp"
+// ---- extra V2 forward declarations (auto-inserted) ----
+namespace daphne {
+  struct cmd_writeOFFSET_singleChannel;        struct cmd_writeOFFSET_singleChannel_response;
+  struct cmd_writeAFEVGAIN;                    struct cmd_writeAFEVGAIN_response;
+  struct cmd_doAFEReset;                       struct cmd_doAFEReset_response;
+  struct cmd_setAFEPowerState;                 struct cmd_setAFEPowerState_response;
+}
+
+// Implemented below in this file:
+bool writeChannelOffset(const daphne::cmd_writeOFFSET_singleChannel &request,
+                        Daphne &daphne, std::string &response_str, uint32_t &returned_value);
+
+bool writeAFEVgain(const daphne::cmd_writeAFEVGAIN &request,
+                   Daphne &daphne, std::string &response_str, uint32_t &returned_value);
+
+bool doAFEReset(const daphne::cmd_doAFEReset &request,
+                daphne::cmd_doAFEReset_response &response,
+                Daphne &daphne, std::string &response_str);
+
+bool setAFEPowerState(const daphne::cmd_setAFEPowerState &request,
+                      daphne::cmd_setAFEPowerState_response &response,
+                      Daphne &daphne, std::string &response_str);
+
+// ---- V2 forward declarations (auto-inserted) ----
+namespace daphne {
+  struct ConfigureRequest;          struct ConfigureResponse;
+  struct DumpSpyBuffersRequest;     struct DumpSpyBuffersResponse;
+  struct DumpSpyBuffersChunkRequest;
+  struct cmd_alignAFEs;             struct cmd_alignAFEs_response;
+  struct cmd_writeAFEFunction;      struct cmd_writeAFEFunction_response;
+  class  ControlEnvelopeV2;
+}
+
+// Implemented below in this file:
+bool configureDaphne(const daphne::ConfigureRequest &requested_cfg,
+                     Daphne &daphne, std::string &response_str);
+
+bool alignAFE(const daphne::cmd_alignAFEs &request,
+              daphne::cmd_alignAFEs_response &response,
+              Daphne &daphne, std::string &response_str);
+
+bool writeAFEFunction(const daphne::cmd_writeAFEFunction &request,
+                      daphne::cmd_writeAFEFunction_response &response,
+                      Daphne &daphne, std::string &response_str);
+
+bool dumpSpybuffer(const daphne::DumpSpyBuffersRequest &request,
+                   daphne::DumpSpyBuffersResponse &response,
+                   Daphne &daphne, std::string &response_str);
+
+// V2 chunking helper (declared here; its body is below)
+static void dumpSpyBufferChunkV2(const daphne::DumpSpyBuffersChunkRequest &request,
+                                 const daphne::ControlEnvelopeV2 &v2req,
+                                 Daphne &daphne,
+                                 zmq::socket_t &router,
+                                 const zmq::message_t &client_id);
 
 
 // Signature each handler will implement:
@@ -142,6 +197,61 @@ static void init_v2_handlers() {
     };
 
   // TODO: add the rest in the same pattern:
+  // --- added: OFFSET(single channel) ---
+  g_v2_handlers[daphne::MT2_WRITE_OFFSET_CH_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_writeOFFSET_singleChannel req; daphne::cmd_writeOFFSET_singleChannel_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_writeOFFSET_singleChannel"; return false; }
+      std::string msg; uint32_t rb=0; bool ok = writeChannelOffset(req, d, msg, rb);
+      resp.set_success(ok); resp.set_message(msg);
+      resp.set_offsetchannel(req.offsetchannel()); resp.set_offsetvalue(rb); resp.set_offsetgain(req.offsetgain());
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+
+  // --- added: AFE VGAIN ---
+  g_v2_handlers[daphne::MT2_WRITE_AFE_VGAIN_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_writeAFEVGAIN req; daphne::cmd_writeAFEVGAIN_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_writeAFEVGAIN"; return false; }
+      std::string msg; uint32_t rb=0; bool ok = writeAFEVgain(req, d, msg, rb);
+      resp.set_success(ok); resp.set_message(msg); resp.set_afeblock(req.afeblock()); resp.set_vgainvalue(rb);
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+
+  // --- added: DO_AFE_RESET ---
+  g_v2_handlers[daphne::MT2_DO_AFE_RESET_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_doAFEReset req; daphne::cmd_doAFEReset_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_doAFEReset"; return false; }
+      std::string msg; bool ok = doAFEReset(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+
+  // --- added: SET_AFE_POWERSTATE ---
+  g_v2_handlers[daphne::MT2_SET_AFE_POWERSTATE_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_setAFEPowerState req; daphne::cmd_setAFEPowerState_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_setAFEPowerState"; return false; }
+      std::string msg; bool ok = setAFEPowerState(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+
+  // --- added: ALIGN_AFE (for -align_afes flag in your client) ---
+  g_v2_handlers[daphne::MT2_ALIGN_AFE_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_alignAFEs req; daphne::cmd_alignAFEs_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_alignAFEs"; return false; }
+      std::string msg; bool ok = alignAFE(req, resp, d, msg);
+      // keep message in resp.message() consistent with your other paths
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
   //  - MT2_WRITE_AFE_REG_REQ           -> writeAFERegister
   //  - MT2_WRITE_AFE_VGAIN_REQ         -> writeAFEVgain
   //  - MT2_WRITE_AFE_BIAS_SET_REQ      -> writeAFEBiasVoltage
