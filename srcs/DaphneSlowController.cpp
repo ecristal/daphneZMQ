@@ -55,6 +55,100 @@ using namespace daphne;
 #include <functional>
 #include <unordered_map>
 #include "MezzCommon.hpp"
+// --- Timing / Endpoint helpers ---------------------------------------------
+#include "reg.hpp"
+#include "FpgaRegDict.hpp"
+
+static std::string decode_clk_status(uint32_t v) {
+  bool mmcm0 = (v & (1u<<0)) != 0;
+  bool mmcm1 = (v & (1u<<1)) != 0;
+  std::ostringstream os;
+  os << "MMCM0:" << (mmcm0 ? "LOCKED" : "UNLOCKED")
+     << " MMCM1:" << (mmcm1 ? "LOCKED" : "UNLOCKED");
+  return os.str();
+}
+
+// Small RAII for mapped register access (we reuse your reg + FpgaRegDict)
+struct EpRegs {
+  FpgaRegDict dict;
+  reg r;
+  EpRegs() : dict(), r(/*BaseAddr*/0, /*MemLen*/0x200000, dict) {}
+};
+
+static bool set_clock_source_and_mmcm_reset(bool use_endpoint_clk,
+                                            bool pulse_mmcm1_reset,
+                                            std::string& msg,
+                                            int timeout_ms=500)
+{
+  EpRegs ep;
+  // CLOCK_SOURCE bit: 0=local, 1=endpoint
+  uint32_t clk_src = use_endpoint_clk ? 1u : 0u;
+
+  // Select clock source
+  ep.r.WriteBits("endpointClockControl", "CLOCK_SOURCE", clk_src);
+
+  // Optional MMCM1 reset pulse
+  if (pulse_mmcm1_reset) {
+    ep.r.WriteBits("endpointClockControl", "MMCM_RESET", 1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    ep.r.WriteBits("endpointClockControl", "MMCM_RESET", 0);
+  }
+
+  // Wait for locks (best-effort)
+  auto t0 = std::chrono::steady_clock::now();
+  while (true) {
+    uint32_t s = ep.r.ReadRegister("endpointClockStatus");
+    if ((s & 0x3u) == 0x3u) { // both bits 0..1 set
+      msg += "Clock status: " + decode_clk_status(s) + "\n";
+      return true;
+    }
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::steady_clock::now() - t0).count() > timeout_ms) {
+      msg += "Clock status (timeout): " + decode_clk_status(ep.r.ReadRegister("endpointClockStatus")) + "\n";
+      return false;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+  }
+}
+
+// Set endpoint 16-bit address and pulse EP reset
+static bool set_endpoint_addr_and_reset(uint16_t ep_addr,
+                                        bool pulse_ep_reset,
+                                        std::string& msg,
+                                        int timeout_ms=800)
+{
+  EpRegs ep;
+  // Program address
+  ep.r.WriteBits("endpointControl","ADDRESS", ep_addr);
+
+  if (pulse_ep_reset) {
+    ep.r.WriteBits("endpointControl","RESET", 1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    ep.r.WriteBits("endpointControl","RESET", 0);
+  }
+
+  // Wait for endpoint state READY (FSM_STATUS == 8) and TIMESTAMP_OK (bit4)
+  auto t0 = std::chrono::steady_clock::now();
+  while (true) {
+    uint32_t s = ep.r.ReadRegister("endpointStatus");
+    uint32_t fsm = (s & 0xF);
+    bool ts_ok = (s & (1u<<4)) != 0;
+    if (fsm == 8 && ts_ok) {
+      std::ostringstream os;
+      os << "Endpoint READY; status=0x" << std::hex << s;
+      msg += os.str() + "\n";
+      return true;
+    }
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::steady_clock::now() - t0).count() > timeout_ms) {
+      std::ostringstream os;
+      os << "Endpoint not ready (timeout); status=0x" << std::hex << s;
+      msg += os.str() + "\n";
+      return false;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
+}
 // ---- extra V2 forward declarations (auto-inserted) ----
 namespace daphne {
   struct cmd_writeOFFSET_singleChannel;        struct cmd_writeOFFSET_singleChannel_response;
@@ -248,12 +342,16 @@ static void init_v2_handlers() {
   // --- added: ALIGN_AFE (for -align_afes flag in your client) ---
   g_v2_handlers[daphne::MT2_ALIGN_AFE_REQ] =
     [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
-      daphne::cmd_alignAFEs req; daphne::cmd_alignAFEs_response resp;
+            daphne::cmd_alignAFEs req; daphne::cmd_alignAFEs_response resp;
       if (!req.ParseFromString(in)) { err="Bad cmd_alignAFEs"; return false; }
       std::string msg; bool ok = alignAFE(req, resp, d, msg);
-      // keep message in resp.message() consistent with your other paths
-      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      // ensure the textual report is in resp.message as well
+      resp.set_message(msg);
+      resp.set_success(ok);
+      out.resize(resp.ByteSizeLong());
+      resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
       return true;
+
     };
   //  - MT2_WRITE_AFE_REG_REQ           -> writeAFERegister
   //  - MT2_WRITE_AFE_VGAIN_REQ         -> writeAFEVgain
@@ -264,6 +362,25 @@ static void init_v2_handlers() {
   //  - MT2_ALIGN_AFE_REQ               -> alignAFE
   //  - MT2_SET_AFE_RESET_REQ / MT2_DO_AFE_RESET_REQ / MT2_SET_AFE_POWERSTATE_REQ
   //  - Read commands MT2_READ_*        -> your read helpers
+  // CONFIGURE_CLKS (V2)
+  g_v2_handlers[daphne::MT2_CONFIGURE_CLKS_REQ] =
+    [](const std::string& in, std::string& out, Daphne&, std::string& err)->bool {
+      daphne::ConfigureCLKsRequest req; daphne::ConfigureCLKsResponse resp;
+      if (!req.ParseFromString(in)) { err="Bad ConfigureCLKsRequest"; return false; }
+
+      std::string info;
+      bool ok_clk = set_clock_source_and_mmcm_reset(
+        req.ctrl_ep_clk(), req.reset_mmcm1(), info);
+      bool ok_ep = set_endpoint_addr_and_reset(
+        static_cast<uint16_t>(req.id()), req.reset_endpoint(), info);
+
+      resp.set_success(ok_clk && ok_ep);
+      resp.set_message(info);
+
+      out.resize(resp.ByteSizeLong());
+      resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
 }
 
 
@@ -913,20 +1030,28 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
     }
 
     switch(request_envelope.type()){
-        case CONFIGURE_CLKS: { // to be implemented
-            ConfigureCLKsRequest cmd_request;
-            ConfigureCLKsResponse cmd_response;
-            //std::cout << "The request is a ConfigureCLKsRequest" << std::endl;
-            if(cmd_request.ParseFromString(request_envelope.payload())){
-                cmd_response.set_success(true);
-                cmd_response.set_message("CLKs configured successfully");
-            }else{
-                cmd_response.set_success(false);
-                cmd_response.set_message("Payload not recognized");
-            }
-            fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
-            return;
-        }
+        case CONFIGURE_CLKS: {
+  ConfigureCLKsRequest cmd_request;
+  ConfigureCLKsResponse cmd_response;
+  if (cmd_request.ParseFromString(request_envelope.payload())) {
+    std::string info;
+
+    bool ok_clk = set_clock_source_and_mmcm_reset(
+        cmd_request.ctrl_ep_clk(), cmd_request.reset_mmcm1(), info);
+
+    bool ok_ep  = set_endpoint_addr_and_reset(
+        static_cast<uint16_t>(cmd_request.id()),
+        cmd_request.reset_endpoint(), info);
+
+    cmd_response.set_success(ok_clk && ok_ep);
+    cmd_response.set_message(info);
+  } else {
+    cmd_response.set_success(false);
+    cmd_response.set_message("Payload not recognized");
+  }
+  fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+  return;
+}
         case CONFIGURE_FE: {
             ConfigureRequest cmd_request;
             ConfigureResponse cmd_response;
