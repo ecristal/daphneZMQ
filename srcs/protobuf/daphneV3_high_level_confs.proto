@@ -1,224 +1,191 @@
 syntax = "proto3";
+package daphne;
 
-//service DaphneController {
-// rpc ConfigureCLKs(ConfigureCLKsRequest) returns (ConfigureCLKsResponse);
-//  rpc Configure(ConfigureRequest) returns (ConfigureResponse);
-//  rpc Scrap(ScrapRequest) returns (ScrapResponse);
-//  rpc DumpSpyBuffers(DumpSpyBuffersRequest) returns (DumpSpyBuffersResponse);
-//  rpc GetInfo(InfoRequest) returns (InfoResponse);
-//  rpc WriteRegister(WriteRegisterRequest) returns (WriteRegisterResponse);
-//}
+
+// ----------------- Clock / basic control -----------------
 
 message ConfigureCLKsRequest {
-  uint32 id = 1;
-  bool ctrl_ep_clk = 2;
-  bool reset_MMCM1 = 3;
-  bool reset_endpoint = 4; 
+  uint32 id           = 1;
+  bool   ctrl_ep_clk  = 2;
+  bool   reset_MMCM1  = 3;
+  bool   reset_endpoint = 4;
 }
-
 message ConfigureCLKsResponse {
-  bool success = 1;
+  bool   success = 1;
   string message = 2;
 }
+
+// ----------------- Configure FE -----------------
+
+message ChannelConfig  { uint32 id=1; uint32 trim=2; uint32 offset=3; uint32 gain=4; }
+
+// Note: using 'attenuators' (ZMQ naming) and keeping v_bias; DAQ had v_gain earlier.
+// v_gain belongs in PGA/LNA; for V3 we keep per-AFE 'attenuators'.
+message AFEConfig {
+  uint32   id           = 1;
+  uint32   attenuators  = 2;  // ZMQ name preserved
+  uint32   v_bias       = 3;
+  ADCConfig adc         = 4;
+  PGAConfig pga         = 5;
+  LNAConfig lna         = 6;
+}
+
+message ADCConfig      { bool resolution=1; bool output_format=2; bool sb_first=3; }
+message PGAConfig      { uint32 lpf_cut_frequency=1; bool integrator_disable=2; bool gain=3; }
+message LNAConfig      { uint32 clamp=1; uint32 gain=2; bool integrator_disable=3; }
 
 message ConfigureRequest {
-  string daphne_address = 1;
-  uint32 slot = 2;
-  uint32 timeout_ms = 3;
-  uint32 biasctrl = 4;
-  uint32 self_trigger_threshold = 5;
-  uint64 self_trigger_xcorr = 6;
-  uint64 tp_conf = 7;
-  uint64 compensator = 8;
-  uint64 inverters = 9;
+  string  daphne_address         = 1;
+  uint32  slot                   = 2;
+  uint32  timeout_ms             = 3;
+  uint32  biasctrl               = 4;
+
+  // Unify on uint64 to match daphnemodules and avoid narrowing on DAQ side.
+  uint64  self_trigger_threshold = 5;
+  uint64  self_trigger_xcorr     = 6;
+  uint64  tp_conf                = 7;
+  uint64  compensator            = 8;
+  uint64  inverters              = 9;
+
   repeated ChannelConfig channels = 10;
-  repeated AFEConfig afes = 11 ;
+  repeated AFEConfig     afes     = 11;
+
+  // Present in ZMQ; keep it so both sides can filter FS channels consistently
   repeated uint32 full_stream_channels = 12;
 }
+message ConfigureResponse { bool success = 1; string message = 2; }
 
-message ChannelConfig {
-  uint32 id = 1;
-  uint32 trim = 2;
-  uint32 offset = 3;
-  uint32 gain = 4; 
-}
+// ----------------- Scrap -----------------
 
-message AFEConfig {
-  uint32 id = 1;
-  uint32 attenuators = 2;
-  uint32 v_bias = 3;
-  ADCConfig adc = 4;
-  PGAConfig pga = 5;
-  LNAConfig lna = 6;
-}
+message ScrapRequest  {}
+message ScrapResponse { bool success = 1; string message = 2; }
 
-message ADCConfig {
-  bool resolution = 1;
-  bool output_format = 2;
-  bool SB_first = 3;
-}
-
-message PGAConfig {
-  uint32 lpf_cut_frequency = 1;
-  bool integrator_disable = 2;
-  bool gain = 3;
-}
-
-message LNAConfig {
-  uint32 clamp = 1;
-  uint32 gain = 2;
-  bool integrator_disable = 3;
-}
-
-message ConfigureResponse {
-  bool success = 1;
-  string message = 2;
-}
-
-
-message ScrapRequest {}
-
-message ScrapResponse {
-  bool success = 1;
-  string message = 2;
-}
-
+// ----------------- Spybuffer dump (ZMQ style) -----------------
 
 message DumpSpyBuffersRequest {
-  repeated uint32 channelList = 1;
-  uint32 numberOfSamples = 2;
-  uint32 numberOfWaveforms = 3;
-  bool softwareTrigger = 4;
+  repeated uint32 channelList       = 1;
+  uint32          numberOfSamples   = 2;
+  uint32          numberOfWaveforms = 3;
+  bool            softwareTrigger   = 4;
 }
-
 message DumpSpyBuffersResponse {
-  bool success = 1;
-  repeated uint32 channelList = 2;
-  uint32 numberOfSamples = 3;
-  uint32 numberOfWaveforms = 4;
-  bool softwareTrigger = 5;
-  repeated uint32 data = 6 [packed = true];
-  string message = 7;
+  bool            success           = 1;
+  repeated uint32 channelList       = 2;
+  uint32          numberOfSamples   = 3;
+  uint32          numberOfWaveforms = 4;
+  bool            softwareTrigger   = 5;
+  repeated uint32 data              = 6 [packed = true];
+  string          message           = 7;
 }
 
+// Chunked variant (for large transfers)
 message DumpSpyBuffersChunkRequest {
-  repeated uint32 channelList = 1;
-  uint32 numberOfSamples = 2;
-  uint32 numberOfWaveforms = 3;
-  bool softwareTrigger = 4;
-  string requestID = 5;
-  uint32 chunkSize = 6;
+  repeated uint32 channelList       = 1;
+  uint32          numberOfSamples   = 2;
+  uint32          numberOfWaveforms = 3;
+  bool            softwareTrigger   = 4;
+  string          requestID         = 5;
+  uint32          chunkSize         = 6;
 }
-
 message DumpSpyBuffersChunkResponse {
-  bool success = 1;
-  string requestID = 2;
-  uint32 chunkseq = 3;
-  bool isFinal = 4;
-  uint32 waveformStart = 5;
-  uint32 waveformCount = 6;
-  uint32 requestTotalWaveforms = 7;
-  uint32 numberOfSamples = 8;
-  repeated uint32 channelList = 9;
-  repeated uint32 data = 10;
-  string message = 11;
+  bool            success             = 1;
+  string          requestID           = 2;
+  uint32          chunkseq            = 3;
+  bool            isFinal             = 4;
+  uint32          waveformStart       = 5;
+  uint32          waveformCount       = 6;
+  uint32          requestTotalWaveforms = 7;
+  uint32          numberOfSamples     = 8;
+  repeated uint32 channelList         = 9;
+  repeated uint32 data                = 10;
+  string          message             = 11;
 }
 
-message InfoRequest {
-  uint32 level = 1; 
-}
+// ----------------- Info -----------------
 
-message InfoResponse {
-  StreamInfo stream_info = 1;
-  repeated ChannelInfo channels = 2;
-  GeneralInfo general_info = 3;
-}
-
+message InfoRequest { uint32 level = 1; }
 
 message StreamInfo {
-  uint64 total_packets = 1;
-  uint64 new_packets = 2;
+  uint64 total_packets         = 1;
+  uint64 new_packets           = 2;
   uint64 total_dropped_packets = 3;
-  uint64 new_dropped_packets = 4;
+  uint64 new_dropped_packets   = 4;
 }
-
 message ChannelInfo {
-  uint32 id = 1;
+  uint32 id             = 1;
   uint64 total_triggers = 2;
-  uint64 new_triggers = 3;
-  uint64 total_packets = 4;
-  uint64 new_packets = 5;
+  uint64 new_triggers   = 3;
+  uint64 total_packets  = 4;
+  uint64 new_packets    = 5;
 }
-
 message GeneralInfo {
-  double v_bias_0 = 1;
-  double v_bias_1 = 2;
-  double v_bias_2 = 3;
-  double v_bias_3 = 4;
-  double v_bias_4 = 5;
-  double power_minus5v = 6;
+  double v_bias_0       = 1;
+  double v_bias_1       = 2;
+  double v_bias_2       = 3;
+  double v_bias_3       = 4;
+  double v_bias_4       = 5;
+  double power_minus5v  = 6;
   double power_plus2p5v = 7;
-  double power_ce = 8;
-  double temperature = 9;
+  double power_ce       = 8;
+  double temperature    = 9;
+}
+message InfoResponse {
+  StreamInfo           stream_info  = 1;
+  repeated ChannelInfo channels     = 2;
+  GeneralInfo          general_info = 3;
 }
 
-message WriteMultipleRegisterRequest {
-  repeated WriteRegister writes = 1;
-}
+// ----------------- Multi-register writes -----------------
 
-message WriteRegister {
-  uint64 address = 1;
-  uint64 value = 2;
-}
+message WriteRegister { uint64 address = 1; uint64 value = 2; }
+message WriteMultipleRegisterRequest { repeated WriteRegister writes = 1; }
+message WriteRegisterResponse { bool success = 1; string message = 2; }
 
-message WriteRegisterResponse {
-  bool success = 1;
-  string message = 2;
-}
-
+// ----------------- Legacy envelope (ZMQ uses this today) -----------------
+// Keep as-is for now; we'll swap to the even/odd EnvelopeV2 later in the transport layer.
 enum MessageType {
-  UNKNOWN = 0;
-  CONFIGURE_CLKS = 1;
-  CONFIGURE_FE = 2;
-  //Legacy DAPHNE V2 commands
-  WRITE_AFE_REG = 3;
-  WRITE_AFE_VGAIN = 4;
-  WRITE_AFE_BIAS_SET = 5;
-  WRITE_TRIM_ALL_CH = 6;
-  WRITE_TRIM_ALL_AFE = 7;
-  WRITE_TRIM_CH = 8;
-  WRITE_OFFSET_ALL_CH = 9;
-  WRITE_OFFSET_ALL_AFE = 10;
-  WRITE_OFFSET_CH = 11;
-  WRITE_VBIAS_CONTROL = 12;
-  READ_AFE_REG = 13;
-  READ_AFE_VGAIN = 14;
-  READ_AFE_BIAS_SET = 15;
-  READ_TRIM_ALL_CH = 16;
-  READ_TRIM_ALL_AFE = 17;
-  READ_TRIM_CH = 18;
-  READ_OFFSET_ALL_CH = 19;
-  READ_OFFSET_ALL_AFE = 20;
-  READ_OFFSET_CH = 21;
-  READ_VBIAS_CONTROL = 22;
-  READ_CURRENT_MONITOR = 23;
+  UNKNOWN                 = 0;
+  CONFIGURE_CLKS          = 1;
+  CONFIGURE_FE            = 2;
+
+  // Legacy DAPHNE V2 commands
+  WRITE_AFE_REG           = 3;
+  WRITE_AFE_VGAIN         = 4;
+  WRITE_AFE_BIAS_SET      = 5;
+  WRITE_TRIM_ALL_CH       = 6;
+  WRITE_TRIM_ALL_AFE      = 7;
+  WRITE_TRIM_CH           = 8;
+  WRITE_OFFSET_ALL_CH     = 9;
+  WRITE_OFFSET_ALL_AFE    = 10;
+  WRITE_OFFSET_CH         = 11;
+  WRITE_VBIAS_CONTROL     = 12;
+  READ_AFE_REG            = 13;
+  READ_AFE_VGAIN          = 14;
+  READ_AFE_BIAS_SET       = 15;
+  READ_TRIM_ALL_CH        = 16;
+  READ_TRIM_ALL_AFE       = 17;
+  READ_TRIM_CH            = 18;
+  READ_OFFSET_ALL_CH      = 19;
+  READ_OFFSET_ALL_AFE     = 20;
+  READ_OFFSET_CH          = 21;
+  READ_VBIAS_CONTROL      = 22;
+  READ_CURRENT_MONITOR    = 23;
   READ_BIAS_VOLTAGE_MONITOR = 24;
-  SET_AFE_RESET = 25;
-  DO_AFE_RESET = 26;
-  SET_AFE_POWERSTATE = 27;
-  // DAPHNE V3 low-level commands
-  WRITE_AFE_ATTENUATION = 28;
-  DUMP_SPYBUFFER = 29;
-  ALIGN_AFE = 30;
-  WRITE_AFE_FUNCTION = 31;
-  DO_SOFTWARE_TRIGGER = 32;
+  SET_AFE_RESET           = 25;
+  DO_AFE_RESET            = 26;
+  SET_AFE_POWERSTATE      = 27;
+
+  // DAPHNE V3 low-level add-ons
+  WRITE_AFE_ATTENUATION   = 28;
+  DUMP_SPYBUFFER          = 29;
+  ALIGN_AFE               = 30;
+  WRITE_AFE_FUNCTION      = 31;
+  DO_SOFTWARE_TRIGGER     = 32;
 
   DUMP_SPYBUFFER_CHUNK    = 100;
 }
 
 message ControlEnvelope {
   MessageType type = 1;
-  bytes payload = 2;
+  bytes       payload = 2;
 }
-
-// TODO: Incluir valores de retorno en los mensajes de respuesta.
