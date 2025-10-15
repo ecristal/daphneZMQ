@@ -23,7 +23,7 @@ def make_default_config(
     tp_conf=0x0010DB35,
     compensator=0xFFFFFFFFFF,       # 48-bit in uint64
     inverters=0xFF00000000,         # 48-bit in uint64
-    per_ch_trim=1500,
+    per_ch_trim=0,
     per_ch_offset=2275,
 ):
     cfg = pb_high.ConfigureRequest()
@@ -52,10 +52,10 @@ def make_default_config(
         a.id          = afe
         a.attenuators = 1600
         a.v_bias      = 0
-        set_adc_fields(a.adc, resolution=True, output_format=True, sb_first=True)
+        set_adc_fields(a.adc, resolution=True, output_format=True, sb_first=False)
         a.pga.lpf_cut_frequency  = 4
         a.pga.integrator_disable = True
-        a.pga.gain              = 2
+        a.pga.gain              = 0
         a.lna.clamp               = 0
         a.lna.gain                = 2
         a.lna.integrator_disable  = True
