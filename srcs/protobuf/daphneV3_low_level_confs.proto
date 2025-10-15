@@ -316,6 +316,36 @@ message cmd_setAFEPowerState_response {
   uint32 powerState= 3; // keep uint32 to match prior DAQ code
 }
 
+// --- AFE alignment ---------------------------------------------------
+message cmd_alignAFEs {}
+message cmd_alignAFEs_response {
+  bool success = 1;
+  repeated uint32 delay   = 2;
+  repeated uint32 bitslip = 3;
+  string message = 4;
+}
+
+// --- AFE function write ----------------------------------------------
+message cmd_writeAFEFunction {
+  uint32 afeBlock    = 1;   // 0..4 (board index, your server maps to PL)
+  string function    = 2;   // e.g. "LPF_PROGRAMMABILITY"
+  uint32 configValue = 3;   // hardware code/value
+}
+message cmd_writeAFEFunction_response {
+  bool   success     = 1;
+  string message     = 2;
+  uint32 afeBlock    = 3;
+  string function    = 4;
+  uint32 configValue = 5;
+}
+
+// --- Software trigger -------------------------------------------------
+message cmd_doSoftwareTrigger {}
+message cmd_doSoftwareTrigger_response {
+  bool   success = 1;
+  string message = 2;
+}
+
 // Legacy DAQ status container kept for compatibility (unused by ZMQ client)
 message Status {
   bool  success = 1;
