@@ -52,6 +52,17 @@ using namespace daphne;
 #include "defines.hpp"
 #include "protobuf/daphneV3_high_level_confs.pb.h"
 #include "protobuf/daphneV3_low_level_confs.pb.h"
+#include <functional>
+#include <unordered_map>
+#include "MezzCommon.hpp"
+
+
+// Signature each handler will implement:
+//   bool handler(const bytes& in, std::string& out_payload, Daphne& daphne, std::string& err)
+using V2Handler = std::function<bool(const std::string&, std::string&, Daphne&, std::string&)>;
+
+static std::unordered_map<daphne::MessageTypeV2, V2Handler> g_v2_handlers;
+
 
 
 // ---------- V2 helpers (CONFIGURE_FE only) ----------
@@ -81,6 +92,65 @@ static inline daphne::ControlEnvelopeV2 make_v2_response_for_configure(
   resp_msg.SerializeToString(&payload);
   out.set_payload(std::move(payload));
   return out;
+}
+
+
+
+static void init_v2_handlers() {
+  using namespace daphne;
+
+  // CONFIGURE_FE
+  g_v2_handlers[MT2_CONFIGURE_FE_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err) -> bool {
+      ConfigureRequest req; ConfigureResponse resp;
+      if (!req.ParseFromString(in)) { err = "Bad ConfigureRequest"; return false; }
+      std::string msg; bool ok = configureDaphne(req, d, msg);
+      if (ok) {
+        cmd_alignAFEs a_req; cmd_alignAFEs_response a_resp; std::string align_msg;
+        bool ok_align = alignAFE(a_req, a_resp, d, align_msg);
+        msg += "\n\n[ALIGN_AFE]\n" + align_msg;
+        ok = ok && ok_align;
+      }
+      resp.set_success(ok); resp.set_message(std::move(msg));
+      out.resize(resp.ByteSizeLong());
+      resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+
+  // WRITE_AFE_FUNCTION (example low-level)
+  g_v2_handlers[MT2_WRITE_AFE_FUNCTION_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err) -> bool {
+      cmd_writeAFEFunction req; cmd_writeAFEFunction_response resp;
+      if (!req.ParseFromString(in)) { err = "Bad cmd_writeAFEFunction"; return false; }
+      std::string msg; bool ok = writeAFEFunction(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong());
+      resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+
+  // DUMP_SPYBUFFER (single-shot variant)
+  g_v2_handlers[MT2_DUMP_SPYBUFFER_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err) -> bool {
+      DumpSpyBuffersRequest req; DumpSpyBuffersResponse resp;
+      if (!req.ParseFromString(in)) { err = "Bad DumpSpyBuffersRequest"; return false; }
+      std::string msg; bool ok = dumpSpybuffer(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong());
+      resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+
+  // TODO: add the rest in the same pattern:
+  //  - MT2_WRITE_AFE_REG_REQ           -> writeAFERegister
+  //  - MT2_WRITE_AFE_VGAIN_REQ         -> writeAFEVgain
+  //  - MT2_WRITE_AFE_BIAS_SET_REQ      -> writeAFEBiasVoltage
+  //  - MT2_WRITE_TRIM_* / MT2_WRITE_OFFSET_* -> your trim/offset helpers
+  //  - MT2_WRITE_VBIAS_CONTROL_REQ     -> writeBiasVoltageControl
+  //  - MT2_WRITE_AFE_ATTENUATION_REQ   -> writeAFEAttenuation
+  //  - MT2_ALIGN_AFE_REQ               -> alignAFE
+  //  - MT2_SET_AFE_RESET_REQ / MT2_DO_AFE_RESET_REQ / MT2_SET_AFE_POWERSTATE_REQ
+  //  - Read commands MT2_READ_*        -> your read helpers
 }
 
 
@@ -593,6 +663,116 @@ static void dumpSpyBufferChunk(const DumpSpyBuffersChunkRequest &request, Daphne
 
     if (producer.joinable()) producer.join();
 }
+
+// ==== V2 chunked sender: same logic as dumpSpyBufferChunk, but sends EnvelopeV2 ====
+static void dumpSpyBufferChunkV2(const daphne::DumpSpyBuffersChunkRequest &request,
+                                 const daphne::ControlEnvelopeV2 &v2req,
+                                 Daphne &daphne,
+                                 zmq::socket_t &router,
+                                 const zmq::message_t &client_id)
+{
+    using namespace daphne;
+
+    const auto &channelList    = request.channellist();
+    uint32_t numberOfSamples   = request.numberofsamples();
+    uint32_t numberOfWaveforms = request.numberofwaveforms();
+    bool     softwareTrigger   = request.softwaretrigger();
+    std::string requestId      = request.requestid();
+    uint32_t chunkSize         = request.chunksize();
+
+    if (channelList.empty())                         throw std::invalid_argument("Channel list is empty.");
+    if (numberOfSamples == 0 || numberOfSamples > 2048)  throw std::invalid_argument("Invalid numberOfSamples");
+    if (numberOfWaveforms == 0)                      throw std::invalid_argument("Invalid numberOfWaveforms");
+    if (chunkSize == 0 || chunkSize > 1024)          throw std::invalid_argument("Invalid chunkSize");
+
+    for (int i=0; i<channelList.size(); ++i) {
+        if (channelList[i] > 39) throw std::invalid_argument("Channel out of range (0..39)");
+    }
+
+    // Map requested channels to PL indices (same as legacy)
+    std::vector<uint32_t> mappedChannels;
+    mappedChannels.reserve(channelList.size());
+    for (auto ch : channelList) {
+        uint32_t afeBlock  = afe_definitions::AFE_board2PL_map.at(ch / 8);
+        uint32_t afe_chan  = ch % 8;
+        mappedChannels.push_back(afeBlock * 8 + afe_chan);
+    }
+
+    struct ChunkPacket {
+        uint32_t seq;
+        uint32_t wf_start;
+        uint32_t wf_count;
+        std::vector<uint32_t> data;
+    };
+
+    BoundedQueue<ChunkPacket> queue(2);
+    std::atomic<bool> had_error(false);
+
+    auto* spyBuffer = daphne.getSpyBuffer();
+    auto* frontEnd  = daphne.getFrontEnd();
+
+    // Producer: fills packets
+    std::thread producer([&]{
+        try {
+            uint32_t seq = 0;
+            for (uint32_t wf_start = 0; wf_start < numberOfWaveforms; wf_start += chunkSize) {
+                uint32_t wf_count = std::min(chunkSize, numberOfWaveforms - wf_start);
+
+                ChunkPacket p;
+                p.seq      = seq++;
+                p.wf_start = wf_start;
+                p.wf_count = wf_count;
+                p.data.resize(wf_count * numberOfSamples * mappedChannels.size(), 0);
+
+                for (uint32_t i = 0; i < wf_count; ++i) {
+                    if (softwareTrigger) frontEnd->doTrigger();
+                    for (size_t j = 0; j < mappedChannels.size(); ++j) {
+                        uint32_t chan = mappedChannels[j];
+                        uint32_t* dst = p.data.data() + (i * mappedChannels.size() + j) * numberOfSamples;
+                        spyBuffer->extractMappedDataBulkSIMD(dst, numberOfSamples, chan);
+                    }
+                }
+                queue.push(std::move(p));
+            }
+        } catch (...) {
+            had_error = true;
+        }
+        queue.close();
+    });
+
+    // Consumer: pops and sends each chunk wrapped in EnvelopeV2
+    ChunkPacket pack;
+    while (queue.pop(pack)) {
+        DumpSpyBuffersChunkResponse resp;
+        resp.set_success(!had_error);
+        resp.set_requestid(requestId);
+        resp.set_chunkseq(pack.seq);
+        resp.set_isfinal((pack.wf_start + pack.wf_count) >= numberOfWaveforms);
+        resp.set_waveformstart(pack.wf_start);
+        resp.set_waveformcount(pack.wf_count);
+        resp.set_requesttotalwaveforms(numberOfWaveforms);
+        resp.set_numberofsamples(numberOfSamples);
+
+        auto *out_chl = resp.mutable_channellist();
+        out_chl->Clear();
+        out_chl->Reserve(channelList.size());
+        for (auto ch : channelList) out_chl->Add(ch);
+
+        auto *out_data = resp.mutable_data();
+        out_data->Add(pack.data.data(), pack.data.data() + pack.data.size());
+
+        // Wrap this chunk as a V2 response
+        std::string pay; resp.SerializeToString(&pay);
+        auto v2out = mezz::make_v2_resp(v2req, MT2_DUMP_SPYBUFFER_CHUNK_RESP, pay);
+
+        std::string bytes; v2out.SerializeToString(&bytes);
+        router.send(zmq::buffer(client_id.data(), client_id.size()), zmq::send_flags::sndmore);
+        router.send(zmq::buffer(bytes), zmq::send_flags::none);
+    }
+
+    if (producer.joinable()) producer.join();
+}
+
 
 bool alignAFE(const cmd_alignAFEs &request, cmd_alignAFEs_response &response, Daphne &daphne, std::string &response_str){
     try {
@@ -1249,53 +1429,60 @@ static void server_loop_router(zmq::context_t &ctx, const std::string &bind_endp
         zmq::message_t &id = frames[0];
         
 	zmq::message_t &payload = frames.back();
-	// ----- V2 path ONLY for CONFIGURE_FE -----
-	daphne::ControlEnvelopeV2 v2_env;
-	if (parse_v2(payload.data(), static_cast<int>(payload.size()), v2_env)) {
-	// Accept only CONFIGURE_FE on V2 (others fall through to legacy)
-	if (v2_env.dir() == daphne::DIR_REQUEST &&
-	    v2_env.type() == daphne::MT2_CONFIGURE_FE_REQ)
-	{
-	    // 1) parse the typed payload: ConfigureRequest
-	    daphne::ConfigureRequest cfg_req;
-	    daphne::ConfigureResponse cfg_resp;
-	    bool ok_parse = cfg_req.ParseFromString(v2_env.payload());
+	
 
-	    if (!ok_parse) {
-		cfg_resp.set_success(false);
-		cfg_resp.set_message("Bad ConfigureRequest payload (V2).");
-	    } else {
-		// 2) run your existing business logic
-		std::string msg;
-		bool ok = configureDaphne(cfg_req, daphne, msg);
+    // --- V2 transport gateway (handle V2 before legacy) ---
+    static bool v2_inited = (init_v2_handlers(), true);
+    (void)v2_inited;
 
-		// optional: align after configure like you do in legacy
-		if (ok) {
-		    daphne::cmd_alignAFEs a_req;
-		    daphne::cmd_alignAFEs_response a_resp;
-		    std::string align_msg;
-		    bool ok_align = alignAFE(a_req, a_resp, daphne, align_msg);
-		    msg += std::string("\n\n[ALIGN_AFE]\n") + align_msg;
-		    ok = ok && ok_align;
-		}
-		cfg_resp.set_success(ok);
-		cfg_resp.set_message(msg);
-	    }
+    daphne::ControlEnvelopeV2 v2req;
+    if (v2req.ParseFromArray(payload.data(), static_cast<int>(payload.size()))) {
 
-	    // 3) wrap typed response back into V2 envelope
-	    daphne::ControlEnvelopeV2 v2_reply = make_v2_response_for_configure(v2_env, cfg_resp);
+      // --- Chunked streaming in V2 ---
+      if (v2req.dir() == daphne::DIR_REQUEST &&
+          v2req.type() == daphne::MT2_DUMP_SPYBUFFER_CHUNK_REQ) {
 
-	    std::string bytes;
-	    v2_reply.SerializeToString(&bytes);
+        daphne::DumpSpyBuffersChunkRequest creq;
+        if (!creq.ParseFromString(v2req.payload())) {
+          daphne::DumpSpyBuffersChunkResponse err;
+          err.set_success(false); err.set_isfinal(true); err.set_message("Bad DumpSpyBuffersChunkRequest");
+          std::string pay; err.SerializeToString(&pay);
+          auto e = mezz::make_v2_resp(v2req, daphne::MT2_DUMP_SPYBUFFER_CHUNK_RESP, pay);
+          std::string bytes; e.SerializeToString(&bytes);
+          router.send(zmq::buffer(id.data(), id.size()), zmq::send_flags::sndmore);
+          router.send(zmq::buffer(bytes), zmq::send_flags::none);
+          continue;
+        }
 
-	    // ROUTER reply: [id][payload]
-	    router.send(zmq::buffer(id.data(), id.size()), zmq::send_flags::sndmore);
-	    router.send(zmq::buffer(bytes), zmq::send_flags::none);
-	    continue; // IMPORTANT: skip legacy path
-	}
-	// Any other V2 message → fall through to legacy handling (unchanged)
-	}
+        // V2-wrapped streaming (see patch in section 2)
+        dumpSpyBufferChunkV2(creq, v2req, daphne, router, id);
+        continue;
+      }
 
+      // --- Single-reply handlers via registry ---
+      auto it = g_v2_handlers.find(v2req.type());
+      if (v2req.dir() == daphne::DIR_REQUEST && it != g_v2_handlers.end()) {
+        std::string out_payload, err;
+        bool ok = it->second(v2req.payload(), out_payload, daphne, err);
+
+        if (!ok && out_payload.empty()) {
+          daphne::DumpSpyBuffersChunkResponse tiny;
+          tiny.set_success(false);
+          tiny.set_message(err.empty() ? "Handler failed" : err);
+          out_payload.resize(tiny.ByteSizeLong());
+          tiny.SerializeToArray(out_payload.data(), static_cast<int>(out_payload.size()));
+        }
+
+        auto v2resp = mezz::make_v2_resp(v2req, mezz::resp_type(v2req.type()), out_payload);
+        std::string bytes; v2resp.SerializeToString(&bytes);
+        router.send(zmq::buffer(id.data(), id.size()), zmq::send_flags::sndmore);
+        router.send(zmq::buffer(bytes), zmq::send_flags::none);
+        continue; // don't hit legacy path
+      }
+
+      // Unknown V2 → fall through to legacy for now
+    }
+    // --- end V2 gateway ---
 
         ControlEnvelope req_env;
         if (!req_env.ParseFromArray(payload.data(), static_cast<int>(payload.size()))) {
