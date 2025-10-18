@@ -135,6 +135,14 @@ message InfoResponse {
   GeneralInfo          general_info = 3;
 }
 
+// --- Test register: always returns 0xDEADBEEF ---
+message TestRegRequest {}
+message TestRegResponse {
+  uint64 value   = 1;  // 0xDEADBEEF
+  string message = 2;  // optional "ok" text
+}
+
+
 // ----------------- Multi-register writes -----------------
 
 message WriteRegister { uint64 address = 1; uint64 value = 2; }
@@ -183,6 +191,7 @@ enum MessageType {
   DO_SOFTWARE_TRIGGER     = 32;
 
   DUMP_SPYBUFFER_CHUNK    = 100;
+  READ_TEST_REG           = 264;
 }
 
 // ======================= Transport V2 (additive) ==========================
@@ -241,6 +250,7 @@ enum MessageTypeV2 {
 
   // Chunked dump (multi-message sequence keeps same task_id)
   MT2_DUMP_SPYBUFFER_CHUNK_REQ       = 300; MT2_DUMP_SPYBUFFER_CHUNK_RESP       = 301;
+  MT2_READ_TEST_REG_REQ              = 304; MT2_READ_TEST_REG_RESP              = 305;
 }
 
 message ControlEnvelopeV2 {

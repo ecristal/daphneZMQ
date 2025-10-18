@@ -250,7 +250,16 @@ static inline daphne::ControlEnvelopeV2 make_v2_response_for_configure(
 
 static void init_v2_handlers() {
   using namespace daphne;
-
+  // --- added: READ_TEST_REG (V2) ---
+  g_v2_handlers[daphne::MT2_READ_TEST_REG_REQ] =
+    [](const std::string& /*in*/, std::string& out, Daphne& /*d*/, std::string& /*err*/)->bool {
+      daphne::TestRegResponse resp;
+      resp.set_value(0xDEADBEEF);
+      resp.set_message("ok");
+      out.resize(resp.ByteSizeLong());
+      resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
   // CONFIGURE_FE
   g_v2_handlers[MT2_CONFIGURE_FE_REQ] =
     [](const std::string& in, std::string& out, Daphne& d, std::string& err) -> bool {
@@ -1030,6 +1039,15 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
     }
 
     switch(request_envelope.type()){
+	case READ_TEST_REG: {
+    daphne::TestRegRequest  cmd_request;
+    daphne::TestRegResponse cmd_response;
+    // empty payload is valid; ParseFromString optional
+    cmd_response.set_value(0xDEADBEEF);
+    cmd_response.set_message("ok");
+    fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+    return;
+}
         case CONFIGURE_CLKS: {
   ConfigureCLKsRequest cmd_request;
   ConfigureCLKsResponse cmd_response;
