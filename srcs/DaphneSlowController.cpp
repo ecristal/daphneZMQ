@@ -1,63 +1,108 @@
-#include <iostream>
-#include <unordered_map>
+// ============================================================================
+// Includes
+// ============================================================================
+
+// --- Standard Library ---
+#include <algorithm>
+#include <atomic>
+#include <condition_variable>
 #include <exception>
+#include <functional>
+#include <iostream>
+#include <mutex>
+#include <optional>
+#include <queue>
+#include <sstream>
+#include <thread>
+#include <unordered_map>
+#include <vector>
+
+// --- System / POSIX ---
+#include <arpa/inet.h>
+
+// --- Third-Party Libraries ---
 #include <zmq.hpp>
+#include "CLI/CLI.hpp"
+
+// --- Project Headers ---
+#include "Daphne.hpp"
+#include "defines.hpp"
+#include "FpgaRegDict.hpp"
+#include "MezzCommon.hpp"
 #include "daphneV3_high_level_confs.pb.h"
 #include "daphneV3_low_level_confs.pb.h"
+#include "reg.hpp"
+
+// ============================================================================
+// Namespace shortcuts
+// ============================================================================
 using namespace daphne;
 using daphne::MessageType;
 using daphne::ControlEnvelope;
-using daphne::ConfigureRequest; using daphne::ConfigureResponse;
-using daphne::DumpSpyBuffersRequest; using daphne::DumpSpyBuffersResponse;
-using daphne::DumpSpyBuffersChunkRequest; using daphne::DumpSpyBuffersChunkResponse;
-using daphne::cmd_alignAFEs; using daphne::cmd_alignAFEs_response;
-using daphne::cmd_writeAFEFunction; using daphne::cmd_writeAFEFunction_response;
-using daphne::cmd_doSoftwareTrigger; using daphne::cmd_doSoftwareTrigger_response;
-using daphne::cmd_writeAFEVGAIN; using daphne::cmd_writeAFEVGAIN_response;
-using daphne::cmd_writeAFEReg; using daphne::cmd_writeAFEReg_response;
-using daphne::cmd_writeAFEBiasSet; using daphne::cmd_writeAFEBiasSet_response;
-using daphne::cmd_writeAFEAttenuation; using daphne::cmd_writeAFEAttenuation_response;
-using daphne::cmd_writeTRIM_allChannels; using daphne::cmd_writeTRIM_allChannels_response;
-using daphne::cmd_writeTrim_allAFE; using daphne::cmd_writeTrim_allAFE_response;
-using daphne::cmd_writeTrim_singleChannel; using daphne::cmd_writeTrim_singleChannel_response;
-using daphne::cmd_writeOFFSET_allChannels; using daphne::cmd_writeOFFSET_allChannels_response;
-using daphne::cmd_writeOFFSET_allAFE; using daphne::cmd_writeOFFSET_allAFE_response;
-using daphne::cmd_writeOFFSET_singleChannel; using daphne::cmd_writeOFFSET_singleChannel_response;
-using daphne::cmd_writeVbiasControl; using daphne::cmd_writeVbiasControl_response;
-using daphne::cmd_readAFEReg; using daphne::cmd_readAFEReg_response;
-using daphne::cmd_readAFEVgain; using daphne::cmd_readAFEVgain_response;
-using daphne::cmd_readAFEBiasSet; using daphne::cmd_readAFEBiasSet_response;
-using daphne::cmd_readTrim_allChannels; using daphne::cmd_readTrim_allChannels_response;
-using daphne::cmd_readTrim_allAFE; using daphne::cmd_readTrim_allAFE_response;
-using daphne::cmd_readTrim_singleChannel; using daphne::cmd_readTrim_singleChannel_response;
-using daphne::cmd_readOffset_allChannels; using daphne::cmd_readOffset_allChannels_response;
-using daphne::cmd_readOffset_allAFE; using daphne::cmd_readOffset_allAFE_response;
-using daphne::cmd_readOffset_singleChannel; using daphne::cmd_readOffset_singleChannel_response;
-using daphne::cmd_readVbiasControl; using daphne::cmd_readVbiasControl_response;
-using daphne::cmd_readCurrentMonitor; using daphne::cmd_readCurrentMonitor_response;
-using daphne::cmd_readBiasVoltageMonitor; using daphne::cmd_readBiasVoltageMonitor_response;
-using namespace daphne;
-#include <optional>
-#include "CLI/CLI.hpp"
-#include <arpa/inet.h>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-#include <queue>
-#include <atomic>
-#include <vector>
-#include <algorithm>
-#include <sstream>
-#include "Daphne.hpp"
-#include "defines.hpp"
-#include "protobuf/daphneV3_high_level_confs.pb.h"
-#include "protobuf/daphneV3_low_level_confs.pb.h"
-#include <functional>
-#include <unordered_map>
-#include "MezzCommon.hpp"
-// --- Timing / Endpoint helpers ---------------------------------------------
-#include "reg.hpp"
-#include "FpgaRegDict.hpp"
+using daphne::ConfigureRequest;
+using daphne::ConfigureResponse;
+using daphne::DumpSpyBuffersRequest;
+using daphne::DumpSpyBuffersResponse;
+using daphne::DumpSpyBuffersChunkRequest;
+using daphne::DumpSpyBuffersChunkResponse;
+
+// Commands
+using daphne::cmd_alignAFEs;
+using daphne::cmd_alignAFEs_response;
+using daphne::cmd_doSoftwareTrigger;
+using daphne::cmd_doSoftwareTrigger_response;
+using daphne::cmd_writeAFEFunction;
+using daphne::cmd_writeAFEFunction_response;
+using daphne::cmd_writeAFEVGAIN;
+using daphne::cmd_writeAFEVGAIN_response;
+using daphne::cmd_writeAFEReg;
+using daphne::cmd_writeAFEReg_response;
+using daphne::cmd_writeAFEBiasSet;
+using daphne::cmd_writeAFEBiasSet_response;
+using daphne::cmd_writeAFEAttenuation;
+using daphne::cmd_writeAFEAttenuation_response;
+using daphne::cmd_writeTRIM_allChannels;
+using daphne::cmd_writeTRIM_allChannels_response;
+using daphne::cmd_writeTrim_allAFE;
+using daphne::cmd_writeTrim_allAFE_response;
+using daphne::cmd_writeTrim_singleChannel;
+using daphne::cmd_writeTrim_singleChannel_response;
+using daphne::cmd_writeOFFSET_allChannels;
+using daphne::cmd_writeOFFSET_allChannels_response;
+using daphne::cmd_writeOFFSET_allAFE;
+using daphne::cmd_writeOFFSET_allAFE_response;
+using daphne::cmd_writeOFFSET_singleChannel;
+using daphne::cmd_writeOFFSET_singleChannel_response;
+using daphne::cmd_writeVbiasControl;
+using daphne::cmd_writeVbiasControl_response;
+using daphne::cmd_readAFEReg;
+using daphne::cmd_readAFEReg_response;
+using daphne::cmd_readAFEVgain;
+using daphne::cmd_readAFEVgain_response;
+using daphne::cmd_readAFEBiasSet;
+using daphne::cmd_readAFEBiasSet_response;
+using daphne::cmd_readTrim_allChannels;
+using daphne::cmd_readTrim_allChannels_response;
+using daphne::cmd_readTrim_allAFE;
+using daphne::cmd_readTrim_allAFE_response;
+using daphne::cmd_readTrim_singleChannel;
+using daphne::cmd_readTrim_singleChannel_response;
+using daphne::cmd_readOffset_allChannels;
+using daphne::cmd_readOffset_allChannels_response;
+using daphne::cmd_readOffset_allAFE;
+using daphne::cmd_readOffset_allAFE_response;
+using daphne::cmd_readOffset_singleChannel;
+using daphne::cmd_readOffset_singleChannel_response;
+using daphne::cmd_readVbiasControl;
+using daphne::cmd_readVbiasControl_response;
+using daphne::cmd_readCurrentMonitor;
+using daphne::cmd_readCurrentMonitor_response;
+using daphne::cmd_readBiasVoltageMonitor;
+using daphne::cmd_readBiasVoltageMonitor_response;
+
+
+
+
 
 static std::string decode_clk_status(uint32_t v) {
   bool mmcm0 = (v & (1u<<0)) != 0;
