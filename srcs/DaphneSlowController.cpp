@@ -127,46 +127,71 @@ namespace trigregs {
     constexpr uint32_t MASK_10BIT  = 0x3FFu;
   
     struct Reader {
-      uint32_t     phys_base;
+
+      uint32_t     phys_base;    // requested physical base (e.g., 0xA0010000)
+
+      uint64_t     map_base;     // page-aligned map base
+
+      uint64_t     map_len;      // length of mapping
+
       FpgaRegDict  dict;
+
       reg          r;
-  
-      // Map the 0x8000_0000 BAR the same way FpgaReg does
+
+
+
+      static inline uint64_t page_down(uint64_t x){ return x & ~0xFFFULL; }
+
+      static inline uint64_t page_up(uint64_t x){ return (x + 0xFFFULL) & ~0xFFFULL; }
+
+
+
       Reader(uint32_t base = PHYS_BASE)
+
         : phys_base(base),
+
+          map_base(page_down(static_cast<uint64_t>(base))),
+
+          map_len(page_up(static_cast<uint64_t>(STRIDE) * 40ULL + 0x20ULL)),
+
           dict(),
-          r(0x80000000ULL, 0x7FFFFFFFULL, dict) {}
-  
-      // ReadBitsFast expects a BYTE offset from 0x8000_0000
+
+          r(map_base, map_len, dict) {}
+
+
+
       inline uint32_t u32(uint32_t phys_addr) {
-        uint32_t byte_off = phys_addr - 0x80000000u;
+
+        uint32_t byte_off = static_cast<uint32_t>(static_cast<uint64_t>(phys_addr) - map_base);
+
         return r.ReadBitsFast(byte_off, /*bitEndianess*/false);
+
       }
-  
+
       inline uint64_t u64(uint32_t phys_lo, uint32_t phys_hi) {
+
         uint32_t lo = u32(phys_lo);
+
         uint32_t hi = u32(phys_hi);
+
         return (static_cast<uint64_t>(hi) << 32) | lo;
+
       }
-  
+
       inline uint32_t base_ch(uint32_t ch) const { return phys_base + ch*STRIDE; }
-  
+
       uint32_t read_thr(uint32_t ch) {
-        auto v = u32(base_ch(ch) + OFF_THR);
-        return (v & MASK_10BIT);
+
+        auto v = u32(base_ch(ch) + OFF_THR); return (v & MASK_10BIT);
+
       }
-      uint64_t read_rec(uint32_t ch) {
-        auto b = base_ch(ch);
-        return u64(b + OFF_REC_LO, b + OFF_REC_HI);
-      }
-      uint64_t read_bsy(uint32_t ch) {
-        auto b = base_ch(ch);
-        return u64(b + OFF_BSY_LO, b + OFF_BSY_HI);
-      }
-      uint64_t read_ful(uint32_t ch) {
-        auto b = base_ch(ch);
-        return u64(b + OFF_FUL_LO, b + OFF_FUL_HI);
-      }
+
+      uint64_t read_rec(uint32_t ch) { auto b = base_ch(ch); return u64(b + OFF_REC_LO, b + OFF_REC_HI); }
+
+      uint64_t read_bsy(uint32_t ch) { auto b = base_ch(ch); return u64(b + OFF_BSY_LO, b + OFF_BSY_HI); }
+
+      uint64_t read_ful(uint32_t ch) { auto b = base_ch(ch); return u64(b + OFF_FUL_LO, b + OFF_FUL_HI); }
+
     };
   }
 
@@ -353,73 +378,19 @@ static inline daphne::ControlEnvelopeV2 make_v2_response_for_configure(
 static void init_v2_handlers() {
   using namespace daphne;
     // Monitoring trigger counters
-  g_v2_handlers[daphne::MT2_READ_TRIGGER_COUNTERS_REQ] =
-  [](const std::string& in, std::string& out, Daphne& /*d*/, std::string& err) -> bool {
-    daphne::ReadTriggerCountersRequest req;
-    daphne::ReadTriggerCountersResponse resp;
-
-    if (!req.ParseFromString(in)) {
-      err = "Bad ReadTriggerCountersRequest";
-      resp.set_success(false);
-      resp.set_message(err);
-      out.resize(resp.ByteSizeLong());
-      resp.SerializeToArray(out.data(), (int)out.size());
-      return false;
-    }
-
-    // Channel list: default all
-    std::vector<uint32_t> chs;
-    if (req.channels_size() == 0) {
-      chs.resize(40); std::iota(chs.begin(), chs.end(), 0);
-    } else {
-      chs.assign(req.channels().begin(), req.channels().end());
-    }
-
-    // (Optional) override base for debugging
-    uint32_t base = (req.base_addr() != 0) ? req.base_addr() : trigregs::PHYS_BASE;
-    if (base != trigregs::PHYS_BASE) {
-      // accept override by shadowing PHYS_BASE via local arithmetic
-      // we just add (base - trigregs::PHYS_BASE) when computing addresses
-    }
-
- // Read
-try {
-    // ---- early guard: /dev/mem must be readable on this host ----
-    {
-      std::ifstream devmem("/dev/mem");
-      if (!devmem.good()) {
-        resp.set_success(false);
-        resp.set_message("READ_TRIGGER_COUNTERS: /dev/mem not accessible on this host");
-        out.resize(resp.ByteSizeLong());
-        resp.SerializeToArray(out.data(), (int)out.size());
-        return false;
-      }
-    }
-  
-    trigregs::Reader rd(base);   // <-- this mmap can crash if /dev/mem isn’t available
-    for (auto ch : chs) {
-      if (ch >= 40) continue;
-      uint32_t thr = rd.read_thr(ch);
-      uint64_t rc  = rd.read_rec(ch);
-      uint64_t bc  = rd.read_bsy(ch);
-      uint64_t fc  = rd.read_ful(ch);
-      auto* snap = resp.add_snapshots();
-      snap->set_channel(ch);
-      snap->set_threshold(thr);
-      snap->set_record_count(rc);
-      snap->set_busy_count(bc);
-      snap->set_full_count(fc);
-    }
-    resp.set_success(true);
-    resp.set_message("OK");
-  } catch (const std::exception& e) {
-    resp.set_success(false);
-    resp.set_message(std::string("Exception: ") + e.what());
-  }
-
-    out.resize(resp.ByteSizeLong());
-    resp.SerializeToArray(out.data(), (int)out.size());
-    return resp.success();
+g_v2_handlers[daphne::MT2_READ_TRIGGER_COUNTERS_REQ] =
+  [](const std::string& in, std::string& out, Daphne& /*d*/, std::string& /*err*/)->bool {
+    daphne::ReadTriggerCountersRequest req; daphne::ReadTriggerCountersResponse resp; 
+    (void)req.ParseFromString(in); 
+    std::vector<uint32_t> chs; 
+    if (req.channels_size() == 0) { chs.resize(40); std::iota(chs.begin(), chs.end(), 0); } 
+    else { chs.assign(req.channels().begin(), req.channels().end()); } 
+    for (auto ch : chs) { if (ch >= 40) continue; auto* s = resp.add_snapshots(); 
+      s->set_channel(ch); s->set_threshold(0); s->set_record_count(0); s->set_busy_count(0); s->set_full_count(0); } 
+    resp.set_success(false); 
+    resp.set_message("Counters stub: no hardware access. Handler replies to avoid client timeout."); 
+    out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), (int)out.size()); 
+    return true; 
   };
   // --- added: READ_TEST_REG (V2) ---
   g_v2_handlers[daphne::MT2_READ_TEST_REG_REQ] =

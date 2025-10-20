@@ -14,7 +14,7 @@ I2CDevice::I2CDevice(const std::string &devicePath, const uint8_t &deviceAddress
     this->fileDescriptor = fileDescriptor;
 }
 
-I2CDevice::I2CDevice(const std::string &devicePath, const uint8_t &deviceAddress, const int &enablePEC)
+I2CDevice::I2CDevice(const std::string &devicePath, const uint8_t &deviceAddress, int enablePEC)
     : devicePath(devicePath), deviceAddress(deviceAddress) {
     fileDescriptor = this->openDevice(enablePEC);
     if (fileDescriptor < 0) {
@@ -43,7 +43,7 @@ int I2CDevice::openDevice() {
     return file;
 }
 
-int I2CDevice::openDevice(const int &enablePEC) {
+int I2CDevice::openDevice(int enablePEC) {
     int file = open(devicePath.c_str(), O_RDWR);
     if (file < 0) {
         std::cerr << "Error opening I2C device: " << strerror(errno) << std::endl;
@@ -63,7 +63,7 @@ int I2CDevice::openDevice(const int &enablePEC) {
     return file;
 }
 
-bool I2CDevice::closeDevice() {
+bool I2CDevice::closeDevice() noexcept {
     if (close(fileDescriptor) < 0) {
         std::cerr << "Error closing I2C device: " << strerror(errno) << std::endl;
         return false;
