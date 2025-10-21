@@ -379,17 +379,20 @@ static void init_v2_handlers() {
   using namespace daphne;
     // Monitoring trigger counters
 g_v2_handlers[daphne::MT2_READ_TRIGGER_COUNTERS_REQ] =
-  [](const std::string& in, std::string& out, Daphne& /*d*/, std::string& /*err*/)->bool {
-    daphne::ReadTriggerCountersRequest req; daphne::ReadTriggerCountersResponse resp; 
-    (void)req.ParseFromString(in); 
-    std::vector<uint32_t> chs; 
-    if (req.channels_size() == 0) { chs.resize(40); std::iota(chs.begin(), chs.end(), 0); } 
-    else { chs.assign(req.channels().begin(), req.channels().end()); } 
-    for (auto ch : chs) { if (ch >= 40) continue; auto* s = resp.add_snapshots(); 
-      s->set_channel(ch); s->set_threshold(0); s->set_record_count(0); s->set_busy_count(0); s->set_full_count(0); } 
-    resp.set_success(false); 
-    resp.set_message("Counters stub: no hardware access. Handler replies to avoid client timeout."); 
-    out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), (int)out.size()); 
+  [](const std::string& /*in*/, std::string& out, Daphne& /*d*/, std::string& /*err*/)->bool {
+    daphne::ReadTriggerCountersResponse resp; 
+    for (uint32_t ch = 0; ch < 8; ++ch) { 
+      auto* s = resp.add_snapshots(); 
+      s->set_channel(ch); 
+      s->set_threshold(42 + ch); 
+      s->set_record_count(100000 + ch * 10); 
+      s->set_busy_count(5000 + ch); 
+      s->set_full_count(100 + ch); 
+    } 
+    resp.set_success(true); 
+    resp.set_message("Hard-coded counters test reply — transport layer OK"); 
+    out.resize(resp.ByteSizeLong()); 
+    resp.SerializeToArray(out.data(), (int)out.size()); 
     return true; 
   };
   // --- added: READ_TEST_REG (V2) ---
@@ -1746,7 +1749,68 @@ static void server_loop_router(zmq::context_t &ctx, const std::string &bind_endp
 
     daphne::ControlEnvelopeV2 v2req;
     if (v2req.ParseFromArray(payload.data(), static_cast<int>(payload.size()))) {
+      /* ---- SHORT-CIRCUIT: READ_TRIGGER_COUNTERS_REQ ---- */
+	/* ---- REAL COUNTERS: READ_TRIGGER_COUNTERS_REQ ---- */
+	if (v2req.type() == daphne::MT2_READ_TRIGGER_COUNTERS_REQ) {
+	  daphne::ReadTriggerCountersRequest creq;
+	  daphne::ReadTriggerCountersResponse resp;
+  try {
 
+  } catch (const std::exception& e) {
+    resp.Clear();
+    resp.set_success(false);
+    resp.set_message(std::string("Counters read error: ") + e.what());
+  }
+    uint32_t base = trigregs::PHYS_BASE;  // declare in outer scope (default 0xA0010000)
+
+	  if (!creq.ParseFromString(v2req.payload())) {
+	    resp.set_success(false);
+	    resp.set_message("Bad ReadTriggerCountersRequest payload");
+	  } else {
+	    // Choose base address (request overrides default if non-zero)
+base = trigregs::PHYS_BASE;            // default 0xA0010000
+if (creq.base_addr() != 0)                       // proto3 scalar: 0 means "unset"
+  base = static_cast<uint32_t>(creq.base_addr());
+
+trigregs::Reader trg(base);
+
+	    // Build channel list
+	    std::vector<uint32_t> chs;
+	    if (creq.channels_size() == 0) {
+	      chs.resize(40); std::iota(chs.begin(), chs.end(), 0);
+	    } else {
+	      chs.assign(creq.channels().begin(), creq.channels().end());
+	    }
+
+	    // Fill snapshots from hardware
+	    for (auto ch : chs) {
+	      if (ch >= 40) continue;
+	      auto* s = resp.add_snapshots();
+	      s->set_channel(ch);
+	      s->set_threshold(trg.read_thr(ch) & trigregs::MASK_10BIT);
+	      s->set_record_count(static_cast<uint64_t>(trg.read_rec(ch)));
+	      s->set_busy_count  (static_cast<uint64_t>(trg.read_bsy(ch)));
+	      s->set_full_count  (static_cast<uint64_t>(trg.read_ful(ch)));
+	    }
+
+	    resp.set_success(true);
+	    resp.set_message("OK");
+	  }
+
+	  std::string pay; resp.SerializeToString(&pay);
+	  auto v2out = mezz::make_v2_resp(v2req, daphne::MT2_READ_TRIGGER_COUNTERS_RESP, pay);
+	  std::string bytes; v2out.SerializeToString(&bytes);
+
+	  auto ok_id = router.send(zmq::buffer(id.data(), id.size()), zmq::send_flags::sndmore);
+	  auto ok_py = router.send(zmq::buffer(bytes), zmq::send_flags::none);
+	  if (!ok_id || !ok_py) {
+	    std::cerr << "[SEND][V2] router.send failed; errno=" << zmq_errno() << "\n";
+	  } else {
+	    std::cerr << "[V2] counters replied (" << (int)resp.snapshots_size() << " ch) base=0x"
+		      << std::hex << base << std::dec << "\n";
+	  }
+	  continue;
+	}
       // --- Chunked streaming in V2 ---
       if (v2req.dir() == daphne::DIR_REQUEST &&
           v2req.type() == daphne::MT2_DUMP_SPYBUFFER_CHUNK_REQ) {
@@ -1789,6 +1853,18 @@ static void server_loop_router(zmq::context_t &ctx, const std::string &bind_endp
         continue; // don't hit legacy path
       }
 
+      if (v2req.dir() == daphne::DIR_REQUEST && it == g_v2_handlers.end()) {
+        /* immediate error reply so client never times out */
+        daphne::DumpSpyBuffersChunkResponse tiny;  /* small, already defined message */
+        tiny.set_success(false);
+        tiny.set_message("No V2 handler registered for this type");
+        std::string pay; tiny.SerializeToString(&pay);
+        auto v2resp = mezz::make_v2_resp(v2req, mezz::resp_type(v2req.type()), pay);
+        std::string bytes; v2resp.SerializeToString(&bytes);
+        router.send(zmq::buffer(id.data(), id.size()), zmq::send_flags::sndmore);
+        router.send(zmq::buffer(bytes), zmq::send_flags::none);
+        continue;
+      }
       // Unknown V2 → fall through to legacy for now
     }
     // --- end V2 gateway ---

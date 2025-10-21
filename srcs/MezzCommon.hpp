@@ -13,6 +13,10 @@ inline uint64_t now_ns() {
 }
 
 inline daphne::MessageTypeV2 resp_type(daphne::MessageTypeV2 req) {
+  // Explicit mapping for counters (req → resp)
+  if (req == daphne::MT2_READ_TRIGGER_COUNTERS_REQ) return daphne::MT2_READ_TRIGGER_COUNTERS_RESP;
+  // Explicit mapping for counters (req → resp)
+  if (req == daphne::MT2_READ_TRIGGER_COUNTERS_REQ) return daphne::MT2_READ_TRIGGER_COUNTERS_RESP;
   int v = static_cast<int>(req);
   return static_cast<daphne::MessageTypeV2>((v & 1) ? v : (v + 1));
 }
