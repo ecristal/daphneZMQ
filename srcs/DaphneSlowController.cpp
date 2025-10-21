@@ -1744,129 +1744,115 @@ static void server_loop_router(zmq::context_t &ctx, const std::string &bind_endp
 	
 
     // --- V2 transport gateway (handle V2 before legacy) ---
+
     static bool v2_inited = (init_v2_handlers(), true);
+
     (void)v2_inited;
 
+
+
     daphne::ControlEnvelopeV2 v2req;
+
     if (v2req.ParseFromArray(payload.data(), static_cast<int>(payload.size()))) {
-      /* ---- SHORT-CIRCUIT: READ_TRIGGER_COUNTERS_REQ ---- */
-	/* ---- REAL COUNTERS: READ_TRIGGER_COUNTERS_REQ ---- */
-	if (v2req.type() == daphne::MT2_READ_TRIGGER_COUNTERS_REQ) {
-	  daphne::ReadTriggerCountersRequest creq;
-	  daphne::ReadTriggerCountersResponse resp;
-  try {
 
-  } catch (const std::exception& e) {
-    resp.Clear();
-    resp.set_success(false);
-    resp.set_message(std::string("Counters read error: ") + e.what());
-  }
-    uint32_t base = trigregs::PHYS_BASE;  // declare in outer scope (default 0xA0010000)
+      /* no inline special-cases: use registered handlers */
 
-	  if (!creq.ParseFromString(v2req.payload())) {
-	    resp.set_success(false);
-	    resp.set_message("Bad ReadTriggerCountersRequest payload");
-	  } else {
-	    // Choose base address (request overrides default if non-zero)
-base = trigregs::PHYS_BASE;            // default 0xA0010000
-if (creq.base_addr() != 0)                       // proto3 scalar: 0 means "unset"
-  base = static_cast<uint32_t>(creq.base_addr());
+      auto it = g_v2_handlers.find(v2req.type());
 
-trigregs::Reader trg(base);
 
-	    // Build channel list
-	    std::vector<uint32_t> chs;
-	    if (creq.channels_size() == 0) {
-	      chs.resize(40); std::iota(chs.begin(), chs.end(), 0);
-	    } else {
-	      chs.assign(creq.channels().begin(), creq.channels().end());
-	    }
 
-	    // Fill snapshots from hardware
-	    for (auto ch : chs) {
-	      if (ch >= 40) continue;
-	      auto* s = resp.add_snapshots();
-	      s->set_channel(ch);
-	      s->set_threshold(trg.read_thr(ch) & trigregs::MASK_10BIT);
-	      s->set_record_count(static_cast<uint64_t>(trg.read_rec(ch)));
-	      s->set_busy_count  (static_cast<uint64_t>(trg.read_bsy(ch)));
-	      s->set_full_count  (static_cast<uint64_t>(trg.read_ful(ch)));
-	    }
+      /* chunked spybuffer stays special because its streaming */
 
-	    resp.set_success(true);
-	    resp.set_message("OK");
-	  }
-
-	  std::string pay; resp.SerializeToString(&pay);
-	  auto v2out = mezz::make_v2_resp(v2req, daphne::MT2_READ_TRIGGER_COUNTERS_RESP, pay);
-	  std::string bytes; v2out.SerializeToString(&bytes);
-
-	  auto ok_id = router.send(zmq::buffer(id.data(), id.size()), zmq::send_flags::sndmore);
-	  auto ok_py = router.send(zmq::buffer(bytes), zmq::send_flags::none);
-	  if (!ok_id || !ok_py) {
-	    std::cerr << "[SEND][V2] router.send failed; errno=" << zmq_errno() << "\n";
-	  } else {
-	    std::cerr << "[V2] counters replied (" << (int)resp.snapshots_size() << " ch) base=0x"
-		      << std::hex << base << std::dec << "\n";
-	  }
-	  continue;
-	}
-      // --- Chunked streaming in V2 ---
-      if (v2req.dir() == daphne::DIR_REQUEST &&
-          v2req.type() == daphne::MT2_DUMP_SPYBUFFER_CHUNK_REQ) {
+      if (v2req.dir() == daphne::DIR_REQUEST && v2req.type() == daphne::MT2_DUMP_SPYBUFFER_CHUNK_REQ) {
 
         daphne::DumpSpyBuffersChunkRequest creq;
+
         if (!creq.ParseFromString(v2req.payload())) {
+
           daphne::DumpSpyBuffersChunkResponse err;
+
           err.set_success(false); err.set_isfinal(true); err.set_message("Bad DumpSpyBuffersChunkRequest");
+
           std::string pay; err.SerializeToString(&pay);
+
           auto e = mezz::make_v2_resp(v2req, daphne::MT2_DUMP_SPYBUFFER_CHUNK_RESP, pay);
+
           std::string bytes; e.SerializeToString(&bytes);
+
           router.send(zmq::buffer(id.data(), id.size()), zmq::send_flags::sndmore);
+
           router.send(zmq::buffer(bytes), zmq::send_flags::none);
+
           continue;
+
         }
 
-        // V2-wrapped streaming (see patch in section 2)
         dumpSpyBufferChunkV2(creq, v2req, daphne, router, id);
+
         continue;
+
       }
 
-      // --- Single-reply handlers via registry ---
-      auto it = g_v2_handlers.find(v2req.type());
+
+
       if (v2req.dir() == daphne::DIR_REQUEST && it != g_v2_handlers.end()) {
+
         std::string out_payload, err;
+
         bool ok = it->second(v2req.payload(), out_payload, daphne, err);
 
         if (!ok && out_payload.empty()) {
+
           daphne::DumpSpyBuffersChunkResponse tiny;
+
           tiny.set_success(false);
+
           tiny.set_message(err.empty() ? "Handler failed" : err);
+
           out_payload.resize(tiny.ByteSizeLong());
+
           tiny.SerializeToArray(out_payload.data(), static_cast<int>(out_payload.size()));
+
         }
 
         auto v2resp = mezz::make_v2_resp(v2req, mezz::resp_type(v2req.type()), out_payload);
+
         std::string bytes; v2resp.SerializeToString(&bytes);
+
         router.send(zmq::buffer(id.data(), id.size()), zmq::send_flags::sndmore);
+
         router.send(zmq::buffer(bytes), zmq::send_flags::none);
-        continue; // don't hit legacy path
+
+        continue; /* do not fall through to legacy */
+
       }
 
+
+
       if (v2req.dir() == daphne::DIR_REQUEST && it == g_v2_handlers.end()) {
-        /* immediate error reply so client never times out */
-        daphne::DumpSpyBuffersChunkResponse tiny;  /* small, already defined message */
+
+        daphne::DumpSpyBuffersChunkResponse tiny;
+
         tiny.set_success(false);
+
         tiny.set_message("No V2 handler registered for this type");
+
         std::string pay; tiny.SerializeToString(&pay);
+
         auto v2resp = mezz::make_v2_resp(v2req, mezz::resp_type(v2req.type()), pay);
+
         std::string bytes; v2resp.SerializeToString(&bytes);
+
         router.send(zmq::buffer(id.data(), id.size()), zmq::send_flags::sndmore);
+
         router.send(zmq::buffer(bytes), zmq::send_flags::none);
+
         continue;
+
       }
-      // Unknown V2 → fall through to legacy for now
+
     }
+
     // --- end V2 gateway ---
 
         ControlEnvelope req_env;
