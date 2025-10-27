@@ -1,7 +1,6 @@
-#include <memory>
-#include "reg.hpp"
 #include "FpgaRegDict.hpp"
-#include "FpgaReg.hpp"
+#include "reg.hpp"
+#include <memory>
 
 FpgaReg::FpgaReg()
 	: baseAddr(0x80000000),

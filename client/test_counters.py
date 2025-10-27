@@ -87,25 +87,50 @@ def main():
     base = (int(args.base, 0) if isinstance(args.base, str) and args.base is not None
             else (int(args.base) if args.base is not None else None))
 
+    # Default: assume “real” response
+    resp = None
     try:
         resp = request(endpoint, args.route, chans, base, args.timeout)
     except Exception as e:
-        print(f"[ERR] {e}")
-        sys.exit(2)
+        # Fabricate a friendly response
+        resp = P.ReadTriggerCountersResponse()
+        resp.success = False
+        # Normalize typical ZMQ Again into human text
+        msg = str(e)
+        if "Resource temporarily unavailable" in msg:
+            msg = ("Timeout waiting for server reply "
+                   "(check server running, port reachable, and that it speaks V2).")
+        resp.message = f"Client-side fallback: {msg}"
+        # Fill snapshots for requested channels (or all 40 if none specified)
+        ch_list = chans if chans else list(range(40))
+        for ch in ch_list:
+            s = resp.snapshots.add()
+            s.channel = ch
+            s.threshold = 0
+            s.record_count = 0
+            s.busy_count = 0
+            s.full_count = 0
 
     print(f"\nEndpoint: {endpoint}")
     print(f"Route   : {args.route}")
     if base is not None: print(f"Base    : 0x{base:08X}")
     print(f"Result  : {'SUCCESS' if resp.success else 'FAIL'}")
-    if resp.message: print(f"Message : {resp.message}")
-    if not resp.snapshots:
-        print("No snapshots returned."); return
+    if getattr(resp, "message", ""):
+        print(f"Message : {resp.message}")
+
+    if not getattr(resp, "snapshots", []):
+        print("No snapshots returned.")
+        return
+
     cols = ("CH","THR(10b)","REC_CNT","BSY_CNT","FUL_CNT")
     widths = (4,9,16,16,16)
     def row(vals): return " ".join(f"{str(v):>{w}}" for v,w in zip(vals,widths))
     print("\n"+row(cols)); print(row("-"*w for w in widths))
     for s in sorted(resp.snapshots, key=lambda t: t.channel):
-        print(row((s.channel, s.threshold & 0x3FF, fmt(s.record_count), fmt(s.busy_count), fmt(s.full_count))))
+        print(row((s.channel, s.threshold & 0x3FF,
+                   f"{s.record_count:,}".replace(",","_"),
+                   f"{s.busy_count:,}".replace(",","_"),
+                   f"{s.full_count:,}".replace(",","_"))))
 
 if __name__ == "__main__":
     main()

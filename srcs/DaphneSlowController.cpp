@@ -31,8 +31,8 @@
 #include "defines.hpp"
 #include "FpgaRegDict.hpp"
 #include "MezzCommon.hpp"
-#include "daphneV3_high_level_confs.pb.h"
-#include "daphneV3_low_level_confs.pb.h"
+#include "protobuf/daphneV3_high_level_confs.pb.h"
+#include "protobuf/daphneV3_low_level_confs.pb.h"
 #include "reg.hpp"
 
 // ============================================================================
@@ -1372,6 +1372,7 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
                 cmd_response.set_message("Payload not recognized");
             }
             fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+            return;
         }
         case WRITE_OFFSET_CH: { //Verified in DAPHNE V3
             cmd_writeOFFSET_singleChannel cmd_request;
@@ -1544,7 +1545,7 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             cmd_readVbiasControl cmd_request;
             cmd_readVbiasControl_response cmd_response;
             //std::cout << "The request is a ReadVbiasControlRequest" << std::endl;
-            if(cmd_response.ParseFromString(request_envelope.payload())){
+            if(cmd_request.ParseFromString(request_envelope.payload())){
                 cmd_response.set_success(true);
                 cmd_response.set_message("Vbias control read successfully");
             }else{
