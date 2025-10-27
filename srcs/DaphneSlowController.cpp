@@ -17,6 +17,7 @@
 #include <unordered_map>
 #include <vector>
 #include <numeric>   // for std::iota
+#include <fstream>   // for std::ifstream (/dev/mem guard)
 
 // --- System / POSIX ---
 #include <arpa/inet.h>
