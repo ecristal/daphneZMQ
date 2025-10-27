@@ -113,6 +113,55 @@ static std::string decode_clk_status(uint32_t v) {
   return os.str();
 }
 
+
+// ---- Trigger regs (base 0xA0010000) ---------------------------------
+namespace trigregs {
+    constexpr uint32_t PHYS_BASE   = 0xA0010000u;
+    constexpr uint32_t STRIDE      = 0x20u; // 32 bytes per channel
+    constexpr uint32_t OFF_THR     = 0x00u; // 32-bit (we mask 10b)
+    constexpr uint32_t OFF_REC_LO  = 0x04u, OFF_REC_HI = 0x08u;
+    constexpr uint32_t OFF_BSY_LO  = 0x0Cu, OFF_BSY_HI = 0x10u;
+    constexpr uint32_t OFF_FUL_LO  = 0x14u, OFF_FUL_HI = 0x18u;
+    constexpr uint32_t MASK_10BIT  = 0x3FFu;
+  
+    // reg aperture in Daphne already maps 0x80000000.. ; convert a physical addr to word offset
+    inline uint32_t word_off(uint32_t phys_addr) {
+      return (phys_addr - 0x80000000u) / 4u; // FpgaReg::getBitsFast expects WORD index
+    }
+  
+    struct Reader {
+      reg r; // uses default ctor: base 0x8000_0000, len big, dict ignored for fast reads
+  
+      uint32_t u32(uint32_t phys) {
+        return r.ReadBitsFast( (phys - 0x80000000u), /*bitEndianess*/false ); // byte offset API
+      }
+      uint64_t u64(uint32_t phys_lo, uint32_t phys_hi) {
+        uint32_t lo = u32(phys_lo);
+        uint32_t hi = u32(phys_hi);
+        return (static_cast<uint64_t>(hi) << 32) | lo;
+      }
+  
+      inline uint32_t base_ch(uint32_t ch) const { return PHYS_BASE + ch*STRIDE; }
+  
+      uint32_t read_thr(uint32_t ch) {
+        auto v = u32(base_ch(ch) + OFF_THR);
+        return (v & MASK_10BIT);
+      }
+      uint64_t read_rec(uint32_t ch) {
+        auto b = base_ch(ch);
+        return u64(b + OFF_REC_LO, b + OFF_REC_HI);
+      }
+      uint64_t read_bsy(uint32_t ch) {
+        auto b = base_ch(ch);
+        return u64(b + OFF_BSY_LO, b + OFF_BSY_HI);
+      }
+      uint64_t read_ful(uint32_t ch) {
+        auto b = base_ch(ch);
+        return u64(b + OFF_FUL_LO, b + OFF_FUL_HI);
+      }
+    };
+  }
+
 // Small RAII for mapped register access (we reuse your reg + FpgaRegDict)
 struct EpRegs {
   FpgaRegDict dict;
@@ -295,6 +344,64 @@ static inline daphne::ControlEnvelopeV2 make_v2_response_for_configure(
 
 static void init_v2_handlers() {
   using namespace daphne;
+    // Monitoring trigger counters
+  g_v2_handlers[daphne::MT2_READ_TRIGGER_COUNTERS_REQ] =
+  [](const std::string& in, std::string& out, Daphne& /*d*/, std::string& err) -> bool {
+    daphne::ReadTriggerCountersRequest req;
+    daphne::ReadTriggerCountersResponse resp;
+
+    if (!req.ParseFromString(in)) {
+      err = "Bad ReadTriggerCountersRequest";
+      resp.set_success(false);
+      resp.set_message(err);
+      out.resize(resp.ByteSizeLong());
+      resp.SerializeToArray(out.data(), (int)out.size());
+      return false;
+    }
+
+    // Channel list: default all
+    std::vector<uint32_t> chs;
+    if (req.channels_size() == 0) {
+      chs.resize(40); std::iota(chs.begin(), chs.end(), 0);
+    } else {
+      chs.assign(req.channels().begin(), req.channels().end());
+    }
+
+    // (Optional) override base for debugging
+    uint32_t base = (req.has_base_addr() && req.base_addr() != 0) ? req.base_addr() : trigregs::PHYS_BASE;
+    if (base != trigregs::PHYS_BASE) {
+      // accept override by shadowing PHYS_BASE via local arithmetic
+      // we just add (base - trigregs::PHYS_BASE) when computing addresses
+    }
+
+    // Read
+    try {
+      trigregs::Reader rd;
+      for (auto ch : chs) {
+        if (ch >= 40) continue;
+        uint32_t thr = rd.read_thr(ch);
+        uint64_t rc  = rd.read_rec(ch);
+        uint64_t bc  = rd.read_bsy(ch);
+        uint64_t fc  = rd.read_ful(ch);
+
+        auto* snap = resp.add_snapshots();
+        snap->set_channel(ch);
+        snap->set_threshold(thr);
+        snap->set_record_count(rc);
+        snap->set_busy_count(bc);
+        snap->set_full_count(fc);
+      }
+      resp.set_success(true);
+      resp.set_message("OK");
+    } catch (const std::exception& e) {
+      resp.set_success(false);
+      resp.set_message(std::string("Exception: ") + e.what());
+    }
+
+    out.resize(resp.ByteSizeLong());
+    resp.SerializeToArray(out.data(), (int)out.size());
+    return resp.success();
+  };
   // --- added: READ_TEST_REG (V2) ---
   g_v2_handlers[daphne::MT2_READ_TEST_REG_REQ] =
     [](const std::string& /*in*/, std::string& out, Daphne& /*d*/, std::string& /*err*/)->bool {

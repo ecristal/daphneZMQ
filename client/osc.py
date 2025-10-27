@@ -14,12 +14,17 @@ try:
 except Exception:
     _scipy_signal = None
 
-from PyQt6 import QtWidgets, QtCore
+from PyQt6 import QtWidgets, QtCore, QtGui
 import pyqtgraph as pg
 
 # ---- Protobuf imports from your tree ----
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
+
+# ---- Shared waveform parser (same directory) ----
+# If you prefer keeping it as a package import, change to: from client.waveparse import parse_dump_response
+from waveparse import parse_dump_response
+
 
 # ────────────────────── Window functions ──────────────────────
 def _ensure_scipy():
@@ -47,6 +52,56 @@ def get_window(name, N):
         return _scipy_signal.windows.tukey(N, alpha=0.1)
     raise ValueError(f"Unknown window function: {name}")
 
+# ────────────────────── V2 helper ──────────────────────
+class V2Link:
+    def __init__(self, endpoint, identity: bytes, timeout_ms: int):
+        self.ctx = zmq.Context.instance()
+        self.s   = self.ctx.socket(zmq.DEALER)
+        self.s.setsockopt(zmq.IDENTITY, identity)
+        self.s.setsockopt(zmq.RCVTIMEO, timeout_ms)
+        self.s.setsockopt(zmq.SNDTIMEO, timeout_ms)
+        self.s.setsockopt(zmq.LINGER,   0)
+        self.s.connect(endpoint)
+        self._seq = 0
+        self._rand = int(time.time_ns()) & 0xFFFFFFFF
+
+    def _next_ids(self):
+        self._seq += 1
+        now = time.time_ns()
+        task_id = (now << 16) ^ (os.getpid() << 8) ^ (self._rand & 0xFF)
+        msg_id  = (now << 1) ^ self._seq
+        mask = (1 << 63) - 1
+        return task_id & mask, msg_id & mask
+
+    def request(self, mtype_req, payload_bytes: bytes, route: str|None=None):
+        env = pb_high.ControlEnvelopeV2()
+        env.version = 2
+        env.dir     = pb_high.DIR_REQUEST
+        env.type    = mtype_req
+        env.payload = payload_bytes
+        env.task_id, env.msg_id = self._next_ids()
+        env.timestamp_ns = time.time_ns()
+        if route:
+            env.route = route
+
+        t0 = time.time_ns()
+        self.s.send(env.SerializeToString())
+        frames = [self.s.recv()]
+        while self.s.getsockopt(zmq.RCVMORE):
+            frames.append(self.s.recv())
+        t1 = time.time_ns()
+
+        rep = pb_high.ControlEnvelopeV2()
+        rep.ParseFromString(frames[-1])
+
+        if rep.dir != pb_high.DIR_RESPONSE:
+            raise RuntimeError(f"Unexpected dir={rep.dir}")
+        if rep.correl_id != env.msg_id:
+            raise RuntimeError("V2 correlation/type mismatch (correl_id != req.msg_id)")
+
+        rtt_ms = (t1 - t0) / 1e6
+        return env, rep, rtt_ms
+
 # ────────────────────── Oscilloscope App ──────────────────────
 class DaphneOscApp(QtWidgets.QWidget):
     def __init__(self, args):
@@ -55,23 +110,20 @@ class DaphneOscApp(QtWidgets.QWidget):
 
         # Server & acquisition config
         self.endpoint = f"tcp://{args.ip}:{args.port}"
-        self.channel = args.channel
+        # multi-channel: list of ints
+        self.channels = args.channels if args.channels else [args.channel]
         self.N = args.L
         self.software_trigger = args.software_trigger
         self.timeout_ms = args.timeout_ms
-        self.Fs = 62.5e6  # Hz
+        self.Fs = args.sampling_rate_hz  # default 62.5e6
 
-        # ZMQ DEALER (ROUTER peer) with identity
-        self.ctx = zmq.Context.instance()
-        self.s = self.ctx.socket(zmq.DEALER)
-        self.s.setsockopt(zmq.IDENTITY, args.identity.encode())
-        self.s.setsockopt(zmq.RCVTIMEO, self.timeout_ms)
-        self.s.setsockopt(zmq.LINGER, 0)
-        self.s.connect(self.endpoint)
+        # ZMQ V2 link
+        self.link = V2Link(self.endpoint, args.identity.encode(), self.timeout_ms)
+        self.route = args.route
 
         # Prebuild fixed parts of the request
         self.req = pb_high.DumpSpyBuffersRequest()
-        self.req.channelList.append(self.channel)
+        self.req.channelList.extend(self.channels)
         self.req.numberOfWaveforms = 1
         self.req.numberOfSamples = self.N
         self.req.softwareTrigger = self.software_trigger
@@ -79,15 +131,18 @@ class DaphneOscApp(QtWidgets.QWidget):
         # UI
         self._build_ui(args)
 
-        # FFT buffers (optional)
+        # FFT buffers (optional) — do FFT of the first channel
         self.enable_fft = args.enable_fft
         if self.enable_fft:
             self.f_axis = np.fft.rfftfreq(self.N, d=1.0/self.Fs)
             self._win = get_window(args.fft_window_function, self.N).astype(np.float64)
-            self._W = self._win  # alias
-            self.avg_count = args.fft_avg_waves
+            self._W = self._win
+            self.avg_count = max(1, int(args.fft_avg_waves))
             self._fft_acc = np.zeros((self.avg_count, self.f_axis.size), dtype=np.float64)
             self._fft_idx = 0
+
+        # Auto y-range
+        self.autoscale = True
 
         # Timer driving acquisition
         self.timer = QtCore.QTimer()
@@ -96,19 +151,33 @@ class DaphneOscApp(QtWidgets.QWidget):
 
     # -------------------- UI --------------------
     def _build_ui(self, args):
-        self.setWindowTitle(f"DAPHNE Oscilloscope — ch{self.channel} @ {self.endpoint}")
+        ch_label = ",".join(str(c) for c in self.channels)
+        self.setWindowTitle(f"DAPHNE Oscilloscope — ch[{ch_label}] @ {self.endpoint}")
         layout = QtWidgets.QVBoxLayout(self)
 
         # Waveform plot
-        self.plot_wf = pg.PlotWidget(title=f"Waveform (ch {self.channel})")
+        self.plot_wf = pg.PlotWidget(title=f"Waveforms (ch {ch_label})")
         self.plot_wf.setLabel('left', 'ADC counts')
         self.plot_wf.setLabel('bottom', 'Sample')
-        self.curve_wf = self.plot_wf.plot(pen='y')
         layout.addWidget(self.plot_wf)
 
-        # FFT plot
+        # Legend + color cycling
+        self.legend = self.plot_wf.addLegend(offset=(10,10))
+        color_cycle = [
+            (0,114,189), (217,83,25), (237,177,32), (126,47,142),
+            (119,172,48), (77,190,238), (162,20,47), (0,0,0)
+        ]
+        self.pens = [pg.mkPen(pg.mkColor(r, g, b), width=1.6) for (r,g,b) in color_cycle]
+        # curves per channel
+        self.curves = []
+        for i, ch in enumerate(self.channels):
+            pen = self.pens[i % len(self.pens)]
+            c = self.plot_wf.plot(pen=pen, name=f"ch {ch}")
+            self.curves.append(c)
+
+        # FFT plot (first channel only)
         if args.enable_fft:
-            self.plot_fft = pg.PlotWidget(title="FFT (averaged)")
+            self.plot_fft = pg.PlotWidget(title="FFT (averaged) — first channel")
             self.plot_fft.setLabel('left', 'Magnitude (dBFS)')
             self.plot_fft.setLabel('bottom', 'Frequency (Hz)')
             self.curve_fft = self.plot_fft.plot(pen='c')
@@ -118,116 +187,160 @@ class DaphneOscApp(QtWidgets.QWidget):
         self.status = QtWidgets.QLabel("Ready")
         layout.addWidget(self.status)
 
-        self.resize(1000, 700)
+        # Shortcuts
+        self._shortcut_autoscale = QtGui.QShortcut(QtGui.QKeySequence("A"), self)
+        self._shortcut_autoscale.activated.connect(self._toggle_autoscale)
+
+        self.resize(1100, 750)
+
+    def _toggle_autoscale(self):
+        self.autoscale = not self.autoscale
+        if self.autoscale:
+            self.plot_wf.enableAutoRange(axis='y')
+        self.status.setText(f"Autoscale {'ON' if self.autoscale else 'OFF'}")
 
     # -------------------- Acquisition --------------------
-    def _send_request(self):
-        env = pb_high.ControlEnvelope()
-        env.type = pb_high.DUMP_SPYBUFFER
-        env.payload = self.req.SerializeToString()
-        self.s.send(env.SerializeToString())
-
-    def _recv_payload(self):
-        # ROUTER replies [identity][payload]; DEALER receives all parts
-        frames = [self.s.recv()]
-        while self.s.getsockopt(zmq.RCVMORE):
-            frames.append(self.s.recv())
-        return frames[-1]
-
     def update_once(self):
-        # Build & send request
+        # Build request payload
         try:
-            self._send_request()
+            payload = self.req.SerializeToString()
         except Exception as e:
-            self.status.setText(f"[send error] {e}")
+            self.status.setText(f"[req build error] {e}")
             return
 
-        # Receive reply
+        # Send V2 request and get V2 reply
         try:
-            reply = self._recv_payload()
+            send_env, rep_env, rtt_ms = self.link.request(
+                pb_high.MT2_DUMP_SPYBUFFER_REQ,
+                payload,
+                route=self.route
+            )
         except zmq.Again:
             self.status.setText("[timeout] No response")
             return
         except Exception as e:
-            self.status.setText(f"[recv error] {e}")
+            self.status.setText(f"[send/recv error] {e}")
             return
 
-        # Parse envelope
-        env = pb_high.ControlEnvelope()
-        try:
-            env.ParseFromString(reply)
-        except Exception as e:
-            self.status.setText(f"[parse envelope] {e}")
+        # Validate type
+        if rep_env.type != pb_high.MT2_DUMP_SPYBUFFER_RESP:
+            self.status.setText(f"[unexpected V2 type {rep_env.type}]")
             return
 
-        if env.type != pb_high.DUMP_SPYBUFFER:
-            # silently ignore unrelated frames
-            self.status.setText(f"[unexpected message type {env.type}]")
-            return
-
-        # Parse response payload
+        # Decode typed payload
         resp = pb_high.DumpSpyBuffersResponse()
         try:
-            resp.ParseFromString(env.payload)
+            resp.ParseFromString(rep_env.payload)
         except Exception as e:
-            self.status.setText(f"[parse payload] {e}")
+            self.status.setText(f"[parse resp] {e}")
             return
 
         if not resp.success:
             self.status.setText(f"[server] {resp.message}")
             return
 
-        # Data is repeated uint32 in your proto; interpret as np.uint32 (or int32)
-        y = np.frombuffer(np.array(resp.data, dtype=np.uint32), dtype=np.int32)
-        if y.size < self.N:
-            self.status.setText(f"[warn] short waveform {y.size}/{self.N}")
+        # ───── Unified parse: (W, K, N) int32 ─────
+        try:
+            y_all, meta = parse_dump_response(resp)   # y_all.shape == (W, K, N)
+        except Exception as e:
+            self.status.setText(f"[parse data] {e}")
             return
-        y = y[:self.N]
 
-        # Plot waveform
-        self.curve_wf.setData(np.arange(self.N), y)
-        self.status.setText(f"OK  ch={self.channel}  N={self.N}  trig={'SW' if self.software_trigger else 'EXT'}")
+        # We request W=1 in this app; take the first waveform
+        yk = y_all[0]  # shape (K, N), signed int32
+        K, N = yk.shape
 
-        # Optional FFT
+        # Plot each channel
+        x = np.arange(N)
+        for i, c in enumerate(self.curves):
+            c.setData(x, yk[i])
+
+        # Autoscale or manual y-range
+        if self.autoscale:
+            self.plot_wf.enableAutoRange(axis='y')
+        else:
+            ymin = float(yk.min()); ymax = float(yk.max())
+            pad = max(50.0, 0.1 * max(1.0, ymax - ymin))
+            self.plot_wf.setYRange(ymin - pad, ymax + pad, padding=0)
+
+        ch_label = ",".join(str(c) for c in self.channels)
+        self.status.setText(
+            f"OK  ch=[{ch_label}]  N={N}  trig={'SW' if self.software_trigger else 'EXT'}  "
+            f"RTT={rtt_ms:.2f} ms"
+        )
+
+        # Optional FFT (first channel only)
         if self.enable_fft:
-            # Window & rFFT
-            yw = y.astype(np.float64) * self._W
-            Y = np.fft.rfft(yw)
-            # Normalize: single-sided magnitude in "counts"
-            mag = np.abs(Y) / (self.N / 2.0)
-
+            y = yk[0].astype(np.float64) * self._W
+            Y = np.fft.rfft(y)
+            mag = np.abs(Y) / (N / 2.0)
             self._fft_acc[self._fft_idx % self.avg_count, :] = mag
             self._fft_idx += 1
 
             acc_valid = self._fft_acc[:min(self._fft_idx, self.avg_count), :]
             Y_avg = acc_valid.mean(axis=0)
-            # Convert to dBFS (14-bit full-scale)
             Y_dbfs = 20.0 * np.log10(Y_avg / (2**14) + 1e-12)
-
-            # Skip the first few bins (DC/very low-f)
+            # skip the first few DC bins for a cleaner view
             k0 = 4 if self.f_axis.size > 4 else 0
             self.curve_fft.setData(self.f_axis[k0:], Y_dbfs[k0:])
 
 # ────────────────────── main ──────────────────────
+def _parse_channels(csv: str):
+    chans = []
+    for tok in csv.split(','):
+        tok = tok.strip()
+        if not tok:
+            continue
+        # allow ranges like 8-15
+        if '-' in tok:
+            a, b = tok.split('-', 1)
+            a = int(a); b = int(b)
+            if a > b: a, b = b, a
+            chans.extend(range(a, b+1))
+        else:
+            chans.append(int(tok))
+    # uniq + sorted
+    return sorted(set(chans))
+
 def main():
-    p = argparse.ArgumentParser(description="Fast oscilloscope with FFT using PyQtGraph (ROUTER-compatible).")
+    p = argparse.ArgumentParser(description="DAPHNE Oscilloscope (EnvelopeV2) with multi-channel overlay.")
     p.add_argument("-ip", type=str, required=True, help="Server IP")
     p.add_argument("-port", type=int, default=9000, help="Server port (default 9000)")
-    p.add_argument("-channel", type=int, required=True, help="Channel index [0..39]")
+
+    # Back-compat single channel
+    p.add_argument("-channel", type=int, default=0, help="Single channel [0..39] (ignored if --channels is set)")
+
+    # New: multi-channel CSV/range (e.g. --channels 0,8,16,24,32 or --channels 0-7)
+    p.add_argument("--channels", type=str, default="", help="CSV/range of channels, e.g. '0,8,16' or '0-7'")
+
     p.add_argument("-L", type=int, required=True, help="Samples per waveform (<= 2048)")
     p.add_argument("-software_trigger", action="store_true", help="Use software trigger")
-    p.add_argument("-enable_fft", action="store_true", help="Show averaged FFT plot")
+
+    p.add_argument("-enable_fft", action="store_true", help="Show averaged FFT plot (first channel)")
     p.add_argument("-fft_avg_waves", type=int, default=2000, help="Averages for FFT")
     p.add_argument("-fft_window_function", type=str, default="BLACKMAN-HARRIS",
                    choices=["NONE", "HANNING", "HAMMING", "BLACKMAN", "BLACKMAN-HARRIS", "TUKEY"])
+
     p.add_argument("-period_ms", type=int, default=20, help="Update period (ms)")
-    p.add_argument("-timeout_ms", type=int, default=1000, help="ZMQ recv timeout (ms)")
+    p.add_argument("-timeout_ms", type=int, default=1000, help="ZMQ recv/snd timeout (ms)")
     p.add_argument("-identity", type=str, default="osc-client", help="DEALER identity")
+    p.add_argument("--route", type=str, default="mezz/0", help="Optional logical route to target")
+    p.add_argument("--sampling_rate_hz", type=float, default=62.5e6, help="Sample rate used for FFT axis")
     args = p.parse_args()
 
+    # Parse channels
+    if args.channels:
+        chs = _parse_channels(args.channels)
+        if not chs:
+            print("No valid channels parsed from --channels")
+            return 2
+        args.channels = chs
+    else:
+        args.channels = [args.channel]
+
     # Validate ranges the server enforces
-    if not (0 <= args.channel <= 39):
-        print("Channel must be in [0..39]")
+    if any((c < 0 or c > 39) for c in args.channels):
+        print("Channels must be in [0..39]")
         return 2
     if not (1 <= args.L <= 2048):
         print("L must be in [1..2048]")
