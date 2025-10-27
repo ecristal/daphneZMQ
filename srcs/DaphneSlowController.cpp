@@ -16,6 +16,7 @@
 #include <thread>
 #include <unordered_map>
 #include <vector>
+#include <numeric>   // for std::iota
 
 // --- System / POSIX ---
 #include <arpa/inet.h>
@@ -124,24 +125,30 @@ namespace trigregs {
     constexpr uint32_t OFF_FUL_LO  = 0x14u, OFF_FUL_HI = 0x18u;
     constexpr uint32_t MASK_10BIT  = 0x3FFu;
   
-    // reg aperture in Daphne already maps 0x80000000.. ; convert a physical addr to word offset
-    inline uint32_t word_off(uint32_t phys_addr) {
-      return (phys_addr - 0x80000000u) / 4u; // FpgaReg::getBitsFast expects WORD index
-    }
-  
     struct Reader {
-      reg r; // uses default ctor: base 0x8000_0000, len big, dict ignored for fast reads
+      uint32_t     phys_base;
+      FpgaRegDict  dict;
+      reg          r;
   
-      uint32_t u32(uint32_t phys) {
-        return r.ReadBitsFast( (phys - 0x80000000u), /*bitEndianess*/false ); // byte offset API
+      // Map the 0x8000_0000 BAR the same way FpgaReg does
+      Reader(uint32_t base = PHYS_BASE)
+        : phys_base(base),
+          dict(),
+          r(0x80000000ULL, 0x7FFFFFFFULL, dict) {}
+  
+      // ReadBitsFast expects a BYTE offset from 0x8000_0000
+      inline uint32_t u32(uint32_t phys_addr) {
+        uint32_t byte_off = phys_addr - 0x80000000u;
+        return r.ReadBitsFast(byte_off, /*bitEndianess*/false);
       }
-      uint64_t u64(uint32_t phys_lo, uint32_t phys_hi) {
+  
+      inline uint64_t u64(uint32_t phys_lo, uint32_t phys_hi) {
         uint32_t lo = u32(phys_lo);
         uint32_t hi = u32(phys_hi);
         return (static_cast<uint64_t>(hi) << 32) | lo;
       }
   
-      inline uint32_t base_ch(uint32_t ch) const { return PHYS_BASE + ch*STRIDE; }
+      inline uint32_t base_ch(uint32_t ch) const { return phys_base + ch*STRIDE; }
   
       uint32_t read_thr(uint32_t ch) {
         auto v = u32(base_ch(ch) + OFF_THR);
@@ -368,7 +375,7 @@ static void init_v2_handlers() {
     }
 
     // (Optional) override base for debugging
-    uint32_t base = (req.has_base_addr() && req.base_addr() != 0) ? req.base_addr() : trigregs::PHYS_BASE;
+    uint32_t base = (req.base_addr() != 0) ? req.base_addr() : trigregs::PHYS_BASE;
     if (base != trigregs::PHYS_BASE) {
       // accept override by shadowing PHYS_BASE via local arithmetic
       // we just add (base - trigregs::PHYS_BASE) when computing addresses
@@ -376,7 +383,7 @@ static void init_v2_handlers() {
 
     // Read
     try {
-      trigregs::Reader rd;
+        trigregs::Reader rd(base);
       for (auto ch : chs) {
         if (ch >= 40) continue;
         uint32_t thr = rd.read_thr(ch);
