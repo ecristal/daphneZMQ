@@ -381,29 +381,40 @@ static void init_v2_handlers() {
       // we just add (base - trigregs::PHYS_BASE) when computing addresses
     }
 
-    // Read
-    try {
-        trigregs::Reader rd(base);
-      for (auto ch : chs) {
-        if (ch >= 40) continue;
-        uint32_t thr = rd.read_thr(ch);
-        uint64_t rc  = rd.read_rec(ch);
-        uint64_t bc  = rd.read_bsy(ch);
-        uint64_t fc  = rd.read_ful(ch);
-
-        auto* snap = resp.add_snapshots();
-        snap->set_channel(ch);
-        snap->set_threshold(thr);
-        snap->set_record_count(rc);
-        snap->set_busy_count(bc);
-        snap->set_full_count(fc);
+ // Read
+try {
+    // ---- early guard: /dev/mem must be readable on this host ----
+    {
+      std::ifstream devmem("/dev/mem");
+      if (!devmem.good()) {
+        resp.set_success(false);
+        resp.set_message("READ_TRIGGER_COUNTERS: /dev/mem not accessible on this host");
+        out.resize(resp.ByteSizeLong());
+        resp.SerializeToArray(out.data(), (int)out.size());
+        return false;
       }
-      resp.set_success(true);
-      resp.set_message("OK");
-    } catch (const std::exception& e) {
-      resp.set_success(false);
-      resp.set_message(std::string("Exception: ") + e.what());
     }
+  
+    trigregs::Reader rd(base);   // <-- this mmap can crash if /dev/mem isn’t available
+    for (auto ch : chs) {
+      if (ch >= 40) continue;
+      uint32_t thr = rd.read_thr(ch);
+      uint64_t rc  = rd.read_rec(ch);
+      uint64_t bc  = rd.read_bsy(ch);
+      uint64_t fc  = rd.read_ful(ch);
+      auto* snap = resp.add_snapshots();
+      snap->set_channel(ch);
+      snap->set_threshold(thr);
+      snap->set_record_count(rc);
+      snap->set_busy_count(bc);
+      snap->set_full_count(fc);
+    }
+    resp.set_success(true);
+    resp.set_message("OK");
+  } catch (const std::exception& e) {
+    resp.set_success(false);
+    resp.set_message(std::string("Exception: ") + e.what());
+  }
 
     out.resize(resp.ByteSizeLong());
     resp.SerializeToArray(out.data(), (int)out.size());

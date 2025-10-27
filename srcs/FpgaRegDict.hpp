@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <cstdint>
 #include <string>
 #include <vector>
 

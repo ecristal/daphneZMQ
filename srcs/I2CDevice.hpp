@@ -9,14 +9,15 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/i2c-dev.h>
+#include <cstdint>
 #include <cerrno>
 #include <cstring>
 
 class I2CDevice {
 public:
     // Constructor
-    I2CDevice(const std::string &devicePath, const uint8_t &deviceAddress);
-    I2CDevice(const std::string &devicePath, const uint8_t &deviceAddress, const int &enablePEC);
+    explicit I2CDevice(const std::string &devicePath, const uint8_t &deviceAddress);
+    I2CDevice(const std::string &devicePath, const uint8_t &deviceAddress, int enablePEC);
 
     // Destructor
     ~I2CDevice();
@@ -34,13 +35,13 @@ public:
 
 private:
     
-    int fileDescriptor;
+    int fileDescriptor{-1};
     std::string devicePath;
     uint8_t deviceAddress;
 
-    int openDevice();
-    int openDevice(const int &enablePEC);
-    bool closeDevice();
+    int  openDevice();
+    int  openDevice(int enablePEC);
+    bool closeDevice() noexcept;
 };
 
 #endif // I2CDEVICE_HPP

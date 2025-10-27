@@ -9,6 +9,7 @@
 #include <iostream>
 #include <iomanip>
 #include <chrono>
+#include <memory>
 #include <thread>
 
 #include "FpgaReg.hpp"

@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <chrono>
 #include <thread>
+#include <memory>
 #include <unordered_map>
 
 #include "FpgaReg.hpp"

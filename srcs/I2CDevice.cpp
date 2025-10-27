@@ -2,14 +2,19 @@
 extern "C" {
     #include <i2c/smbus.h>
 }
+#include <sstream>
 
 I2CDevice::I2CDevice(const std::string &devicePath, const uint8_t &deviceAddress)
     : devicePath(devicePath), deviceAddress(deviceAddress) {
     fileDescriptor = this->openDevice();
     if (fileDescriptor < 0) {
-        // Throw an exception showing which device path and address in hex failed to connect.
-        throw std::runtime_error("Failed to open I2C device at " + devicePath + " with address " + std::to_string(deviceAddress));
+        std::ostringstream os;
+        os << "Failed to open I2C device at " << devicePath
+           << " with address 0x" << std::hex << static_cast<int>(deviceAddress);
+        throw std::runtime_error(os.str());
     }
+    // already assigned: fileDescriptor is the returned fd
+    // (avoid reassigning to itself)
     this->fileDescriptor = fileDescriptor;
 }
 
