@@ -21,6 +21,10 @@
 
 // --- System / POSIX ---
 #include <arpa/inet.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <cstring>
 
 // --- Third-Party Libraries ---
 #include <zmq.hpp>
@@ -194,6 +198,54 @@ namespace trigregs {
 
     };
   }
+
+  /* ---- raw counters reader via /dev/mem (page-aligned) ---- */
+static bool read_counters_raw(uint32_t base,
+    const std::vector<uint32_t>& chs,
+    daphne::ReadTriggerCountersResponse &resp,
+    std::string &err)
+{
+long pagesz = sysconf(_SC_PAGESIZE);
+if (pagesz <= 0) pagesz = 4096;
+const uint64_t pg = (uint64_t)pagesz;
+
+// Map from page boundary at/before base, covering up to the highest requested channel
+const uint64_t map_base = ((uint64_t)base) & ~(pg - 1ULL);
+uint32_t maxch = 0;
+for (auto c : chs) if (c < 40 && c > maxch) maxch = c;
+const uint32_t span = (maxch * trigregs::STRIDE) + trigregs::OFF_FUL_HI + 4u;
+const uint64_t tail = ((uint64_t)base - map_base) + (uint64_t)span;
+const uint64_t map_len = (tail + (pg - 1ULL)) & ~(pg - 1ULL);
+
+int fd = open("/dev/mem", O_RDONLY | O_SYNC);
+if (fd < 0) { err = "open(/dev/mem) failed"; return false; }
+void* p = mmap(nullptr, map_len, PROT_READ, MAP_SHARED, fd, map_base);
+if (p == MAP_FAILED) { close(fd); err = "mmap(/dev/mem) failed"; return false; }
+uint8_t* ptr = static_cast<uint8_t*>(p);
+
+auto rd32 = [&](uint32_t phys) -> uint32_t {
+uint64_t off = (uint64_t)phys - map_base;
+uint32_t v; std::memcpy(&v, ptr + off, 4); return v;
+};
+auto rd64 = [&](uint32_t lo, uint32_t hi) -> uint64_t {
+uint32_t l = rd32(lo), h = rd32(hi); return ((uint64_t)h << 32) | l;
+};
+
+for (auto ch : chs) {
+if (ch >= 40) continue;
+uint32_t b = base + ch * trigregs::STRIDE;
+auto* s = resp.add_snapshots();
+s->set_channel(ch);
+s->set_threshold(rd32(b + trigregs::OFF_THR) & trigregs::MASK_10BIT);
+s->set_record_count(rd64(b + trigregs::OFF_REC_LO, b + trigregs::OFF_REC_HI));
+s->set_busy_count  (rd64(b + trigregs::OFF_BSY_LO, b + trigregs::OFF_BSY_HI));
+s->set_full_count  (rd64(b + trigregs::OFF_FUL_LO, b + trigregs::OFF_FUL_HI));
+}
+
+munmap(ptr, map_len);
+close(fd);
+return true;
+}
 
 // Small RAII for mapped register access (we reuse your reg + FpgaRegDict)
 struct EpRegs {
@@ -378,22 +430,37 @@ static inline daphne::ControlEnvelopeV2 make_v2_response_for_configure(
 static void init_v2_handlers() {
   using namespace daphne;
     // Monitoring trigger counters
-g_v2_handlers[daphne::MT2_READ_TRIGGER_COUNTERS_REQ] =
-  [](const std::string& /*in*/, std::string& out, Daphne& /*d*/, std::string& /*err*/)->bool {
-    daphne::ReadTriggerCountersResponse resp; 
-    for (uint32_t ch = 0; ch < 8; ++ch) { 
-      auto* s = resp.add_snapshots(); 
-      s->set_channel(ch); 
-      s->set_threshold(42 + ch); 
-      s->set_record_count(100000 + ch * 10); 
-      s->set_busy_count(5000 + ch); 
-      s->set_full_count(100 + ch); 
-    } 
-    resp.set_success(true); 
-    resp.set_message("Hard-coded counters test reply — transport layer OK"); 
-    out.resize(resp.ByteSizeLong()); 
-    resp.SerializeToArray(out.data(), (int)out.size()); 
-    return true; 
+  g_v2_handlers[daphne::MT2_READ_TRIGGER_COUNTERS_REQ] =
+  [](const std::string& in, std::string& out, Daphne& /*d*/, std::string& /*err*/)->bool {
+    daphne::ReadTriggerCountersRequest req;
+    daphne::ReadTriggerCountersResponse resp;
+
+    if (!req.ParseFromString(in)) {
+      resp.set_success(false);
+      resp.set_message("Bad ReadTriggerCountersRequest payload");
+    } else {
+      // Build channel list (default: 0..39)
+      std::vector<uint32_t> chs;
+      if (req.channels_size() == 0) {
+        chs.resize(40); std::iota(chs.begin(), chs.end(), 0);
+      } else {
+        chs.assign(req.channels().begin(), req.channels().end());
+      }
+
+      // Choose base (0 means default)
+      uint32_t base = trigregs::PHYS_BASE;        // 0xA0010000
+      if (req.base_addr() != 0)
+        base = static_cast<uint32_t>(req.base_addr());
+
+      std::string err;
+      bool ok = read_counters_raw(base, chs, resp, err);
+      resp.set_success(ok);
+      resp.set_message(ok ? "OK" : std::string("Counters read error: ") + err);
+    }
+
+    out.resize(resp.ByteSizeLong());
+    resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+    return true;
   };
   // --- added: READ_TEST_REG (V2) ---
   g_v2_handlers[daphne::MT2_READ_TEST_REG_REQ] =
