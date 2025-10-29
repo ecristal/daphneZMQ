@@ -12,7 +12,7 @@
 #include <iomanip>
 #include <chrono>
 #include <thread>
-
+#include <array>
 #include "FpgaReg.hpp"
 
 class SpyBuffer {

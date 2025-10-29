@@ -1,3 +1,4 @@
+#include <memory>
 #include "reg.hpp"
 #include "FpgaRegDict.hpp"
 #include "FpgaReg.hpp"

@@ -58,9 +58,9 @@ uint32_t Endpoint::getClockStatus(const uint32_t &mmcm){
 uint32_t Endpoint::checkClockStatus(){
 	uint32_t mmcm0 = this->getClockStatus(0);
     uint32_t mmcm1 = this->getClockStatus(1);
-    if(mmcm0 == mmcm1){
-        return (mmcm0 == mmcm1);
-    }else{
+    if (mmcm0 == 1 && mmcm1 == 1){
+		return 1;
+	} else {
         throw std::runtime_error("MMCM clocks not locked (MMCM0:" + std::to_string(mmcm0) + 
                                  " , MMCM1:"+ std::to_string(mmcm1));
     }

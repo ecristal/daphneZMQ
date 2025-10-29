@@ -11,7 +11,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <tuple>
-
+#include <memory>
 #include "FpgaRegDict.hpp"
 #include "DevMem.hpp"
 
