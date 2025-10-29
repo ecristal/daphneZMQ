@@ -1182,9 +1182,9 @@ static void server_loop_router(zmq::context_t &ctx, const std::string &bind_endp
 }
 
 void I2C_2_monitorThread(Daphne &daphne){
-    //auto start = std::chrono::high_resolution_clock::now();
-    //daphne.getHDMezzDriver()->enableAfeBlock(4, true);
-    //daphne.getHDMezzDriver()->configureHdMezzAfeBlock(4); //testing purposes
+    auto start = std::chrono::high_resolution_clock::now();
+    daphne.getHDMezzDriver()->enableAfeBlock(4, true);
+    daphne.getHDMezzDriver()->configureHdMezzAfeBlock(4); //testing purposes
     while(true){
         try{
             if(!daphne.isI2C_2_device_configuring.load()){
@@ -1235,12 +1235,12 @@ void I2C_2_monitorThread(Daphne &daphne){
             }
 
             //Meassure time
-            //auto end = std::chrono::high_resolution_clock::now();
-            //std::chrono::duration<double> elapsed = end - start;
-            //std::cout << "Time since last reading: " << elapsed.count() << " seconds" << std::endl;
-            //std::cout << "5V  : " << daphne.HDMezz_5V_voltage_afe4.load() << " V, " << daphne.HDMezz_5V_current_afe4.load() << " mA, " << daphne.HDMezz_5V_power_afe4.load() << " mW" << std::endl;
-            //std::cout << "3.3V: " << daphne.HDMezz_3V3_voltage_afe4.load() << " V, " << daphne.HDMezz_3V3_current_afe4.load() << " mA, " << daphne.HDMezz_3V3_power_afe4.load() << " mW" << std::endl;
-            //std::this_thread::sleep_for(std::chrono::seconds(2));
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsed = end - start;
+            std::cout << "Time since last reading: " << elapsed.count() << " seconds" << std::endl;
+            std::cout << "5V  : " << daphne.HDMezz_5V_voltage_afe4.load() << " V, " << daphne.HDMezz_5V_current_afe4.load() << " mA, " << daphne.HDMezz_5V_power_afe4.load() << " mW" << std::endl;
+            std::cout << "3.3V: " << daphne.HDMezz_3V3_voltage_afe4.load() << " V, " << daphne.HDMezz_3V3_current_afe4.load() << " mA, " << daphne.HDMezz_3V3_power_afe4.load() << " mW" << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(2));
         }catch(std::exception &e){
             std::cerr << "Error in monitor thread: " << e.what() << std::endl;
         }
@@ -1248,7 +1248,7 @@ void I2C_2_monitorThread(Daphne &daphne){
 }
 
 void I2C_1_monitorThread(Daphne &daphne){
-    //auto start = std::chrono::high_resolution_clock::now();
+    auto start = std::chrono::high_resolution_clock::now();
     while(true){
         try{
             
@@ -1273,18 +1273,18 @@ void I2C_1_monitorThread(Daphne &daphne){
             
             
             //Meassure time
-            //auto end = std::chrono::high_resolution_clock::now();
-            //std::chrono::duration<double> elapsed = end - start;
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsed = end - start;
             //ADC readout
-            //std::cout << "ADC readout." << std::endl;
-            //std::cout << "3V3PDS : " << daphne._3V3PDS_voltage.load() << " V, 1V8PDS : " << daphne._1V8PDS_voltage.load() << " V." << std::endl;
-            //std::cout << "3V3A : " << daphne._3V3A_voltage.load() << " V, 1V8A : " << daphne._1V8A_voltage.load() << " V, -5VA :" << daphne._n5VA_voltage.load() << " V." <<std::endl;
-            //std::cout << "BIAS 0 : " << daphne._VBIAS_0_voltage.load() << " V." << std::endl;
-            //std::cout << "BIAS 1 : " << daphne._VBIAS_1_voltage.load() << " V." << std::endl;
-            //std::cout << "BIAS 2 : " << daphne._VBIAS_2_voltage.load() << " V." << std::endl;
-            //std::cout << "BIAS 3 : " << daphne._VBIAS_3_voltage.load() << " V." << std::endl;
-            //std::cout << "BIAS 4 : " << daphne._VBIAS_4_voltage.load() << " V." << std::endl;
-            //std::this_thread::sleep_for(std::chrono::seconds(2));
+            std::cout << "ADC readout." << std::endl;
+            std::cout << "3V3PDS : " << daphne._3V3PDS_voltage.load() << " V, 1V8PDS : " << daphne._1V8PDS_voltage.load() << " V." << std::endl;
+            std::cout << "3V3A : " << daphne._3V3A_voltage.load() << " V, 1V8A : " << daphne._1V8A_voltage.load() << " V, -5VA :" << daphne._n5VA_voltage.load() << " V." <<std::endl;
+            std::cout << "BIAS 0 : " << daphne._VBIAS_0_voltage.load() << " V." << std::endl;
+            std::cout << "BIAS 1 : " << daphne._VBIAS_1_voltage.load() << " V." << std::endl;
+            std::cout << "BIAS 2 : " << daphne._VBIAS_2_voltage.load() << " V." << std::endl;
+            std::cout << "BIAS 3 : " << daphne._VBIAS_3_voltage.load() << " V." << std::endl;
+            std::cout << "BIAS 4 : " << daphne._VBIAS_4_voltage.load() << " V." << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(2));
         }catch(std::exception &e){
             std::cerr << "Error in monitor thread: " << e.what() << std::endl;
         }
@@ -1360,7 +1360,7 @@ int main(int argc, char* argv[]) {
     Daphne daphne;
 
     std::thread monitor1_thread(I2C_1_monitorThread, std::ref(daphne));
-    std::thread monitor2_thread(I2C_2_monitorThread, std::ref(daphne));
+    //std::thread monitor2_thread(I2C_2_monitorThread, std::ref(daphne));
     // Enters the ROUTER-based server loop. This function binds the ROUTER
     // and handles both legacy single-reply and new chunked streaming.
     server_loop_router(context, endpoint, daphne);
@@ -1368,8 +1368,8 @@ int main(int argc, char* argv[]) {
     if (monitor1_thread.joinable()) {
         monitor1_thread.join();
     }
-    if (monitor2_thread.joinable()) {
-        monitor2_thread.join();
-    }
+    //if (monitor2_thread.joinable()) {
+    //    monitor2_thread.join();
+    //}
     return 0;
 }
