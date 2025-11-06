@@ -1,25 +1,97 @@
-<!DOCTYPE html PUBLIC "-_W3C_DTD XHTML 1.0 Transitional_EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
-<head>
-  <meta http-equiv="Refresh" content="0; url=https://cern.ch/security/blocked.shtml">
-  <title>Oops...</title>
-</head>
+# daphneZMQ
 
-<body>
-      <p>
-      <b>The page you were looking for has been blocked as it is likely hosting malicious contents.</b>
-      </p><p>
-      "Malicious contents" is either malware, i.e. software aiming at infecting your PC, or a "<a href="https://cern.ch/security/recommendations/en/bad_mails.shtml">Phishing</a>" portal, where "<a href="https://cern.ch/security/recommendations/en/bad_mails.shtml">Phishing</a>" is a technique to trick you in disclosing your password. In the latter case, probably you just clicked on a link in a corresponding "<a href="https://cern.ch/security/recommendations/en/bad_mails.shtml">Phishing</a>" email send to your CERN mail address? If so, just delete this email and ignore the web-site!
-      </p><p>
-      If you think that this web-site should be accessible from CERN, please contact us at <a href="mailto:Computer.Security@cern.ch">Computer.Security@cern.ch</a>.
-      </p>
-<hr>
-      <p>
-      <b>La page que vous recherchez a &eacute;t&eacute; bloqu&eacute; car il semble qu'elle hi&eacute;rbergeait du contenu malveillant.</b>
-      </p><p>
-      Du Â« contenu malveillant Â» est soit un malware, i.e. un logiciel ayant pour but d'infecter votre PC, soit un portail de Â« <a href="https://cern.ch/security/recommendations/en/bad_mails.shtml">Phishing</a> Â», o&ugrave; Â« <a href="https://cern.ch/security/recommendations/en/bad_mails.shtml">Phishing</a> Â» est une technique pour vous inciter &agrave; divulguer votre mot de passe. Dans le dernier cas, vous avez probablement simplement cliqu&eacute; sur un lien dans le mail Â« <a href="https://cern.ch/security/recommendations/en/bad_mails.shtml">Phishing</a>  Â» correspondant qui a &eacute;t&eacute; envoy&eacute; &agrave; votre adresse mail du CERN ? Si tel est le cas, supprimez cet e-mail et ignorez le site !
-      </p><p>
-      Si vous pensez que ce site Web doit &ecirc;tre accessible depuis le CERN, veuillez s'il vous pla&icirc;t nous contactez via <a href="mailto:Computer.Security@cern.ch">Computer.Security@cern.ch</a>.
-      </p>
-</body>
-</html>
+Slow-control and monitoring toolkit for the DAPHNE front-end, targeting a Xilinx SoM.  
+The project contains:
+
+- low-level memory access helpers (`DevMem`) used to peek/poke AXI registers from the PS side;
+- a ZeroMQ-based register server (`srcs/srv.cpp`) that exposes simple `read`/`write` commands;
+- the main `DaphneSlowController` high-level application, which orchestrates AFE, SPI, I²C and trigger primitives and uses Protocol Buffers for configuration exchanges.
+
+## Repository layout
+
+- `srcs/` – core C++ sources; most hardware interactions are implemented here.
+- `srcs/protobuf/` – protobuf schemas for higher-level commands.
+- `srcs/configurations/` – default runtime configuration snippets.
+- `client/`, `bash_scripts/` – helper clients and maintenance scripts.
+
+## Prerequisites
+
+- CMake ≥ 3.10 and a C++17-capable compiler.
+- [ZeroMQ](https://zeromq.org/) runtime (`libzmq`) and the `cppzmq` headers.
+- [Protocol Buffers](https://protobuf.dev/) compiler and library.
+- [CLI11](https://github.com/CLIUtils/CLI11) headers (optional, header-only fallback is used).
+- `libi2c` (optional; needed when using the I²C features of `DaphneSlowController`).
+- OpenMP (optional; enabled automatically if available).
+
+On Ubuntu-like systems the following packages cover the essentials:
+
+```bash
+sudo apt install build-essential cmake libzmq3-dev libprotobuf-dev protobuf-compiler \
+                 libcli11-dev libi2c-dev
+```
+
+## Building
+
+```bash
+cmake -S . -B build
+cmake --build build --parallel
+```
+
+The build produces two main executables:
+
+- `build/DaphneSlowController` – the high-level slow-control application.
+- `build/daphne_zmq_server` – a lightweight register access server.
+
+## ZeroMQ register server
+
+The server provides blocking request/reply access to AXI registers. It accepts the
+optional bind endpoint as the first argument or via the `DAPHNEZMQ_BIND` env var.
+If neither is provided it falls back to `tcp://*:9000`.
+
+### Usage
+
+```bash
+# bind to all interfaces on port 9000
+./build/daphne_zmq_server
+
+# bind explicitly
+./build/daphne_zmq_server tcp://192.168.2.10:9000
+
+# or via environment variable
+export DAPHNEZMQ_BIND=tcp://0.0.0.0:6000
+./build/daphne_zmq_server
+```
+
+Commands use ASCII hex tokens (with or without `0x` prefixes):
+
+```
+read <offset>
+write <offset> <value>
+```
+
+Replies are:
+
+- `OK` for a successful write verification,
+- an 8-digit uppercase hex string for `read`,
+- or `ERROR: …` with diagnostics.
+
+Offsets are interpreted as byte offsets within the mapped AXI window starting at
+`0x4000_0000` by default. Adjust `kAxiBaseAddr` / `kAxiWindowSize` in
+`srcs/srv.cpp` if your platform uses a different layout.
+
+## Development notes
+
+- `DevMem` now validates offsets and length arguments and no longer leaks file
+  descriptors or mappings when remapping.
+- If you add new binaries, prefer reusing the existing CMake targets (e.g. by
+  adding to `SOURCES` or creating dedicated executables alongside
+  `daphne_zmq_server`).
+- For hardware-less testing consider mocking `/dev/mem` access or building with
+  a stub.
+
+## Contributing
+
+Please open merge requests or issues with reproduction steps, expected behaviour,
+and board/bitstream details. Continuous improvements around documentation,
+automation, and error handling are especially welcome.
+

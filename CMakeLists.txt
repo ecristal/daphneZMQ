@@ -123,6 +123,18 @@ if(I2C_LIB)
   target_link_libraries(DaphneSlowController PRIVATE ${I2C_LIB})
 endif()
 
+add_executable(daphne_zmq_server
+  srcs/srv.cpp
+  srcs/DevMem.cpp
+)
+target_link_libraries(daphne_zmq_server PRIVATE
+  cppzmq
+  ${ZMQ_LIB}
+)
+if(OpenMP_CXX_FOUND)
+  target_link_libraries(daphne_zmq_server PRIVATE OpenMP::OpenMP_CXX)
+endif()
+
 # ---------------- Diagnostics ------------
 message(STATUS "ZMQ lib: ${ZMQ_LIB}")
 message(STATUS "cppzmq target: " $<TARGET_EXISTS:cppzmq>)

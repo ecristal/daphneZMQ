@@ -189,20 +189,38 @@ int Daphne::findIndex(const std::vector<T>& data, const T& target){
 
 uint32_t Daphne::setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps){
 
+	const uint32_t initialBitslip = this->frontend->getBitslip(afe);
+
 	std::vector<uint32_t> data = this->scanGeneric( afe,
 												   "bitslip",
 												    bitslipTaps,
 												    [this](const uint32_t& a, const uint32_t& b) { return this->frontend->setBitslip(a, b);}
 												    );
-	int bestBitslip = this->findIndex(data, (uint32_t)0x00FF);
-	if(bestBitslip == -1)
-		return 0;
-		//throw std::runtime_error("Failed to find best bitslip");
-	//std::cout << "Optimun bitslip: 0x" << std::hex << bestBitslip << std::endl;
-	this->frontend->setBitslip(afe, (uint32_t)bestBitslip);
+
+	auto is_expected_pattern = [](uint32_t word) {
+		constexpr uint32_t kTarget32 = 0x00FF00FFu;
+		if (word == kTarget32) {
+			return true;
+		}
+		const uint32_t lower = word & 0x0000FFFFu;
+		const uint32_t upper = (word >> 16) & 0x0000FFFFu;
+		return lower == 0x00FFu || upper == 0x00FFu;
+	};
+
+	auto it = std::find_if(data.begin(), data.end(), is_expected_pattern);
+	int bestBitslip = (it != data.end()) ? static_cast<int>(std::distance(data.begin(), it)) : -1;
+
+	uint32_t finalBitslip = initialBitslip;
+	if (bestBitslip >= 0) {
+		finalBitslip = static_cast<uint32_t>(bestBitslip);
+	} else {
+		std::cerr << "Warning: setBestBitslip could not find expected pattern for AFE "
+		          << afe << "; restoring bitslip to " << initialBitslip << std::endl;
+	}
+
+	this->frontend->setBitslip(afe, finalBitslip);
 	this->frontend->doTrigger();
 	uint32_t value = this->spyBuffer->getFrameClock(afe, 8);
-	//std::cout << "Read opt bitslip: 0x" << std::hex << value << std::endl;
 	return value;
 }
 

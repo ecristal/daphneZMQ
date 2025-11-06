@@ -1,7 +1,10 @@
 #include "DevMem.hpp"
+
+#include <cerrno>
+#include <cstring>
 #include <fcntl.h>
-#include <unistd.h>
 #include <sys/mman.h>
+#include <unistd.h>
 
 // Constructor
 DevMem::DevMem(uint64_t base_addr, const std::string& filename)
@@ -32,22 +35,34 @@ DevMem::~DevMem() {
 }
 
 void DevMem::changeBaseAddr(const uint64_t &base_addr, const size_t length){
-    this->base_addr_ = base_addr & ~(page_size - 1);
-    this->offset_ = base_addr - base_addr_;
-    this->length_ = align_to_page(length + offset_);
-    
-    // Open the file
-    this->fd_ = open(filename_.c_str(), O_RDWR | O_SYNC);
-    if (this->fd_ == -1) {
-        throw std::runtime_error("Failed to open " + filename_);
+    if (length == 0) {
+        throw std::invalid_argument("Length must be greater than zero");
     }
 
-    // Map the memory
-    this->mem_ = mmap(nullptr, length_, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, base_addr_);
-    if (this->mem_ == MAP_FAILED) {
-        close(this->fd_);
-        throw std::runtime_error("Failed to mmap memory");
+    if (mem_ != MAP_FAILED) {
+        munmap(mem_, length_);
+        mem_ = MAP_FAILED;
+        length_ = 0;
     }
+
+    base_addr_ = base_addr & ~(static_cast<uint64_t>(page_size) - 1);
+    offset_ = base_addr - base_addr_;
+
+    const size_t new_length = align_to_page(length + offset_);
+    void* new_mapping = mmap(nullptr,
+                             new_length,
+                             PROT_READ | PROT_WRITE,
+                             MAP_SHARED,
+                             fd_,
+                             base_addr_);
+    if (new_mapping == MAP_FAILED) {
+        const int err = errno;
+        throw std::runtime_error(
+            std::string("Failed to mmap memory: ") + std::strerror(err));
+    }
+
+    mem_ = new_mapping;
+    length_ = new_length;
 }
 
 // Align length to page size
@@ -105,11 +120,29 @@ std::string DevMem::hexdump(const std::vector<uint32_t>& data) {
 }
 
 void DevMem::map_memory(size_t length){
-    // Map the memory
-    this->length_ = align_to_page(length + this->offset_);
-    mem_ = mmap(nullptr, this->length_, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, base_addr_);
-    if (mem_ == MAP_FAILED) {
-        close(fd_);
-        throw std::runtime_error("Failed to mmap memory");
+    if (length == 0) {
+        throw std::invalid_argument("Length must be greater than zero");
     }
+
+    if (mem_ != MAP_FAILED) {
+        munmap(mem_, length_);
+        mem_ = MAP_FAILED;
+        length_ = 0;
+    }
+
+    const size_t new_length = align_to_page(length + offset_);
+    void* new_mapping = mmap(nullptr,
+                             new_length,
+                             PROT_READ | PROT_WRITE,
+                             MAP_SHARED,
+                             fd_,
+                             base_addr_);
+    if (new_mapping == MAP_FAILED) {
+        const int err = errno;
+        throw std::runtime_error(
+            std::string("Failed to mmap memory: ") + std::strerror(err));
+    }
+
+    mem_ = new_mapping;
+    length_ = new_length;
 }
