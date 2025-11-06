@@ -2027,9 +2027,20 @@ void I2C_1_monitorThread(Daphne &daphne){
         try{
             
             if(!daphne.isI2C_1_device_configuring.load() && !daphne.user_vbias_voltage_request.load()){
+                auto *adc0x10 = daphne.getADS7138_Driver_addr_0x10();
+                auto *adc0x17 = daphne.getADS7138_Driver_addr_0x17();
+                if (!adc0x10 || !adc0x17) {
+                    static bool warned = false;
+                    if (!warned) {
+                        std::cerr << "Warning: ADS7138 drivers not available; skipping bias monitor thread." << std::endl;
+                        warned = true;
+                    }
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                    continue;
+                }
                 daphne.is_vbias_voltage_monitor_reading.store(true);
-                std::vector<double> adc_values_0x10 = daphne.getADS7138_Driver_addr_0x10()->readData(7);
-                std::vector<double> adc_values_0x17 = daphne.getADS7138_Driver_addr_0x17()->readData(3);
+                std::vector<double> adc_values_0x10 = adc0x10->readData(7);
+                std::vector<double> adc_values_0x17 = adc0x17->readData(3);
                 daphne.is_vbias_voltage_monitor_reading.store(false);
                 
                 daphne._3V3PDS_voltage.store(adc_values_0x10[0]*2.0);

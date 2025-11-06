@@ -7,15 +7,25 @@ Daphne::Daphne()
 	  spyBuffer(std::make_unique<SpyBuffer>()),
 	  hdmezzdriver(std::make_unique<I2CMezzDrivers::HDMezzDriver>()),
 	  regulatorsdriver(std::make_unique<I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver>()),
-	  ads7138driver_addr_0x10(std::make_unique<I2CADCsDrivers::ADS7138_Driver>(0x10)),
-	  ads7138driver_addr_0x17(std::make_unique<I2CADCsDrivers::ADS7138_Driver>(0x17)),
 	  current_monitor(std::make_unique<CurrentMonitorDrivers::CurrentMonitor>())
 	{
 		this->initRegDictHistory();
-		this->getADS7138_Driver_addr_0x10()->setEnabledChannels({true, true, true, true,
-		                                                        true, true, true, false});
-		this->getADS7138_Driver_addr_0x17()->setEnabledChannels({false, false, true, false,
-		                                                        false, true, false, true});
+		try {
+			ads7138driver_addr_0x10 = std::make_unique<I2CADCsDrivers::ADS7138_Driver>(0x10);
+			ads7138driver_addr_0x10->setEnabledChannels({true, true, true, true,
+			                                            true, true, true, false});
+		} catch (const std::exception &e) {
+			std::cerr << "Warning: ADS7138 (0x10) unavailable: " << e.what() << std::endl;
+			ads7138driver_addr_0x10.reset();
+		}
+		try {
+			ads7138driver_addr_0x17 = std::make_unique<I2CADCsDrivers::ADS7138_Driver>(0x17);
+			ads7138driver_addr_0x17->setEnabledChannels({false, false, true, false,
+			                                            false, true, false, true});
+		} catch (const std::exception &e) {
+			std::cerr << "Warning: ADS7138 (0x17) unavailable: " << e.what() << std::endl;
+			ads7138driver_addr_0x17.reset();
+		}
 		this->isI2C_1_device_configuring.store(false);
 		this->isI2C_2_device_configuring.store(false);
 		this->user_vbias_voltage_request.store(false);
