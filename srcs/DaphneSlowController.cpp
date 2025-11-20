@@ -101,8 +101,10 @@ using daphne::cmd_readOffset_singleChannel;
 using daphne::cmd_readOffset_singleChannel_response;
 using daphne::cmd_readVbiasControl;
 using daphne::cmd_readVbiasControl_response;
+#if 0 // Current monitor handling disabled per request
 using daphne::cmd_readCurrentMonitor;
 using daphne::cmd_readCurrentMonitor_response;
+#endif
 using daphne::cmd_readBiasVoltageMonitor;
 using daphne::cmd_readBiasVoltageMonitor_response;
 
@@ -1625,7 +1627,8 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
             return;
         }
-        case READ_CURRENT_MONITOR: { // to be implemented
+#if 0
+        case READ_CURRENT_MONITOR: { // disabled until SPI3 current-monitor interface is supported safely
             cmd_readCurrentMonitor cmd_request;
             cmd_readCurrentMonitor_response cmd_response;
             //std::cout << "The request is a ReadCurrentMonitorRequest" << std::endl;
@@ -1639,6 +1642,7 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
             return;
         }
+#endif
         case READ_BIAS_VOLTAGE_MONITOR: { // to be implemented
             cmd_readBiasVoltageMonitor cmd_request;
             cmd_readBiasVoltageMonitor_response cmd_response;
