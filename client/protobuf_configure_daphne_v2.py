@@ -47,8 +47,8 @@ def v2_rpc(sock, mtype_req, req_msg, *, route="mezz/0", timeout_ms=60000):
 
 def main():
     p = argparse.ArgumentParser(description="DAPHNE configuration over EnvelopeV2")
-    p.add_argument("-ip",   required=True)
-    p.add_argument("-port", type=int, default=9000)
+    p.add_argument("-ip", default="127.0.0.1")
+    p.add_argument("-port", type=int, default=9876)
     p.add_argument("-vgain", type=int, default=1600)
     p.add_argument("-ch_offset", type=int, default=2275)
     p.add_argument("-align_afes", action="store_true")

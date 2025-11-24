@@ -25,6 +25,110 @@ from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
 # If you prefer keeping it as a package import, change to: from client.waveparse import parse_dump_response
 from waveparse import parse_dump_response
 
+# ────────────────────── Background acquisition worker ──────────────────────
+class AcquisitionWorker(QtCore.QObject):
+    data_ready = QtCore.pyqtSignal(object, float)   # (yk ndarray, rtt_ms)
+    status = QtCore.pyqtSignal(str)
+
+    def __init__(self, endpoint, route, identity, timeout_ms, req, period_ms):
+        super().__init__()
+        self.endpoint = endpoint
+        self.route = route
+        self.identity = identity
+        self.timeout_ms = timeout_ms
+        self.req = req
+        self.period_ms = period_ms
+
+        self._timer = None
+        self._link = None
+        self._busy = False
+        self._stopped = False
+
+    @QtCore.pyqtSlot()
+    def start(self):
+        try:
+            # Create the socket in the worker thread (ZeroMQ sockets are not thread-safe)
+            self._link = V2Link(self.endpoint, self.identity.encode(), self.timeout_ms)
+        except Exception as e:
+            self.status.emit(f"[init error] {e}")
+            return
+
+        self._stopped = False
+        self._timer = QtCore.QTimer()
+        self._timer.setInterval(self.period_ms)
+        self._timer.setTimerType(QtCore.Qt.TimerType.PreciseTimer)
+        self._timer.timeout.connect(self._poll_once)
+        self._timer.start()
+
+    @QtCore.pyqtSlot()
+    def stop(self):
+        self._stopped = True
+        if self._timer:
+            self._timer.stop()
+            self._timer.deleteLater()
+            self._timer = None
+        if self._link:
+            try:
+                self._link.s.close(0)
+            except Exception:
+                pass
+            self._link = None
+
+    def _poll_once(self):
+        if self._stopped or self._busy:
+            return
+        self._busy = True
+
+        try:
+            payload = self.req.SerializeToString()
+        except Exception as e:
+            self.status.emit(f"[req build error] {e}")
+            self._busy = False
+            return
+
+        try:
+            send_env, rep_env, rtt_ms = self._link.request(
+                pb_high.MT2_DUMP_SPYBUFFER_REQ,
+                payload,
+                route=self.route
+            )
+        except zmq.Again:
+            self.status.emit("[timeout] No response")
+            self._busy = False
+            return
+        except Exception as e:
+            self.status.emit(f"[send/recv error] {e}")
+            self._busy = False
+            return
+
+        if rep_env.type != pb_high.MT2_DUMP_SPYBUFFER_RESP:
+            self.status.emit(f"[unexpected V2 type {rep_env.type}]")
+            self._busy = False
+            return
+
+        resp = pb_high.DumpSpyBuffersResponse()
+        try:
+            resp.ParseFromString(rep_env.payload)
+        except Exception as e:
+            self.status.emit(f"[parse resp] {e}")
+            self._busy = False
+            return
+
+        if not resp.success:
+            self.status.emit(f"[server] {resp.message}")
+            self._busy = False
+            return
+
+        try:
+            y_all, meta = parse_dump_response(resp)   # y_all.shape == (W, K, N)
+        except Exception as e:
+            self.status.emit(f"[parse data] {e}")
+            self._busy = False
+            return
+
+        yk = np.ascontiguousarray(y_all[0])  # shape (K, N), signed int32
+        self.data_ready.emit(yk, rtt_ms)
+        self._busy = False
 
 # ────────────────────── Window functions ──────────────────────
 def _ensure_scipy():
@@ -117,8 +221,7 @@ class DaphneOscApp(QtWidgets.QWidget):
         self.timeout_ms = args.timeout_ms
         self.Fs = args.sampling_rate_hz  # default 62.5e6
 
-        # ZMQ V2 link
-        self.link = V2Link(self.endpoint, args.identity.encode(), self.timeout_ms)
+        # Route for worker requests
         self.route = args.route
 
         # Prebuild fixed parts of the request
@@ -144,10 +247,23 @@ class DaphneOscApp(QtWidgets.QWidget):
         # Auto y-range
         self.autoscale = True
 
-        # Timer driving acquisition
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.update_once)
-        self.timer.start(args.period_ms)
+        # Background acquisition worker to keep UI thread responsive
+        self.worker_thread = QtCore.QThread(self)
+        self.worker = AcquisitionWorker(
+            endpoint=self.endpoint,
+            route=self.route,
+            identity=args.identity,
+            timeout_ms=self.timeout_ms,
+            req=self.req,
+            period_ms=args.period_ms
+        )
+        self.worker.moveToThread(self.worker_thread)
+        self.worker.data_ready.connect(self._handle_data)
+        self.worker.status.connect(self.status.setText)
+        self.worker_thread.started.connect(self.worker.start)
+        self.worker_thread.finished.connect(self.worker.deleteLater)
+        QtWidgets.QApplication.instance().aboutToQuit.connect(self._cleanup_worker)
+        self.worker_thread.start()
 
     # -------------------- UI --------------------
     def _build_ui(self, args):
@@ -200,54 +316,8 @@ class DaphneOscApp(QtWidgets.QWidget):
         self.status.setText(f"Autoscale {'ON' if self.autoscale else 'OFF'}")
 
     # -------------------- Acquisition --------------------
-    def update_once(self):
-        # Build request payload
-        try:
-            payload = self.req.SerializeToString()
-        except Exception as e:
-            self.status.setText(f"[req build error] {e}")
-            return
-
-        # Send V2 request and get V2 reply
-        try:
-            send_env, rep_env, rtt_ms = self.link.request(
-                pb_high.MT2_DUMP_SPYBUFFER_REQ,
-                payload,
-                route=self.route
-            )
-        except zmq.Again:
-            self.status.setText("[timeout] No response")
-            return
-        except Exception as e:
-            self.status.setText(f"[send/recv error] {e}")
-            return
-
-        # Validate type
-        if rep_env.type != pb_high.MT2_DUMP_SPYBUFFER_RESP:
-            self.status.setText(f"[unexpected V2 type {rep_env.type}]")
-            return
-
-        # Decode typed payload
-        resp = pb_high.DumpSpyBuffersResponse()
-        try:
-            resp.ParseFromString(rep_env.payload)
-        except Exception as e:
-            self.status.setText(f"[parse resp] {e}")
-            return
-
-        if not resp.success:
-            self.status.setText(f"[server] {resp.message}")
-            return
-
-        # ───── Unified parse: (W, K, N) int32 ─────
-        try:
-            y_all, meta = parse_dump_response(resp)   # y_all.shape == (W, K, N)
-        except Exception as e:
-            self.status.setText(f"[parse data] {e}")
-            return
-
-        # We request W=1 in this app; take the first waveform
-        yk = y_all[0]  # shape (K, N), signed int32
+    @QtCore.pyqtSlot(object, float)
+    def _handle_data(self, yk, rtt_ms):
         K, N = yk.shape
 
         # Plot each channel
@@ -284,6 +354,26 @@ class DaphneOscApp(QtWidgets.QWidget):
             k0 = 4 if self.f_axis.size > 4 else 0
             self.curve_fft.setData(self.f_axis[k0:], Y_dbfs[k0:])
 
+    def closeEvent(self, event):
+        self._cleanup_worker()
+        super().closeEvent(event)
+
+    def _cleanup_worker(self):
+        if getattr(self, "_worker_cleaned", False):
+            return
+        self._worker_cleaned = True
+
+        if getattr(self, "worker", None):
+            # Ensure stop runs in the worker thread to avoid cross-thread socket calls
+            QtCore.QMetaObject.invokeMethod(
+                self.worker,
+                "stop",
+                QtCore.Qt.ConnectionType.BlockingQueuedConnection
+            )
+        if getattr(self, "worker_thread", None):
+            self.worker_thread.quit()
+            self.worker_thread.wait(2000)
+
 # ────────────────────── main ──────────────────────
 def _parse_channels(csv: str):
     chans = []
@@ -304,8 +394,8 @@ def _parse_channels(csv: str):
 
 def main():
     p = argparse.ArgumentParser(description="DAPHNE Oscilloscope (EnvelopeV2) with multi-channel overlay.")
-    p.add_argument("-ip", type=str, required=True, help="Server IP")
-    p.add_argument("-port", type=int, default=9000, help="Server port (default 9000)")
+    p.add_argument("-ip", type=str, default="127.0.0.1", help="Server IP (default 127.0.0.1)")
+    p.add_argument("-port", type=int, default=9876, help="Server port (default 9876)")
 
     # Back-compat single channel
     p.add_argument("-channel", type=int, default=0, help="Single channel [0..39] (ignored if --channels is set)")

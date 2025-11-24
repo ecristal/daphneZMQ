@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <atomic>
 #include <condition_variable>
+#include <cmath>
 #include <exception>
 #include <functional>
 #include <iostream>
@@ -587,6 +588,93 @@ static void init_v2_handlers() {
       daphne::TestRegResponse resp;
       resp.set_value(0xDEADBEEF);
       resp.set_message("ok");
+      out.resize(resp.ByteSizeLong());
+      resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+
+  // READ_BIAS_VOLTAGE_MONITOR
+  g_v2_handlers[daphne::MT2_READ_BIAS_VOLTAGE_MONITOR_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      cmd_readBiasVoltageMonitor req; cmd_readBiasVoltageMonitor_response resp;
+      if (!req.ParseFromString(in)) { err = "Bad cmd_readBiasVoltageMonitor"; return false; }
+
+      const uint32_t afe = req.afeblock();
+      resp.set_afeblock(afe);
+
+      if (afe > 4) {
+        resp.set_success(false);
+        resp.set_message("afeBlock out of range (0..4)");
+      } else {
+        auto *adc0x10 = d.getADS7138_Driver_addr_0x10();
+        auto *adc0x17 = d.getADS7138_Driver_addr_0x17();
+
+        if (!adc0x10) {
+          resp.set_success(false);
+          resp.set_message("Bias monitor ADC (0x10) unavailable");
+        } else {
+          // Pause the periodic monitor thread while we perform a synchronous read.
+          d.user_vbias_voltage_request.store(true);
+          for (int i = 0; i < 10 && d.is_vbias_voltage_monitor_reading.load(); ++i) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+          }
+
+          std::vector<double> adc_values_0x10;
+          std::vector<double> adc_values_0x17;
+
+          try {
+            d.is_vbias_voltage_monitor_reading.store(true);
+            adc_values_0x10 = adc0x10->readData(7);
+            if (adc0x17) {
+              adc_values_0x17 = adc0x17->readData(3);
+            }
+          } catch (const std::exception& ex) {
+            resp.set_success(false);
+            resp.set_message(std::string("ADC read failed: ") + ex.what());
+          }
+
+          d.is_vbias_voltage_monitor_reading.store(false);
+          d.user_vbias_voltage_request.store(false);
+
+          if (resp.message().empty()) {
+            if (adc_values_0x10.size() < 7) {
+              resp.set_success(false);
+              resp.set_message("ADC read returned too few channels");
+            } else {
+              // Update cached values (mirrors monitor thread).
+              d._3V3PDS_voltage.store(adc_values_0x10[0] * 2.0);
+              d._1V8PDS_voltage.store(adc_values_0x10[1] * 2.0);
+              d._VBIAS_0_voltage.store(adc_values_0x10[2] * 39.314);
+              d._VBIAS_1_voltage.store(adc_values_0x10[3] * 39.314);
+              d._VBIAS_2_voltage.store(adc_values_0x10[4] * 39.314);
+              d._VBIAS_3_voltage.store(adc_values_0x10[5] * 39.314);
+              d._VBIAS_4_voltage.store(adc_values_0x10[6] * 39.314);
+
+              if (adc_values_0x17.size() >= 3) {
+                d._1V8A_voltage.store(adc_values_0x17[0] * 2.0);
+                d._3V3A_voltage.store(adc_values_0x17[1] * 2.0);
+                d._n5VA_voltage.store(adc_values_0x17[2] * (-2.0));
+              }
+
+              double v_bias = 0.0;
+              switch (afe) {
+                case 0: v_bias = d._VBIAS_0_voltage.load(); break;
+                case 1: v_bias = d._VBIAS_1_voltage.load(); break;
+                case 2: v_bias = d._VBIAS_2_voltage.load(); break;
+                case 3: v_bias = d._VBIAS_3_voltage.load(); break;
+                case 4: v_bias = d._VBIAS_4_voltage.load(); break;
+                default: v_bias = 0.0; break;
+              }
+
+              uint32_t mv = static_cast<uint32_t>(std::lround(v_bias * 1000.0));
+              resp.set_biasvoltagevalue(mv);
+              resp.set_success(true);
+              resp.set_message("OK");
+            }
+          }
+        }
+      }
+
       out.resize(resp.ByteSizeLong());
       resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
       return true;

@@ -28,8 +28,8 @@ def send_envelope_and_get_reply(socket, envelope) -> bytes:
     return frames[-1]  # Payload is always in the last frame
 
 parser = argparse.ArgumentParser(description="Oscilloscope.")
-parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
-parser.add_argument("-port", type=int, required=False, default=9000, help="Port number of DAPHNE.")
+parser.add_argument("-ip", type=str, default="127.0.0.1", help="IP address of DAPHNE (default 127.0.0.1).")
+parser.add_argument("-port", type=int, required=False, default=9876, help="Port number of DAPHNE.")
 parser.add_argument("-channel", type=int, choices=range(0, 40), required=True, help="0-39.")
 parser.add_argument("-L", type=int, required=True, help="Length of waveform.")
 parser.add_argument("-software_trigger", action='store_true', help="Enables software trigger.")
@@ -214,4 +214,3 @@ while True:
     fig.canvas.flush_events()
 
     time.sleep(0.001)  # Slow down update rate if needed
-

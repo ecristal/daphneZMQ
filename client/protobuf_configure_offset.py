@@ -24,8 +24,8 @@ def send_envelope_and_get_reply(socket, envelope) -> bytes:
     return frames[-1]  # Payload is always in the last frame
 
 parser = argparse.ArgumentParser(description="DAPHNE Configuration.")
-parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
-parser.add_argument("-port", type=int, required=False, default=9000, help="Port number of DAPHNE. Default 9000.")
+parser.add_argument("-ip", type=str, default="127.0.0.1", help="IP address of DAPHNE (default 127.0.0.1).")
+parser.add_argument("-port", type=int, required=False, default=9876, help="Port number of DAPHNE. Default 9876.")
 parser.add_argument("-channel", type=int, required=True, choices=range(40), help="Offset Channel to set. Default 0.")
 parser.add_argument("-offset_value", type=int, required=True, help="Offset Value to set. Default 0.")
 parser.add_argument("-configure_all", action='store_true', help="Configure all Offset channels with the same Offset value.")

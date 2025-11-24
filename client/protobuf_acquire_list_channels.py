@@ -94,8 +94,8 @@ def compute_credit(numberOfSamples: int, chunkWaveform: int, nChannels: int,
 # ------------------------------- CLI ----------------------------------
 
 parser = argparse.ArgumentParser(description="Acquire waveforms from multiple channels (legacy or streaming).")
-parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
-parser.add_argument("-port", type=int, default=9000, help="Server port.")
+parser.add_argument("-ip", type=str, default="127.0.0.1", help="IP address of DAPHNE (default 127.0.0.1).")
+parser.add_argument("-port", type=int, default=9876, help="Server port.")
 parser.add_argument("-foldername", type=str, required=True, help="Folder location to save channel data.")
 parser.add_argument("-channel_list", type=str, nargs='+', required=True, help="List of channels (0-39). Accepts space or comma separated. Example: 0 1 2 3   or   0,1,2,3")
 parser.add_argument("-N", type=int, required=True, help="Number of waveforms.")
