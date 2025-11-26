@@ -18,6 +18,9 @@
 #include <vector>
 #include <numeric>   // for std::iota
 #include <fstream>   // for std::ifstream (/dev/mem guard)
+#include <array>
+#include <iomanip>
+#include <cmath>
 
 // --- System / POSIX ---
 #include <arpa/inet.h>
@@ -107,11 +110,13 @@ using daphne::cmd_readCurrentMonitor_response;
 #endif
 using daphne::cmd_readBiasVoltageMonitor;
 using daphne::cmd_readBiasVoltageMonitor_response;
+ 
+static bool readBiasVoltageMonitor(const cmd_readBiasVoltageMonitor &request,
+                                   cmd_readBiasVoltageMonitor_response &response,
+                                   Daphne &daphne,
+                                   std::string &response_msg);
 
-
-
-
-
+ 
 static std::string decode_clk_status(uint32_t v) {
   bool mmcm0 = (v & (1u<<0)) != 0;
   bool mmcm1 = (v & (1u<<1)) != 0;
@@ -576,6 +581,17 @@ static void init_v2_handlers() {
       return true;
 
     };
+  // --- added: READ_BIAS_VOLTAGE_MONITOR ---
+  g_v2_handlers[daphne::MT2_READ_BIAS_VOLTAGE_MONITOR_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_readBiasVoltageMonitor req; daphne::cmd_readBiasVoltageMonitor_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_readBiasVoltageMonitor"; return false; }
+      std::string msg; bool ok = readBiasVoltageMonitor(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong());
+      resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
   //  - MT2_WRITE_AFE_REG_REQ           -> writeAFERegister
   //  - MT2_WRITE_AFE_VGAIN_REQ         -> writeAFEVgain
   //  - MT2_WRITE_AFE_BIAS_SET_REQ      -> writeAFEBiasVoltage
@@ -604,6 +620,44 @@ static void init_v2_handlers() {
       resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
       return true;
     };
+}
+
+static bool readBiasVoltageMonitor(const cmd_readBiasVoltageMonitor &request,
+                                   cmd_readBiasVoltageMonitor_response &response,
+                                   Daphne &daphne,
+                                   std::string &response_msg) {
+    const uint32_t afeBlock = request.afeblock();
+    const std::array<double, 5> biases = {
+        daphne._VBIAS_0_voltage.load(),
+        daphne._VBIAS_1_voltage.load(),
+        daphne._VBIAS_2_voltage.load(),
+        daphne._VBIAS_3_voltage.load(),
+        daphne._VBIAS_4_voltage.load()
+    };
+
+    if (afeBlock >= biases.size()) {
+        response_msg = "AFE block " + std::to_string(afeBlock) + " is out of range (0-4)";
+        return false;
+    }
+
+    const double bias_volts = biases[afeBlock];
+    response.set_afeblock(afeBlock);
+    response.set_biasvoltagevalue(static_cast<uint32_t>(std::lround(bias_volts * 1000.0))); // mV for precision
+
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(5);
+    oss << "3V3PDS:" << daphne._3V3PDS_voltage.load() << " V, "
+        << "1V8PDS:" << daphne._1V8PDS_voltage.load() << " V. "
+        << "3V3A:" << daphne._3V3A_voltage.load() << " V, "
+        << "1V8A:" << daphne._1V8A_voltage.load() << " V, "
+        << "-5VA:" << daphne._n5VA_voltage.load() << " V. "
+        << "BIAS0:" << biases[0] << " V, "
+        << "BIAS1:" << biases[1] << " V, "
+        << "BIAS2:" << biases[2] << " V, "
+        << "BIAS3:" << biases[3] << " V, "
+        << "BIAS4:" << biases[4] << " V.";
+    response_msg = oss.str();
+    return true;
 }
 
 
@@ -1648,8 +1702,10 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             cmd_readBiasVoltageMonitor_response cmd_response;
             //std::cout << "The request is a ReadBiasVoltageMonitorRequest" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
-                cmd_response.set_success(true);
-                cmd_response.set_message("Bias voltage monitor read successfully");
+                std::string msg;
+                bool ok = readBiasVoltageMonitor(cmd_request, cmd_response, daphne, msg);
+                cmd_response.set_success(ok);
+                cmd_response.set_message(msg);
             }else{
                 cmd_response.set_success(false);
                 cmd_response.set_message("Payload not recognized");
