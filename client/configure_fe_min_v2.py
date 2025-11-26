@@ -22,6 +22,13 @@ from datetime import datetime, timezone
 # Import generated protos
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
+from client_dictionaries import (
+    lpf_dict,
+    pga_clamp_level_dict,
+    pga_gain_control_dict,
+    lna_gain_control_dict,
+    lna_input_clamp_dict,
+)
 
 
 # ----------------- Helpers -----------------
@@ -49,6 +56,12 @@ def make_default_config(
     inverters=0xFF00000000,         # 48-bit in uint64
     per_ch_trim=0,
     per_ch_offset=2275,
+    vgain=1600,
+    lpf_cutoff=4,
+    pga_clamp_level=2,
+    pga_gain=0,
+    lna_gain=2,
+    lna_clamp=0,
 ):
     cfg = pb_high.ConfigureRequest()
     cfg.daphne_address         = ip
@@ -73,14 +86,14 @@ def make_default_config(
     for afe in range(5):
         a = cfg.afes.add()
         a.id          = afe
-        a.attenuators = 1600
+        a.attenuators = vgain
         a.v_bias      = 0
         set_adc_fields(a.adc, resolution=True, output_format=True, sb_first=False)
-        a.pga.lpf_cut_frequency  = 4
+        a.pga.lpf_cut_frequency  = lpf_cutoff
         a.pga.integrator_disable = True
-        a.pga.gain               = 0
-        a.lna.clamp              = 0
-        a.lna.gain               = 2
+        a.pga.gain               = pga_gain
+        a.lna.clamp              = lna_clamp
+        a.lna.gain               = lna_gain
         a.lna.integrator_disable = True
 
     return cfg
@@ -176,12 +189,20 @@ def summarize_configure_response(resp: pb_high.ConfigureResponse, *, full=False)
 
 def main():
     ap = argparse.ArgumentParser(description="Send CONFIGURE_FE via EnvelopeV2 and print transport metadata.")
-    ap.add_argument("host", nargs="?", default="127.0.0.1")
-    ap.add_argument("port", nargs="?", type=int, default=9876)
+    ap.add_argument("-ip", "--ip", dest="host", default="127.0.0.1", help="Server IP")
+    ap.add_argument("-port", "--port", dest="port", type=int, default=9876, help="Server port")
     ap.add_argument("--route", default="mezz/0", help="Optional logical route")
     ap.add_argument("--timeout", type=int, default=6000, help="Socket timeout (ms)")
     ap.add_argument("--full", action="store_true", help="Print full ConfigureResponse message")
     ap.add_argument("--json", action="store_true", help="Emit a JSON summary to stdout at the end")
+    ap.add_argument("-vgain", type=int, default=1600, help="AFE attenuator code (default 1600)")
+    ap.add_argument("-ch_offset", type=int, default=2275, help="Channel offset DAC code (default 2275)")
+    ap.add_argument("-align_afes", action="store_true", help="Request AFE alignment (handled server-side after configure)")
+    ap.add_argument("-lpf_cutoff", type=int, choices=lpf_dict.keys(), default=10, help="LPF cutoff MHz (10/15/20/30)")
+    ap.add_argument("-pga_clamp_level", type=str, choices=pga_clamp_level_dict.keys(), default="0 dBFS")
+    ap.add_argument("-pga_gain_control", type=str, choices=pga_gain_control_dict.keys(), default="24 dB")
+    ap.add_argument("-lna_gain_control", type=str, choices=lna_gain_control_dict.keys(), default="12 dB")
+    ap.add_argument("-lna_input_clamp", type=str, choices=lna_input_clamp_dict.keys(), default="auto")
     args = ap.parse_args()
 
     endpoint = f"tcp://{args.host}:{args.port}"
@@ -192,7 +213,22 @@ def main():
     sock.setsockopt(zmq.SNDTIMEO, args.timeout)
     sock.connect(endpoint)
 
-    cfg = make_default_config(ip=args.host)
+    lpf_val = lpf_dict[args.lpf_cutoff]
+    pga_clamp_val = pga_clamp_level_dict[args.pga_clamp_level]
+    pga_gain_val = pga_gain_control_dict[args.pga_gain_control]
+    lna_gain_val = lna_gain_control_dict[args.lna_gain_control]
+    lna_clamp_val = lna_input_clamp_dict[args.lna_input_clamp]
+
+    cfg = make_default_config(
+        ip=args.host,
+        per_ch_offset=args.ch_offset,
+        vgain=args.vgain,
+        lpf_cutoff=lpf_val,
+        pga_clamp_level=pga_clamp_val,
+        pga_gain=pga_gain_val,
+        lna_gain=lna_gain_val,
+        lna_clamp=lna_clamp_val,
+    )
     req = build_configure_v2_envelope(cfg, route=args.route)
 
     # Client timestamps & send
