@@ -48,8 +48,8 @@ public:
 
     std::optional<std::pair<uint32_t, uint32_t>> longestIdenticalSubsequenceIndices(const std::vector<uint32_t>& nums);
     std::vector<uint32_t> scanGeneric(const uint32_t& afe,const std::string& what,const uint32_t& taps, std::function<uint32_t(const uint32_t&, const uint32_t&)> setFunc);
-    uint32_t setBestDelay(const uint32_t& afe, const size_t& delayTaps = 512);
-    uint32_t setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps = 16);
+    uint32_t setBestDelay(const uint32_t& afe, const size_t& delayTaps = 512, std::string* debug_out = nullptr);
+    uint32_t setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps = 16, std::string* debug_out = nullptr);
     double calcInputVoltage(const double& value, const double& vGain_mV);
     
     void setAfeRegDictValue(const uint32_t& afe, const uint32_t &regAddr, const uint32_t &regValue);

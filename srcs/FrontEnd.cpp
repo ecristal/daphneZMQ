@@ -38,7 +38,8 @@ uint32_t FrontEnd::getDelayCtrlReady(){
 
 uint32_t FrontEnd::doTrigger(){
 
-	return this->fpgaReg->setBits("frontendTrigger", "GO", 1);
+	// Snapshot spies requires magic value per FPGA design (0xBABA)
+	return this->fpgaReg->writeRegister("frontendTrigger", 0xBABA);
 }
 
 uint32_t FrontEnd::setDelay(const uint8_t& afe,const uint32_t& delay){

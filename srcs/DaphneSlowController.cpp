@@ -1221,8 +1221,11 @@ bool alignAFE(const cmd_alignAFEs &request, cmd_alignAFEs_response &response, Da
         daphne.getFrontEnd()->doResetSerDesCtrl();
         daphne.getFrontEnd()->setEnableDelayVtc(0);
         for(int afeBlock = 0; afeBlock < afeNum; afeBlock++){
-            daphne.setBestDelay(afeBlock);
-            daphne.setBestBitslip(afeBlock);
+            std::string delay_dbg;
+            std::string bitslip_dbg;
+            daphne.setBestDelay(afeBlock, 512, &delay_dbg);
+            daphne.setBestBitslip(afeBlock, 16, &bitslip_dbg);
+            response_str_ += delay_dbg + bitslip_dbg;
         }
         for(int afeBlock = 0; afeBlock < afeNum; afeBlock++){
             delay[afeBlock] = daphne.getFrontEnd()->getDelay(afeBlock);

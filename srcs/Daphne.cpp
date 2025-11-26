@@ -1,4 +1,7 @@
 #include "Daphne.hpp"
+#include <sstream>
+#include <thread>
+#include <chrono>
 
 Daphne::Daphne()
 	: afe(std::make_unique<Afe>()),
@@ -156,7 +159,11 @@ std::vector<uint32_t> Daphne::scanGeneric(const uint32_t& afe,const std::string&
 	for(uint32_t i = 0; i < taps; i++){
 
 		setFunc(afe, i);
+		// Give hardware time to settle before snapshot
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		this->frontend->doTrigger();
+		// Small delay to let the spy latch
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		data[i] = this->spyBuffer->getFrameClock(afe, 0);
 		//std::cout << what << ": 0x" << std::hex << i << " - 0x" << std::hex << data[i] << std::endl;
 	}
@@ -164,7 +171,7 @@ std::vector<uint32_t> Daphne::scanGeneric(const uint32_t& afe,const std::string&
 	return data;
 }
 
-uint32_t Daphne::setBestDelay(const uint32_t& afe, const size_t& delayTaps){
+uint32_t Daphne::setBestDelay(const uint32_t& afe, const size_t& delayTaps, std::string* debug_out){
 
 	std::vector<uint32_t> data =  this->scanGeneric( afe,
 												   "delay",
@@ -182,6 +189,17 @@ uint32_t Daphne::setBestDelay(const uint32_t& afe, const size_t& delayTaps){
 		throw std::runtime_error("No delays available!");
 	}
 	uint32_t bestDelay = (uint32_t)(firstDelay + ((lastDelay - firstDelay)/2.0));
+
+	if (debug_out) {
+		std::ostringstream os;
+		os << "  DELAY_SCAN window " << static_cast<uint32_t>(firstDelay)
+		   << ".." << static_cast<uint32_t>(lastDelay)
+		   << " (len=" << static_cast<uint32_t>(lastDelay - firstDelay + 1)
+		   << "), sample=0, word=0x" << std::hex << data[static_cast<size_t>(firstDelay)]
+		   << std::dec << ", best=" << bestDelay << "\n";
+		*debug_out = os.str();
+	}
+
 	return this->frontend->setDelay(afe, bestDelay);
 }
 
@@ -197,7 +215,7 @@ int Daphne::findIndex(const std::vector<T>& data, const T& target){
 	}
 }
 
-uint32_t Daphne::setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps){
+uint32_t Daphne::setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps, std::string* debug_out){
 
 	const uint32_t initialBitslip = this->frontend->getBitslip(afe);
 
@@ -219,6 +237,16 @@ uint32_t Daphne::setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps){
 	} else {
 		std::cerr << "Warning: setBestBitslip could not find expected pattern for AFE "
 		          << afe << "; restoring bitslip to " << initialBitslip << std::endl;
+	}
+
+	if (debug_out) {
+		std::ostringstream os;
+		os << "  BITSLIP_SCAN (sample=0, expect 0x00FF00FF):";
+		for (size_t i = 0; i < data.size(); ++i) {
+			os << " [" << i << "]=0x" << std::hex << std::uppercase << data[i];
+		}
+		os << std::dec << "\n  chosen=" << finalBitslip << " (initial " << initialBitslip << ")\n";
+		*debug_out = os.str();
 	}
 
 	this->frontend->setBitslip(afe, finalBitslip);
