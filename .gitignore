@@ -1,3 +1,12 @@
 .vscode/
 build/
 sftp-config.json
+# Python bytecode
+__pycache__/
+
+# C/C++ sources and headers
+*.cc
+*.h
+
+# Protobuf definitions
+*.proto

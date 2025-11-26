@@ -157,7 +157,7 @@ std::vector<uint32_t> Daphne::scanGeneric(const uint32_t& afe,const std::string&
 
 		setFunc(afe, i);
 		this->frontend->doTrigger();
-		data[i] = this->spyBuffer->getFrameClock(afe, 8);
+		data[i] = this->spyBuffer->getFrameClock(afe, 0);
 		//std::cout << what << ": 0x" << std::hex << i << " - 0x" << std::hex << data[i] << std::endl;
 	}
 
@@ -207,17 +207,10 @@ uint32_t Daphne::setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps){
 												    [this](const uint32_t& a, const uint32_t& b) { return this->frontend->setBitslip(a, b);}
 												    );
 
-	auto is_expected_pattern = [](uint32_t word) {
+	auto it = std::find_if(data.begin(), data.end(), [](uint32_t word) {
 		constexpr uint32_t kTarget32 = 0x00FF00FFu;
-		if (word == kTarget32) {
-			return true;
-		}
-		const uint32_t lower = word & 0x0000FFFFu;
-		const uint32_t upper = (word >> 16) & 0x0000FFFFu;
-		return lower == 0x00FFu || upper == 0x00FFu;
-	};
-
-	auto it = std::find_if(data.begin(), data.end(), is_expected_pattern);
+		return word == kTarget32;
+	});
 	int bestBitslip = (it != data.end()) ? static_cast<int>(std::distance(data.begin(), it)) : -1;
 
 	uint32_t finalBitslip = initialBitslip;
@@ -230,7 +223,7 @@ uint32_t Daphne::setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps){
 
 	this->frontend->setBitslip(afe, finalBitslip);
 	this->frontend->doTrigger();
-	uint32_t value = this->spyBuffer->getFrameClock(afe, 8);
+	uint32_t value = this->spyBuffer->getFrameClock(afe, 0);
 	return value;
 }
 

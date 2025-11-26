@@ -22,6 +22,7 @@ from datetime import datetime, timezone
 # Import generated protos
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
+from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
 from client_dictionaries import (
     lpf_dict,
     pga_clamp_level_dict,
@@ -284,6 +285,87 @@ def main():
 
     summarize_configure_response(out, full=args.full)
 
+    align_json = None
+    if args.align_afes:
+        align_req = pb_low.cmd_alignAFEs()
+        align_env = pb_high.ControlEnvelopeV2()
+        align_env.version = 2
+        align_env.dir = pb_high.DIR_REQUEST
+        align_env.type = pb_high.MT2_ALIGN_AFE_REQ
+        align_env.payload = align_req.SerializeToString()
+        align_env.task_id, align_env.msg_id = next_ids()
+        align_env.timestamp_ns = time.time_ns()
+        align_env.route = args.route
+
+        t_align_send = time.time_ns()
+        print_envelope("ALIGN REQUEST", align_env)
+        sock.send(align_env.SerializeToString())
+
+        align_frames = [sock.recv()]
+        while sock.getsockopt(zmq.RCVMORE):
+            align_frames.append(sock.recv())
+        align_reply_bytes = align_frames[-1]
+        t_align_recv = time.time_ns()
+        align_rtt_ms = (t_align_recv - t_align_send) / 1e6
+
+        align_reply = pb_high.ControlEnvelopeV2()
+        if not align_reply.ParseFromString(align_reply_bytes):
+            print("Failed to parse ControlEnvelopeV2 align reply")
+            return 7
+
+        print_envelope("ALIGN RESPONSE", align_reply)
+        print(f"[ALIGN_METRICS]")
+        print(f"  client_send_iso  : {ns_to_iso(t_align_send)}")
+        print(f"  client_recv_iso  : {ns_to_iso(t_align_recv)}")
+        print(f"  client_RTT_ms    : {align_rtt_ms:.2f}")
+        if align_reply.timestamp_ns:
+            print(f"  server_ts_iso    : {ns_to_iso(align_reply.timestamp_ns)}")
+        print()
+
+        align_errors = []
+        if align_reply.dir != pb_high.DIR_RESPONSE:
+            align_errors.append(f"dir mismatch: got {align_reply.dir}")
+        if align_reply.type != pb_high.MT2_ALIGN_AFE_RESP:
+            align_errors.append(f"type mismatch: got {align_reply.type}, expected {pb_high.MT2_ALIGN_AFE_RESP}")
+        if align_reply.task_id != align_env.task_id:
+            align_errors.append(f"task_id mismatch: got {align_reply.task_id}, expected {align_env.task_id}")
+        if align_reply.correl_id != align_env.msg_id:
+            align_errors.append(f"correl_id mismatch: got {align_reply.correl_id}, expected {align_env.msg_id}")
+        if align_errors:
+            print("Align correlation/type checks FAILED:")
+            for e in align_errors:
+                print("  - " + e)
+            print()
+
+        align_out = pb_low.cmd_alignAFEs_response()
+        if not align_out.ParseFromString(align_reply.payload):
+            print("Failed to parse cmd_alignAFEs_response")
+            return 8
+
+        print("[ALIGN_RESULT]")
+        print(f"  success : {align_out.success}")
+        for ln in align_out.message.splitlines():
+            print("  " + ln)
+        print()
+
+        align_json = {
+            "request": {
+                "version": align_env.version, "dir": int(align_env.dir), "type": int(align_env.type),
+                "task_id": align_env.task_id, "msg_id": align_env.msg_id,
+                "route": align_env.route, "timestamp_ns": align_env.timestamp_ns,
+                "payload_size": len(align_env.payload),
+            },
+            "response": {
+                "version": align_reply.version, "dir": int(align_reply.dir), "type": int(align_reply.type),
+                "task_id": align_reply.task_id, "msg_id": align_reply.msg_id, "correl_id": align_reply.correl_id,
+                "timestamp_ns": align_reply.timestamp_ns, "payload_size": len(align_reply.payload),
+            },
+            "metrics": {
+                "client_send_ns": t_align_send, "client_recv_ns": t_align_recv, "rtt_ms": align_rtt_ms,
+            },
+            "align_response": {"success": align_out.success, "message_lines": align_out.message.count('\\n') + (1 if align_out.message else 0)},
+        }
+
     if args.json:
         summary = {
             "endpoint": endpoint,
@@ -303,6 +385,8 @@ def main():
             },
             "configure_response": {"success": out.success, "message_lines": out.message.count('\n') + (1 if out.message else 0)},
         }
+        if align_json:
+            summary["align"] = align_json
         print(json.dumps(summary, indent=2))
 
     return 0 if out.success else 1

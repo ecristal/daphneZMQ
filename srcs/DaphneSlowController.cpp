@@ -116,7 +116,17 @@ static bool readBiasVoltageMonitor(const cmd_readBiasVoltageMonitor &request,
                                    Daphne &daphne,
                                    std::string &response_msg);
 
- 
+static bool auto_align_enabled() {
+    static const bool enabled = (std::getenv("DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE") == nullptr);
+    return enabled;
+}
+
+static bool config_resets_enabled() {
+    static const bool enabled = (std::getenv("DAPHNE_SKIP_CONFIG_RESET") == nullptr);
+    return enabled;
+}
+
+
 static std::string decode_clk_status(uint32_t v) {
   bool mmcm0 = (v & (1u<<0)) != 0;
   bool mmcm1 = (v & (1u<<1)) != 0;
@@ -485,11 +495,13 @@ static void init_v2_handlers() {
       ConfigureRequest req; ConfigureResponse resp;
       if (!req.ParseFromString(in)) { err = "Bad ConfigureRequest"; return false; }
       std::string msg; bool ok = configureDaphne(req, d, msg);
-      if (ok) {
+      if (ok && auto_align_enabled()) {
         cmd_alignAFEs a_req; cmd_alignAFEs_response a_resp; std::string align_msg;
         bool ok_align = alignAFE(a_req, a_resp, d, align_msg);
         msg += "\n\n[ALIGN_AFE]\n" + align_msg;
         ok = ok && ok_align;
+      } else if (!auto_align_enabled()) {
+        msg += "\n\n[ALIGN_AFE] skipped (DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE set)";
       }
       resp.set_success(ok); resp.set_message(std::move(msg));
       out.resize(resp.ByteSizeLong());
@@ -750,8 +762,12 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
         std::ostringstream out;
 
         // --- Reset + power on before writes (as you already did)
-        daphne.getAfe()->doReset();
-        daphne.getAfe()->setPowerState(1);
+        if (config_resets_enabled()) {
+            daphne.getAfe()->doReset();
+            daphne.getAfe()->setPowerState(1);
+        } else {
+            out << "Config reset/powercycle skipped (DAPHNE_SKIP_CONFIG_RESET set).\n";
+        }
 
         // --- Per-channel TRIM & OFFSET with echoed lines like the client prints
         // (We keep TRIM too; set to whatever is in the request; echo both if you like.
@@ -840,7 +856,9 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
         }
 
         // Reinforce power ON (you already do this elsewhere too)
-        daphne.getAfe()->setPowerState(1);
+        if (config_resets_enabled()) {
+            daphne.getAfe()->setPowerState(1);
+        }
 
         response_str = out.str();
         return true;
@@ -1345,7 +1363,7 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
                 bool is_success = configureDaphne(cmd_request, daphne, configure_message);
-		      if (is_success) {
+		      if (is_success && auto_align_enabled()) {
 		          cmd_alignAFEs a_req;
 		          cmd_alignAFEs_response a_resp;
 		          std::string align_msg;
@@ -1353,6 +1371,8 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
 		          // Append the alignment report into the returned message
 		          configure_message += "\n\n[ALIGN_AFE]\n" + align_msg;
 		          is_success = is_success && ok_align;
+		      } else if (!auto_align_enabled()) {
+		          configure_message += "\n\n[ALIGN_AFE] skipped (DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE set)";
 		      }
 		      
 		      cmd_response.set_success(is_success);
