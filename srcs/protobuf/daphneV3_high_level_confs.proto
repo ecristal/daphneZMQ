@@ -128,6 +128,12 @@ message GeneralInfo {
   double power_plus2p5v = 7;
   double power_ce       = 8;
   double temperature    = 9;
+  // Rail/ADC monitor readouts
+  double v_3v3pds       = 10;
+  double v_1v8pds       = 11;
+  double v_3v3a         = 12;
+  double v_1v8a         = 13;
+  double v_neg5va       = 14;
 }
 message InfoResponse {
   StreamInfo           stream_info  = 1;

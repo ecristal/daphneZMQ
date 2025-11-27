@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import shutil
 import os
 import sys
 import time
@@ -125,18 +126,15 @@ def main():
         fig.tight_layout()
 
     start = time.time()
-    last_status_lines = 0
-
-    def print_status(lines):
-        nonlocal last_status_lines
+    def print_status(line):
         if not args.status:
             return
-        if last_status_lines:
-            sys.stdout.write("\x1b[{}A".format(last_status_lines))
-        for line in lines:
-            sys.stdout.write("\r\033[K" + line + "\n")
+        cols = shutil.get_terminal_size(fallback=(120, 20)).columns
+        if len(line) >= cols:
+            line = line[:cols-1]
+        # Clear current line and rewrite without newline
+        sys.stdout.write("\r\033[K" + line)
         sys.stdout.flush()
-        last_status_lines = len(lines)
 
     def parse_rails(msg):
         rails = {}
@@ -180,11 +178,11 @@ def main():
                     rails_read = True
 
             history["t"].append(loop_time)
-            status_lines = []
+            parts = []
             if rails_read:
-                status_lines.append("Rails  : " + " ".join(f"{n}={history[n][-1]:.3f}" for n in names_rails if history[n]))
-            status_lines.append("Biases : " + " ".join(f"{n}={history[n][-1]:.3f}" for n in names_biases if history[n]))
-            print_status(status_lines)
+                parts.append("Rails: " + " ".join(f"{n}={history[n][-1]:.3f}" for n in names_rails if history[n]))
+            parts.append("Biases: " + " ".join(f"{n}={history[n][-1]:.3f}" for n in names_biases if history[n]))
+            print_status(" | ".join(parts))
 
             if plot_enabled:
                 tvals = list(history["t"])

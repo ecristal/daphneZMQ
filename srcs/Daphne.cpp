@@ -159,10 +159,8 @@ std::vector<uint32_t> Daphne::scanGeneric(const uint32_t& afe,const std::string&
 	for(uint32_t i = 0; i < taps; i++){
 
 		setFunc(afe, i);
-		// Give hardware time to settle before snapshot
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		this->frontend->doTrigger();
-		// Small delay to let the spy latch
+		// Allow snapshot to latch before reading; 1 ms matches the stable case observed
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 		data[i] = this->spyBuffer->getFrameClock(afe, 0);
 		//std::cout << what << ": 0x" << std::hex << i << " - 0x" << std::hex << data[i] << std::endl;

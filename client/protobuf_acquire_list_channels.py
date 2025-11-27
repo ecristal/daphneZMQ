@@ -3,6 +3,7 @@ import sys
 import os
 import time
 import uuid
+import random
 from typing import Optional, Dict
 from tqdm import tqdm
 import argparse
@@ -11,6 +12,14 @@ import numpy as np
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
 from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
+from waveparse import parse_dump_response
+
+
+def next_ids():
+    now_ns = time.time_ns()
+    # keep within signed 63-bit to match server expectations
+    mask = (1 << 63) - 1
+    return ((now_ns << 16) ^ random.randrange(1 << 16)) & mask, ((now_ns << 1) ^ random.randrange(1 << 16)) & mask
 
 # ----------------------------- ZMQ helpers -----------------------------
 
@@ -31,13 +40,43 @@ def send_envelope_and_get_reply(socket: zmq.Socket, envelope: pb_high.ControlEnv
         frames.append(socket.recv())
     return frames[-1]
 
+def v2_request(socket: zmq.Socket, mtype_req, payload_bytes: bytes, route: str):
+    env = pb_high.ControlEnvelopeV2()
+    env.version = 2
+    env.dir     = pb_high.DIR_REQUEST
+    env.type    = mtype_req
+    env.payload = payload_bytes
+    env.task_id, env.msg_id = next_ids()
+    env.timestamp_ns = time.time_ns()
+    env.route = route
 
-def stream_envelope(socket: zmq.Socket, envelope: pb_high.ControlEnvelope):
+    socket.send(env.SerializeToString())
+    frames = [socket.recv()]
+    while socket.getsockopt(zmq.RCVMORE):
+        frames.append(socket.recv())
+    reply_bytes = frames[-1]
+
+    rep = pb_high.ControlEnvelopeV2()
+    rep.ParseFromString(reply_bytes)
+    if rep.dir != pb_high.DIR_RESPONSE:
+        raise RuntimeError(f"Unexpected dir={rep.dir}")
+    if rep.correl_id != env.msg_id:
+        raise RuntimeError(f"Correlation mismatch (correl_id={rep.correl_id}, expected {env.msg_id})")
+    return env, rep
+
+
+def stream_envelope(socket: zmq.Socket, envelope: pb_high.ControlEnvelope, timeout_ms: int):
     socket.send(envelope.SerializeToString())
     while True:
-        frames = [socket.recv()]
+        try:
+            frames = [socket.recv()]
+        except zmq.Again:
+            raise TimeoutError("Timed out waiting for chunk reply from server")
         while socket.getsockopt(zmq.RCVMORE):
-            frames.append(socket.recv())
+            try:
+                frames.append(socket.recv())
+            except zmq.Again:
+                raise TimeoutError("Timed out receiving multipart chunk from server")
         payload = frames[-1]
         env = pb_high.ControlEnvelope()
         env.ParseFromString(payload)
@@ -58,12 +97,17 @@ parser = argparse.ArgumentParser(description="Acquire waveforms from multiple ch
 parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
 parser.add_argument("-port", type=int, default=9000, help="Server port.")
 parser.add_argument("-foldername", type=str, required=True, help="Folder location to save channel data.")
-parser.add_argument("-channel_list", type=int, nargs='+', choices=range(0, 40), required=True, help="List of channels (0-39). Example: 0 1 2 3")
+parser.add_argument("-channel_list", type=str, nargs='+', required=True, help="List of channels (0-39). Accepts space or comma separated. Example: 0 1 2 3   or   0,1,2,3")
 parser.add_argument("-N", type=int, required=True, help="Number of waveforms.")
 parser.add_argument("-L", type=int, required=True, help="Length of each waveform.")
 parser.add_argument("-software_trigger", action='store_true', help="Enable software trigger.")
 parser.add_argument("-append_data", action='store_true', help="Append to existing per-channel files.")
 parser.add_argument("-debug", action='store_true', help="Debug printout.")
+parser.add_argument("--timeout_ms", type=int, default=30000, help="Socket timeout in ms for streaming/legacy replies (default 30000).")
+parser.add_argument("--route", "-route", "-r", type=str, default="mezz/0", help="Route for EnvelopeV2 (default mezz/0).")
+parser.add_argument("--no-v2", dest="v2", action="store_false", help="Use legacy ControlEnvelope (V1) instead of EnvelopeV2.")
+parser.add_argument("--legacy_only", action="store_true", help="Force legacy non-streaming path.")
+parser.add_argument("--osc_mode", action="store_true", help="Oscilloscope-like: one waveform per request (V2 DumpSpyBuffers), loop N times.")
 # Streaming options
 parser.add_argument("-legacy", action='store_true', help="Use legacy (non-streaming) API.")
 parser.add_argument("-chunk", type=int, default= 5, help="Waveforms per chunk (hint for server).")
@@ -71,6 +115,7 @@ parser.add_argument("-net_buffer_mb", type=int, default=128, help="Approx memory
 parser.add_argument("-compress", action='store_true', help="Enable compression.")
 parser.add_argument("-compression_format", type=str, choices=['7z', 'tar'], default='tar', help="Compression type (7z or gz tarball).")
 parser.add_argument("-compression_level", type=int, default=1, choices=range(1, 10), help="7z compression level (1-9). Default 1.")
+parser.set_defaults(v2=True)
 args = parser.parse_args()
 
 # ----------------------------- Setup ----------------------------------
@@ -78,16 +123,33 @@ args = parser.parse_args()
 context = zmq.Context()
 endpoint = f"tcp://{args.ip}:{args.port}"
 socket = make_dealer(context, endpoint, identity=b"client-compat")
+socket.setsockopt(zmq.RCVTIMEO, args.timeout_ms)
+socket.setsockopt(zmq.SNDTIMEO, args.timeout_ms)
 
 n_channels = len(args.channel_list)
+def _parse_channels(tokens):
+    out = []
+    for tok in tokens:
+        for part in tok.split(','):
+            part = part.strip()
+            if not part:
+                continue
+            val = int(part)
+            if val < 0 or val > 39:
+                raise ValueError(f"Channel out of range 0-39: {val}")
+            out.append(val)
+    return out
 
-if not args.legacy:
+args.channel_list = _parse_channels(args.channel_list)
+n_channels = len(args.channel_list)
+
+if not (args.legacy or args.legacy_only):
     credit = compute_credit(args.L, min(args.chunk, args.N), n_channels, budget_mb=args.net_buffer_mb)
     socket.setsockopt(zmq.RCVHWM, credit)
 
 if args.debug:
     print(f"Endpoint: {endpoint}")
-    print(f"Channels: {args.channel_list} (n={n_channels}), N={args.N}, L={args.L}, SW_TRG={args.software_trigger}, STREAM={not args.legacy}, chunk={args.chunk}, RCVHWM={compute_credit(args.L, min(args.chunk, args.N), n_channels, budget_mb=args.net_buffer_mb) if not args.legacy else 'n/a'}")
+    print(f"Channels: {args.channel_list} (n={n_channels}), N={args.N}, L={args.L}, SW_TRG={args.software_trigger}, STREAM={not (args.legacy or args.legacy_only or args.osc_mode)}, chunk={args.chunk}, RCVHWM={compute_credit(args.L, min(args.chunk, args.N), n_channels, budget_mb=args.net_buffer_mb) if not (args.legacy or args.legacy_only or args.osc_mode) else 'n/a'} V2={args.v2} OSC_MODE={args.osc_mode}")
     start_time = time.time()
 
 mode = 'ab' if args.append_data else 'wb'
@@ -100,23 +162,87 @@ if not os.path.exists(foldername):
 
 # -------------------------- Legacy path --------------------------------
 
-if args.legacy:
+if args.osc_mode:
+    # Oscilloscope-like: request one waveform per call, loop N times.
+    req = pb_high.DumpSpyBuffersRequest()
+    req.channelList.extend(args.channel_list)
+    req.numberOfWaveforms = 1
+    req.numberOfSamples = args.L
+    req.softwareTrigger = bool(args.software_trigger)
+
+    print(f"Osc-mode: requesting {args.N} triggers (1 wf per channel per request), L={args.L}, channels={args.channel_list}, SW_TRG={args.software_trigger}, V2={args.v2}")
+    files: Dict[int, any] = {ch: open(os.path.join(foldername, f"channel_{ch}.dat"), mode) for ch in args.channel_list}
+    try:
+        with tqdm(total=args.N, unit='wf') as pbar:
+            for i in range(args.N):
+                payload = req.SerializeToString()
+                if args.v2:
+                    _, rep_env = v2_request(socket, pb_high.MT2_DUMP_SPYBUFFER_REQ, payload, args.route)
+                    if rep_env.type != pb_high.MT2_DUMP_SPYBUFFER_RESP:
+                        raise RuntimeError(f"Unexpected V2 response type {rep_env.type}")
+                    resp = pb_high.DumpSpyBuffersResponse()
+                    resp.ParseFromString(rep_env.payload)
+                else:
+                    env = pb_high.ControlEnvelope()
+                    env.type = pb_high.DUMP_SPYBUFFER
+                    env.payload = payload
+                    resp_bytes = send_envelope_and_get_reply(socket, env)
+                    rep_env = pb_high.ControlEnvelope()
+                    rep_env.ParseFromString(resp_bytes)
+                    if rep_env.type != pb_high.DUMP_SPYBUFFER:
+                        raise RuntimeError(f"Unexpected V1 response type {rep_env.type}")
+                    resp = pb_high.DumpSpyBuffersResponse()
+                    resp.ParseFromString(rep_env.payload)
+
+                if not resp.success:
+                    raise RuntimeError(f"Server error: {resp.message}")
+
+                y, meta = parse_dump_response(resp)
+                y0 = y[0]  # shape (K, N)
+                for idx, ch in enumerate(args.channel_list):
+                    y0[idx, :].astype(np.uint16, copy=False).tofile(files[ch])
+                pbar.update(1)
+    finally:
+        for f in files.values():
+            try:
+                f.close()
+            except Exception:
+                pass
+
+    if args.debug:
+        dt = time.time() - start_time
+        print(f"Done (osc-mode). Saved {args.N} waveforms per channel. Time: {dt//60:.0f}:{dt%60:.0f}")
+    sys.exit(0)
+
+if args.legacy or args.legacy_only:
     req = pb_high.DumpSpyBuffersRequest()
     req.channelList.extend(args.channel_list)
     req.numberOfWaveforms = args.N
     req.numberOfSamples = args.L
     req.softwareTrigger = bool(args.software_trigger)
 
-    env = pb_high.ControlEnvelope()
-    env.type = pb_high.DUMP_SPYBUFFER
-    env.payload = req.SerializeToString()
+    if args.v2 and not args.legacy_only:
+        env = pb_high.ControlEnvelopeV2()
+        env.version = 2
+        env.dir = pb_high.DIR_REQUEST
+        env.type = pb_high.MT2_DUMP_SPYBUFFER_REQ
+        env.payload = req.SerializeToString()
+        env.task_id, env.msg_id = next_ids()
+        env.timestamp_ns = time.time_ns()
+        env.route = args.route
+        expect_type = pb_high.MT2_DUMP_SPYBUFFER_RESP
+    else:
+        env = pb_high.ControlEnvelope()
+        env.type = pb_high.DUMP_SPYBUFFER
+        env.payload = req.SerializeToString()
+        expect_type = pb_high.DUMP_SPYBUFFER
 
-    print(f"Requesting {args.N} waveforms (L={args.L}) on channels {args.channel_list}; SW_TRG={args.software_trigger}")
+    print(f"Requesting {args.N} waveforms (L={args.L}) on channels {args.channel_list}; SW_TRG={args.software_trigger} V2={args.v2 and not args.legacy_only}")
     resp_bytes = send_envelope_and_get_reply(socket, env)
 
-    resp_env = pb_high.ControlEnvelope()
+    resp_env = pb_high.ControlEnvelopeV2() if (args.v2 and not args.legacy_only) else pb_high.ControlEnvelope()
     resp_env.ParseFromString(resp_bytes)
-    assert resp_env.type == pb_high.DUMP_SPYBUFFER, f"Unexpected response type: {resp_env.type}"
+    assert resp_env.type == expect_type, f"Unexpected response type: {resp_env.type}"
 
     resp = pb_high.DumpSpyBuffersResponse()
     resp.ParseFromString(resp_env.payload)
@@ -127,12 +253,14 @@ if args.legacy:
     except ValueError:
         raise RuntimeError(f"Data size {data.size} not compatible with (N={args.N}, C={n_channels}, L={args.L})")
 
-    for idx, ch in enumerate(args.channel_list):
-        fname = os.path.join(foldername, f"channel_{ch}.dat")
-        if args.debug:
-            print(f"Saving data for channel {ch} to {fname}")
-        with open(fname, mode) as f:
-            y[:, idx, :].astype(np.uint16, copy=False).tofile(f)
+    with tqdm(total=args.N, unit='wf', desc="Writing") as pbar:
+        for idx, ch in enumerate(args.channel_list):
+            fname = os.path.join(foldername, f"channel_{ch}.dat")
+            if args.debug:
+                print(f"Saving data for channel {ch} to {fname}")
+            with open(fname, mode) as f:
+                y[:, idx, :].astype(np.uint16, copy=False).tofile(f)
+            pbar.update(args.N)
 
     if args.debug:
         dt = time.time() - start_time
@@ -140,6 +268,12 @@ if args.legacy:
     sys.exit(0)
 
 # ------------------------- Streaming path ------------------------------
+
+def next_ids():
+    now_ns = time.time_ns()
+    # keep within signed 63-bit to match server expectations
+    mask = (1 << 63) - 1
+    return ((now_ns << 16) ^ random.randrange(1 << 16)) & mask, ((now_ns << 1) ^ random.randrange(1 << 16)) & mask
 
 creq = pb_high.DumpSpyBuffersChunkRequest()
 creq.channelList.extend(args.channel_list)
@@ -149,22 +283,38 @@ creq.softwareTrigger = bool(args.software_trigger)
 creq.requestID = str(uuid.uuid4())
 creq.chunkSize = max(1, min(args.chunk, args.N))
 
-env = pb_high.ControlEnvelope()
-env.type = pb_high.DUMP_SPYBUFFER_CHUNK
-env.payload = creq.SerializeToString()
+if args.v2 and not args.legacy:
+    env = pb_high.ControlEnvelopeV2()
+    env.version = 2
+    env.dir = pb_high.DIR_REQUEST
+    env.type = pb_high.MT2_DUMP_SPYBUFFER_CHUNK_REQ
+    env.payload = creq.SerializeToString()
+    env.task_id, env.msg_id = next_ids()
+    env.timestamp_ns = time.time_ns()
+    env.route = args.route
+else:
+    env = pb_high.ControlEnvelope()
+    env.type = pb_high.DUMP_SPYBUFFER_CHUNK
+    env.payload = creq.SerializeToString()
 
-print(f"Streaming id={creq.requestID} N={args.N} L={args.L} chunk={creq.chunkSize} channels={args.channel_list} SW_TRG={args.software_trigger}")
+print(f"Streaming id={creq.requestID} N={args.N} L={args.L} chunk={creq.chunkSize} channels={args.channel_list} SW_TRG={args.software_trigger} V2={args.v2 and not args.legacy}")
 
 # Open all files once
 files: Dict[int, any] = {ch: open(os.path.join(foldername, f"channel_{ch}.dat"), mode) for ch in args.channel_list}
 wf_written = 0
 try:
     with tqdm(total=args.N, unit='wf') as pbar:
-        for resp_env in stream_envelope(socket, env):
-            if resp_env.type != pb_high.DUMP_SPYBUFFER_CHUNK:
-                continue
-            chunk = pb_high.DumpSpyBuffersChunkResponse()
-            chunk.ParseFromString(resp_env.payload)
+        for resp_env in stream_envelope(socket, env, args.timeout_ms):
+            if args.v2 and not args.legacy:
+                if resp_env.type != pb_high.MT2_DUMP_SPYBUFFER_CHUNK_RESP:
+                    continue
+                chunk = pb_high.DumpSpyBuffersChunkResponse()
+                chunk.ParseFromString(resp_env.payload)
+            else:
+                if resp_env.type != pb_high.DUMP_SPYBUFFER_CHUNK:
+                    continue
+                chunk = pb_high.DumpSpyBuffersChunkResponse()
+                chunk.ParseFromString(resp_env.payload)
             if not chunk.success:
                 print(f"Server error: {chunk.message}")
                 break

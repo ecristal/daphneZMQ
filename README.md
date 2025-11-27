@@ -89,9 +89,29 @@ Offsets are interpreted as byte offsets within the mapped AXI window starting at
 - For hardware-less testing consider mocking `/dev/mem` access or building with
   a stub.
 
+## Configure + Align (what happens when you run `configure_fe_min_v2.py`)
+
+The “one-shot” client `client/configure_fe_min_v2.py` sends a CONFIGURE_FE (V2 envelope) to `DaphneSlowController` and optionally an explicit ALIGN request. The sequence on the server is:
+
+- CONFIGURE_FE handling (`MT2_CONFIGURE_FE_REQ` → `configureDaphne()`):
+  - If `DAPHNE_SKIP_CONFIG_RESET` is unset: reset AFEs and power them on.
+  - Program per-channel TRIM/OFFSET DACs (40 channels).
+  - Program per-AFE attenuation (VGAIN) and AFE functions (serialized data rate, ADC output format, LPF, PGA clamp/integrator disable, LNA clamp/gain/integrator disable).
+  - Reinforce AFE power on.
+  - If `DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE` is unset: run `alignAFE()` (see below).
+- Optional explicit align: if the client flag `-align_afes` is set, the client sends `MT2_ALIGN_AFE_REQ` after configure, and the server runs `alignAFE()` again and returns TAP/BITSLIP plus scan details.
+
+Alignment logic (`alignAFE()`):
+- Reset delay control and SERDES, disable delay VTC.
+- For each AFE (0–4), scan delay taps to find the longest stable FCLK window, then scan bitslip 0–15 looking for the exact `0x00FF00FF` pattern. The spy snapshot is taken by writing the frontend trigger magic value `0xBABA` and waiting briefly before reading the 32-bit FCLK word.
+- Re-enable delay VTC and report TAP/BITSLIP per AFE. When invoked via `configure_fe_min_v2.py -align_afes --full`, the response includes the delay window and the full bitslip scan words to aid debugging.
+
+Tuning knobs:
+- Set `DAPHNE_SKIP_CONFIG_RESET=1` to skip the reset/powercycle at the start of configure.
+- Set `DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE=1` to skip the auto-align during configure and rely only on the explicit `-align_afes` from the client.
+
 ## Contributing
 
 Please open merge requests or issues with reproduction steps, expected behaviour,
 and board/bitstream details. Continuous improvements around documentation,
 automation, and error handling are especially welcome.
-
