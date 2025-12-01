@@ -21,6 +21,7 @@
 #include <array>
 #include <iomanip>
 #include <cmath>
+#include <cstdlib>
 
 // --- System / POSIX ---
 #include <arpa/inet.h>
@@ -41,6 +42,7 @@
 #include "protobuf/daphneV3_high_level_confs.pb.h"
 #include "protobuf/daphneV3_low_level_confs.pb.h"
 #include "reg.hpp"
+#include "DevMem.hpp"
 
 // ============================================================================
 // Namespace shortcuts
@@ -54,6 +56,8 @@ using daphne::DumpSpyBuffersRequest;
 using daphne::DumpSpyBuffersResponse;
 using daphne::DumpSpyBuffersChunkRequest;
 using daphne::DumpSpyBuffersChunkResponse;
+using daphne::ScrapRequest;
+using daphne::ScrapResponse;
 
 // Commands
 using daphne::cmd_alignAFEs;
@@ -115,6 +119,17 @@ static bool readBiasVoltageMonitor(const cmd_readBiasVoltageMonitor &request,
                                    cmd_readBiasVoltageMonitor_response &response,
                                    Daphne &daphne,
                                    std::string &response_msg);
+// Read helper declarations
+static bool readAFEReg(const cmd_readAFEReg &request, cmd_readAFEReg_response &response, Daphne &daphne, std::string &response_str);
+static bool readAFEVgain(const cmd_readAFEVgain &request, cmd_readAFEVgain_response &response, Daphne &daphne, std::string &response_str);
+static bool readAFEBiasSet(const cmd_readAFEBiasSet &request, cmd_readAFEBiasSet_response &response, Daphne &daphne, std::string &response_str);
+static bool readTrimAllChannels(const cmd_readTrim_allChannels &request, cmd_readTrim_allChannels_response &response, Daphne &daphne, std::string &response_str);
+static bool readTrimAllAFE(const cmd_readTrim_allAFE &request, cmd_readTrim_allAFE_response &response, Daphne &daphne, std::string &response_str);
+static bool readTrimSingleChannel(const cmd_readTrim_singleChannel &request, cmd_readTrim_singleChannel_response &response, Daphne &daphne, std::string &response_str);
+static bool readOffsetAllChannels(const cmd_readOffset_allChannels &request, cmd_readOffset_allChannels_response &response, Daphne &daphne, std::string &response_str);
+static bool readOffsetAllAFE(const cmd_readOffset_allAFE &request, cmd_readOffset_allAFE_response &response, Daphne &daphne, std::string &response_str);
+static bool readOffsetSingleChannel(const cmd_readOffset_singleChannel &request, cmd_readOffset_singleChannel_response &response, Daphne &daphne, std::string &response_str);
+static bool readVbiasControl(const cmd_readVbiasControl &request, cmd_readVbiasControl_response &response, Daphne &daphne, std::string &response_str);
 
 static bool auto_align_enabled() {
     static const bool enabled = (std::getenv("DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE") == nullptr);
@@ -141,11 +156,14 @@ static std::string decode_clk_status(uint32_t v) {
 namespace trigregs {
     constexpr uint32_t PHYS_BASE   = 0xA0010000u;
     constexpr uint32_t STRIDE      = 0x20u; // 32 bytes per channel
+    constexpr uint32_t NUM_CHANNELS = 40u;
     constexpr uint32_t OFF_THR     = 0x00u; // 32-bit (we mask 10b)
     constexpr uint32_t OFF_REC_LO  = 0x04u, OFF_REC_HI = 0x08u;
     constexpr uint32_t OFF_BSY_LO  = 0x0Cu, OFF_BSY_HI = 0x10u;
     constexpr uint32_t OFF_FUL_LO  = 0x14u, OFF_FUL_HI = 0x18u;
     constexpr uint32_t MASK_10BIT  = 0x3FFu;
+    constexpr uint32_t MASK_REG_LOW  = 0x94000020u;
+    constexpr uint32_t MASK_REG_HIGH = 0x94000024u;
   
     struct Reader {
 
@@ -173,7 +191,7 @@ namespace trigregs {
 
           map_base(page_down(static_cast<uint64_t>(base))),
 
-          map_len(page_up(static_cast<uint64_t>(STRIDE) * 40ULL + 0x20ULL)),
+          map_len(page_up(static_cast<uint64_t>(STRIDE) * NUM_CHANNELS + 0x20ULL)),
 
           dict(),
 
@@ -229,7 +247,7 @@ const uint64_t pg = (uint64_t)pagesz;
 // Map from page boundary at/before base, covering up to the highest requested channel
 const uint64_t map_base = ((uint64_t)base) & ~(pg - 1ULL);
 uint32_t maxch = 0;
-for (auto c : chs) if (c < 40 && c > maxch) maxch = c;
+for (auto c : chs) if (c < trigregs::NUM_CHANNELS && c > maxch) maxch = c;
 const uint32_t span = (maxch * trigregs::STRIDE) + trigregs::OFF_FUL_HI + 4u;
 const uint64_t tail = ((uint64_t)base - map_base) + (uint64_t)span;
 const uint64_t map_len = (tail + (pg - 1ULL)) & ~(pg - 1ULL);
@@ -249,7 +267,7 @@ uint32_t l = rd32(lo), h = rd32(hi); return ((uint64_t)h << 32) | l;
 };
 
 for (auto ch : chs) {
-if (ch >= 40) continue;
+if (ch >= trigregs::NUM_CHANNELS) continue;
 uint32_t b = base + ch * trigregs::STRIDE;
 auto* s = resp.add_snapshots();
 s->set_channel(ch);
@@ -262,6 +280,90 @@ s->set_full_count  (rd64(b + trigregs::OFF_FUL_LO, b + trigregs::OFF_FUL_HI));
 munmap(ptr, map_len);
 close(fd);
 return true;
+}
+
+// Write trigger thresholds and masks using /dev/mem (mirrors set_thresholds.sh)
+static bool write_trigger_thresholds(const ConfigureRequest &cfg,
+                                     std::string &response_msg) {
+  std::ostringstream out;
+  std::vector<uint32_t> channels;
+  channels.reserve(cfg.channels_size());
+  for (const auto &ch_cfg : cfg.channels()) {
+    channels.push_back(ch_cfg.id());
+  }
+
+  if (channels.empty()) {
+    out << "No channels provided; skipping trigger threshold programming.\n";
+    response_msg = out.str();
+    return true;
+  }
+
+  std::sort(channels.begin(), channels.end());
+  channels.erase(std::unique(channels.begin(), channels.end()), channels.end());
+  for (auto ch : channels) {
+    if (ch >= trigregs::NUM_CHANNELS) {
+      out << "Channel out of range for trigger threshold: " << ch << " (0.."
+          << (trigregs::NUM_CHANNELS - 1) << ").\n";
+      response_msg = out.str();
+      return false;
+    }
+  }
+
+  const uint32_t thr_val = static_cast<uint32_t>(cfg.self_trigger_threshold());
+
+  bool ok = true;
+  try {
+    DevMem thr_mem(trigregs::PHYS_BASE);
+    const size_t span = trigregs::STRIDE * trigregs::NUM_CHANNELS + 4u;
+    thr_mem.map_memory(span);
+    for (auto ch : channels) {
+      const size_t off = static_cast<size_t>(ch) * trigregs::STRIDE + trigregs::OFF_THR;
+      thr_mem.write(off, std::vector<uint32_t>{thr_val});
+    }
+    out << "Trigger threshold 0x" << std::hex << thr_val << std::dec
+        << " written to channels:";
+    for (auto ch : channels) out << " " << ch;
+    out << ".\n";
+  } catch (const std::exception &e) {
+    out << "Failed to write trigger thresholds via /dev/mem: " << e.what() << ".\n";
+    response_msg = out.str();
+    return false;
+  }
+
+  uint32_t mask_low = 0, mask_high = 0;
+  for (auto ch : channels) {
+    if (ch < 32) mask_low |= (1u << ch);
+    else         mask_high |= (1u << (ch - 32));
+  }
+
+  try {
+    DevMem mlow(trigregs::MASK_REG_LOW);
+    mlow.map_memory(4);
+    mlow.write(0, std::vector<uint32_t>{mask_low});
+    out << "Trigger enable LOW @ 0x" << std::hex << trigregs::MASK_REG_LOW
+        << " = 0x" << mask_low << std::dec << ".\n";
+  } catch (const std::exception &e) {
+    out << "Failed to write LOW trigger mask via /dev/mem: " << e.what() << ".\n";
+    ok = false;
+  }
+
+  try {
+    DevMem mhigh(trigregs::MASK_REG_HIGH);
+    mhigh.map_memory(4);
+    mhigh.write(0, std::vector<uint32_t>{mask_high});
+    out << "Trigger enable HIGH @ 0x" << std::hex << trigregs::MASK_REG_HIGH
+        << " = 0x" << mask_high << std::dec << ".\n";
+  } catch (const std::exception &e) {
+    if (mask_high != 0) {
+      out << "Failed to write HIGH trigger mask via /dev/mem: " << e.what() << ".\n";
+      ok = false;
+    } else {
+      out << "High trigger mask register unavailable; skipped (no high channels requested).\n";
+    }
+  }
+
+  response_msg = out.str();
+  return ok;
 }
 
 // Small RAII for mapped register access (we reuse your reg + FpgaRegDict)
@@ -613,6 +715,97 @@ static void init_v2_handlers() {
   //  - MT2_ALIGN_AFE_REQ               -> alignAFE
   //  - MT2_SET_AFE_RESET_REQ / MT2_DO_AFE_RESET_REQ / MT2_SET_AFE_POWERSTATE_REQ
   //  - Read commands MT2_READ_*        -> your read helpers
+  // --- added: READ helpers ---
+  g_v2_handlers[daphne::MT2_READ_AFE_REG_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_readAFEReg req; daphne::cmd_readAFEReg_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_readAFEReg"; return false; }
+      std::string msg; bool ok = readAFEReg(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+  g_v2_handlers[daphne::MT2_READ_AFE_VGAIN_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_readAFEVgain req; daphne::cmd_readAFEVgain_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_readAFEVgain"; return false; }
+      std::string msg; bool ok = readAFEVgain(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+  g_v2_handlers[daphne::MT2_READ_AFE_BIAS_SET_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_readAFEBiasSet req; daphne::cmd_readAFEBiasSet_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_readAFEBiasSet"; return false; }
+      std::string msg; bool ok = readAFEBiasSet(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+  g_v2_handlers[daphne::MT2_READ_TRIM_ALL_CH_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_readTrim_allChannels req; daphne::cmd_readTrim_allChannels_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_readTrim_allChannels"; return false; }
+      std::string msg; bool ok = readTrimAllChannels(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+  g_v2_handlers[daphne::MT2_READ_TRIM_ALL_AFE_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_readTrim_allAFE req; daphne::cmd_readTrim_allAFE_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_readTrim_allAFE"; return false; }
+      std::string msg; bool ok = readTrimAllAFE(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+  g_v2_handlers[daphne::MT2_READ_TRIM_CH_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_readTrim_singleChannel req; daphne::cmd_readTrim_singleChannel_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_readTrim_singleChannel"; return false; }
+      std::string msg; bool ok = readTrimSingleChannel(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+  g_v2_handlers[daphne::MT2_READ_OFFSET_ALL_CH_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_readOffset_allChannels req; daphne::cmd_readOffset_allChannels_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_readOffset_allChannels"; return false; }
+      std::string msg; bool ok = readOffsetAllChannels(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+  g_v2_handlers[daphne::MT2_READ_OFFSET_ALL_AFE_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_readOffset_allAFE req; daphne::cmd_readOffset_allAFE_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_readOffset_allAFE"; return false; }
+      std::string msg; bool ok = readOffsetAllAFE(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+  g_v2_handlers[daphne::MT2_READ_OFFSET_CH_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_readOffset_singleChannel req; daphne::cmd_readOffset_singleChannel_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_readOffset_singleChannel"; return false; }
+      std::string msg; bool ok = readOffsetSingleChannel(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
+  g_v2_handlers[daphne::MT2_READ_VBIAS_CONTROL_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::cmd_readVbiasControl req; daphne::cmd_readVbiasControl_response resp;
+      if (!req.ParseFromString(in)) { err="Bad cmd_readVbiasControl"; return false; }
+      std::string msg; bool ok = readVbiasControl(req, resp, d, msg);
+      resp.set_success(ok); resp.set_message(msg);
+      out.resize(resp.ByteSizeLong()); resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
   // CONFIGURE_CLKS (V2)
   g_v2_handlers[daphne::MT2_CONFIGURE_CLKS_REQ] =
     [](const std::string& in, std::string& out, Daphne&, std::string& err)->bool {
@@ -760,6 +953,7 @@ public:
 bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std::string &response_str) {
     try {
         std::ostringstream out;
+        bool ok_all = true;
 
         // --- Reset + power on before writes (as you already did)
         if (config_resets_enabled()) {
@@ -767,6 +961,13 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
             daphne.getAfe()->setPowerState(1);
         } else {
             out << "Config reset/powercycle skipped (DAPHNE_SKIP_CONFIG_RESET set).\n";
+        }
+
+        {
+            std::string thr_msg;
+            bool thr_ok = write_trigger_thresholds(requested_cfg, thr_msg);
+            ok_all = ok_all && thr_ok;
+            out << "[TRIGGER_THRESHOLDS]\n" << thr_msg;
         }
 
         // --- Per-channel TRIM & OFFSET with echoed lines like the client prints
@@ -861,7 +1062,7 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
         }
 
         response_str = out.str();
-        return true;
+        return ok_all;
     } catch (std::exception &e) {
         response_str = std::string("Caught Exception:\n") + e.what();
         return false;
@@ -1004,6 +1205,158 @@ bool writeBiasVoltageControl(const cmd_writeVbiasControl &request, Daphne &daphn
         return false;
     }
     return true;
+}
+
+// ---------------------------- Read helpers ----------------------------
+static bool readAFEReg(const cmd_readAFEReg &request, cmd_readAFEReg_response &response, Daphne &daphne, std::string &response_str) {
+    try {
+        uint32_t afeBlockBoard = request.afeblock();
+        uint32_t afeBlock = afe_definitions::AFE_board2PL_map.at(afeBlockBoard);
+        uint32_t regAddr = request.regaddress();
+        uint32_t regValue = daphne.getAfeRegDictValue(afeBlock, regAddr);
+        response.set_afeblock(afeBlockBoard);
+        response.set_regaddress(regAddr);
+        response.set_regvalue(regValue);
+        response_str = "AFE register read successfully for AFE " + std::to_string(afeBlockBoard)
+                       + " (PL " + std::to_string(afeBlock) + "), addr " + std::to_string(regAddr)
+                       + ", value " + std::to_string(regValue) + ".";
+        return true;
+    } catch (std::exception &e) {
+        response_str = "Error reading AFE register: " + std::string(e.what());
+        return false;
+    }
+}
+
+static bool readAFEVgain(const cmd_readAFEVgain &request, cmd_readAFEVgain_response &response, Daphne &daphne, std::string &response_str) {
+    try {
+        uint32_t afeBlockBoard = request.afeblock();
+        uint32_t afeBlock = afe_definitions::AFE_board2PL_map.at(afeBlockBoard);
+        uint32_t vgain = daphne.getAfeAttenuationDictValue(afeBlock);
+        response.set_afeblock(afeBlockBoard);
+        response.set_vgainvalue(vgain);
+        response_str = "AFE VGAIN read successfully for AFE " + std::to_string(afeBlockBoard)
+                       + " (PL " + std::to_string(afeBlock) + "), value " + std::to_string(vgain) + ".";
+        return true;
+    } catch (std::exception &e) {
+        response_str = "Error reading AFE VGAIN: " + std::string(e.what());
+        return false;
+    }
+}
+
+static bool readAFEBiasSet(const cmd_readAFEBiasSet &request, cmd_readAFEBiasSet_response &response, Daphne &daphne, std::string &response_str) {
+    try {
+        uint32_t afeBlockBoard = request.afeblock();
+        uint32_t afeBlock = afe_definitions::AFE_board2PL_map.at(afeBlockBoard);
+        uint32_t biasValue = daphne.getBiasVoltageDictValue(afeBlock);
+        response.set_afeblock(afeBlockBoard);
+        response.set_biasvalue(biasValue);
+        response_str = "AFE Bias value read successfully for AFE " + std::to_string(afeBlockBoard)
+                       + " (PL " + std::to_string(afeBlock) + "), value " + std::to_string(biasValue) + ".";
+        return true;
+    } catch (std::exception &e) {
+        response_str = "Error reading AFE Bias value: " + std::string(e.what());
+        return false;
+    }
+}
+
+static bool readTrimAllChannels(const cmd_readTrim_allChannels & /*request*/, cmd_readTrim_allChannels_response &response, Daphne &daphne, std::string &response_str) {
+    try {
+        for (uint32_t ch = 0; ch < 40; ++ch) {
+            response.add_trimvalues(daphne.getChTrimDictValue(ch));
+        }
+        response_str = "All channel trims read successfully.";
+        return true;
+    } catch (std::exception &e) {
+        response_str = "Error reading all channel trims: " + std::string(e.what());
+        return false;
+    }
+}
+
+static bool readTrimAllAFE(const cmd_readTrim_allAFE &request, cmd_readTrim_allAFE_response &response, Daphne &daphne, std::string &response_str) {
+    try {
+        uint32_t afeBlockBoard = request.afeblock();
+        if (afeBlockBoard > 4) throw std::out_of_range("AFE index " + std::to_string(afeBlockBoard) + " out of range. Expected range 0-4.");
+        uint32_t baseCh = afeBlockBoard * 8;
+        response.set_afeblock(afeBlockBoard);
+        for (uint32_t ch = baseCh; ch < baseCh + 8; ++ch) {
+            response.add_trimvalues(daphne.getChTrimDictValue(ch));
+        }
+        response_str = "AFE trims read successfully for AFE " + std::to_string(afeBlockBoard) + ".";
+        return true;
+    } catch (std::exception &e) {
+        response_str = "Error reading AFE trims: " + std::string(e.what());
+        return false;
+    }
+}
+
+static bool readTrimSingleChannel(const cmd_readTrim_singleChannel &request, cmd_readTrim_singleChannel_response &response, Daphne &daphne, std::string &response_str) {
+    try {
+        uint32_t ch = request.trimchannel();
+        uint32_t val = daphne.getChTrimDictValue(ch);
+        response.set_trimchannel(ch);
+        response.set_trimvalue(val);
+        response_str = "Trim read successfully for Channel " + std::to_string(ch) + " value " + std::to_string(val) + ".";
+        return true;
+    } catch (std::exception &e) {
+        response_str = "Error reading channel trim: " + std::string(e.what());
+        return false;
+    }
+}
+
+static bool readOffsetAllChannels(const cmd_readOffset_allChannels & /*request*/, cmd_readOffset_allChannels_response &response, Daphne &daphne, std::string &response_str) {
+    try {
+        for (uint32_t ch = 0; ch < 40; ++ch) {
+            response.add_offsetvalues(daphne.getChOffsetDictValue(ch));
+        }
+        response_str = "All channel offsets read successfully.";
+        return true;
+    } catch (std::exception &e) {
+        response_str = "Error reading all channel offsets: " + std::string(e.what());
+        return false;
+    }
+}
+
+static bool readOffsetAllAFE(const cmd_readOffset_allAFE &request, cmd_readOffset_allAFE_response &response, Daphne &daphne, std::string &response_str) {
+    try {
+        uint32_t afeBlockBoard = request.afeblock();
+        if (afeBlockBoard > 4) throw std::out_of_range("AFE index " + std::to_string(afeBlockBoard) + " out of range. Expected range 0-4.");
+        uint32_t baseCh = afeBlockBoard * 8;
+        response.set_afeblock(afeBlockBoard);
+        for (uint32_t ch = baseCh; ch < baseCh + 8; ++ch) {
+            response.add_offsetvalues(daphne.getChOffsetDictValue(ch));
+        }
+        response_str = "AFE offsets read successfully for AFE " + std::to_string(afeBlockBoard) + ".";
+        return true;
+    } catch (std::exception &e) {
+        response_str = "Error reading AFE offsets: " + std::string(e.what());
+        return false;
+    }
+}
+
+static bool readOffsetSingleChannel(const cmd_readOffset_singleChannel &request, cmd_readOffset_singleChannel_response &response, Daphne &daphne, std::string &response_str) {
+    try {
+        uint32_t ch = request.offsetchannel();
+        uint32_t val = daphne.getChOffsetDictValue(ch);
+        response.set_offsetchannel(ch);
+        response.set_offsetvalue(val);
+        response_str = "Offset read successfully for Channel " + std::to_string(ch) + " value " + std::to_string(val) + ".";
+        return true;
+    } catch (std::exception &e) {
+        response_str = "Error reading channel offset: " + std::string(e.what());
+        return false;
+    }
+}
+
+static bool readVbiasControl(const cmd_readVbiasControl & /*request*/, cmd_readVbiasControl_response &response, Daphne &daphne, std::string &response_str) {
+    try {
+        uint32_t val = daphne.getBiasControlDictValue();
+        response.set_vbiascontrolvalue(val);
+        response_str = "Vbias control read successfully. Value: " + std::to_string(val) + ".";
+        return true;
+    } catch (std::exception &e) {
+        response_str = "Error reading Vbias control: " + std::string(e.what());
+        return false;
+    }
 }
 
 bool dumpSpybuffer(const DumpSpyBuffersRequest &request, DumpSpyBuffersResponse &response, Daphne &daphne, std::string &response_str){
@@ -1362,6 +1715,8 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
         case CONFIGURE_FE: {
             ConfigureRequest cmd_request;
             ConfigureResponse cmd_response;
+            ScrapRequest scrap_request;
+            ScrapResponse scrap_response;
             //std::cout << "The request is a ConfigureRequest" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
                 std::string configure_message;
@@ -1380,9 +1735,17 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
 		      
 		      cmd_response.set_success(is_success);
 		      cmd_response.set_message(configure_message);
-            }else{
+            } else if (scrap_request.ParseFromString(request_envelope.payload())) {
+                // Handle ScrapRequest gracefully so DAQ state machines can tear down cleanly.
+                scrap_response.set_success(true);
+                scrap_response.set_message("Scrap request acknowledged; no persistent slow-control state to clear.");
+                fill_zmq_message(scrap_response, request_envelope.type(), response_envelope, zmq_response);
+                return;
+            } else {
                 cmd_response.set_success(false);
                 cmd_response.set_message("Payload not recognized");
+                fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
+                return;
             }
             fill_zmq_message(cmd_response, request_envelope.type(), response_envelope, zmq_response);
             return;
@@ -1568,8 +1931,10 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             cmd_readAFEReg_response cmd_response;
             //std::cout << "The request is a ReadAfeRegRequest" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
-                cmd_response.set_success(true);
-                cmd_response.set_message("AFE register read successfully");
+                std::string msg;
+                bool ok = readAFEReg(cmd_request, cmd_response, daphne, msg);
+                cmd_response.set_success(ok);
+                cmd_response.set_message(msg);
             }else{
                 cmd_response.set_success(false);
                 cmd_response.set_message("Payload not recognized");
@@ -1582,8 +1947,10 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             cmd_readAFEVgain_response cmd_response;
             //std::cout << "The request is a ReadAfeVgainRequest" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
-                cmd_response.set_success(true);
-                cmd_response.set_message("AFE VGAIN read successfully");
+                std::string msg;
+                bool ok = readAFEVgain(cmd_request, cmd_response, daphne, msg);
+                cmd_response.set_success(ok);
+                cmd_response.set_message(msg);
             }else{
                 cmd_response.set_success(false);
                 cmd_response.set_message("Payload not recognized");
@@ -1596,8 +1963,10 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             cmd_readAFEBiasSet_response cmd_response;
             //std::cout << "The request is a ReadAfeBiasSetRequest" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
-                cmd_response.set_success(true);
-                cmd_response.set_message("AFE Bias Set read successfully");
+                std::string msg;
+                bool ok = readAFEBiasSet(cmd_request, cmd_response, daphne, msg);
+                cmd_response.set_success(ok);
+                cmd_response.set_message(msg);
             }else{
                 cmd_response.set_success(false);
                 cmd_response.set_message("Payload not recognized");
@@ -1610,8 +1979,10 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             cmd_readTrim_allChannels_response cmd_response;
             //std::cout << "The request is a ReadTrimAllChannelsRequest" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
-                cmd_response.set_success(true);
-                cmd_response.set_message("All channel trims read successfully");
+                std::string msg;
+                bool ok = readTrimAllChannels(cmd_request, cmd_response, daphne, msg);
+                cmd_response.set_success(ok);
+                cmd_response.set_message(msg);
             }else{
                 cmd_response.set_success(false);
                 cmd_response.set_message("Payload not recognized");
@@ -1624,8 +1995,10 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             cmd_readTrim_allAFE_response cmd_response;
             //std::cout << "The request is a ReadTrimAllAfeRequest" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
-                cmd_response.set_success(true);
-                cmd_response.set_message("All AFE trims read successfully");
+                std::string msg;
+                bool ok = readTrimAllAFE(cmd_request, cmd_response, daphne, msg);
+                cmd_response.set_success(ok);
+                cmd_response.set_message(msg);
             }else{
                 cmd_response.set_success(false);
                 cmd_response.set_message("Payload not recognized");
@@ -1638,9 +2011,10 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             cmd_readTrim_singleChannel_response cmd_response;
             //std::cout << "The request is a ReadTrimSingleChannelRequest" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
-                cmd_response.set_success(true);
-                cmd_response.set_message("Single channel trim read successfully");
-                return;
+                std::string msg;
+                bool ok = readTrimSingleChannel(cmd_request, cmd_response, daphne, msg);
+                cmd_response.set_success(ok);
+                cmd_response.set_message(msg);
             }else{
                 cmd_response.set_success(false);
                 cmd_response.set_message("Payload not recognized");
@@ -1653,8 +2027,10 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             cmd_readOffset_allChannels_response cmd_response;
             //std::cout << "The request is a ReadOffsetAllChannelsRequest" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
-                cmd_response.set_success(true);
-                cmd_response.set_message("All channel offsets read successfully");
+                std::string msg;
+                bool ok = readOffsetAllChannels(cmd_request, cmd_response, daphne, msg);
+                cmd_response.set_success(ok);
+                cmd_response.set_message(msg);
             }else{
                 cmd_response.set_success(false);
                 cmd_response.set_message("Payload not recognized");
@@ -1667,8 +2043,10 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             cmd_readOffset_allAFE_response cmd_response;
             //std::cout << "The request is a ReadOffsetAllAfeRequest" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
-                cmd_response.set_success(true);
-                cmd_response.set_message("All AFE offsets read successfully");
+                std::string msg;
+                bool ok = readOffsetAllAFE(cmd_request, cmd_response, daphne, msg);
+                cmd_response.set_success(ok);
+                cmd_response.set_message(msg);
             }else{
                 cmd_response.set_success(false);
                 cmd_response.set_message("Payload not recognized");
@@ -1681,8 +2059,10 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             cmd_readOffset_singleChannel_response cmd_response;
             //std::cout << "The request is a ReadOffsetSingleChannelRequest" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
-                cmd_response.set_success(true);
-                cmd_response.set_message("Single channel offset read successfully");
+                std::string msg;
+                bool ok = readOffsetSingleChannel(cmd_request, cmd_response, daphne, msg);
+                cmd_response.set_success(ok);
+                cmd_response.set_message(msg);
             }else{
                 cmd_response.set_success(false);
                 cmd_response.set_message("Payload not recognized");
@@ -1695,8 +2075,10 @@ void process_request(const std::string& request_str, zmq::message_t& zmq_respons
             cmd_readVbiasControl_response cmd_response;
             //std::cout << "The request is a ReadVbiasControlRequest" << std::endl;
             if(cmd_request.ParseFromString(request_envelope.payload())){
-                cmd_response.set_success(true);
-                cmd_response.set_message("Vbias control read successfully");
+                std::string msg;
+                bool ok = readVbiasControl(cmd_request, cmd_response, daphne, msg);
+                cmd_response.set_success(ok);
+                cmd_response.set_message(msg);
             }else{
                 cmd_response.set_success(false);
                 cmd_response.set_message("Payload not recognized");

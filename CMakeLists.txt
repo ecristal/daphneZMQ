@@ -35,9 +35,31 @@ protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_FILES})
 add_library(daphne_proto ${PROTO_SRCS} ${PROTO_HDRS})
 target_include_directories(daphne_proto PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}/srcs
   ${PROTO_DIR}
 )
 target_link_libraries(daphne_proto PUBLIC protobuf::libprotobuf)
+
+# Also regenerate Python stubs in the build tree so clients can import the
+# same schema the C++ binary was built against.
+set(PY_PROTO_OUT ${CMAKE_CURRENT_BINARY_DIR}/srcs/protobuf)
+file(MAKE_DIRECTORY ${PY_PROTO_OUT})
+add_custom_command(
+  OUTPUT
+    ${PY_PROTO_OUT}/daphneV3_high_level_confs_pb2.py
+    ${PY_PROTO_OUT}/daphneV3_low_level_confs_pb2.py
+  COMMAND ${Protobuf_PROTOC_EXECUTABLE}
+    --python_out=${PY_PROTO_OUT}
+    -I ${PROTO_DIR}
+    ${PROTO_DIR}/daphneV3_high_level_confs.proto
+    ${PROTO_DIR}/daphneV3_low_level_confs.proto
+  DEPENDS ${PROTO_FILES}
+  COMMENT "Generating Python protobuf stubs"
+)
+add_custom_target(daphne_proto_py ALL DEPENDS
+  ${PY_PROTO_OUT}/daphneV3_high_level_confs_pb2.py
+  ${PY_PROTO_OUT}/daphneV3_low_level_confs_pb2.py
+)
 
 # ---------------- cppzmq / libzmq -------
 find_package(cppzmq CONFIG QUIET)
@@ -106,6 +128,7 @@ add_executable(DaphneSlowController ${SOURCES})
 target_include_directories(DaphneSlowController PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}/srcs
   ${PROTO_DIR}
 )
 target_link_libraries(DaphneSlowController PRIVATE

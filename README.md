@@ -95,6 +95,7 @@ The “one-shot” client `client/configure_fe_min_v2.py` sends a CONFIGURE_FE (
 
 - CONFIGURE_FE handling (`MT2_CONFIGURE_FE_REQ` → `configureDaphne()`):
   - If `DAPHNE_SKIP_CONFIG_RESET` is unset: reset AFEs and power them on.
+  - Program trigger thresholds for the listed channels using `/dev/mem` at `0xA0010000` (stride 0x20) and set trigger enable masks (`0x94000020` low / `0x94000024` high).
   - Program per-channel TRIM/OFFSET DACs (40 channels).
   - Program per-AFE attenuation (VGAIN) and AFE functions (serialized data rate, ADC output format, LPF, PGA clamp/integrator disable, LNA clamp/gain/integrator disable).
   - Reinforce AFE power on.

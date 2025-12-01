@@ -50,7 +50,7 @@ def make_default_config(
     slot=0,
     timeout_ms=500,
     biasctrl=1300,
-    self_trigger_threshold=0x1F40,  # 8000
+    self_trigger_threshold=0xc,  # 8000
     self_trigger_xcorr=0x68,
     tp_conf=0x0010DB35,
     compensator=0xFFFFFFFFFF,       # 48-bit in uint64

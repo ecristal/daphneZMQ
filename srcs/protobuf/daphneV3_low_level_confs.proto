@@ -3,12 +3,6 @@ package daphne;
 
 // ----------------------------------------------------------------------------
 // Canonical low-level AFE/FPGA control schema
-//
-// Design rules:
-// - All request messages start with `int32 id = 1;` (keeps DAQ code happy).
-// - Responses are explicit `*_response` messages (keeps ZMQ client happy).
-// - Names are normalized; previous typos fixed (e.g., ...allChannels).
-// - Where one side had extra fields (e.g., trimGain/offsetGain), we keep them.
 // ----------------------------------------------------------------------------
 
 // ------------------------ Write primitives ------------------------
@@ -63,11 +57,11 @@ message cmd_writeAFEBiasSet_response {
   uint32 biasValue = 4;
 }
 
-// TRIM (per datasheet: optional boolean “*_Gain” selectors retained)
+// TRIM
 message cmd_writeTRIM_allChannels {
   int32  id        = 1;
   uint32 trimValue = 2;
-  bool   trimGain  = 3; // from ZMQ schema
+  bool   trimGain  = 3;
 }
 message cmd_writeTRIM_allChannels_response {
   bool   success   = 1;
@@ -80,7 +74,7 @@ message cmd_writeTrim_allAFE {
   int32  id        = 1;
   uint32 afeBlock  = 2;
   uint32 trimValue = 3;
-  bool   trimGain  = 4; // from ZMQ schema
+  bool   trimGain  = 4;
 }
 message cmd_writeTrim_allAFE_response {
   bool   success   = 1;
@@ -94,7 +88,7 @@ message cmd_writeTrim_singleChannel {
   int32  id          = 1;
   uint32 trimChannel = 2;
   uint32 trimValue   = 3;
-  bool   trimGain    = 4; // from ZMQ schema
+  bool   trimGain    = 4;
 }
 message cmd_writeTrim_singleChannel_response {
   bool   success     = 1;
@@ -108,7 +102,7 @@ message cmd_writeTrim_singleChannel_response {
 message cmd_writeOFFSET_allChannels {
   int32  id          = 1;
   uint32 offsetValue = 2;
-  bool   offsetGain  = 3; // from ZMQ schema
+  bool   offsetGain  = 3;
 }
 message cmd_writeOFFSET_allChannels_response {
   bool   success     = 1;
@@ -121,7 +115,7 @@ message cmd_writeOFFSET_allAFE {
   int32  id          = 1;
   uint32 afeBlock    = 2;
   uint32 offsetValue = 3;
-  bool   offsetGain  = 4; // from ZMQ schema
+  bool   offsetGain  = 4;
 }
 message cmd_writeOFFSET_allAFE_response {
   bool   success     = 1;
@@ -135,7 +129,7 @@ message cmd_writeOFFSET_singleChannel {
   int32  id            = 1;
   uint32 offsetChannel = 2;
   uint32 offsetValue   = 3;
-  bool   offsetGain    = 4; // from ZMQ schema
+  bool   offsetGain    = 4;
 }
 message cmd_writeOFFSET_singleChannel_response {
   bool   success       = 1;
@@ -148,7 +142,7 @@ message cmd_writeOFFSET_singleChannel_response {
 message cmd_writeVbiasControl {
   int32  id                = 1;
   uint32 vBiasControlValue = 2;
-  bool   enable            = 3; // from ZMQ schema
+  bool   enable            = 3;
 }
 message cmd_writeVbiasControl_response {
   bool   success           = 1;
@@ -313,7 +307,7 @@ message cmd_setAFEPowerState {
 message cmd_setAFEPowerState_response {
   bool   success   = 1;
   string message   = 2;
-  uint32 powerState= 3; // keep uint32 to match prior DAQ code
+  uint32 powerState= 3;
 }
 
 // --- AFE alignment ---------------------------------------------------
@@ -351,4 +345,3 @@ message Status {
   bool  success = 1;
   bytes extra   = 2;
 }
-
