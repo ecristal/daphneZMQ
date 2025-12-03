@@ -706,6 +706,26 @@ static void init_v2_handlers() {
       resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
       return true;
     };
+  // --- added: READ_GENERAL_INFO (GeneralInfo payload) ---
+  g_v2_handlers[daphne::MT2_READ_GENERAL_INFO_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
+      daphne::InfoRequest req; daphne::InfoResponse resp;
+      if (!req.ParseFromString(in)) { err="Bad InfoRequest"; return false; }
+
+      auto* g = resp.mutable_general_info();
+      g->set_v_bias_0(d._VBIAS_0_voltage.load());
+      g->set_v_bias_1(d._VBIAS_1_voltage.load());
+      g->set_v_bias_2(d._VBIAS_2_voltage.load());
+      g->set_v_bias_3(d._VBIAS_3_voltage.load());
+      g->set_v_bias_4(d._VBIAS_4_voltage.load());
+      g->set_power_minus5v(d._n5VA_voltage.load());
+      g->set_power_plus2p5v(d._3V3PDS_voltage.load()); // closest available rail voltage
+      g->set_power_ce(d._1V8A_voltage.load());
+
+      out.resize(resp.ByteSizeLong());
+      resp.SerializeToArray(out.data(), static_cast<int>(out.size()));
+      return true;
+    };
   //  - MT2_WRITE_AFE_REG_REQ           -> writeAFERegister
   //  - MT2_WRITE_AFE_VGAIN_REQ         -> writeAFEVgain
   //  - MT2_WRITE_AFE_BIAS_SET_REQ      -> writeAFEBiasVoltage
@@ -954,6 +974,10 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
     try {
         std::ostringstream out;
         bool ok_all = true;
+        const bool requested_bias_for_any_afe =
+            std::any_of(requested_cfg.afes().begin(), requested_cfg.afes().end(),
+                        [](const AFEConfig &afe_cfg) { return afe_cfg.v_bias() > 0; });
+        bool bias_control_applied = false;
 
         // --- Reset + power on before writes (as you already did)
         if (config_resets_enabled()) {
@@ -1005,12 +1029,22 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
                 uint32_t returnedControlValue = daphne.getDac()->setDacHvBias(ctrl, false, false);
                 uint32_t returnedBiasEnable   = daphne.getDac()->setBiasEnable(true);
                 daphne.setBiasControlDictValue(ctrl);
+                bias_control_applied = true;
                 out << "Bias Control value written successfully. Bias Control value: "
                     << ctrl << " and Enable: " << returnedBiasEnable
                     << " Returned value: " << returnedControlValue << ".\n";
             } else {
                 out << "Warning: Bias Control value " << ctrl << " out of range (0..4095). Skipping.\n";
             }
+        }
+        if (!bias_control_applied && requested_bias_for_any_afe) {
+            const uint32_t ctrl = 4095; // drive bias control rail high when per-AFE bias is requested
+            uint32_t returnedControlValue = daphne.getDac()->setDacHvBias(ctrl, false, false);
+            uint32_t returnedBiasEnable   = daphne.getDac()->setBiasEnable(true);
+            daphne.setBiasControlDictValue(ctrl);
+            out << "Bias Control was not set in request but AFE bias values are present. "
+                << "Defaulting Bias Control to " << ctrl << " and Enable: " << returnedBiasEnable
+                << " Returned value: " << returnedControlValue << ".\n";
         }
 
         // --- Per-AFE VGAIN/attenuators with the same mapping and echo format as WRITE_AFE_VGAIN
@@ -1028,6 +1062,15 @@ bool configureDaphne(const ConfigureRequest &requested_cfg, Daphne &daphne, std:
             // Echo line identical in spirit to client
             out << "AFE VGAIN written successfully for AFE " << afe_board
                 << ". VGAIN: " << v << ". Returned value: " << v_rb << ".\n";
+
+            // Program bias DAC per AFE (matches WRITE_AFE_BIAS_SET behavior)
+            const uint32_t bias = afe_config.v_bias();
+            if (bias > 4095) throw std::invalid_argument("Bias out of range for AFE " + std::to_string(afe_board));
+            daphne.getDac()->setDacBias(afe_pl, bias);
+            daphne.setBiasVoltageDictValue(afe_pl, bias);
+            const uint32_t bias_rb = daphne.getBiasVoltageDictValue(afe_pl);
+            out << "AFE bias written successfully for AFE " << afe_board
+                << ". Bias: " << bias << ". Returned value: " << bias_rb << ".\n";
 
             // --- ADC / PGA / LNA function writes (unchanged behavior + echo)
             uint32_t r = 0;

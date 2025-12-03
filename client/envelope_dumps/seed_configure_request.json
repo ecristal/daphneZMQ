@@ -1,0 +1,293 @@
+{
+  "afes": [
+    {
+      "adc": {
+        "output_format": true,
+        "resolution": true
+      },
+      "attenuators": 2999,
+      "lna": {
+        "gain": 2,
+        "integrator_disable": true
+      },
+      "pga": {
+        "integrator_disable": true,
+        "lpf_cut_frequency": 4
+      }
+    },
+    {
+      "adc": {
+        "output_format": true,
+        "resolution": true
+      },
+      "attenuators": 2080,
+      "id": 1,
+      "lna": {
+        "gain": 2,
+        "integrator_disable": true
+      },
+      "pga": {
+        "integrator_disable": true,
+        "lpf_cut_frequency": 4
+      }
+    },
+    {
+      "adc": {
+        "output_format": true,
+        "resolution": true
+      },
+      "attenuators": 2226,
+      "id": 2,
+      "lna": {
+        "gain": 2,
+        "integrator_disable": true
+      },
+      "pga": {
+        "integrator_disable": true,
+        "lpf_cut_frequency": 4
+      },
+      "v_bias": 1115
+    },
+    {
+      "adc": {
+        "output_format": true,
+        "resolution": true
+      },
+      "attenuators": 1778,
+      "id": 3,
+      "lna": {
+        "gain": 2,
+        "integrator_disable": true
+      },
+      "pga": {
+        "integrator_disable": true,
+        "lpf_cut_frequency": 4
+      },
+      "v_bias": 800
+    },
+    {
+      "adc": {
+        "output_format": true,
+        "resolution": true
+      },
+      "attenuators": 2999,
+      "id": 4,
+      "lna": {
+        "gain": 2,
+        "integrator_disable": true
+      },
+      "pga": {
+        "integrator_disable": true,
+        "lpf_cut_frequency": 4
+      }
+    }
+  ],
+  "biasctrl": 4095,
+  "channels": [
+    {
+      "gain": 1,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 1,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 2,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 3,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 4,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 5,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 6,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 7,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 8,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 9,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 10,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 11,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 12,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 13,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 14,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 15,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 16,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 17,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 18,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 19,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 20,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 21,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 22,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 23,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 24,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 25,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 26,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 27,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 28,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 29,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 30,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 31,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 32,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 33,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 34,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 35,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 36,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 37,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 38,
+      "offset": 2275
+    },
+    {
+      "gain": 1,
+      "id": 39,
+      "offset": 2275
+    }
+  ],
+  "daphne_address": "10.73.137.160",
+  "self_trigger_threshold": "20",
+  "self_trigger_xcorr": "4160749570000",
+  "slot": 1,
+  "timeout_ms": 6000,
+  "tp_conf": "17881857"
+}
