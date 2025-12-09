@@ -7,10 +7,10 @@
 #include <cstring>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <string_view>
-#include <vector>
 
 #include <zmq.h>
 
@@ -21,6 +21,7 @@ namespace {
 constexpr uint64_t kAxiBaseAddr = 0x40000000ULL;  // Adjust to DAPHNE AXI base address
 constexpr size_t kAxiWindowSize = 0x1000;         // Adjust to DAPHNE AXI memory size
 constexpr std::string_view kDefaultBindEndpoint{"tcp://*:9000"};
+constexpr size_t kMaxRequestSize = 256;
 
 uint32_t parse_u32_token(const std::string& token) {
     if (token.empty()) {
@@ -49,40 +50,121 @@ std::string resolve_bind_endpoint(int argc, char** argv) {
     return std::string{kDefaultBindEndpoint};
 }
 
+struct ZmqContextDeleter {
+    void operator()(void* ctx) const noexcept {
+        if (ctx) {
+            zmq_ctx_term(ctx);
+        }
+    }
+};
+
+struct ZmqSocketDeleter {
+    void operator()(void* socket) const noexcept {
+        if (socket) {
+            zmq_close(socket);
+        }
+    }
+};
+
+using ZmqContextPtr = std::unique_ptr<void, ZmqContextDeleter>;
+using ZmqSocketPtr = std::unique_ptr<void, ZmqSocketDeleter>;
+
+ZmqContextPtr create_zmq_context() {
+    void* raw_ctx = zmq_ctx_new();
+    if (!raw_ctx) {
+        throw std::runtime_error("Failed to create ZeroMQ context: " +
+                                 std::string(zmq_strerror(zmq_errno())));
+    }
+    return ZmqContextPtr{raw_ctx};
+}
+
+ZmqSocketPtr create_rep_socket(void* context, const std::string& endpoint) {
+    void* raw_socket = zmq_socket(context, ZMQ_REP);
+    if (!raw_socket) {
+        throw std::runtime_error("Failed to create ZeroMQ socket: " +
+                                 std::string(zmq_strerror(zmq_errno())));
+    }
+
+    // Avoid blocking on shutdown if the peer disappears.
+    const int linger_ms = 0;
+    (void)zmq_setsockopt(raw_socket, ZMQ_LINGER, &linger_ms, sizeof(linger_ms));
+
+    if (zmq_bind(raw_socket, endpoint.c_str()) != 0) {
+        zmq_close(raw_socket);
+        throw std::runtime_error("Failed to bind ZeroMQ socket to " + endpoint +
+                                 ": " + std::string(zmq_strerror(zmq_errno())));
+    }
+
+    return ZmqSocketPtr{raw_socket};
+}
+
+std::string handle_request(std::string_view request, DevMem& devmem) {
+    if (request.empty()) {
+        return "ERROR: expected <command> <offset> [value]";
+    }
+
+    std::istringstream line(std::string(request));
+    std::string command;
+    std::string offset_token;
+    std::string value_token;
+
+    if (!(line >> command >> offset_token)) {
+        return "ERROR: expected <command> <offset> [value]";
+    }
+
+    std::transform(command.begin(),
+                   command.end(),
+                   command.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+    const uint32_t offset = parse_u32_token(offset_token);
+
+    if (command == "write") {
+        if (!(line >> value_token)) {
+            return "ERROR: missing value for write command";
+        }
+        const uint32_t value = parse_u32_token(value_token);
+        devmem.write_u32(offset, value);
+        const uint32_t read_back = devmem.read_u32(offset);
+        if (read_back == value) {
+            return "OK";
+        }
+        std::ostringstream os;
+        os << "ERROR: verify failed (expected 0x"
+           << std::hex << value << " read 0x" << read_back << ")";
+        return os.str();
+    }
+
+    if (command == "read") {
+        const uint32_t data = devmem.read_u32(offset);
+        std::ostringstream os;
+        os << std::hex << std::uppercase;
+        os.width(8);
+        os.fill('0');
+        os << data;
+        return os.str();
+    }
+
+    return "ERROR: unsupported command '" + command + "'";
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
-    void* context = nullptr;
-    void* socket = nullptr;
-
     try {
         DevMem devmem(kAxiBaseAddr);
         devmem.map_memory(kAxiWindowSize);
 
         const std::string bind_endpoint = resolve_bind_endpoint(argc, argv);
 
-        context = zmq_ctx_new();
-        if (!context) {
-            throw std::runtime_error("Failed to create ZeroMQ context: " +
-                                     std::string(zmq_strerror(zmq_errno())));
-        }
-
-        socket = zmq_socket(context, ZMQ_REP);
-        if (!socket) {
-            throw std::runtime_error("Failed to create ZeroMQ socket: " +
-                                     std::string(zmq_strerror(zmq_errno())));
-        }
-
-        if (zmq_bind(socket, bind_endpoint.c_str()) != 0) {
-            throw std::runtime_error("Failed to bind ZeroMQ socket to " + bind_endpoint +
-                                     ": " + std::string(zmq_strerror(zmq_errno())));
-        }
+        auto context = create_zmq_context();
+        auto socket = create_rep_socket(context.get(), bind_endpoint);
 
         std::cout << "srv bound to " << bind_endpoint << std::endl;
 
-        std::array<char, 256> buffer{};
-        auto send_reply = [socket](const std::string& msg) {
-            if (zmq_send(socket, msg.data(), msg.size(), 0) == -1) {
+        std::array<char, kMaxRequestSize> buffer{};
+        auto send_reply = [&socket](const std::string& msg) {
+            if (zmq_send(socket.get(), msg.data(), msg.size(), 0) == -1) {
                 std::cerr << "Failed to send reply: "
                           << zmq_strerror(zmq_errno()) << std::endl;
             }
@@ -90,7 +172,7 @@ int main(int argc, char** argv) {
 
         while (true) {
             const int bytes_received =
-                zmq_recv(socket, buffer.data(), buffer.size() - 1, 0);
+                zmq_recv(socket.get(), buffer.data(), buffer.size() - 1, 0);
             if (bytes_received == -1) {
                 const int err = zmq_errno();
                 if (err == EINTR) {
@@ -102,70 +184,19 @@ int main(int argc, char** argv) {
 
             buffer[bytes_received] = '\0';
 
-            std::istringstream line(buffer.data());
-            std::string command;
-            std::string offset_token;
-            std::string value_token;
-
-            if (!(line >> command >> offset_token)) {
-                send_reply("ERROR: expected <command> <offset> [value]");
-                continue;
-            }
-
-            std::transform(command.begin(),
-                           command.end(),
-                           command.begin(),
-                           [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-
             try {
-                const uint32_t offset = parse_u32_token(offset_token);
-
-                if (command == "write") {
-                    if (!(line >> value_token)) {
-                        send_reply("ERROR: missing value for write command");
-                        continue;
-                    }
-                    const uint32_t value = parse_u32_token(value_token);
-                    std::vector<uint32_t> data_vector(1, value);
-                    devmem.write(offset, data_vector);
-                    const auto confirm = devmem.read(offset, 1);
-                    const uint32_t read_back = confirm.at(0);
-                    if (read_back == value) {
-                        send_reply("OK");
-                    } else {
-                        std::ostringstream os;
-                        os << "ERROR: verify failed (expected 0x"
-                           << std::hex << value << " read 0x" << read_back << ")";
-                        send_reply(os.str());
-                    }
-                } else if (command == "read") {
-                    const auto data = devmem.read(offset, 1);
-                    std::ostringstream os;
-                    os << std::hex << std::uppercase;
-                    os.width(8);
-                    os.fill('0');
-                    os << data.at(0);
-                    send_reply(os.str());
-                } else {
-                    send_reply("ERROR: unsupported command '" + command + "'");
-                }
+                const std::string reply = handle_request(
+                    std::string_view(buffer.data(), static_cast<size_t>(bytes_received)),
+                    devmem);
+                send_reply(reply);
             } catch (const std::exception& cmd_err) {
                 send_reply(std::string("ERROR: ") + cmd_err.what());
             }
         }
     } catch (const std::exception& e) {
         std::cerr << "srv encountered a fatal error: " << e.what() << std::endl;
-        if (socket) {
-            zmq_close(socket);
-        }
-        if (context) {
-            zmq_ctx_term(context);
-        }
         return EXIT_FAILURE;
     }
-
-    zmq_close(socket);
-    zmq_ctx_term(context);
 
     return EXIT_SUCCESS;
 }

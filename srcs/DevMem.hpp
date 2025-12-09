@@ -16,16 +16,22 @@ public:
 
     // Destructor
     ~DevMem();
+    DevMem(const DevMem&) = delete;
+    DevMem& operator=(const DevMem&) = delete;
+    DevMem(DevMem&&) = delete;
+    DevMem& operator=(DevMem&&) = delete;
 
     // Read words
-    std::vector<uint32_t> read(size_t offset, size_t num_words);
-    const uint32_t* get_read_ptr(size_t offset, size_t num_words);
+    std::vector<uint32_t> read(size_t offset, size_t num_words) const;
+    uint32_t read_u32(size_t offset) const;
+    const uint32_t* get_read_ptr(size_t offset, size_t num_words) const;
 
     // Write words
     void write(size_t offset, const std::vector<uint32_t>& data);
+    void write_u32(size_t offset, uint32_t value);
 
     // Hexdump for debugging
-    std::string hexdump(const std::vector<uint32_t>& data);
+    std::string hexdump(const std::vector<uint32_t>& data) const;
     void changeBaseAddr(const uint64_t &base_addr, const size_t length);
     void map_memory(size_t length);
 private:
@@ -44,6 +50,11 @@ private:
 
     // Validate offset and length
     void validate_offset(size_t offset, size_t num_words) const;
+
+    // Helpers
+    void require_mapped() const;
+    uint32_t* word_ptr(size_t offset) const;
+    void unmap_if_mapped();
 };
 
 #endif // DEVMEM_HPP

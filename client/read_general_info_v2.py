@@ -70,7 +70,12 @@ def main():
     print(f"  power_minus5v:{g.power_minus5v:.5f} V (rail)")
     print(f"  power_plus2p5v:{g.power_plus2p5v:.5f} V (rail)")
     print(f"  power_ce:     {g.power_ce:.5f} V (rail)")
-    if g.HasField("temperature"):
+    # temperature is a proto3 scalar (no presence); only gate on HasField when supported
+    temp_fd = pb_high.GeneralInfo.DESCRIPTOR.fields_by_name.get("temperature")
+    if temp_fd and temp_fd.has_presence:
+        if g.HasField("temperature"):
+            print(f"  temperature:  {g.temperature:.5f} C")
+    else:
         print(f"  temperature:  {g.temperature:.5f} C")
 
 
