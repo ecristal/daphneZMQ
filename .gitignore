@@ -10,3 +10,8 @@ __pycache__/
 
 # Protobuf definitions
 *.proto
+# Generated protobuf outputs (C++ and Python)
+srcs/protobuf/*.pb.cc
+srcs/protobuf/*.pb.h
+srcs/protobuf/*_pb2.py
+srcs/protobuf/__pycache__/
