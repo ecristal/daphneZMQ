@@ -88,7 +88,7 @@ if(CLI11_FOUND)
 else()
   message(STATUS "CLI11 package not found; using header-only fallback")
   find_path(CLI11_INCLUDE_DIR NAMES CLI/CLI.hpp
-            HINTS /usr/include /usr/local/include $ENV{HOME}/.local/include)
+            HINTS /usr/include /usr/local/include $ENV{HOME}/.local/include /home/petalinux/zmq/CLI11 /home/petalinux/zmq/CLI11/include)
   if(NOT CLI11_INCLUDE_DIR)
     message(FATAL_ERROR "CLI/CLI.hpp not found; set CLI11_INCLUDE_DIR or install CLI11 headers")
   endif()
