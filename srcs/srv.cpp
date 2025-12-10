@@ -103,7 +103,7 @@ std::string handle_request(std::string_view request, DevMem& devmem) {
         return "ERROR: expected <command> <offset> [value]";
     }
 
-    std::istringstream line(std::string(request));
+    std::istringstream line{std::string(request)};
     std::string command;
     std::string offset_token;
     std::string value_token;

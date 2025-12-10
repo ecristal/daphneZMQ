@@ -57,9 +57,8 @@ def main():
     if rep.type != pb_high.MT2_READ_GENERAL_INFO_RESP:
         raise RuntimeError(f"Unexpected reply type {rep.type}")
 
-    out = pb_high.InfoResponse()
-    out.ParseFromString(rep.payload)
-    g = out.general_info
+    g = pb_high.GeneralInfo()
+    g.ParseFromString(rep.payload)
 
     print("GeneralInfo:")
     print(f"  v_bias_0:     {g.v_bias_0:.5f} V")

@@ -17,12 +17,12 @@ def make_default_config(
     ip="10.73.137.161",
     slot=0,
     timeout_ms=500,
-    biasctrl=1300,
-    self_trigger_threshold=0x1F40,  # 8000
+    biasctrl=0,
+    self_trigger_threshold=0x1F40,  
     self_trigger_xcorr=0x68,
     tp_conf=0x0010DB35,
-    compensator=0xFFFFFFFFFF,       # 48-bit in uint64
-    inverters=0xFF00000000,         # 48-bit in uint64
+    compensator=0xFFFFFFFFFF,       
+    inverters=0xFF00000000,         
     per_ch_trim=0,
     per_ch_offset=2275,
 ):

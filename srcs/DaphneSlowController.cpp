@@ -40,8 +40,8 @@
 #include "defines.hpp"
 #include "FpgaRegDict.hpp"
 #include "MezzCommon.hpp"
-#include "protobuf/daphneV3_high_level_confs.pb.h"
-#include "protobuf/daphneV3_low_level_confs.pb.h"
+#include "daphneV3_high_level_confs.pb.h"
+#include "daphneV3_low_level_confs.pb.h"
 #include "reg.hpp"
 #include "DevMem.hpp"
 
@@ -797,18 +797,17 @@ static void init_v2_handlers() {
   // --- added: READ_GENERAL_INFO (GeneralInfo payload) ---
   g_v2_handlers[daphne::MT2_READ_GENERAL_INFO_REQ] =
     [](const std::string& in, std::string& out, Daphne& d, std::string& err)->bool {
-      daphne::InfoRequest req; daphne::InfoResponse resp;
+      daphne::InfoRequest req; daphne::GeneralInfo resp;
       if (!req.ParseFromString(in)) { err="Bad InfoRequest"; return false; }
 
-      auto* g = resp.mutable_general_info();
-      g->set_v_bias_0(d._VBIAS_0_voltage.load());
-      g->set_v_bias_1(d._VBIAS_1_voltage.load());
-      g->set_v_bias_2(d._VBIAS_2_voltage.load());
-      g->set_v_bias_3(d._VBIAS_3_voltage.load());
-      g->set_v_bias_4(d._VBIAS_4_voltage.load());
-      g->set_power_minus5v(d._n5VA_voltage.load());
-      g->set_power_plus2p5v(d._3V3PDS_voltage.load()); // closest available rail voltage
-      g->set_power_ce(d._1V8A_voltage.load());
+      resp.set_v_bias_0(d._VBIAS_0_voltage.load());
+      resp.set_v_bias_1(d._VBIAS_1_voltage.load());
+      resp.set_v_bias_2(d._VBIAS_2_voltage.load());
+      resp.set_v_bias_3(d._VBIAS_3_voltage.load());
+      resp.set_v_bias_4(d._VBIAS_4_voltage.load());
+      resp.set_power_minus5v(d._n5VA_voltage.load());
+      resp.set_power_plus2p5v(d._3V3PDS_voltage.load()); // closest available rail voltage
+      resp.set_power_ce(d._1V8A_voltage.load());
 
       out.resize(resp.ByteSizeLong());
       resp.SerializeToArray(out.data(), static_cast<int>(out.size()));

@@ -129,6 +129,7 @@ target_include_directories(DaphneSlowController PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}/srcs
+  ${CMAKE_CURRENT_BINARY_DIR}/srcs/protobuf
   ${PROTO_DIR}
 )
 target_link_libraries(DaphneSlowController PRIVATE
