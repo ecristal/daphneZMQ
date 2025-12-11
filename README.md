@@ -33,8 +33,13 @@ sudo apt install build-essential cmake libzmq3-dev libprotobuf-dev protobuf-comp
 ## Building
 
 ```bash
-cmake -S . -B build
-cmake --build build --parallel
+# Fast build (if Ninja is available)
+cmake -S . -B build -G Ninja
+ninja -C build
+
+# Standard makefiles
+# cmake -S . -B build
+# cmake --build build --parallel
 ```
 
 The build produces two main executables:
