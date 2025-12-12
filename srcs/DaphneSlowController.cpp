@@ -310,7 +310,13 @@ static bool write_trigger_thresholds(const ConfigureRequest &cfg,
     }
   }
 
-  const uint32_t thr_val = static_cast<uint32_t>(cfg.self_trigger_threshold());
+  uint32_t thr_val = static_cast<uint32_t>(cfg.self_trigger_threshold());
+  // Allow up to 14 bits; clamp and warn if larger.
+  if (thr_val > 0x3FFF) {
+    out << "Requested threshold " << thr_val
+        << " exceeds 14-bit range; clamping to 16383.\n";
+    thr_val = 0x3FFF;
+  }
 
   bool ok = true;
   try {
