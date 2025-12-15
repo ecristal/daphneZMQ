@@ -27,14 +27,11 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
 endif()
 
-option(DAPHNE_BUILD_PY_PROTO "Generate python *_pb2.py into build tree" OFF)
+option(DAPHNE_BUILD_PY_PROTO "Generate python *_pb2.py into build tree" ON)
 option(DAPHNE_BUNDLE_ZEROMQ "Build bundled libzmq from third_party" OFF)
 set(DAPHNE_DEPS_TARBALL_DIR "" CACHE PATH "Directory containing the pinned dependency tarball (see deps/deps.lock.cmake)")
 
 if(DAPHNE_DEPS_TARBALL_DIR AND NOT DAPHNE_DEPS_TARBALL_DIR STREQUAL "")
-  # When building with a pinned deps tarball, also generate Python stubs so the
-  # included Python clients can run on-target without protobuf version issues.
-  set(DAPHNE_BUILD_PY_PROTO ON CACHE BOOL "Generate python *_pb2.py into build tree" FORCE)
   include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/daphne_deps.cmake")
   daphne_use_locked_deps(TARBALL_DIR "${DAPHNE_DEPS_TARBALL_DIR}")
 endif()
