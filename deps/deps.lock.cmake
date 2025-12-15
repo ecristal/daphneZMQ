@@ -11,5 +11,4 @@
 # match.
 
 set(DAPHNE_DEPS_TARBALL_NAME "daphne-deps-petalinux2024.1-aarch64-glibc2.36-protobuf30.1-zeromq4.3.4.tar.gz")
-set(DAPHNE_DEPS_TARBALL_SHA256 "PUT_REAL_SHA256_HERE")
-
+set(DAPHNE_DEPS_TARBALL_SHA256 "109de97c1b635989fec9822927847edcf5bfd122b21084ec2dee673b63f9267c")
