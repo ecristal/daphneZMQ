@@ -1,4 +1,3 @@
-# /Users/marroyav/daphneZMQ/client/waveparse.py
 import numpy as np
 
 def parse_dump_response(resp):

@@ -1,6 +1,14 @@
 #include "DaphneSpiDrivers.hpp"
 #include <array>
 
+#ifdef __linux__
+#include <linux/spi/spidev.h>
+#else
+#ifndef SPI_MODE_1
+#define SPI_MODE_1 0x01
+#endif
+#endif
+
 CurrentMonitorDrivers::ADS1260::ADS1260():
     deviceAddress("/dev/spidev3.0"),
     deviceSpeed(1000000),

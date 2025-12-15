@@ -135,7 +135,7 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--timeout", type=int, default=6000, help="Socket timeout in ms.")
     ap.add_argument("--json-path", default="pds/configs/vd_coldbox/daphne_mezz.json")
     ap.add_argument("--board-id", default="60", help="Board key in the seed/output JSON.")
-    ap.add_argument("--out-dir", default="daphneZMQ/client/envelope_dumps")
+    ap.add_argument("--out-dir", default="client/envelope_dumps")
     ap.add_argument("--prefer-cli-common", action="store_true", help="Override seed common ADC/PGA/LNA with CLI defaults.")
 
     # CLI config knobs (mirroring configure_fe_min_v2 defaults/choices)

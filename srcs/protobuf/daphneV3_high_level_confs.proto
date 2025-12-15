@@ -168,9 +168,10 @@ message WriteRegister { uint64 address = 1; uint64 value = 2; }
 message WriteMultipleRegisterRequest { repeated WriteRegister writes = 1; }
 message WriteRegisterResponse { bool success = 1; string message = 2; }
 
-// ----------------- Legacy envelope (ZMQ uses this today) -----------------
-// Keep as-is for now; we'll swap to the even/odd EnvelopeV2 later in the transport layer.
+// ----------------- Legacy envelope (deprecated) -----------------
+// Deprecated: use ControlEnvelopeV2 + MessageTypeV2.
 enum MessageType {
+  option deprecated = true;
   UNKNOWN                 = 0;
   CONFIGURE_CLKS          = 1;
   CONFIGURE_FE            = 2;
@@ -296,6 +297,7 @@ message ControlEnvelopeV2 {
 
 
 message ControlEnvelope {
+  option deprecated = true;
   MessageType type = 1;
   bytes       payload = 2;
 }

@@ -5,12 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <linux/spi/spidev.h>
-#include <cstring>
-#include <cerrno>
+#include <cstdint>
 
 class SpiDevice {
 public:

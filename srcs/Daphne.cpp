@@ -7,12 +7,31 @@ Daphne::Daphne()
 	: afe(std::make_unique<Afe>()),
 	  dac(std::make_unique<Dac>()),
 	  frontend(std::make_unique<FrontEnd>()),
-	  spyBuffer(std::make_unique<SpyBuffer>()),
-	  hdmezzdriver(std::make_unique<I2CMezzDrivers::HDMezzDriver>()),
-	  regulatorsdriver(std::make_unique<I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver>()),
-	  current_monitor(std::make_unique<CurrentMonitorDrivers::CurrentMonitor>())
+	  spyBuffer(std::make_unique<SpyBuffer>())
 	{
 		this->initRegDictHistory();
+
+		try {
+			hdmezzdriver = std::make_unique<I2CMezzDrivers::HDMezzDriver>();
+		} catch (const std::exception &e) {
+			std::cerr << "Warning: HDMezzDriver unavailable: " << e.what() << std::endl;
+			hdmezzdriver.reset();
+		}
+
+		try {
+			regulatorsdriver = std::make_unique<I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver>();
+		} catch (const std::exception &e) {
+			std::cerr << "Warning: regulators driver unavailable: " << e.what() << std::endl;
+			regulatorsdriver.reset();
+		}
+
+		try {
+			current_monitor = std::make_unique<CurrentMonitorDrivers::CurrentMonitor>();
+		} catch (const std::exception &e) {
+			std::cerr << "Warning: current monitor unavailable: " << e.what() << std::endl;
+			current_monitor.reset();
+		}
+
 		try {
 			ads7138driver_addr_0x10 = std::make_unique<I2CADCsDrivers::ADS7138_Driver>(0x10);
 			ads7138driver_addr_0x10->setEnabledChannels({true, true, true, true,
@@ -287,216 +306,130 @@ double Daphne::calcInputVoltage(const double& value, const double& vGain_mV){
 
 void Daphne::initRegDictHistory() {
 
-	// {REGISTER_ADDR, REGISTER_VALUE}
-    std::unordered_map<uint32_t, uint32_t> afeRegDict = {
-        {0, 0},
-        {1, 0},
-        {2, 0},
-        {3, 0},
-        {4, 0},
-        {5, 0},
-        {10, 0},
-        {13, 0},
-        {15, 0},
-        {17, 0},
-        {19, 0},
-        {21, 0},
-        {25, 0},
-        {27, 0},
-        {29, 0},
-        {31, 0},
-        {33, 0},
-        {50, 0},
-        {51, 0},
-        {52, 0},
-        {53, 0},
-        {54, 0},
-        {55, 0},
-        {56, 0},
-        {57, 0},
-        {59, 0},
-        {66, 0}
-    };
+	static const std::vector<uint32_t> kAfeRegisterList = {
+	    0,  1,  2,  3,  4,  5,  10, 13, 15, 17, 19, 21, 25, 27,
+	    29, 31, 33, 50, 51, 52, 53, 54, 55, 56, 57, 59, 66,
+	};
 
-	std::vector<uint32_t> regList;
-	for(const auto& [key, _] : afeRegDict){
-		regList.push_back(key);
+	this->afe->setRegisterList(kAfeRegisterList);
+
+	{
+		std::lock_guard<std::mutex> lock(this->state_mutex_);
+		this->state_.clear();
+		this->state_[{StateKey::Kind::kBiasControl, 0, 0}] = 0;
 	}
-	this->afe->setRegisterList(regList);
-
-	std::unordered_map<uint32_t, uint32_t> stdAfeDict = {
-        {0, 0},
-        {1, 0},
-        {2, 0},
-        {3, 0},
-        {4, 0}
-    };
-
-	std::unordered_map<uint32_t, uint32_t> stdChDict = {
-        {0, 0},
-        {1, 0},
-        {2, 0},
-        {3, 0},
-        {4, 0},
-		{5, 0},
-		{6, 0},
-		{7, 0},
-		{8, 0},
-		{9, 0},
-		{10, 0},
-		{11, 0},
-		{12, 0},
-		{13, 0},
-		{14, 0},
-		{15, 0},
-		{16, 0},
-		{17, 0},
-		{18, 0},
-		{19, 0},
-		{20, 0},
-		{21, 0},
-		{22, 0},
-		{23, 0},
-		{24, 0},
-		{25, 0},
-		{26, 0},
-		{27, 0},
-		{28, 0},
-		{29, 0},
-		{30, 0},
-		{31, 0},
-		{32, 0},
-		{33, 0},
-		{34, 0},
-		{35, 0},
-		{36, 0},
-		{37, 0},
-		{38, 0},
-		{39, 0}
-    };
-
-	this->afeRegDictSetting.clear();
-	for(int i = 0; i < 5; i++) {
-		this->afeRegDictSetting.push_back(afeRegDict);
-	}
-	this->afeAttenuationDictSetting.clear();
-	this->afeAttenuationDictSetting = stdAfeDict;
-	this->biasVoltageSetting.clear();
-	this->biasVoltageSetting = stdAfeDict;
-	this->biasControlSetting = 0;
-	this->chOffsetDictSetting.clear();
-	this->chOffsetDictSetting = stdChDict;
-	this->chTrimDictSetting.clear();
-	this->chTrimDictSetting = stdChDict;
 }
 
 void Daphne::setAfeRegDictValue(const uint32_t& afe, const uint32_t &regAddr, const uint32_t &regValue) {
 
-	if(afe >= this->afeRegDictSetting.size()) {
-		throw std::out_of_range("AFE index " + std::to_string(afe) +" out of range. Expected range 0-4.");
+	if (afe > 4) {
+		throw std::out_of_range("AFE index " + std::to_string(afe) + " out of range. Expected range 0-4.");
 	}
 
-	auto it = this->afeRegDictSetting[afe].find(regAddr);
-	if (it != this->afeRegDictSetting[afe].end()) {
-		it->second = regValue;
-	} else {
-		throw std::invalid_argument("Register " + std::to_string(regAddr) + " not found in the AFE register dictionary.");
-	}
+	std::lock_guard<std::mutex> lock(this->state_mutex_);
+	this->state_[{StateKey::Kind::kAfeReg, afe, regAddr}] = regValue;
 }
 
 uint32_t Daphne::getAfeRegDictValue(const uint32_t& afe, const uint32_t &regAddr){
 
-	if(afe >= this->afeRegDictSetting.size()) {
-		throw std::out_of_range("AFE index " + std::to_string(afe) +" out of range. Expected range 0-4.");
+	if (afe > 4) {
+		throw std::out_of_range("AFE index " + std::to_string(afe) + " out of range. Expected range 0-4.");
 	}
 
-	auto it = this->afeRegDictSetting[afe].find(regAddr);
-	if (it != this->afeRegDictSetting[afe].end()) {
-		return it->second;
-	} else {
-		throw std::invalid_argument("Register " + std::to_string(regAddr) + " not found in the AFE register dictionary.");
-		return 0;
-	}
+	std::lock_guard<std::mutex> lock(this->state_mutex_);
+	auto it = this->state_.find({StateKey::Kind::kAfeReg, afe, regAddr});
+	return (it == this->state_.end()) ? 0u : it->second;
 }
 
 void Daphne::setAfeAttenuationDictValue(const uint32_t& afe, const uint32_t &attenuation) {
 
-	auto it = this->afeAttenuationDictSetting.find(afe);
-	if (it != this->afeAttenuationDictSetting.end()) {
-		it->second = attenuation;
-	} else {
-		throw std::out_of_range("AFE index " + std::to_string(afe) +" out of range. Expected range 0-4.");
+	if (afe > 4) {
+		throw std::out_of_range("AFE index " + std::to_string(afe) + " out of range. Expected range 0-4.");
 	}
+
+	std::lock_guard<std::mutex> lock(this->state_mutex_);
+	this->state_[{StateKey::Kind::kAfeAttenuation, afe, 0}] = attenuation;
 }
 
 uint32_t Daphne::getAfeAttenuationDictValue(const uint32_t& afe) {
 
-	auto it = this->afeAttenuationDictSetting.find(afe);
-	if (it != this->afeAttenuationDictSetting.end()) {
-		return it->second;
-	} else {
-		throw std::out_of_range("AFE index " + std::to_string(afe) +" out of range. Expected range 0-4.");
-		return 0;
+	if (afe > 4) {
+		throw std::out_of_range("AFE index " + std::to_string(afe) + " out of range. Expected range 0-4.");
 	}
+
+	std::lock_guard<std::mutex> lock(this->state_mutex_);
+	auto it = this->state_.find({StateKey::Kind::kAfeAttenuation, afe, 0});
+	return (it == this->state_.end()) ? 0u : it->second;
 }
 
 void Daphne::setChOffsetDictValue(const uint32_t &ch, const uint32_t &offset) {
-	auto it = this->chOffsetDictSetting.find(ch);
-	if (it != this->chOffsetDictSetting.end()) {
-		it->second = offset;
-	} else {
-		throw std::out_of_range("Channel index " + std::to_string(ch) +" out of range. Expected range 0-39.");
+	if (ch > 39) {
+		throw std::out_of_range("Channel index " + std::to_string(ch) + " out of range. Expected range 0-39.");
 	}
+
+	std::lock_guard<std::mutex> lock(this->state_mutex_);
+	this->state_[{StateKey::Kind::kChannelOffset, ch, 0}] = offset;
 }
 
 uint32_t Daphne::getChOffsetDictValue(const uint32_t& ch) {
 
-	auto it = this->chOffsetDictSetting.find(ch);
-	if (it != this->chOffsetDictSetting.end()) {
-		return it->second;
-	} else {
-		throw std::out_of_range("Channel index " + std::to_string(ch) +" out of range. Expected range 0-39.");
-		return 0;
+	if (ch > 39) {
+		throw std::out_of_range("Channel index " + std::to_string(ch) + " out of range. Expected range 0-39.");
 	}
+
+	std::lock_guard<std::mutex> lock(this->state_mutex_);
+	auto it = this->state_.find({StateKey::Kind::kChannelOffset, ch, 0});
+	return (it == this->state_.end()) ? 0u : it->second;
 }
 
 void Daphne::setChTrimDictValue(const uint32_t &ch, const uint32_t &trim) {
-	auto it = this->chTrimDictSetting.find(ch);
-	if (it != this->chTrimDictSetting.end()) {
-		it->second = trim;
-	} else {
-		throw std::out_of_range("Channel index " + std::to_string(ch) +" out of range. Expected range 0-39.");
+	if (ch > 39) {
+		throw std::out_of_range("Channel index " + std::to_string(ch) + " out of range. Expected range 0-39.");
 	}
+
+	std::lock_guard<std::mutex> lock(this->state_mutex_);
+	this->state_[{StateKey::Kind::kChannelTrim, ch, 0}] = trim;
 }
 
 uint32_t Daphne::getChTrimDictValue(const uint32_t& ch) {
 
-	auto it = this->chTrimDictSetting.find(ch);
-	if (it != this->chTrimDictSetting.end()) {
-		return it->second;
-	} else {
-		throw std::out_of_range("Channel index " + std::to_string(ch) +" out of range. Expected range 0-39.");
-		return 0;
+	if (ch > 39) {
+		throw std::out_of_range("Channel index " + std::to_string(ch) + " out of range. Expected range 0-39.");
 	}
+
+	std::lock_guard<std::mutex> lock(this->state_mutex_);
+	auto it = this->state_.find({StateKey::Kind::kChannelTrim, ch, 0});
+	return (it == this->state_.end()) ? 0u : it->second;
 }
 
 void Daphne::setBiasVoltageDictValue(const uint32_t& afe, const uint32_t &biasVoltage) {
 
-	auto it = this->biasVoltageSetting.find(afe);
-	if (it != this->biasVoltageSetting.end()) {
-		it->second = biasVoltage;
-	} else {
-		throw std::out_of_range("AFE index " + std::to_string(afe) +" out of range. Expected range 0-4.");
+	if (afe > 4) {
+		throw std::out_of_range("AFE index " + std::to_string(afe) + " out of range. Expected range 0-4.");
 	}
+
+	std::lock_guard<std::mutex> lock(this->state_mutex_);
+	this->state_[{StateKey::Kind::kBiasVoltage, afe, 0}] = biasVoltage;
 }
 
 uint32_t Daphne::getBiasVoltageDictValue(const uint32_t& afe) {
 
-	auto it = this->biasVoltageSetting.find(afe);
-	if (it != this->biasVoltageSetting.end()) {
-		return it->second;
-	} else {
-		throw std::out_of_range("AFE index " + std::to_string(afe) +" out of range. Expected range 0-4.");
-		return 0;
+	if (afe > 4) {
+		throw std::out_of_range("AFE index " + std::to_string(afe) + " out of range. Expected range 0-4.");
 	}
+
+	std::lock_guard<std::mutex> lock(this->state_mutex_);
+	auto it = this->state_.find({StateKey::Kind::kBiasVoltage, afe, 0});
+	return (it == this->state_.end()) ? 0u : it->second;
+}
+
+void Daphne::setBiasControlDictValue(const uint32_t& biasControl) {
+	std::lock_guard<std::mutex> lock(this->state_mutex_);
+	this->state_[{StateKey::Kind::kBiasControl, 0, 0}] = biasControl;
+}
+
+uint32_t Daphne::getBiasControlDictValue() {
+	std::lock_guard<std::mutex> lock(this->state_mutex_);
+	auto it = this->state_.find({StateKey::Kind::kBiasControl, 0, 0});
+	return (it == this->state_.end()) ? 0u : it->second;
 }

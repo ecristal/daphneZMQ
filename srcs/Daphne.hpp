@@ -12,6 +12,7 @@
 #include <thread>
 #include <unordered_map>
 #include <map>
+#include <mutex>
 #include <tuple>
 #include <vector>
 #include <algorithm>
@@ -62,8 +63,8 @@ public:
     uint32_t getChTrimDictValue(const uint32_t &ch);
     void setBiasVoltageDictValue(const uint32_t& afe, const uint32_t& biasVoltage);
     uint32_t getBiasVoltageDictValue(const uint32_t& afe);
-    void setBiasControlDictValue(const uint32_t& biasControl) {this->biasControlSetting = biasControl;}
-    uint32_t getBiasControlDictValue() {return this->biasControlSetting;}
+    void setBiasControlDictValue(const uint32_t& biasControl);
+    uint32_t getBiasControlDictValue();
 
     //Atomic variable to share between threads
     std::atomic<bool> isI2C_1_device_configuring;
@@ -136,12 +137,40 @@ private:
         {"GAIN" ,{36.45, 33.91, 30.78, 27.39, 23.74, 20.69, 17.11, 13.54, 10.27, 6.48, 3.16, -0.35, -2.48, -3.58, -4.01, -4}}
     };
 
-    std::vector<std::unordered_map<uint32_t, uint32_t>> afeRegDictSetting;
-    std::unordered_map<uint32_t, uint32_t> afeAttenuationDictSetting;
-    std::unordered_map<uint32_t, uint32_t> chOffsetDictSetting;
-    std::unordered_map<uint32_t, uint32_t> chTrimDictSetting;
-    std::unordered_map<uint32_t, uint32_t> biasVoltageSetting;
-    uint32_t biasControlSetting;
+    struct StateKey {
+        enum class Kind : uint8_t {
+            kAfeReg = 1,
+            kAfeAttenuation = 2,
+            kChannelOffset = 3,
+            kChannelTrim = 4,
+            kBiasVoltage = 5,
+            kBiasControl = 6,
+        };
+
+        Kind kind{};
+        uint32_t a = 0;
+        uint32_t b = 0;
+
+        bool operator==(const StateKey& other) const noexcept {
+            return kind == other.kind && a == other.a && b == other.b;
+        }
+    };
+
+    struct StateKeyHash {
+        size_t operator()(const StateKey& k) const noexcept {
+            uint64_t x = (static_cast<uint64_t>(k.a) << 32) ^ static_cast<uint64_t>(k.b);
+            x ^= (static_cast<uint64_t>(k.kind) << 56);
+            x ^= x >> 33;
+            x *= 0xff51afd7ed558ccdULL;
+            x ^= x >> 33;
+            x *= 0xc4ceb9fe1a85ec53ULL;
+            x ^= x >> 33;
+            return static_cast<size_t>(x);
+        }
+    };
+
+    mutable std::mutex state_mutex_;
+    std::unordered_map<StateKey, uint32_t, StateKeyHash> state_;
 
     template <typename T>
     int findIndex(const std::vector<T>& data, const T& target);

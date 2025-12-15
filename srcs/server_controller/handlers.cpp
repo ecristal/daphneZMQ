@@ -1,0 +1,1728 @@
+#include "server_controller/handlers.hpp"
+
+#include <algorithm>
+#include <array>
+#include <chrono>
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <exception>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <limits>
+#include <numeric>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <thread>
+#include <vector>
+
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+
+#include "Daphne.hpp"
+#include "DevMem.hpp"
+#include "FpgaRegDict.hpp"
+#include "defines.hpp"
+#include "daphneV3_low_level_confs.pb.h"
+#include "reg.hpp"
+
+namespace daphne_sc {
+namespace {
+
+using daphne::AFEConfig;
+using daphne::ChannelConfig;
+using daphne::ConfigureCLKsRequest;
+using daphne::ConfigureCLKsResponse;
+using daphne::ConfigureRequest;
+using daphne::ConfigureResponse;
+using daphne::Direction;
+using daphne::DumpSpyBuffersChunkRequest;
+using daphne::DumpSpyBuffersChunkResponse;
+using daphne::DumpSpyBuffersRequest;
+using daphne::DumpSpyBuffersResponse;
+using daphne::GeneralInfo;
+using daphne::InfoRequest;
+using daphne::ReadTriggerCountersRequest;
+using daphne::ReadTriggerCountersResponse;
+using daphne::TestRegResponse;
+
+using daphne::cmd_alignAFEs;
+using daphne::cmd_alignAFEs_response;
+using daphne::cmd_doAFEReset;
+using daphne::cmd_doAFEReset_response;
+using daphne::cmd_doSoftwareTrigger;
+using daphne::cmd_doSoftwareTrigger_response;
+using daphne::cmd_readAFEBiasSet;
+using daphne::cmd_readAFEBiasSet_response;
+using daphne::cmd_readAFEReg;
+using daphne::cmd_readAFEReg_response;
+using daphne::cmd_readAFEVgain;
+using daphne::cmd_readAFEVgain_response;
+using daphne::cmd_readBiasVoltageMonitor;
+using daphne::cmd_readBiasVoltageMonitor_response;
+using daphne::cmd_readCurrentMonitor;
+using daphne::cmd_readCurrentMonitor_response;
+using daphne::cmd_readOffset_allAFE;
+using daphne::cmd_readOffset_allAFE_response;
+using daphne::cmd_readOffset_allChannels;
+using daphne::cmd_readOffset_allChannels_response;
+using daphne::cmd_readOffset_singleChannel;
+using daphne::cmd_readOffset_singleChannel_response;
+using daphne::cmd_readTrim_allAFE;
+using daphne::cmd_readTrim_allAFE_response;
+using daphne::cmd_readTrim_allChannels;
+using daphne::cmd_readTrim_allChannels_response;
+using daphne::cmd_readTrim_singleChannel;
+using daphne::cmd_readTrim_singleChannel_response;
+using daphne::cmd_readVbiasControl;
+using daphne::cmd_readVbiasControl_response;
+using daphne::cmd_setAFEPowerState;
+using daphne::cmd_setAFEPowerState_response;
+using daphne::cmd_setAFEReset;
+using daphne::cmd_setAFEReset_response;
+using daphne::cmd_writeAFEBiasSet;
+using daphne::cmd_writeAFEBiasSet_response;
+using daphne::cmd_writeAFEAttenuation;
+using daphne::cmd_writeAFEAttenuation_response;
+using daphne::cmd_writeAFEFunction;
+using daphne::cmd_writeAFEFunction_response;
+using daphne::cmd_writeAFEVGAIN;
+using daphne::cmd_writeAFEVGAIN_response;
+using daphne::cmd_writeAFEReg;
+using daphne::cmd_writeAFEReg_response;
+using daphne::cmd_writeOFFSET_allAFE;
+using daphne::cmd_writeOFFSET_allAFE_response;
+using daphne::cmd_writeOFFSET_allChannels;
+using daphne::cmd_writeOFFSET_allChannels_response;
+using daphne::cmd_writeOFFSET_singleChannel;
+using daphne::cmd_writeOFFSET_singleChannel_response;
+using daphne::cmd_writeTRIM_allChannels;
+using daphne::cmd_writeTRIM_allChannels_response;
+using daphne::cmd_writeTrim_allAFE;
+using daphne::cmd_writeTrim_allAFE_response;
+using daphne::cmd_writeTrim_singleChannel;
+using daphne::cmd_writeTrim_singleChannel_response;
+using daphne::cmd_writeVbiasControl;
+using daphne::cmd_writeVbiasControl_response;
+
+bool auto_align_enabled() {
+  static const bool enabled = (std::getenv("DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE") == nullptr);
+  return enabled;
+}
+
+bool config_resets_enabled() {
+  static const bool enabled = (std::getenv("DAPHNE_SKIP_CONFIG_RESET") == nullptr);
+  return enabled;
+}
+
+size_t max_spybuffer_bytes() {
+  size_t max_bytes = 64ULL * 1024 * 1024;
+  if (const char* v = std::getenv("DAPHNE_MAX_SPYBUFFER_BYTES")) {
+    try {
+      max_bytes = static_cast<size_t>(std::stoull(v));
+    } catch (...) {
+    }
+  }
+  return max_bytes;
+}
+
+std::string decode_clk_status(uint32_t v) {
+  const bool mmcm0 = (v & (1u << 0)) != 0;
+  const bool mmcm1 = (v & (1u << 1)) != 0;
+  std::ostringstream os;
+  os << "MMCM0:" << (mmcm0 ? "LOCKED" : "UNLOCKED") << " MMCM1:" << (mmcm1 ? "LOCKED" : "UNLOCKED");
+  return os.str();
+}
+
+namespace trigregs {
+constexpr uint32_t PHYS_BASE = 0xA0010000u;
+constexpr uint32_t STRIDE = 0x20u;
+constexpr uint32_t NUM_CHANNELS = 40u;
+constexpr uint32_t OFF_THR = 0x00u;
+constexpr uint32_t OFF_REC_LO = 0x04u;
+constexpr uint32_t OFF_REC_HI = 0x08u;
+constexpr uint32_t OFF_BSY_LO = 0x0Cu;
+constexpr uint32_t OFF_BSY_HI = 0x10u;
+constexpr uint32_t OFF_FUL_LO = 0x14u;
+constexpr uint32_t OFF_FUL_HI = 0x18u;
+constexpr uint32_t MASK_10BIT = 0x3FFu;
+constexpr uint32_t MASK_REG_LOW = 0x94000020u;
+constexpr uint32_t MASK_REG_HIGH = 0x94000024u;
+}  // namespace trigregs
+
+bool read_counters_raw(uint32_t base,
+                       const std::vector<uint32_t>& chs,
+                       ReadTriggerCountersResponse& resp,
+                       std::string& err) {
+  long pagesz = sysconf(_SC_PAGESIZE);
+  if (pagesz <= 0) pagesz = 4096;
+  const uint64_t pg = static_cast<uint64_t>(pagesz);
+
+  const uint64_t map_base = (static_cast<uint64_t>(base)) & ~(pg - 1ULL);
+  uint32_t maxch = 0;
+  for (const auto c : chs) {
+    if (c < trigregs::NUM_CHANNELS && c > maxch) maxch = c;
+  }
+  const uint32_t span = (maxch * trigregs::STRIDE) + trigregs::OFF_FUL_HI + 4u;
+  const uint64_t tail = (static_cast<uint64_t>(base) - map_base) + static_cast<uint64_t>(span);
+  const uint64_t map_len = (tail + (pg - 1ULL)) & ~(pg - 1ULL);
+
+  int fd = open("/dev/mem", O_RDONLY | O_SYNC);
+  if (fd < 0) {
+    err = "open(/dev/mem) failed";
+    return false;
+  }
+  void* p = mmap(nullptr, map_len, PROT_READ, MAP_SHARED, fd, map_base);
+  if (p == MAP_FAILED) {
+    close(fd);
+    err = "mmap(/dev/mem) failed";
+    return false;
+  }
+  auto* ptr = static_cast<uint8_t*>(p);
+
+  auto rd32 = [&](uint32_t phys) -> uint32_t {
+    const uint64_t off = static_cast<uint64_t>(phys) - map_base;
+    uint32_t v = 0;
+    std::memcpy(&v, ptr + off, 4);
+    return v;
+  };
+  auto rd64 = [&](uint32_t lo, uint32_t hi) -> uint64_t {
+    const uint32_t l = rd32(lo);
+    const uint32_t h = rd32(hi);
+    return (static_cast<uint64_t>(h) << 32) | l;
+  };
+
+  for (const auto ch : chs) {
+    if (ch >= trigregs::NUM_CHANNELS) continue;
+    const uint32_t b = base + ch * trigregs::STRIDE;
+    auto* s = resp.add_snapshots();
+    s->set_channel(ch);
+    s->set_threshold(rd32(b + trigregs::OFF_THR) & trigregs::MASK_10BIT);
+    s->set_record_count(rd64(b + trigregs::OFF_REC_LO, b + trigregs::OFF_REC_HI));
+    s->set_busy_count(rd64(b + trigregs::OFF_BSY_LO, b + trigregs::OFF_BSY_HI));
+    s->set_full_count(rd64(b + trigregs::OFF_FUL_LO, b + trigregs::OFF_FUL_HI));
+  }
+
+  munmap(ptr, map_len);
+  close(fd);
+  return true;
+}
+
+bool write_trigger_thresholds(const ConfigureRequest& cfg, std::string& response_msg) {
+  std::ostringstream out;
+  std::vector<uint32_t> channels;
+  channels.reserve(static_cast<size_t>(cfg.channels_size()));
+  for (const auto& ch_cfg : cfg.channels()) {
+    channels.push_back(ch_cfg.id());
+  }
+
+  if (channels.empty()) {
+    response_msg = "No channels provided; skipping trigger threshold programming.\n";
+    return true;
+  }
+
+  std::sort(channels.begin(), channels.end());
+  channels.erase(std::unique(channels.begin(), channels.end()), channels.end());
+  for (const auto ch : channels) {
+    if (ch >= trigregs::NUM_CHANNELS) {
+      out << "Channel out of range for trigger threshold: " << ch << " (0.."
+          << (trigregs::NUM_CHANNELS - 1) << ").\n";
+      response_msg = out.str();
+      return false;
+    }
+  }
+
+  uint32_t thr_val = static_cast<uint32_t>(cfg.self_trigger_threshold());
+  if (thr_val > 0x3FFF) {
+    out << "Requested threshold " << thr_val << " exceeds 14-bit range; clamping to 16383.\n";
+    thr_val = 0x3FFF;
+  }
+
+  try {
+    DevMem thr_mem(trigregs::PHYS_BASE);
+    const size_t span = trigregs::STRIDE * trigregs::NUM_CHANNELS + 4u;
+    thr_mem.map_memory(span);
+    for (const auto ch : channels) {
+      const size_t off = static_cast<size_t>(ch) * trigregs::STRIDE + trigregs::OFF_THR;
+      thr_mem.write(off, std::vector<uint32_t>{thr_val});
+    }
+    out << "Trigger threshold 0x" << std::hex << thr_val << std::dec << " written to channels:";
+    for (const auto ch : channels) out << " " << ch;
+    out << ".\n";
+  } catch (const std::exception& e) {
+    out << "Failed to write trigger thresholds via /dev/mem: " << e.what() << ".\n";
+    response_msg = out.str();
+    return false;
+  }
+
+  uint32_t mask_low = 0;
+  uint32_t mask_high = 0;
+  for (const auto ch : channels) {
+    if (ch < 32) {
+      mask_low |= (1u << ch);
+    } else {
+      mask_high |= (1u << (ch - 32));
+    }
+  }
+
+  bool ok = true;
+  try {
+    DevMem mlow(trigregs::MASK_REG_LOW);
+    mlow.map_memory(4);
+    mlow.write(0, std::vector<uint32_t>{mask_low});
+    out << "Trigger enable LOW @ 0x" << std::hex << trigregs::MASK_REG_LOW << " = 0x" << mask_low
+        << std::dec << ".\n";
+  } catch (const std::exception& e) {
+    out << "Failed to write LOW trigger mask via /dev/mem: " << e.what() << ".\n";
+    ok = false;
+  }
+
+  try {
+    DevMem mhigh(trigregs::MASK_REG_HIGH);
+    mhigh.map_memory(4);
+    mhigh.write(0, std::vector<uint32_t>{mask_high});
+    out << "Trigger enable HIGH @ 0x" << std::hex << trigregs::MASK_REG_HIGH << " = 0x" << mask_high
+        << std::dec << ".\n";
+  } catch (const std::exception& e) {
+    if (mask_high != 0) {
+      out << "Failed to write HIGH trigger mask via /dev/mem: " << e.what() << ".\n";
+      ok = false;
+    } else {
+      out << "High trigger mask register unavailable; skipped.\n";
+    }
+  }
+
+  response_msg = out.str();
+  return ok;
+}
+
+struct EpRegs {
+  FpgaRegDict dict;
+  reg r;
+  EpRegs() : dict(), r(/*BaseAddr*/ 0x80000000ULL, /*MemLen*/ 0x6000000, dict) {}
+};
+
+bool set_clock_source_and_mmcm_reset(bool use_endpoint_clk,
+                                    bool pulse_mmcm1_reset,
+                                    std::string& msg,
+                                    int timeout_ms = 500) {
+  EpRegs ep;
+  const uint32_t clk_src = use_endpoint_clk ? 1u : 0u;
+  ep.r.WriteBits("endpointClockControl", "CLOCK_SOURCE", clk_src);
+  if (pulse_mmcm1_reset) {
+    ep.r.WriteBits("endpointClockControl", "MMCM_RESET", 1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    ep.r.WriteBits("endpointClockControl", "MMCM_RESET", 0);
+  }
+
+  auto t0 = std::chrono::steady_clock::now();
+  while (true) {
+    const uint32_t s = ep.r.ReadRegister("endpointClockStatus");
+    if ((s & 0x3u) == 0x3u) {
+      msg += "Clock status: " + decode_clk_status(s) + "\n";
+      return true;
+    }
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count() >
+        timeout_ms) {
+      msg += "Clock status (timeout): " + decode_clk_status(ep.r.ReadRegister("endpointClockStatus")) + "\n";
+      return false;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+  }
+}
+
+bool set_endpoint_addr_and_reset(uint16_t ep_addr,
+                                bool pulse_ep_reset,
+                                std::string& msg,
+                                int timeout_ms = 800) {
+  EpRegs ep;
+  ep.r.WriteBits("endpointControl", "ADDRESS", ep_addr);
+
+  if (pulse_ep_reset) {
+    ep.r.WriteBits("endpointControl", "RESET", 1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+    ep.r.WriteBits("endpointControl", "RESET", 0);
+  }
+
+  auto t0 = std::chrono::steady_clock::now();
+  while (true) {
+    const uint32_t s = ep.r.ReadRegister("endpointStatus");
+    const uint32_t fsm = (s & 0xF);
+    const bool ts_ok = (s & (1u << 4)) != 0;
+    if (fsm == 8 && ts_ok) {
+      std::ostringstream os;
+      os << "Endpoint READY; status=0x" << std::hex << s;
+      msg += os.str() + "\n";
+      return true;
+    }
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - t0).count() >
+        timeout_ms) {
+      std::ostringstream os;
+      os << "Endpoint not ready (timeout); status=0x" << std::hex << s;
+      msg += os.str() + "\n";
+      return false;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
+}
+
+bool configureDaphne(const ConfigureRequest& requested_cfg, Daphne& daphne, std::string& response_str) {
+  try {
+    std::ostringstream out;
+    bool ok_all = true;
+
+    const bool requested_bias_for_any_afe =
+        std::any_of(requested_cfg.afes().begin(),
+                    requested_cfg.afes().end(),
+                    [](const AFEConfig& afe_cfg) { return afe_cfg.v_bias() > 0; });
+    bool bias_control_applied = false;
+
+    if (config_resets_enabled()) {
+      daphne.getAfe()->doReset();
+      daphne.getAfe()->setPowerState(1);
+    } else {
+      out << "Config reset/powercycle skipped (DAPHNE_SKIP_CONFIG_RESET set).\n";
+    }
+
+    {
+      std::string thr_msg;
+      const bool thr_ok = write_trigger_thresholds(requested_cfg, thr_msg);
+      ok_all = ok_all && thr_ok;
+      out << "[TRIGGER_THRESHOLDS]\n" << thr_msg;
+    }
+
+    for (const ChannelConfig& ch_config : requested_cfg.channels()) {
+      const uint32_t ch = ch_config.id();
+      if (ch > 39) throw std::invalid_argument("Channel out of range (0..39): " + std::to_string(ch));
+
+      const uint32_t afe_board = ch / 8;
+      const uint32_t afe_pl = afe_definitions::AFE_board2PL_map.at(afe_board);
+      const uint32_t idx = ch % 8;
+
+      daphne.getDac()->setDacTrim(afe_pl, idx, ch_config.trim(), false, false);
+      daphne.setChTrimDictValue(ch, ch_config.trim());
+      out << "Trim value written successfully for Channel " << ch << ". Trim value: " << ch_config.trim()
+          << ". Returned value: " << daphne.getChTrimDictValue(ch) << ".\n";
+
+      daphne.getDac()->setDacOffset(afe_pl, idx, ch_config.offset(), false, false);
+      daphne.setChOffsetDictValue(ch, ch_config.offset());
+      out << "Offset value written successfully for Channel " << ch << ". Offset value: " << ch_config.offset()
+          << ". Returned value: " << daphne.getChOffsetDictValue(ch) << ".\n";
+    }
+
+    {
+      const uint32_t ctrl = requested_cfg.biasctrl();
+      if (ctrl <= 4095) {
+        const uint32_t returnedControlValue = daphne.getDac()->setDacHvBias(ctrl, false, false);
+        const uint32_t returnedBiasEnable = daphne.getDac()->setBiasEnable(true);
+        daphne.setBiasControlDictValue(ctrl);
+        bias_control_applied = true;
+        out << "Bias Control value written successfully. Bias Control value: " << ctrl << " and Enable: "
+            << returnedBiasEnable << " Returned value: " << returnedControlValue << ".\n";
+      } else {
+        out << "Warning: Bias Control value " << ctrl << " out of range (0..4095). Skipping.\n";
+      }
+    }
+
+    if (!bias_control_applied && requested_bias_for_any_afe) {
+      const uint32_t ctrl = 4095;
+      const uint32_t returnedControlValue = daphne.getDac()->setDacHvBias(ctrl, false, false);
+      const uint32_t returnedBiasEnable = daphne.getDac()->setBiasEnable(true);
+      daphne.setBiasControlDictValue(ctrl);
+      out << "Bias Control was not set in request but AFE bias values are present. Defaulting Bias Control to " << ctrl
+          << " and Enable: " << returnedBiasEnable << " Returned value: " << returnedControlValue << ".\n";
+    }
+
+    for (const AFEConfig& afe_config : requested_cfg.afes()) {
+      const uint32_t afe_board = afe_config.id();
+      const uint32_t afe_pl = afe_definitions::AFE_board2PL_map.at(afe_board);
+
+      const uint32_t v = afe_config.attenuators();
+      if (v > 4095) throw std::invalid_argument("VGAIN out of range for AFE " + std::to_string(afe_board));
+      daphne.getDac()->setDacGain(afe_pl, v);
+      daphne.setAfeAttenuationDictValue(afe_pl, v);
+      out << "AFE VGAIN written successfully for AFE " << afe_board << ". VGAIN: " << v
+          << ". Returned value: " << daphne.getAfeAttenuationDictValue(afe_pl) << ".\n";
+
+      const uint32_t bias = afe_config.v_bias();
+      if (bias > 4095) throw std::invalid_argument("BIAS out of range for AFE " + std::to_string(afe_board));
+      if (bias != 0) {
+        daphne.getDac()->setDacBias(afe_pl, bias);
+        daphne.setBiasVoltageDictValue(afe_pl, bias);
+        out << "AFE bias value written successfully for AFE " << afe_board << ". Bias value: " << bias
+            << ". Returned value: " << daphne.getBiasVoltageDictValue(afe_pl) << ".\n";
+      }
+
+      const uint32_t adc_res = afe_config.adc().resolution() ? 1u : 0u;
+      const uint32_t adc_out_fmt = afe_config.adc().output_format() ? 1u : 0u;
+      const uint32_t adc_sb_first = afe_config.adc().sb_first() ? 1u : 0u;
+
+      uint32_t r = daphne.getAfe()->setAFEFunction(afe_pl, "ADC_RESOLUTION_RESET", adc_res);
+      out << "Function ADC_RESOLUTION_RESET in AFE " << afe_board << " configured correctly.\nReturned value: " << r
+          << "\n";
+      r = daphne.getAfe()->setAFEFunction(afe_pl, "ADC_OUTPUT_FORMAT", adc_out_fmt);
+      out << "Function ADC_OUTPUT_FORMAT in AFE " << afe_board << " configured correctly.\nReturned value: " << r
+          << "\n";
+      r = daphne.getAfe()->setAFEFunction(afe_pl, "LSB_MSB_FIRST", adc_sb_first);
+      out << "Function LSB_MSB_FIRST in AFE " << afe_board << " configured correctly.\nReturned value: " << r << "\n";
+
+      r = daphne.getAfe()->setAFEFunction(afe_pl, "LPF_PROGRAMMABILITY", afe_config.pga().lpf_cut_frequency());
+      out << "Function LPF_PROGRAMMABILITY in AFE " << afe_board << " configured correctly.\nReturned value: " << r
+          << "\n";
+      r = daphne.getAfe()->setAFEFunction(afe_pl,
+                                          "PGA_INTEGRATOR_DISABLE",
+                                          afe_config.pga().integrator_disable() ? 1u : 0u);
+      out << "Function PGA_INTEGRATOR_DISABLE in AFE " << afe_board << " configured correctly.\nReturned value: " << r
+          << "\n";
+      r = daphne.getAfe()->setAFEFunction(afe_pl, "PGA_CLAMP_LEVEL", 2u);
+      out << "Function PGA_CLAMP_LEVEL in AFE " << afe_board << " configured correctly.\nReturned value: " << r << "\n";
+      r = daphne.getAfe()->setAFEFunction(afe_pl, "ACTIVE_TERMINATION_ENABLE", 0u);
+      out << "Function ACTIVE_TERMINATION_ENABLE in AFE " << afe_board << " configured correctly.\nReturned value: " << r
+          << "\n";
+
+      r = daphne.getAfe()->setAFEFunction(afe_pl, "LNA_INPUT_CLAMP_SETTING", afe_config.lna().clamp());
+      out << "Function LNA_INPUT_CLAMP_SETTING in AFE " << afe_board << " configured correctly.\nReturned value: " << r
+          << "\n";
+      r = daphne.getAfe()->setAFEFunction(afe_pl, "LNA_GAIN", afe_config.lna().gain());
+      out << "Function LNA_GAIN in AFE " << afe_board << " configured correctly.\nReturned value: " << r << "\n";
+      r = daphne.getAfe()->setAFEFunction(afe_pl,
+                                          "LNA_INTEGRATOR_DISABLE",
+                                          afe_config.lna().integrator_disable() ? 1u : 0u);
+      out << "Function LNA_INTEGRATOR_DISABLE in AFE " << afe_board << " configured correctly.\nReturned value: " << r
+          << "\n";
+    }
+
+    if (config_resets_enabled()) {
+      daphne.getAfe()->setPowerState(1);
+    }
+
+    response_str = out.str();
+    return ok_all;
+  } catch (const std::exception& e) {
+    response_str = std::string("Caught Exception:\n") + e.what();
+    return false;
+  }
+}
+
+bool writeAFERegister(const cmd_writeAFEReg& request,
+                      Daphne& daphne,
+                      std::string& response_str,
+                      uint32_t& returned_value) {
+  try {
+    uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(request.afeblock());
+    const uint32_t reg_addr = request.regaddress();
+    const uint32_t reg_value = request.regvalue();
+    returned_value = daphne.getAfe()->setRegister(afe_block, reg_addr, reg_value);
+    response_str = "AFE Register " + std::to_string(reg_addr) + " written with value " + std::to_string(reg_value) +
+                   " for AFE " + std::to_string(afe_definitions::AFE_PL2board_map.at(afe_block)) +
+                   ". Returned value: " + std::to_string(returned_value) + ".";
+    daphne.setAfeRegDictValue(afe_block, reg_addr, returned_value);
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error writing AFE Register: ") + e.what();
+    return false;
+  }
+}
+
+bool writeAFEVgain(const cmd_writeAFEVGAIN& request,
+                   Daphne& daphne,
+                   std::string& response_str,
+                   uint32_t& returned_value) {
+  try {
+    const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(request.afeblock());
+    const uint32_t vgain = request.vgainvalue();
+    if (vgain > 4095) throw std::invalid_argument("VGAIN out of range (0..4095)");
+    daphne.getDac()->setDacGain(afe_block, vgain);
+    daphne.setAfeAttenuationDictValue(afe_block, vgain);
+    returned_value = daphne.getAfeAttenuationDictValue(afe_block);
+    response_str = "AFE VGAIN written successfully for AFE " + std::to_string(afe_definitions::AFE_PL2board_map.at(afe_block)) +
+                   ". VGAIN: " + std::to_string(vgain) + ". Returned value: " + std::to_string(returned_value) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error writing AFE VGAIN: ") + e.what();
+    return false;
+  }
+}
+
+bool writeAFEAttenuation(const cmd_writeAFEAttenuation& request,
+                         Daphne& daphne,
+                         std::string& response_str,
+                         uint32_t& returned_value) {
+  try {
+    const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(request.afeblock());
+    const uint32_t attenuation = request.attenuation();
+    if (attenuation > 4095) throw std::invalid_argument("attenuation out of range (0..4095)");
+    daphne.getDac()->setDacGain(afe_block, attenuation);
+    daphne.setAfeAttenuationDictValue(afe_block, attenuation);
+    returned_value = daphne.getAfeAttenuationDictValue(afe_block);
+    response_str = "AFE attenuation written successfully for AFE " +
+                   std::to_string(afe_definitions::AFE_PL2board_map.at(afe_block)) +
+                   ". Attenuation: " + std::to_string(attenuation) + ". Returned value: " +
+                   std::to_string(returned_value) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error writing AFE attenuation: ") + e.what();
+    return false;
+  }
+}
+
+bool writeAFEBiasVoltage(const cmd_writeAFEBiasSet& request,
+                         Daphne& daphne,
+                         std::string& response_str,
+                         uint32_t& returned_value) {
+  try {
+    const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(request.afeblock());
+    const uint32_t bias_value = request.biasvalue();
+    if (bias_value > 4095) throw std::invalid_argument("bias out of range (0..4095)");
+    daphne.getDac()->setDacBias(afe_block, bias_value);
+    daphne.setBiasVoltageDictValue(afe_block, bias_value);
+    returned_value = daphne.getBiasVoltageDictValue(afe_block);
+    response_str = "AFE bias value written successfully for AFE " +
+                   std::to_string(afe_definitions::AFE_PL2board_map.at(afe_block)) + ". Bias value: " +
+                   std::to_string(bias_value) + ". Returned value: " + std::to_string(returned_value) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error writing AFE bias value: ") + e.what();
+    return false;
+  }
+}
+
+bool writeChannelTrim(const cmd_writeTrim_singleChannel& request,
+                      Daphne& daphne,
+                      std::string& response_str,
+                      uint32_t& returned_value) {
+  try {
+    const uint32_t trim_ch = request.trimchannel();
+    const uint32_t trim_value = request.trimvalue();
+    const bool trim_gain = request.trimgain();
+    if (trim_value > 4095) throw std::invalid_argument("trimValue out of range (0..4095)");
+    if (trim_ch > 39) throw std::invalid_argument("trimChannel out of range (0..39)");
+
+    const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(trim_ch / 8);
+    daphne.getDac()->setDacTrim(afe_block, trim_ch % 8, trim_value, trim_gain, false);
+    daphne.setChTrimDictValue(trim_ch, trim_value);
+    returned_value = daphne.getChTrimDictValue(trim_ch);
+    response_str = "Trim value written successfully for Channel " + std::to_string(trim_ch) + ". Trim value: " +
+                   std::to_string(trim_value) + ". Returned value: " + std::to_string(returned_value) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error writing Channel Trim value: ") + e.what();
+    return false;
+  }
+}
+
+bool writeChannelOffset(const cmd_writeOFFSET_singleChannel& request,
+                        Daphne& daphne,
+                        std::string& response_str,
+                        uint32_t& returned_value) {
+  try {
+    const uint32_t offset_ch = request.offsetchannel();
+    const uint32_t offset_value = request.offsetvalue();
+    const bool offset_gain = request.offsetgain();
+    if (offset_value > 4095) throw std::invalid_argument("offsetValue out of range (0..4095)");
+    if (offset_ch > 39) throw std::invalid_argument("offsetChannel out of range (0..39)");
+
+    const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(offset_ch / 8);
+    daphne.getDac()->setDacOffset(afe_block, offset_ch % 8, offset_value, offset_gain, false);
+    daphne.setChOffsetDictValue(offset_ch, offset_value);
+    returned_value = daphne.getChOffsetDictValue(offset_ch);
+    response_str = "Offset value written successfully for Channel " + std::to_string(offset_ch) + ". Offset value: " +
+                   std::to_string(offset_value) + ". Returned value: " + std::to_string(returned_value) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error writing Channel Offset value: ") + e.what();
+    return false;
+  }
+}
+
+bool writeBiasVoltageControl(const cmd_writeVbiasControl& request,
+                             Daphne& daphne,
+                             std::string& response_str,
+                             uint32_t& returned_value) {
+  try {
+    const uint32_t control_value = request.vbiascontrolvalue();
+    const bool bias_enable = request.enable();
+    if (control_value > 4095) throw std::invalid_argument("vbiasControlValue out of range (0..4095)");
+    const uint32_t returnedControlValue = daphne.getDac()->setDacHvBias(control_value, false, false);
+    const uint32_t returnedBiasEnable = daphne.getDac()->setBiasEnable(bias_enable);
+    daphne.setBiasControlDictValue(control_value);
+    returned_value = returnedControlValue;
+    response_str = "Bias Control value written successfully. Bias Control value: " + std::to_string(control_value) +
+                   " and Enable: " + std::to_string(returnedBiasEnable) +
+                   " Returned value: " + std::to_string(returnedControlValue) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error writing Bias Control value: ") + e.what();
+    return false;
+  }
+}
+
+bool readAFEReg(const cmd_readAFEReg& request,
+                cmd_readAFEReg_response& response,
+                Daphne& daphne,
+                std::string& response_str) {
+  try {
+    const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(request.afeblock());
+    const uint32_t reg_addr = request.regaddress();
+    const uint32_t reg_value = daphne.getAfeRegDictValue(afe_block, reg_addr);
+    response.set_afeblock(request.afeblock());
+    response.set_regaddress(reg_addr);
+    response.set_regvalue(reg_value);
+    response_str = "AFE Register " + std::to_string(reg_addr) + " read successfully. Value: " +
+                   std::to_string(reg_value) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error reading AFE register: ") + e.what();
+    return false;
+  }
+}
+
+bool readAFEVgain(const cmd_readAFEVgain& request,
+                  cmd_readAFEVgain_response& response,
+                  Daphne& daphne,
+                  std::string& response_str) {
+  try {
+    const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(request.afeblock());
+    const uint32_t vgain = daphne.getAfeAttenuationDictValue(afe_block);
+    response.set_afeblock(request.afeblock());
+    response.set_vgainvalue(vgain);
+    response_str = "AFE VGAIN read successfully. Value: " + std::to_string(vgain) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error reading AFE vgain: ") + e.what();
+    return false;
+  }
+}
+
+bool readAFEBiasSet(const cmd_readAFEBiasSet& request,
+                    cmd_readAFEBiasSet_response& response,
+                    Daphne& daphne,
+                    std::string& response_str) {
+  try {
+    const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(request.afeblock());
+    const uint32_t bias_value = daphne.getBiasVoltageDictValue(afe_block);
+    response.set_afeblock(request.afeblock());
+    response.set_biasvalue(bias_value);
+    response_str = "AFE bias read successfully. Value: " + std::to_string(bias_value) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error reading AFE bias: ") + e.what();
+    return false;
+  }
+}
+
+bool readTrimAllChannels(const cmd_readTrim_allChannels&,
+                         cmd_readTrim_allChannels_response& response,
+                         Daphne& daphne,
+                         std::string& response_str) {
+  try {
+    for (uint32_t ch = 0; ch < 40; ++ch) response.add_trimvalues(daphne.getChTrimDictValue(ch));
+    response_str = "All channel trims read successfully.";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error reading all channel trims: ") + e.what();
+    return false;
+  }
+}
+
+bool readTrimAllAFE(const cmd_readTrim_allAFE& request,
+                    cmd_readTrim_allAFE_response& response,
+                    Daphne& daphne,
+                    std::string& response_str) {
+  try {
+    const uint32_t afe_board = request.afeblock();
+    if (afe_board > 4) throw std::out_of_range("AFE out of range (0..4)");
+    response.set_afeblock(afe_board);
+    const uint32_t base = afe_board * 8;
+    for (uint32_t ch = base; ch < base + 8; ++ch) response.add_trimvalues(daphne.getChTrimDictValue(ch));
+    response_str = "AFE trims read successfully for AFE " + std::to_string(afe_board) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error reading AFE trims: ") + e.what();
+    return false;
+  }
+}
+
+bool readTrimSingleChannel(const cmd_readTrim_singleChannel& request,
+                           cmd_readTrim_singleChannel_response& response,
+                           Daphne& daphne,
+                           std::string& response_str) {
+  try {
+    const uint32_t ch = request.trimchannel();
+    const uint32_t val = daphne.getChTrimDictValue(ch);
+    response.set_trimchannel(ch);
+    response.set_trimvalue(val);
+    response_str = "Trim read successfully for Channel " + std::to_string(ch) + " value " + std::to_string(val) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error reading channel trim: ") + e.what();
+    return false;
+  }
+}
+
+bool readOffsetAllChannels(const cmd_readOffset_allChannels&,
+                           cmd_readOffset_allChannels_response& response,
+                           Daphne& daphne,
+                           std::string& response_str) {
+  try {
+    for (uint32_t ch = 0; ch < 40; ++ch) response.add_offsetvalues(daphne.getChOffsetDictValue(ch));
+    response_str = "All channel offsets read successfully.";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error reading all channel offsets: ") + e.what();
+    return false;
+  }
+}
+
+bool readOffsetAllAFE(const cmd_readOffset_allAFE& request,
+                      cmd_readOffset_allAFE_response& response,
+                      Daphne& daphne,
+                      std::string& response_str) {
+  try {
+    const uint32_t afe_board = request.afeblock();
+    if (afe_board > 4) throw std::out_of_range("AFE out of range (0..4)");
+    response.set_afeblock(afe_board);
+    const uint32_t base = afe_board * 8;
+    for (uint32_t ch = base; ch < base + 8; ++ch) response.add_offsetvalues(daphne.getChOffsetDictValue(ch));
+    response_str = "AFE offsets read successfully for AFE " + std::to_string(afe_board) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error reading AFE offsets: ") + e.what();
+    return false;
+  }
+}
+
+bool readOffsetSingleChannel(const cmd_readOffset_singleChannel& request,
+                             cmd_readOffset_singleChannel_response& response,
+                             Daphne& daphne,
+                             std::string& response_str) {
+  try {
+    const uint32_t ch = request.offsetchannel();
+    const uint32_t val = daphne.getChOffsetDictValue(ch);
+    response.set_offsetchannel(ch);
+    response.set_offsetvalue(val);
+    response_str =
+        "Offset read successfully for Channel " + std::to_string(ch) + " value " + std::to_string(val) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error reading channel offset: ") + e.what();
+    return false;
+  }
+}
+
+bool readVbiasControl(const cmd_readVbiasControl&,
+                      cmd_readVbiasControl_response& response,
+                      Daphne& daphne,
+                      std::string& response_str) {
+  try {
+    const uint32_t val = daphne.getBiasControlDictValue();
+    response.set_vbiascontrolvalue(val);
+    response_str = "Vbias control read successfully. Value: " + std::to_string(val) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error reading Vbias control: ") + e.what();
+    return false;
+  }
+}
+
+bool dumpSpybuffer(const DumpSpyBuffersRequest& request,
+                   DumpSpyBuffersResponse& response,
+                   Daphne& daphne,
+                   std::string& response_str) {
+  try {
+    const uint32_t number_of_samples = request.numberofsamples();
+    const uint32_t number_of_waveforms = request.numberofwaveforms();
+    const auto& channel_list = request.channellist();
+
+    for (const auto ch : channel_list) {
+      if (ch > 39) throw std::invalid_argument("channel out of range (0..39)");
+    }
+
+    const bool software_trigger = request.softwaretrigger();
+    if (number_of_samples == 0 || number_of_samples > 2048)
+      throw std::invalid_argument("numberOfSamples out of range (1..2048)");
+
+    const size_t channels = static_cast<size_t>(channel_list.size());
+    if (channels == 0) throw std::invalid_argument("channelList is empty");
+
+    const size_t words_per_waveform = static_cast<size_t>(number_of_samples) * channels;
+    const size_t total_words = words_per_waveform * static_cast<size_t>(number_of_waveforms);
+    if (number_of_waveforms != 0 && total_words / static_cast<size_t>(number_of_waveforms) != words_per_waveform) {
+      throw std::invalid_argument("Requested dump size overflow");
+    }
+    const size_t total_bytes = total_words * sizeof(uint32_t);
+    if (total_words != 0 && total_bytes / sizeof(uint32_t) != total_words) {
+      throw std::invalid_argument("Requested dump size overflow");
+    }
+    if (total_words > static_cast<size_t>(std::numeric_limits<int>::max())) {
+      throw std::invalid_argument("Requested dump too large for protobuf RepeatedField");
+    }
+    if (total_bytes > max_spybuffer_bytes()) {
+      throw std::invalid_argument("Requested dump exceeds DAPHNE_MAX_SPYBUFFER_BYTES; use chunked dump");
+    }
+
+    auto* spy_buffer = daphne.getSpyBuffer();
+    auto* front_end = daphne.getFrontEnd();
+
+    response.mutable_data()->Resize(static_cast<int>(total_words), 0);
+    auto* data_field = response.mutable_data();
+    uint32_t* data_ptr = data_field->mutable_data();
+
+    if (channel_list.size() == 1) {
+      uint32_t ch = channel_list[0];
+      const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(ch / 8);
+      const uint32_t afe_channel = ch % 8;
+      const uint32_t mapped_channel = afe_block * 8 + afe_channel;
+      for (uint32_t j = 0; j < number_of_waveforms; ++j) {
+        if (software_trigger) front_end->doTrigger();
+        uint32_t* waveform_start = data_ptr + number_of_samples * j;
+        spy_buffer->extractMappedDataBulkSIMD(waveform_start, number_of_samples, mapped_channel);
+      }
+    } else {
+      std::vector<uint32_t> mapped_channels;
+      mapped_channels.reserve(static_cast<size_t>(channel_list.size()));
+      for (const auto ch : channel_list) {
+        const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(ch / 8);
+        const uint32_t afe_channel = ch % 8;
+        mapped_channels.push_back(afe_block * 8 + afe_channel);
+      }
+      for (uint32_t j = 0; j < number_of_waveforms; ++j) {
+        if (software_trigger) front_end->doTrigger();
+        for (size_t i = 0; i < mapped_channels.size(); ++i) {
+          const uint32_t mapped_channel = mapped_channels[i];
+          uint32_t* waveform_start = data_ptr + number_of_samples * (j * mapped_channels.size() + i);
+          spy_buffer->extractMappedDataBulkSIMD(waveform_start, number_of_samples, mapped_channel);
+        }
+      }
+    }
+
+    auto* resp_channel_list = response.mutable_channellist();
+    resp_channel_list->Clear();
+    resp_channel_list->Reserve(channel_list.size());
+    for (const auto ch : channel_list) resp_channel_list->Add(ch);
+
+    response.set_numberofsamples(number_of_samples);
+    response.set_numberofwaveforms(number_of_waveforms);
+    response.set_softwaretrigger(software_trigger);
+    response_str = "OK";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error dumping spybuffer: ") + e.what();
+    return false;
+  }
+}
+
+bool alignAFE(const cmd_alignAFEs&,
+              cmd_alignAFEs_response& response,
+              Daphne& daphne,
+              std::string& response_str) {
+  try {
+    constexpr uint32_t afe_num = 5;
+    std::vector<uint32_t> delay(afe_num, 0);
+    std::vector<uint32_t> bitslip(afe_num, 0);
+
+    daphne.getFrontEnd()->resetDelayCtrlValues();
+    daphne.getFrontEnd()->doResetDelayCtrl();
+    daphne.getFrontEnd()->doResetSerDesCtrl();
+    daphne.getFrontEnd()->setEnableDelayVtc(0);
+
+    std::string report;
+    for (uint32_t afe_block = 0; afe_block < afe_num; ++afe_block) {
+      std::string delay_dbg;
+      std::string bitslip_dbg;
+      daphne.setBestDelay(afe_block, 512, &delay_dbg);
+      daphne.setBestBitslip(afe_block, 16, &bitslip_dbg);
+      report += delay_dbg + bitslip_dbg;
+    }
+
+    response.clear_delay();
+    response.clear_bitslip();
+    for (uint32_t afe_block = 0; afe_block < afe_num; ++afe_block) {
+      delay[afe_block] = daphne.getFrontEnd()->getDelay(afe_block);
+      bitslip[afe_block] = daphne.getFrontEnd()->getBitslip(afe_block);
+      response.add_delay(delay[afe_block]);
+      response.add_bitslip(bitslip[afe_block]);
+      report += "AFE_" + std::to_string(afe_block) + "\nDELAY: " + std::to_string(delay[afe_block]) +
+                "\nBITSLIP: " + std::to_string(bitslip[afe_block]) + "\n";
+    }
+
+    daphne.getFrontEnd()->setEnableDelayVtc(1);
+    response_str = "AFEs aligned.\n" + report;
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error aligning AFE: ") + e.what();
+    return false;
+  }
+}
+
+bool writeAFEFunction(const cmd_writeAFEFunction& request,
+                      cmd_writeAFEFunction_response& response,
+                      Daphne& daphne,
+                      std::string& response_str) {
+  try {
+    uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(request.afeblock());
+    if (afe_block > 4) throw std::invalid_argument("AFE out of range (0..4)");
+    const std::string afe_function_name = request.function();
+    const uint32_t conf_value = request.configvalue();
+    const uint32_t returned = daphne.getAfe()->setAFEFunction(afe_block, afe_function_name, conf_value);
+    response.set_function(afe_function_name);
+    response.set_configvalue(returned);
+    response.set_afeblock(afe_block);
+    response_str = "Function " + afe_function_name + " configured correctly for AFE " +
+                   std::to_string(afe_definitions::AFE_PL2board_map.at(afe_block)) + ". Returned value: " +
+                   std::to_string(returned) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error writing AFE function: ") + e.what();
+    return false;
+  }
+}
+
+bool setAFEReset(const cmd_setAFEReset& request,
+                 cmd_setAFEReset_response& response,
+                 Daphne& daphne,
+                 std::string& response_str) {
+  try {
+    const bool reset_value = request.resetvalue();
+    const uint32_t returned = daphne.getAfe()->setReset(static_cast<uint32_t>(reset_value));
+    response.set_resetvalue(returned);
+    response_str = "AFEs reset register written with value " + std::to_string(reset_value) +
+                   ". Returned value: " + std::to_string(returned) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error resetting AFEs: ") + e.what();
+    return false;
+  }
+}
+
+bool doAFEReset(const cmd_doAFEReset&,
+               cmd_doAFEReset_response&,
+               Daphne& daphne,
+               std::string& response_str) {
+  try {
+    (void)daphne.getAfe()->doReset();
+    response_str = "AFEs doreset command successful.";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error resetting AFEs: ") + e.what();
+    return false;
+  }
+}
+
+bool setAFEPowerState(const cmd_setAFEPowerState& request,
+                      cmd_setAFEPowerState_response& response,
+                      Daphne& daphne,
+                      std::string& response_str) {
+  try {
+    const bool power_state_value = request.powerstate();
+    const uint32_t returned = daphne.getAfe()->setPowerState(static_cast<uint32_t>(power_state_value));
+    response.set_powerstate(returned);
+    response_str = "AFEs powerstate register written with value " + std::to_string(power_state_value) +
+                   ". Returned value: " + std::to_string(returned) + ".";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error setting AFEs power state: ") + e.what();
+    return false;
+  }
+}
+
+bool doSoftwareTrigger(const cmd_doSoftwareTrigger&,
+                       cmd_doSoftwareTrigger_response&,
+                       Daphne& daphne,
+                       std::string& response_str) {
+  try {
+    daphne.getFrontEnd()->doTrigger();
+    response_str = "Software trigger executed.";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error executing software trigger: ") + e.what();
+    return false;
+  }
+}
+
+bool readBiasVoltageMonitor(const cmd_readBiasVoltageMonitor& request,
+                            cmd_readBiasVoltageMonitor_response& response,
+                            Daphne& daphne,
+                            std::string& response_msg) {
+  const uint32_t afe_block = request.afeblock();
+  const std::array<double, 5> biases = {
+      daphne._VBIAS_0_voltage.load(),
+      daphne._VBIAS_1_voltage.load(),
+      daphne._VBIAS_2_voltage.load(),
+      daphne._VBIAS_3_voltage.load(),
+      daphne._VBIAS_4_voltage.load(),
+  };
+
+  if (afe_block >= biases.size()) {
+    response_msg = "AFE block out of range (0..4)";
+    return false;
+  }
+
+  const double bias_volts = biases[afe_block];
+  response.set_afeblock(afe_block);
+  response.set_biasvoltagevalue(static_cast<uint32_t>(std::lround(bias_volts * 1000.0)));
+
+  std::ostringstream oss;
+  oss << std::fixed << std::setprecision(5);
+  oss << "3V3PDS:" << daphne._3V3PDS_voltage.load() << " V, "
+      << "1V8PDS:" << daphne._1V8PDS_voltage.load() << " V. "
+      << "3V3A:" << daphne._3V3A_voltage.load() << " V, "
+      << "1V8A:" << daphne._1V8A_voltage.load() << " V, "
+      << "-5VA:" << daphne._n5VA_voltage.load() << " V. "
+      << "BIAS0:" << biases[0] << " V, "
+      << "BIAS1:" << biases[1] << " V, "
+      << "BIAS2:" << biases[2] << " V, "
+      << "BIAS3:" << biases[3] << " V, "
+      << "BIAS4:" << biases[4] << " V.";
+
+  response_msg = oss.str();
+  return true;
+}
+
+template <typename Msg>
+std::string serialize_or_empty(const Msg& msg) {
+  std::string out;
+  msg.SerializeToString(&out);
+  return out;
+}
+
+template <typename Msg>
+std::string serialize_error_with_success_field(Msg& msg, const std::string& err) {
+  msg.set_success(false);
+  msg.set_message(err);
+  return serialize_or_empty(msg);
+}
+
+}  // namespace
+
+std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers() {
+  using daphne::MessageTypeV2;
+
+  std::unordered_map<MessageTypeV2, V2Handler> handlers;
+
+  handlers[daphne::MT2_CONFIGURE_FE_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    ConfigureRequest req;
+    ConfigureResponse resp;
+    if (!req.ParseFromString(in)) {
+      resp.set_success(false);
+      resp.set_message("Bad ConfigureRequest payload");
+      out = serialize_or_empty(resp);
+      return;
+    }
+
+    std::string msg;
+    bool ok = configureDaphne(req, d, msg);
+    if (ok && auto_align_enabled()) {
+      cmd_alignAFEs a_req;
+      cmd_alignAFEs_response a_resp;
+      std::string align_msg;
+      const bool ok_align = alignAFE(a_req, a_resp, d, align_msg);
+      msg += "\n\n[ALIGN_AFE]\n" + align_msg;
+      ok = ok && ok_align;
+    } else if (!auto_align_enabled()) {
+      msg += "\n\n[ALIGN_AFE] skipped (DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE set)";
+    }
+
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_CONFIGURE_CLKS_REQ] = [](const std::string& in, std::string& out, Daphne&) {
+    ConfigureCLKsRequest req;
+    ConfigureCLKsResponse resp;
+    if (!req.ParseFromString(in)) {
+      resp.set_success(false);
+      resp.set_message("Bad ConfigureCLKsRequest payload");
+      out = serialize_or_empty(resp);
+      return;
+    }
+
+    std::string info;
+    const bool ok_clk = set_clock_source_and_mmcm_reset(req.ctrl_ep_clk(), req.reset_mmcm1(), info);
+    const bool ok_ep =
+        set_endpoint_addr_and_reset(static_cast<uint16_t>(req.id()), req.reset_endpoint(), info);
+
+    resp.set_success(ok_clk && ok_ep);
+    resp.set_message(info);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_TRIGGER_COUNTERS_REQ] = [](const std::string& in, std::string& out, Daphne&) {
+    ReadTriggerCountersRequest req;
+    ReadTriggerCountersResponse resp;
+    if (!req.ParseFromString(in)) {
+      resp.set_success(false);
+      resp.set_message("Bad ReadTriggerCountersRequest payload");
+      out = serialize_or_empty(resp);
+      return;
+    }
+
+    std::vector<uint32_t> chs;
+    if (req.channels_size() == 0) {
+      chs.resize(40);
+      std::iota(chs.begin(), chs.end(), 0);
+    } else {
+      chs.assign(req.channels().begin(), req.channels().end());
+    }
+
+    uint32_t base = trigregs::PHYS_BASE;
+    if (req.base_addr() != 0) base = static_cast<uint32_t>(req.base_addr());
+
+    std::string err;
+    const bool ok = read_counters_raw(base, chs, resp, err);
+    resp.set_success(ok);
+    resp.set_message(ok ? "OK" : (std::string("Counters read error: ") + err));
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_TEST_REG_REQ] = [](const std::string&, std::string& out, Daphne&) {
+    TestRegResponse resp;
+    resp.set_value(0xDEADBEEF);
+    resp.set_message("ok");
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_GENERAL_INFO_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    InfoRequest req;
+    if (!req.ParseFromString(in)) {
+      GeneralInfo resp;
+      out = serialize_or_empty(resp);
+      return;
+    }
+
+    GeneralInfo resp;
+    resp.set_v_bias_0(d._VBIAS_0_voltage.load());
+    resp.set_v_bias_1(d._VBIAS_1_voltage.load());
+    resp.set_v_bias_2(d._VBIAS_2_voltage.load());
+    resp.set_v_bias_3(d._VBIAS_3_voltage.load());
+    resp.set_v_bias_4(d._VBIAS_4_voltage.load());
+    resp.set_power_minus5v(d._n5VA_voltage.load());
+    resp.set_power_plus2p5v(d._3V3PDS_voltage.load());
+    resp.set_power_ce(d._1V8A_voltage.load());
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_BIAS_VOLTAGE_MONITOR_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_readBiasVoltageMonitor req;
+    cmd_readBiasVoltageMonitor_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_readBiasVoltageMonitor payload");
+      return;
+    }
+
+    std::string msg;
+    const bool ok = readBiasVoltageMonitor(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_CURRENT_MONITOR_REQ] = [](const std::string& in, std::string& out, Daphne&) {
+    cmd_readCurrentMonitor req;
+    cmd_readCurrentMonitor_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_readCurrentMonitor payload");
+      return;
+    }
+
+    resp.set_success(false);
+    resp.set_message("Current monitor not implemented in firmware drivers");
+    resp.set_currentmonitorchannel(req.currentmonitorchannel());
+    resp.set_currentvalue(0);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_AFE_REG_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_readAFEReg req;
+    cmd_readAFEReg_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_readAFEReg payload");
+      return;
+    }
+    std::string msg;
+    const bool ok = readAFEReg(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_AFE_VGAIN_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_readAFEVgain req;
+    cmd_readAFEVgain_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_readAFEVgain payload");
+      return;
+    }
+    std::string msg;
+    const bool ok = readAFEVgain(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_AFE_BIAS_SET_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_readAFEBiasSet req;
+    cmd_readAFEBiasSet_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_readAFEBiasSet payload");
+      return;
+    }
+    std::string msg;
+    const bool ok = readAFEBiasSet(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_TRIM_ALL_CH_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_readTrim_allChannels req;
+    cmd_readTrim_allChannels_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_readTrim_allChannels payload");
+      return;
+    }
+    std::string msg;
+    const bool ok = readTrimAllChannels(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_TRIM_ALL_AFE_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_readTrim_allAFE req;
+    cmd_readTrim_allAFE_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_readTrim_allAFE payload");
+      return;
+    }
+    std::string msg;
+    const bool ok = readTrimAllAFE(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_TRIM_CH_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_readTrim_singleChannel req;
+    cmd_readTrim_singleChannel_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_readTrim_singleChannel payload");
+      return;
+    }
+    std::string msg;
+    const bool ok = readTrimSingleChannel(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_OFFSET_ALL_CH_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_readOffset_allChannels req;
+    cmd_readOffset_allChannels_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_readOffset_allChannels payload");
+      return;
+    }
+    std::string msg;
+    const bool ok = readOffsetAllChannels(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_OFFSET_ALL_AFE_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_readOffset_allAFE req;
+    cmd_readOffset_allAFE_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_readOffset_allAFE payload");
+      return;
+    }
+    std::string msg;
+    const bool ok = readOffsetAllAFE(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_OFFSET_CH_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_readOffset_singleChannel req;
+    cmd_readOffset_singleChannel_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_readOffset_singleChannel payload");
+      return;
+    }
+    std::string msg;
+    const bool ok = readOffsetSingleChannel(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_VBIAS_CONTROL_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_readVbiasControl req;
+    cmd_readVbiasControl_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_readVbiasControl payload");
+      return;
+    }
+    std::string msg;
+    const bool ok = readVbiasControl(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_WRITE_AFE_REG_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_writeAFEReg req;
+    cmd_writeAFEReg_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_writeAFEReg payload");
+      return;
+    }
+
+    std::string msg;
+    uint32_t rb = 0;
+    const bool ok = writeAFERegister(req, d, msg, rb);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    resp.set_afeblock(req.afeblock());
+    resp.set_regaddress(req.regaddress());
+    resp.set_regvalue(rb);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_WRITE_AFE_VGAIN_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_writeAFEVGAIN req;
+    cmd_writeAFEVGAIN_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_writeAFEVGAIN payload");
+      return;
+    }
+
+    std::string msg;
+    uint32_t rb = 0;
+    const bool ok = writeAFEVgain(req, d, msg, rb);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    resp.set_afeblock(req.afeblock());
+    resp.set_vgainvalue(rb);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_WRITE_AFE_ATTENUATION_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_writeAFEAttenuation req;
+    cmd_writeAFEAttenuation_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_writeAFEAttenuation payload");
+      return;
+    }
+
+    std::string msg;
+    uint32_t rb = 0;
+    const bool ok = writeAFEAttenuation(req, d, msg, rb);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    resp.set_afeblock(req.afeblock());
+    resp.set_attenuation(rb);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_WRITE_AFE_BIAS_SET_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_writeAFEBiasSet req;
+    cmd_writeAFEBiasSet_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_writeAFEBiasSet payload");
+      return;
+    }
+
+    std::string msg;
+    uint32_t rb = 0;
+    const bool ok = writeAFEBiasVoltage(req, d, msg, rb);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    resp.set_afeblock(req.afeblock());
+    resp.set_biasvalue(rb);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_WRITE_TRIM_CH_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_writeTrim_singleChannel req;
+    cmd_writeTrim_singleChannel_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_writeTrim_singleChannel payload");
+      return;
+    }
+
+    std::string msg;
+    uint32_t rb = 0;
+    const bool ok = writeChannelTrim(req, d, msg, rb);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    resp.set_trimchannel(req.trimchannel());
+    resp.set_trimvalue(rb);
+    resp.set_trimgain(req.trimgain());
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_WRITE_TRIM_ALL_CH_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_writeTRIM_allChannels req;
+    cmd_writeTRIM_allChannels_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_writeTRIM_allChannels payload");
+      return;
+    }
+
+    try {
+      if (req.trimvalue() > 4095) throw std::invalid_argument("trimValue out of range (0..4095)");
+      for (uint32_t ch = 0; ch < 40; ++ch) {
+        const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(ch / 8);
+        d.getDac()->setDacTrim(afe_block, ch % 8, req.trimvalue(), req.trimgain(), false);
+        d.setChTrimDictValue(ch, req.trimvalue());
+      }
+      resp.set_success(true);
+      resp.set_message("OK");
+    } catch (const std::exception& e) {
+      resp.set_success(false);
+      resp.set_message(e.what());
+    }
+    resp.set_trimvalue(req.trimvalue());
+    resp.set_trimgain(req.trimgain());
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_WRITE_TRIM_ALL_AFE_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_writeTrim_allAFE req;
+    cmd_writeTrim_allAFE_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_writeTrim_allAFE payload");
+      return;
+    }
+
+    try {
+      if (req.trimvalue() > 4095) throw std::invalid_argument("trimValue out of range (0..4095)");
+      const uint32_t afe_board = req.afeblock();
+      if (afe_board > 4) throw std::invalid_argument("afeBlock out of range (0..4)");
+      const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(afe_board);
+      for (uint32_t idx = 0; idx < 8; ++idx) {
+        d.getDac()->setDacTrim(afe_block, idx, req.trimvalue(), req.trimgain(), false);
+        d.setChTrimDictValue(afe_board * 8 + idx, req.trimvalue());
+      }
+      resp.set_success(true);
+      resp.set_message("OK");
+    } catch (const std::exception& e) {
+      resp.set_success(false);
+      resp.set_message(e.what());
+    }
+    resp.set_afeblock(req.afeblock());
+    resp.set_trimvalue(req.trimvalue());
+    resp.set_trimgain(req.trimgain());
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_WRITE_OFFSET_CH_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_writeOFFSET_singleChannel req;
+    cmd_writeOFFSET_singleChannel_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_writeOFFSET_singleChannel payload");
+      return;
+    }
+
+    std::string msg;
+    uint32_t rb = 0;
+    const bool ok = writeChannelOffset(req, d, msg, rb);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    resp.set_offsetchannel(req.offsetchannel());
+    resp.set_offsetvalue(rb);
+    resp.set_offsetgain(req.offsetgain());
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_WRITE_OFFSET_ALL_CH_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_writeOFFSET_allChannels req;
+    cmd_writeOFFSET_allChannels_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_writeOFFSET_allChannels payload");
+      return;
+    }
+
+    try {
+      if (req.offsetvalue() > 4095) throw std::invalid_argument("offsetValue out of range (0..4095)");
+      for (uint32_t ch = 0; ch < 40; ++ch) {
+        const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(ch / 8);
+        d.getDac()->setDacOffset(afe_block, ch % 8, req.offsetvalue(), req.offsetgain(), false);
+        d.setChOffsetDictValue(ch, req.offsetvalue());
+      }
+      resp.set_success(true);
+      resp.set_message("OK");
+    } catch (const std::exception& e) {
+      resp.set_success(false);
+      resp.set_message(e.what());
+    }
+    resp.set_offsetvalue(req.offsetvalue());
+    resp.set_offsetgain(req.offsetgain());
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_WRITE_OFFSET_ALL_AFE_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_writeOFFSET_allAFE req;
+    cmd_writeOFFSET_allAFE_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_writeOFFSET_allAFE payload");
+      return;
+    }
+
+    try {
+      if (req.offsetvalue() > 4095) throw std::invalid_argument("offsetValue out of range (0..4095)");
+      const uint32_t afe_board = req.afeblock();
+      if (afe_board > 4) throw std::invalid_argument("afeBlock out of range (0..4)");
+      const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(afe_board);
+      for (uint32_t idx = 0; idx < 8; ++idx) {
+        d.getDac()->setDacOffset(afe_block, idx, req.offsetvalue(), req.offsetgain(), false);
+        d.setChOffsetDictValue(afe_board * 8 + idx, req.offsetvalue());
+      }
+      resp.set_success(true);
+      resp.set_message("OK");
+    } catch (const std::exception& e) {
+      resp.set_success(false);
+      resp.set_message(e.what());
+    }
+    resp.set_afeblock(req.afeblock());
+    resp.set_offsetvalue(req.offsetvalue());
+    resp.set_offsetgain(req.offsetgain());
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_WRITE_VBIAS_CONTROL_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_writeVbiasControl req;
+    cmd_writeVbiasControl_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_writeVbiasControl payload");
+      return;
+    }
+
+    std::string msg;
+    uint32_t rb = 0;
+    const bool ok = writeBiasVoltageControl(req, d, msg, rb);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    resp.set_vbiascontrolvalue(rb);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_DUMP_SPYBUFFER_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    DumpSpyBuffersRequest req;
+    DumpSpyBuffersResponse resp;
+    if (!req.ParseFromString(in)) {
+      resp.set_success(false);
+      resp.set_message("Bad DumpSpyBuffersRequest payload");
+      out = serialize_or_empty(resp);
+      return;
+    }
+
+    std::string msg;
+    const bool ok = dumpSpybuffer(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_ALIGN_AFE_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_alignAFEs req;
+    cmd_alignAFEs_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_alignAFEs payload");
+      return;
+    }
+
+    std::string msg;
+    const bool ok = alignAFE(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_WRITE_AFE_FUNCTION_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_writeAFEFunction req;
+    cmd_writeAFEFunction_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_writeAFEFunction payload");
+      return;
+    }
+
+    std::string msg;
+    const bool ok = writeAFEFunction(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_SET_AFE_RESET_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_setAFEReset req;
+    cmd_setAFEReset_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_setAFEReset payload");
+      return;
+    }
+
+    std::string msg;
+    const bool ok = setAFEReset(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_DO_AFE_RESET_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_doAFEReset req;
+    cmd_doAFEReset_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_doAFEReset payload");
+      return;
+    }
+
+    std::string msg;
+    const bool ok = doAFEReset(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_SET_AFE_POWERSTATE_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_setAFEPowerState req;
+    cmd_setAFEPowerState_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_setAFEPowerState payload");
+      return;
+    }
+
+    std::string msg;
+    const bool ok = setAFEPowerState(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_DO_SOFTWARE_TRIGGER_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_doSoftwareTrigger req;
+    cmd_doSoftwareTrigger_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_doSoftwareTrigger payload");
+      return;
+    }
+
+    std::string msg;
+    const bool ok = doSoftwareTrigger(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  return handlers;
+}
+
+}  // namespace daphne_sc

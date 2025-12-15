@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-End-to-end smoketest client for DaphneSlowController.
+End-to-end smoketest client for daphneServer.
 
 This exercises the main ControlEnvelopeV2 paths:
   - test register read (connectivity sanity)
@@ -225,7 +225,7 @@ def do_spybuffer(sock, route, timeout_ms, channels: Iterable[int], n_waveforms: 
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Smoketest client for DaphneSlowController (ControlEnvelopeV2).")
+    parser = argparse.ArgumentParser(description="Smoketest client for daphneServer (ControlEnvelopeV2).")
     parser.add_argument("-ip", default="127.0.0.1", help="Server IP (default 127.0.0.1)")
     parser.add_argument("-port", type=int, default=9876, help="Server port (default 9876)")
     parser.add_argument("--route", default="mezz/0", help="EnvelopeV2 route (default mezz/0)")
