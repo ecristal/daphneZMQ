@@ -26,6 +26,32 @@ from typing import Iterable, Optional, Tuple
 
 import zmq
 
+def _maybe_prefer_build_pb2() -> None:
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    candidates = []
+    env_build = os.environ.get("DAPHNE_BUILD_DIR")
+    if env_build:
+        candidates.append(env_build)
+    candidates.extend(
+        [
+            os.path.join(repo_root, "build-test"),
+            os.path.join(repo_root, "build-petalinux"),
+            os.path.join(repo_root, "build"),
+            os.path.join(repo_root, "build-local"),
+            os.path.join(repo_root, "build-local2"),
+        ]
+    )
+
+    for build_dir in candidates:
+        pb2 = os.path.join(build_dir, "srcs", "protobuf", "daphneV3_high_level_confs_pb2.py")
+        if os.path.isfile(pb2):
+            if build_dir not in sys.path:
+                sys.path.insert(0, build_dir)
+            return
+
+
+_maybe_prefer_build_pb2()
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
 from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
