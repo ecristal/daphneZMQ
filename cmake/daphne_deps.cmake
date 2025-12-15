@@ -1,3 +1,5 @@
+set(DAPHNE_DEPS_MODULE_DIR "${CMAKE_CURRENT_LIST_DIR}")
+
 function(daphne_sha256 file_path out_var)
   if(NOT EXISTS "${file_path}")
     message(FATAL_ERROR "Missing file: ${file_path}")
@@ -47,7 +49,9 @@ function(daphne_use_locked_deps)
     message(FATAL_ERROR "daphne_use_locked_deps requires TARBALL_DIR")
   endif()
 
-  set(_lock "${CMAKE_CURRENT_LIST_DIR}/../deps/deps.lock.cmake")
+  # Note: CMAKE_CURRENT_LIST_DIR is dynamic and changes inside functions to the
+  # caller's list directory; use the module directory captured at include time.
+  set(_lock "${DAPHNE_DEPS_MODULE_DIR}/../deps/deps.lock.cmake")
   if(NOT EXISTS "${_lock}")
     message(FATAL_ERROR "Missing deps lock file: ${_lock}")
   endif()
@@ -91,4 +95,3 @@ function(daphne_use_locked_deps)
   message(STATUS "Using deps tarball: ${_tgz}")
   message(STATUS "Deps prefix: ${_prefix}")
 endfunction()
-
