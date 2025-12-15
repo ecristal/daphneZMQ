@@ -1,5 +1,12 @@
 .vscode/
 build/
+build-*/
+build-local/
+build-local2/
+deps_tarballs/
+sandbox/
+_deps_src/
+_petalinux_prefix/
 sftp-config.json
 # Python bytecode
 __pycache__/
