@@ -49,6 +49,11 @@ def main() -> int:
     args = parse_args()
 
     seed_cfgs = load_seed_from_output(args.output)
+    if isinstance(seed_cfgs, dict) and {"metadata", "common_conf", "devices"}.issubset(seed_cfgs.keys()):
+        raise SystemExit(
+            "This looks like a PDS *detail* JSON (has metadata/common_conf/devices).\n"
+            "Use: python3 client/configure_fe_from_detail.py <detail.json> [--config-name ...]"
+        )
 
     summaries: dict[str, dict] = {}
     for board_id, seed_cfg in seed_cfgs.items():
@@ -87,10 +92,12 @@ def main() -> int:
 
     if args.json and summaries:
         print(json.dumps(summaries, indent=2))
+    if args.board_id and not summaries:
+        print(f"ERROR: no boards matched --board-id {args.board_id} in {args.output}")
+        return 2
 
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
