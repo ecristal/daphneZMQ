@@ -68,13 +68,29 @@ echo 1-0011  > /sys/bus/i2c/drivers/pca9570/unbind      2>/dev/null || true
 QUIESCE_EOF
 
 cat <<'DEFAULT_EOF' > /etc/default/firmware
-APP=MEZ_SELF_TRIG_V15_OL
+APP=MEZ_SELF_TRIG_V15_OL 
 DEFAULT_EOF
 
-chmod 0644 /etc/systemd/system/firmware.service /etc/default/firmware
+cat <<'DFX_MGRD_EOF' > /etc/systemd/system/dfx-mgrd.service
+[Unit]
+Description=Dynamic Function eXchange Manager (DFX)
+After=local-fs.target
+Wants=local-fs.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/dfx-mgrd
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+DFX_MGRD_EOF
+
+chmod 0644 /etc/systemd/system/firmware.service /etc/systemd/system/dfx-mgrd.service /etc/default/firmware
 chmod 0755 /usr/local/bin/daphne-fw.sh /usr/local/bin/fpga-quiesce.sh
 
 echo "Created /etc/systemd/system/firmware.service"
 echo "Created /usr/local/bin/daphne-fw.sh"
 echo "Created /usr/local/bin/fpga-quiesce.sh"
 echo "Created /etc/default/firmware"
+echo "Created /etc/systemd/system/dfx-mgrd.service"
