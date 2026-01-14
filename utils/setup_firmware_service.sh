@@ -164,7 +164,28 @@ fi
 exit 0
 SPIDEV_RESTORE_EOF
 
-chmod 0644 /etc/systemd/system/firmware.service /etc/systemd/system/dfx-mgrd.service /etc/systemd/system/hermes.service /etc/systemd/system/daphne.service /etc/systemd/system/spidev-restore.service /etc/default/firmware
+cat <<'ENDPOINT_SVC_EOF' > /etc/systemd/system/endpoint.service
+[Unit]
+Description=Configure DAPHNE clock chip and timing endpoint
+# ensure Daphne is fully up before running
+After=daphne.service
+Requires=daphne.service
+
+[Service]
+Type=oneshot
+# wait a bit to ensure DaphneSlowController is accepting connections
+ExecStartPre=/bin/sleep 5
+WorkingDirectory=/home/petalinux/utils
+ExecStart=/bin/bash -c '/home/petalinux/utils/clk_conf.sh && /home/petalinux/utils/endpoint.sh --configure --clock endpoint'
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+ENDPOINT_SVC_EOF
+
+chmod 0644 /etc/systemd/system/firmware.service /etc/systemd/system/dfx-mgrd.service /etc/systemd/system/hermes.service /etc/systemd/system/daphne.service /etc/systemd/system/spidev-restore.service /etc/systemd/system/endpoint.service /etc/default/firmware
 chmod 0755 /usr/local/bin/daphne-fw.sh /usr/local/bin/fpga-quiesce.sh /usr/local/bin/spidev-restore.sh
 
 echo "Created /etc/systemd/system/firmware.service"
@@ -176,3 +197,4 @@ echo "Created /etc/systemd/system/hermes.service"
 echo "Created /etc/systemd/system/daphne.service"
 echo "Created /etc/systemd/system/spidev-restore.service"
 echo "Created /usr/local/bin/spidev-restore.sh"
+echo "Created /etc/systemd/system/endpoint.service"
