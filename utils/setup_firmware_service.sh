@@ -124,8 +124,48 @@ TimeoutStopSec=5s
 WantedBy=multi-user.target
 DAPHNE_SVC_EOF
 
-chmod 0644 /etc/systemd/system/firmware.service /etc/systemd/system/dfx-mgrd.service /etc/systemd/system/hermes.service /etc/systemd/system/daphne.service /etc/default/firmware
-chmod 0755 /usr/local/bin/daphne-fw.sh /usr/local/bin/fpga-quiesce.sh
+cat <<'SPIDEV_SVC_EOF' > /etc/systemd/system/spidev-restore.service
+[Unit]
+Description=Restore spidev overlay
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/spidev-restore.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+SPIDEV_SVC_EOF
+
+cat <<'SPIDEV_RESTORE_EOF' > /usr/local/bin/spidev-restore.sh
+#!/bin/sh
+# Restore spidev overlay and bind on boot
+MODPATH=/sys/kernel/config/device-tree/overlays/spidev_axiq
+
+# Wait for configfs
+sleep 2
+mount -t configfs none /sys/kernel/config 2>/dev/null || true
+
+# Reapply overlay if missing
+if [ ! -d "$MODPATH" ]; then
+    mkdir -p "$MODPATH"
+    cat /root/spidev-axiq-overlay-fixed.dtbo > "$MODPATH/dtbo"
+fi
+
+# Wait for bus to appear
+sleep 1
+
+# Bind spi3.0 to spidev if needed
+if [ -d /sys/bus/spi/devices/spi3.0 ] && [ ! -L /sys/bus/spi/devices/spi3.0/driver ]; then
+    echo spidev  > /sys/bus/spi/devices/spi3.0/driver_override
+    echo spi3.0  > /sys/bus/spi/drivers/spidev/bind
+fi
+exit 0
+SPIDEV_RESTORE_EOF
+
+chmod 0644 /etc/systemd/system/firmware.service /etc/systemd/system/dfx-mgrd.service /etc/systemd/system/hermes.service /etc/systemd/system/daphne.service /etc/systemd/system/spidev-restore.service /etc/default/firmware
+chmod 0755 /usr/local/bin/daphne-fw.sh /usr/local/bin/fpga-quiesce.sh /usr/local/bin/spidev-restore.sh
 
 echo "Created /etc/systemd/system/firmware.service"
 echo "Created /usr/local/bin/daphne-fw.sh"
@@ -134,3 +174,5 @@ echo "Created /etc/default/firmware"
 echo "Created /etc/systemd/system/dfx-mgrd.service"
 echo "Created /etc/systemd/system/hermes.service"
 echo "Created /etc/systemd/system/daphne.service"
+echo "Created /etc/systemd/system/spidev-restore.service"
+echo "Created /usr/local/bin/spidev-restore.sh"
