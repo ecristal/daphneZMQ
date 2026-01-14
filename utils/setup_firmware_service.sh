@@ -86,7 +86,27 @@ Restart=on-failure
 WantedBy=multi-user.target
 DFX_MGRD_EOF
 
-chmod 0644 /etc/systemd/system/firmware.service /etc/systemd/system/dfx-mgrd.service /etc/default/firmware
+cat <<'HERMES_EOF' > /etc/systemd/system/hermes.service
+[Unit]
+Description=Hermes IPBus UDP server (DAPHNE mode)
+After=firmware.service
+Requires=firmware.service
+
+[Service]
+Type=simple
+WorkingDirectory=/
+ExecStartPre=/bin/echo Starting Hermes IPBus UDP server \(daphne mode\)
+ExecStart=/bin/sh -c '/bin/hermes_udp_srv -d daphne -c true \
+  2>/var/log/hermes_udp_srv.err >/var/log/hermes_udp_srv.log'
+Restart=on-failure
+RestartSec=1
+TimeoutStopSec=5s
+
+[Install]
+WantedBy=multi-user.target
+HERMES_EOF
+
+chmod 0644 /etc/systemd/system/firmware.service /etc/systemd/system/dfx-mgrd.service /etc/systemd/system/hermes.service /etc/default/firmware
 chmod 0755 /usr/local/bin/daphne-fw.sh /usr/local/bin/fpga-quiesce.sh
 
 echo "Created /etc/systemd/system/firmware.service"
@@ -94,3 +114,4 @@ echo "Created /usr/local/bin/daphne-fw.sh"
 echo "Created /usr/local/bin/fpga-quiesce.sh"
 echo "Created /etc/default/firmware"
 echo "Created /etc/systemd/system/dfx-mgrd.service"
+echo "Created /etc/systemd/system/hermes.service"
