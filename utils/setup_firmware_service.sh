@@ -106,7 +106,25 @@ TimeoutStopSec=5s
 WantedBy=multi-user.target
 HERMES_EOF
 
-chmod 0644 /etc/systemd/system/firmware.service /etc/systemd/system/dfx-mgrd.service /etc/systemd/system/hermes.service /etc/default/firmware
+cat <<'DAPHNE_SVC_EOF' > /etc/systemd/system/daphne.service
+[Unit]
+Description=DAPHNE Slow Controller
+After=hermes.service firmware.service
+Requires=firmware.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/petalinux/zmq/zmq/build
+ExecStart=/home/petalinux/zmq/zmq/build/DaphneSlowController --ip 10.73.137.161 --port 40001
+Restart=on-failure
+RestartSec=1
+TimeoutStopSec=5s
+
+[Install]
+WantedBy=multi-user.target
+DAPHNE_SVC_EOF
+
+chmod 0644 /etc/systemd/system/firmware.service /etc/systemd/system/dfx-mgrd.service /etc/systemd/system/hermes.service /etc/systemd/system/daphne.service /etc/default/firmware
 chmod 0755 /usr/local/bin/daphne-fw.sh /usr/local/bin/fpga-quiesce.sh
 
 echo "Created /etc/systemd/system/firmware.service"
@@ -115,3 +133,4 @@ echo "Created /usr/local/bin/fpga-quiesce.sh"
 echo "Created /etc/default/firmware"
 echo "Created /etc/systemd/system/dfx-mgrd.service"
 echo "Created /etc/systemd/system/hermes.service"
+echo "Created /etc/systemd/system/daphne.service"
