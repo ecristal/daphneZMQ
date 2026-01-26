@@ -2,15 +2,25 @@
 
 # This script is used to perform a vgain scan with DAPHNE V3
 # usage: source vgain_scan.sh -output_folder <output_folder> -vgain_list <vgain_list>
-# source vgain_scan.sh -h to print help message
+#        or: source vgain_scan.sh -output_folder <output_folder> -range "[init, step, end]"
 # example: source vgain_scan.sh -output_folder /path/to/output -vgain_list [0 , 500, 1000, 1500, 2000]
+#          source vgain_scan.sh -output_folder /path/to/output -range "[3000, -100, 2800]" -channel 16 17 18 19
 
 function print_help() {
-    echo "Usage: source vgain_scan.sh -output_folder <output_folder> -vgain_list <vgain_list> -channel <channel> -bias <bias> -trim <trim> -bias_control <bias_control>"
-    echo "Example: source vgain_scan.sh -output_folder /path/to/output -vgain_list [0, 500, 1000, 1500, 2000] -channel 1 -bias 31.5 -trim 2000 -bias_control 55.0"
+    echo "Usage: source vgain_scan.sh -output_folder <output_folder> -vgain_list <vgain_list> | -range \"[init, step, end]\""
+    echo "                               -channel <ch0> [ch1 ch2 ...] -bias <bias> -trim <trim> -bias_control <bias_control>"
+    echo "                               -ip <ip_addr> -port <port> -L <L> -N <N> [-software_trigger] [-multi_channel]"
+    echo
+    echo "Examples:"
+    echo "  source vgain_scan.sh -output_folder /path/to/output -vgain_list [0, 500, 1000, 1500, 2000] -channel 1 -bias 31.5 -trim 2000 -bias_control 55.0"
+    echo "  source vgain_scan.sh -output_folder /path/to/output -range \"[3000, -100, 2800]\" -channel 16 17 18 19 -L 2048 -N 30000 -ip 127.0.0.1 -port 50001 -software_trigger -multi_channel"
 }
 
-while [[ $# -gt 0 ]]; do
+SW_trigger=false
+multi_channel=false
+channel_list=()
+
+while [[ $# > 0 ]]; do
     case $1 in
         -output_folder)
             output_folder="$2"
@@ -21,8 +31,27 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         -channel)
-            channel="$2"
-            shift 2
+            # consume "-channel"
+            shift
+            # collect all subsequent non-option arguments as channels
+            while [[ $# -gt 0 && "$1" != -* ]]; do
+                channel_list+=("$1")
+                shift
+            done
+
+            if [[ ${#channel_list[@]} -eq 0 ]]; then
+                echo "ERROR: -channel needs at least one channel number"
+                print_help
+                return 1
+            fi
+
+            # use the first channel as reference (for AFE computation etc.)
+            channel="${channel_list[0]}"
+
+            # if more than one channel is given, assume multi-channel mode
+            if (( ${#channel_list[@]} > 1 )); then
+                multi_channel=true
+            fi
             ;;
         -bias)
             bias="$2"
@@ -36,6 +65,34 @@ while [[ $# -gt 0 ]]; do
             bias_control="$2"
             shift 2
             ;;
+        -ip)
+            ip_addr="$2"
+            shift 2
+            ;;
+        -port)
+            port="$2"
+            shift 2
+            ;;
+        -N)
+            N="$2"
+            shift 2
+            ;;
+        -L)
+            L="$2"
+            shift 2
+            ;;
+        -range)
+            range="$2"
+            shift 2
+            ;;
+        -software_trigger)
+            SW_trigger=true
+            shift
+            ;;
+        -multi_channel)
+            multi_channel=true
+            shift
+            ;;
         -h|--help)
             print_help
             return 0
@@ -48,8 +105,8 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-if [[ -z "$output_folder" || -z "$vgain_list" || -z "$channel" ]]; then
-    echo "Error: Missing required arguments. Please provide -output_folder, -vgain_list, and -channel. Use -h for help."
+if [[ -z "$output_folder" || -z "$channel" || -z "$port" || -z "$ip_addr" || -z "$N" || -z "$L" ]]; then
+    echo "Error: Missing required arguments. Use -h for help."
     print_help
     return 1
 fi
@@ -57,10 +114,84 @@ fi
 # Ensure output folder exists otherwise create it
 mkdir -p "$output_folder"
 
-# Convert vgain_list from string to array
-vgain_array=($(echo "$vgain_list" | tr -d '[]' | tr ',' ' '))
+# ----------------------------------------------------------
+# VGAIN LIST / RANGE HANDLING
+# ----------------------------------------------------------
+if [[ -n "$vgain_list" && -n "$range" ]]; then
+    echo "ERROR: You cannot use both -vgain_list AND -range."
+    return 1
+elif [[ -n "$vgain_list" ]]; then
+    echo "Using explicit vgain_list: $vgain_list"
 
-# Configuring bias and trim values
+    cleaned=$(echo "$vgain_list" | tr -d '[],')
+
+    read -a vgain_array <<< "$cleaned"
+
+elif [[ -n "$range" ]]; then
+    echo "Using range: $range"
+
+    cleaned=$(echo "$range" | tr -d '[],')
+
+    read init step end <<< "$cleaned"
+
+    # ------------------------------------------------------
+    # VALIDATION
+    # ------------------------------------------------------
+
+    # Check init and end limits
+    if (( init < 0 || init > 4000 )); then
+        echo "ERROR: init value ($init) must be between 0 and 4000"
+        return 1
+    fi
+
+    if (( end < 0 || end > 4000 )); then
+        echo "ERROR: end value ($end) must be between 0 and 4000"
+        return 1
+    fi
+
+    # Step cannot be zero
+    if (( step == 0 )); then
+        echo "ERROR: step cannot be zero"
+        return 1
+    fi
+
+    # Step magnitude cannot exceed the difference
+    diff=$(( end - init ))
+    abs_diff=${diff#-}        # absolute value
+
+    abs_step=${step#-}        # absolute value
+    if (( abs_step > abs_diff )); then
+        echo "ERROR: |step| ($abs_step) cannot be greater than |end-init| ($abs_diff)"
+        return 1
+    fi
+
+    # ------------------------------------------------------
+    # BUILD vgain_array
+    # ------------------------------------------------------
+    vgain_array=()
+
+    if (( step > 0 )); then
+        # Ascending
+        for ((v = init; v <= end; v += step)); do
+            vgain_array+=("$v")
+        done
+    else
+        # Descending
+        for ((v = init; v >= end; v += step)); do
+            vgain_array+=("$v")
+        done
+    fi
+
+    echo "Generated vgain_array: ${vgain_array[*]}"
+
+else
+    echo "ERROR: You must specify either -vgain_list or -range."
+    return 1
+fi
+
+# ----------------------------------------------------------
+# BIAS / TRIM DEFAULTS
+# ----------------------------------------------------------
 if [[ -z "$bias" ]]; then
     bias=0.0  # Default value if not provided
 fi
@@ -70,33 +201,89 @@ fi
 if [[ -z "$bias_control" ]]; then
     bias_control=0.0  # Default value if not provided
 fi
-# Configure vgain and trim for the specified channel
-#echo "Configuring vbias and trim for channel: $channel with bias: $bias, trim: $trim, bias_control: $bias_control"
-# Call the Python script to configure vbias and trim
-#python ./../client/protobuf_configure_vbias_trim.py -ip 193.206.157.36 -port 9000 -channel "$channel" -bias "$bias" -trim "$trim" -bias_control "$bias_control"
 
-# Loop through each vgain value and run the scan
+# AFE from reference channel
+AFE=$(( channel / 8 ))
+
+if [[ "$SW_trigger" == true ]]; then
+    software_trigger_flag="-software_trigger"
+else
+    software_trigger_flag=""
+fi
+
+# ----------------------------------------------------------
+# MAIN LOOP OVER VGAIN
+# ----------------------------------------------------------
 for vgain in "${vgain_array[@]}"; do
     echo "Configuring scan with vgain: $vgain"
-    # First, configure daphne with current vgain, replace -vgain with actual vgain value
-    # now create the filename for the output file
+
+    # create folder for this vgain
     output_file_folder="${output_folder}/vgain_${vgain}"
     mkdir -p "${output_file_folder}"
     output_file="${output_file_folder}/channel_${channel}.dat"
-    # store the output stream in a log file
     log_file="${output_file_folder}/config.txt"
-    #python ./../client/protobuf_configure_daphne.py -ip 192.168.137.2 -port 9000 -vgain "$vgain" -ch_offset 2275 -align_afes -lpf_cutoff 10 -pga_clamp_level '0 dBFS' -pga_gain_control '24 dB' -lna_gain_control '12 dB' -lna_input_clamp auto &> "$log_file"
-    python ./../client/protobuf_configure_vgain.py -ip 192.168.137.2 -port 9000 -afe 3 -vgain_value "$vgain" &> "$log_file"
-    # Run the scan and save the output to the file
+
+    # Configure vgain (AFE from first channel)
+    #python ./../client/protobuf_configure_vgain.py \
+    #    -ip "${ip_addr}" \
+    #    -port "$port" \
+    #    -afe "$AFE" \
+    #    -vgain_value "$vgain" &> "$log_file"
+
     echo "Running scan with vgain: $vgain"
-    python ./../client/protobuf_acquire_channel.py -ip 192.168.137.2 -port 9000 -channel "$channel" -L 2048 -N 30000 -foldername "${output_file_folder}/" -chunk 10 -compress -compression_format 7z -debug
-    # Compress the output file using 7z with mid compression level
-    #echo "Compressing output file: $output_file"
-    # the output final should not have an extension prefix .dat and delete the original .dat file
-    #output_file_o="${output_file%.dat}"  # Remove .dat extension for compression
-    #7z a -mx=2 "${output_file_o}.7z" "$output_file"
-    #rm "$output_file"
+
+    if [[ "$multi_channel" == false ]]; then
+        # Single-channel acquisition
+	# Configure vgain (AFE from first channel)
+   	 python ./../client/protobuf_configure_vgain.py \
+        -ip "${ip_addr}" \
+        -port "$port" \
+        -afe "$AFE" \
+        -vgain_value "$vgain" &> "$log_file"
+
+
+        python ./../client/protobuf_acquire_channel.py \
+            -ip "${ip_addr}" \
+            -port "$port" \
+            -channel "$channel" \
+            -L "$L" \
+            -N "$N" \
+            -foldername "${output_file_folder}/" \
+            -chunk 10 \
+            -compression_format 7z \
+            -debug \
+            $software_trigger_flag
+    else
+        # Multi-channel acquisition: pass the full list
+        # Configure vgain (AFE from first channel)
+    	python ./../client/protobuf_configure_vgain.py \
+        -ip "${ip_addr}" \
+        -port "$port" \
+	-afe "$AFE" \
+        -configure_all \
+        -vgain_value "$vgain" &> "$log_file"
+
+
+	python ./../client/protobuf_acquire_list_channels.py \
+            -ip "${ip_addr}" \
+            -port "$port" \
+            -foldername "${output_file_folder}" \
+            -channel_list "${channel_list[@]}" \
+            -L "$L" \
+            -N "$N" \
+            -debug \
+            -compression_format 7z \
+            $software_trigger_flag
+    fi
 done
+
 echo "Vgain scan completed. All output files are stored in: $output_folder"
-#echo "Turning off vgain and trim configuration for channel: $channel"
-#python ./../client/protobuf_configure_vgain_trim.py -ip 193.206.157.36 -port 9000 -channel "$channel" -bias 0 -trim 0 -bias_control 0
+
+# restore vgain to default (example: 1800) for the reference AFE
+AFE=$(( channel / 8 ))
+python ./../client/protobuf_configure_vgain.py \
+    -ip "${ip_addr}" \
+    -port "$port" \
+    -afe "$AFE" \
+    -vgain_value 1800
+
