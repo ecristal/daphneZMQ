@@ -21,8 +21,8 @@ These commands are defined in the following files:
 Go to this repository realese page https://github.com/ecristal/daphneZMQ/releases and download the latest pre-release tarball. Then, secure copy the tarball to your DAPHNE V3/Mezz and untar it to your desired location. Navigate to the binary folder and execute the application:
 ```sh
 cd /path/to/app/DaphneSlowController_V0_01_16/usr/bin
-sudo ./DaphneSlowController -ip <IP-ADDRESS> -port <PORT>
-#example: sudo ./DaphneSlowController -ip 193.206.157.36 -port 9000
+sudo ./DaphneSlowController --ip <IP-ADDRESS> --port <PORT>
+#example: sudo ./DaphneSlowController --ip 193.206.157.36 --port 9000
 ```
 
 ## Client side python scripts 
