@@ -204,6 +204,7 @@ def main():
     ap.add_argument("-pga_gain_control", type=str, choices=pga_gain_control_dict.keys(), default="24 dB")
     ap.add_argument("-lna_gain_control", type=str, choices=lna_gain_control_dict.keys(), default="12 dB")
     ap.add_argument("-lna_input_clamp", type=str, choices=lna_input_clamp_dict.keys(), default="auto")
+    ap.add_argument("--adc_resolution", type=int, choices=[0, 1], default=1, help="ADC resolution bit (0/1)")
     args = ap.parse_args()
 
     endpoint = f"tcp://{args.host}:{args.port}"
@@ -230,6 +231,9 @@ def main():
         lna_gain=lna_gain_val,
         lna_clamp=lna_clamp_val,
     )
+    for afe in cfg.afes:
+        if hasattr(afe.adc, "resolution"):
+            afe.adc.resolution = bool(args.adc_resolution)
     req = build_configure_v2_envelope(cfg, route=args.route)
 
     # Client timestamps & send

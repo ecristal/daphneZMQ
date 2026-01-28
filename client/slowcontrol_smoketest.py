@@ -181,9 +181,13 @@ def do_test_reg(sock, route, timeout_ms):
 def do_general_info(sock, route, timeout_ms):
     req = pb_high.InfoRequest()
     rep = send_v2(sock, pb_high.MT2_READ_GENERAL_INFO_REQ, req.SerializeToString(), route, timeout_ms)
-    payload = pb_high.InfoResponse()
-    payload.ParseFromString(rep.payload)
-    gi = payload.general_info
+    # Server replies with GeneralInfo payload (not InfoResponse).
+    gi = pb_high.GeneralInfo()
+    if not gi.ParseFromString(rep.payload):
+        # Fallback for older servers that used InfoResponse.
+        legacy = pb_high.InfoResponse()
+        legacy.ParseFromString(rep.payload)
+        gi = legacy.general_info
     pretty_status(
         "general_info",
         True,
