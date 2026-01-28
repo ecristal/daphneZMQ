@@ -461,7 +461,10 @@ bool configureDaphne(const ConfigureRequest& requested_cfg, Daphne& daphne, std:
       const uint32_t adc_out_fmt = afe_config.adc().output_format() ? 1u : 0u;
       const uint32_t adc_sb_first = afe_config.adc().sb_first() ? 1u : 0u;
 
-      uint32_t r = daphne.getAfe()->setAFEFunction(afe_pl, "ADC_RESOLUTION_RESET", adc_res);
+      uint32_t r = daphne.getAfe()->setAFEFunction(afe_pl, "SERIALIZED_DATA_RATE", 1u);
+      out << "Function SERIALIZED_DATA_RATE in AFE " << afe_board << " configured correctly.\nReturned value: " << r
+          << "\n";
+      r = daphne.getAfe()->setAFEFunction(afe_pl, "ADC_RESOLUTION_RESET", adc_res);
       out << "Function ADC_RESOLUTION_RESET in AFE " << afe_board << " configured correctly.\nReturned value: " << r
           << "\n";
       r = daphne.getAfe()->setAFEFunction(afe_pl, "ADC_OUTPUT_FORMAT", adc_out_fmt);
