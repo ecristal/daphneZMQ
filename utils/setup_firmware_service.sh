@@ -10,6 +10,18 @@ umask 022
 
 install -d /etc/systemd/system /usr/local/bin /etc/default
 
+REPO_ROOT_DEFAULT="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+DAPHNE_ROOT="${DAPHNE_ROOT:-$REPO_ROOT_DEFAULT}"
+DAPHNE_BUILD_DIR="${DAPHNE_BUILD_DIR:-$DAPHNE_ROOT/build-petalinux}"
+DAPHNE_BIN="${DAPHNE_BIN:-$DAPHNE_BUILD_DIR/daphneServer}"
+DAPHNE_BIND="${DAPHNE_BIND:-tcp://*:40001}"
+DAPHNE_UTILS_DIR="${DAPHNE_UTILS_DIR:-$DAPHNE_ROOT/utils}"
+
+if [ ! -f "$DAPHNE_UTILS_DIR/clk_conf.sh" ] || [ ! -f "$DAPHNE_UTILS_DIR/endpoint.sh" ]; then
+  echo "ERROR: missing required utility scripts in $DAPHNE_UTILS_DIR" >&2
+  exit 2
+fi
+
 cat <<'SERVICE_EOF' > /etc/systemd/system/firmware.service
 [Unit]
 Description=Program DAPHNE firmware (xmutil)
@@ -90,7 +102,7 @@ TimeoutStopSec=5s
 WantedBy=multi-user.target
 HERMES_EOF
 
-cat <<'DAPHNE_SVC_EOF' > /etc/systemd/system/daphne.service
+cat <<DAPHNE_SVC_EOF > /etc/systemd/system/daphne.service
 [Unit]
 Description=DAPHNE Slow Controller
 After=hermes.service firmware.service
@@ -98,8 +110,8 @@ Requires=firmware.service
 
 [Service]
 Type=simple
-WorkingDirectory=/home/petalinux/zmq/zmq/build
-ExecStart=/home/petalinux/zmq/zmq/build/DaphneSlowController --ip 10.73.137.161 --port 40001
+WorkingDirectory=${DAPHNE_BUILD_DIR}
+ExecStart=${DAPHNE_BIN} --bind ${DAPHNE_BIND}
 Restart=on-failure
 RestartSec=1
 TimeoutStopSec=5s
@@ -108,7 +120,7 @@ TimeoutStopSec=5s
 WantedBy=multi-user.target
 DAPHNE_SVC_EOF
 
-cat <<'ENDPOINT_SVC_EOF' > /etc/systemd/system/endpoint.service
+cat <<ENDPOINT_SVC_EOF > /etc/systemd/system/endpoint.service
 [Unit]
 Description=Configure DAPHNE clock chip and timing endpoint
 # ensure Daphne is fully up before running
@@ -119,8 +131,8 @@ Requires=daphne.service
 Type=oneshot
 # wait a bit to ensure DaphneSlowController is accepting connections
 ExecStartPre=/bin/sleep 5
-WorkingDirectory=/home/petalinux/utils
-ExecStart=/bin/bash -c '/home/petalinux/utils/clk_conf.sh && /home/petalinux/utils/endpoint.sh --configure --clock endpoint'
+WorkingDirectory=${DAPHNE_UTILS_DIR}
+ExecStart=/bin/bash -c '${DAPHNE_UTILS_DIR}/clk_conf.sh && ${DAPHNE_UTILS_DIR}/endpoint.sh --configure --clock endpoint'
 RemainAfterExit=yes
 StandardOutput=journal
 StandardError=journal
@@ -146,5 +158,8 @@ echo "Created /etc/systemd/system/dfx-mgrd.service"
 echo "Created /etc/systemd/system/hermes.service"
 echo "Created /etc/systemd/system/daphne.service"
 echo "Created /etc/systemd/system/endpoint.service"
+echo "Configured DAPHNE_ROOT=${DAPHNE_ROOT}"
+echo "Configured DAPHNE_BIN=${DAPHNE_BIN}"
+echo "Configured DAPHNE_UTILS_DIR=${DAPHNE_UTILS_DIR}"
 echo "Disabled and removed legacy spidev/I2C overlay helper units"
 echo "Enabled: firmware.service hermes.service daphne.service endpoint.service"
