@@ -88,8 +88,33 @@ function(daphne_use_locked_deps)
   set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}" PARENT_SCOPE)
 
   # Help FindProtobuf in environments where multiple protoc/libprotobuf exist.
+  # Some standalone prefixes ship a protoc binary without an embedded RUNPATH,
+  # so wrap it with the local lib search path to keep configure/build deterministic.
   if(EXISTS "${_prefix}/bin/protoc")
-    set(Protobuf_PROTOC_EXECUTABLE "${_prefix}/bin/protoc" CACHE FILEPATH "" FORCE)
+    set(_protoc_bin "${_prefix}/bin/protoc")
+    set(_protoc_lib_dirs "")
+    foreach(_lib_dir "${_prefix}/lib" "${_prefix}/lib64")
+      if(IS_DIRECTORY "${_lib_dir}")
+        list(APPEND _protoc_lib_dirs "${_lib_dir}")
+      endif()
+    endforeach()
+
+    if(_protoc_lib_dirs)
+      string(REPLACE ";" ":" _protoc_lib_path "${_protoc_lib_dirs}")
+      file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/_deps")
+      set(_protoc_wrapper "${CMAKE_BINARY_DIR}/_deps/daphne-protoc.sh")
+      file(WRITE "${_protoc_wrapper}"
+        "#!/bin/sh\n"
+        "set -eu\n"
+        "export LD_LIBRARY_PATH=\"${_protoc_lib_path}\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}\"\n"
+        "exec \"${_protoc_bin}\" \"\$@\"\n"
+      )
+      execute_process(COMMAND chmod +x "${_protoc_wrapper}")
+      set(Protobuf_PROTOC_EXECUTABLE "${_protoc_wrapper}" CACHE FILEPATH "" FORCE)
+      message(STATUS "Using protoc wrapper: ${_protoc_wrapper}")
+    else()
+      set(Protobuf_PROTOC_EXECUTABLE "${_protoc_bin}" CACHE FILEPATH "" FORCE)
+    endif()
   endif()
 
   message(STATUS "Using deps tarball: ${_tgz}")
