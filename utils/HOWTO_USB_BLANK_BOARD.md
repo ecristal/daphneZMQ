@@ -170,6 +170,84 @@ ssh petalinux@np04-daphne-013.cern.ch 'tar -C ~ -cf - daphne-server' | tar -C ~ 
 
 Note: `-O` is required when remote misses `sftp-server`.
 
+## 5.1) Build `daphne-server` and `hermes` (manual tarball copy explained)
+
+### Why tarball copy is manual
+
+For standalone `daphne-server` builds, the deps tarball is pinned by filename+SHA in
+`deps/deps.lock.cmake`. The board-side script cannot reliably auto-download it because:
+
+- source location differs (another board, local laptop, shared path),
+- auth/network/proxy availability differs per board state,
+- exact tarball name must match the lock file.
+
+So transfer is a one-time manual step, then build is automatic.
+
+### Build `daphne-server` (recommended path 1: existing prefix)
+
+If the board already has a working prefix (e.g. `~/zmq`):
+
+```bash
+cd ~/daphne-server
+./scripts/petalinux_build.sh "$HOME/zmq" ./build-petalinux
+ls -l ./build-petalinux/daphneServer ./build-petalinux/daphne_zmq_server
+```
+
+### Build `daphne-server` (standalone path 2: pinned deps tarball)
+
+1. Check expected tarball name:
+
+```bash
+cd ~/daphne-server
+grep DAPHNE_DEPS_TARBALL_NAME deps/deps.lock.cmake
+```
+
+2. Copy that tarball into `deps_tarballs/` (manual):
+
+From another board:
+
+```bash
+cd ~/daphne-server
+scp -O petalinux@np04-daphne-013.cern.ch:~/daphne-server/deps_tarballs/<exact-tarball-name>.tar.gz ./deps_tarballs/
+```
+
+From your laptop/workstation:
+
+```bash
+scp -O /path/to/<exact-tarball-name>.tar.gz \
+  petalinux@np04-daphne-015.cern.ch:~/daphne-server/deps_tarballs/
+```
+
+3. Build:
+
+```bash
+cd ~/daphne-server
+cmake -S . -B build-petalinux \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DDAPHNE_DEPS_TARBALL_DIR="$PWD/deps_tarballs"
+cmake --build build-petalinux --parallel
+ls -l ./build-petalinux/daphneServer ./build-petalinux/daphne_zmq_server
+```
+
+### Build Hermes (`hermesmodules`)
+
+```bash
+cd ~
+git clone https://github.com/DUNE-DAQ/hermesmodules.git -b thea/daphne_integration
+cd ~/hermesmodules/soc
+make clean && make
+```
+
+Install binary for the service path used in this repo (`/bin/hermes_udp_srv`):
+
+```bash
+sudo install -m 0755 ~/hermesmodules/soc/hermes_udp_srv /bin/hermes_udp_srv
+ls -l /bin/hermes_udp_srv
+```
+
+If your build outputs a different binary name, install that one instead and update
+`/etc/systemd/system/hermes.service` accordingly.
+
 ## 6) Install persistent baseline (network + dns + ntp + hostname + proxy/git)
 
 ```bash

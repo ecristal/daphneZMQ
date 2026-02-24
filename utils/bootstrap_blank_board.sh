@@ -203,19 +203,19 @@ if [ "$BOOTSTRAP_ONLY" -eq 1 ]; then
 fi
 
 echo "[3/4] Installing persistent network baseline..."
-if [ ! -x "$SCRIPT_DIR/install_ff0b_network.sh" ]; then
+if [ ! -r "$SCRIPT_DIR/install_ff0b_network.sh" ]; then
   echo "ERROR: missing $SCRIPT_DIR/install_ff0b_network.sh" >&2
   exit 6
 fi
-"$SCRIPT_DIR/install_ff0b_network.sh" "$BOARD_ID"
+sh "$SCRIPT_DIR/install_ff0b_network.sh" "$BOARD_ID"
 
 if [ "$NO_FIRMWARE" -eq 0 ]; then
   echo "[4/4] Installing firmware boot service..."
-  if [ ! -x "$SCRIPT_DIR/setup_firmware_service.sh" ]; then
+  if [ ! -r "$SCRIPT_DIR/setup_firmware_service.sh" ]; then
     echo "ERROR: missing $SCRIPT_DIR/setup_firmware_service.sh" >&2
     exit 7
   fi
-  "$SCRIPT_DIR/setup_firmware_service.sh"
+  sh "$SCRIPT_DIR/setup_firmware_service.sh"
   systemctl restart firmware.service || true
 else
   echo "[4/4] Skipping firmware setup (--no-firmware)."
