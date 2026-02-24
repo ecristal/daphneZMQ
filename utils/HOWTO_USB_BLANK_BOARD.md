@@ -3,6 +3,22 @@
 This runbook is for a board that boots but has no working network config yet.
 Goal: bring link up from serial console, sync time, copy/update repo, and install persistent services.
 
+## Fast path (single command)
+
+If repo is already present on the board (`~/daphne-server`), run:
+
+```bash
+cd ~/daphne-server/utils
+sudo ./bootstrap_blank_board.sh daphne-15
+```
+
+Options:
+
+- skip firmware service install:
+  - `sudo ./bootstrap_blank_board.sh daphne-15 --no-firmware`
+- only temporary emergency bring-up (no persistent files):
+  - `sudo ./bootstrap_blank_board.sh daphne-15 --bootstrap-only`
+
 ## 0) Known board values
 
 Use these values (same as `ff0b_board_inventory.csv`):
