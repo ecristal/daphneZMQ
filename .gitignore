@@ -22,3 +22,9 @@ srcs/protobuf/*.pb.cc
 srcs/protobuf/*.pb.h
 srcs/protobuf/*_pb2.py
 srcs/protobuf/__pycache__/
+
+# Local runtime artifacts
+client/__pycache__/waveparse.cpython-313.pyc
+runs.zip
+runs/
+.DS_Store
