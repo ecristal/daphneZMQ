@@ -134,6 +134,15 @@ fi
 ip addr replace "$IPV4_CIDR" dev "$FF0B_IF"
 ip route replace default via "$GW4" dev "$FF0B_IF"
 
+# Keep resolver deterministic (some images lose DNS after boot).
+if [ -n "${DNS1:-}" ]; then
+  {
+    echo "nameserver $DNS1"
+    [ -n "${DNS2:-}" ] && echo "nameserver $DNS2"
+    echo "options timeout:1 attempts:2"
+  } > /etc/resolv.conf
+fi
+
 if [ -n "${IPV6_CIDR:-}" ]; then
   ip -6 addr replace "$IPV6_CIDR" dev "$FF0B_IF" 2>/dev/null || true
 fi
