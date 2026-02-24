@@ -8,7 +8,30 @@ fi
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 INVENTORY="${INVENTORY:-$SCRIPT_DIR/ff0b_board_inventory.csv}"
-BOARD_ID="${1:-$(hostname -s 2>/dev/null || hostname)}"
+BOARD_ID_RAW="${1:-$(hostname -s 2>/dev/null || hostname)}"
+
+normalize_board_id() {
+  v=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
+  case "$v" in
+    daphne-[0-9]*)
+      printf '%s\n' "$v"
+      return 0
+      ;;
+    *)
+      n=$(printf '%s' "$v" | sed -n 's/.*daphne-\([0-9][0-9]*\).*/\1/p')
+      if [ -n "$n" ]; then
+        n=$(printf '%s' "$n" | sed 's/^0*//')
+        [ -n "$n" ] || n=0
+        printf 'daphne-%s\n' "$n"
+      else
+        printf '%s\n' "$v"
+      fi
+      return 0
+      ;;
+  esac
+}
+
+BOARD_ID="$(normalize_board_id "$BOARD_ID_RAW")"
 
 usage() {
   cat <<'USAGE_EOF'
@@ -18,6 +41,12 @@ Usage:
 Examples:
   sudo ./install_ff0b_network.sh daphne-13
   sudo INVENTORY=/path/to/ff0b_board_inventory.csv ./install_ff0b_network.sh daphne-15
+
+What this installs:
+  - Deterministic ff0b/ff0c MAC + IP routing at every boot
+  - DNS resolver file (/etc/resolv.conf) refresh at every boot
+  - CERN NTP config + timesync bootstrap (no hardcoded date)
+  - Default proxy env + git proxy config
 USAGE_EOF
 }
 
@@ -66,9 +95,15 @@ if [ -z "$BOARD_ID" ] || [ -z "$IPV4_CIDR" ] || [ -z "$GW4" ] || [ -z "$MAC_FF0B
   exit 4
 fi
 
+PROXY_URL="${PROXY_URL:-http://np04-web-proxy.cern.ch:3128}"
+NO_PROXY_VALUE="${NO_PROXY_VALUE:-.cern.ch}"
+NTP1="${NTP1:-137.138.16.69}"
+NTP2="${NTP2:-137.138.17.69}"
+NTP3="${NTP3:-137.138.18.69}"
+
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 NETWORKD_BACKUP="/etc/systemd/network/backup-pre-ff0b-${TIMESTAMP}"
-install -d /etc/systemd/network /etc/default /usr/local/sbin /etc/systemd/system "$NETWORKD_BACKUP"
+install -d /etc/systemd/network /etc/default /usr/local/sbin /etc/systemd/system /etc/profile.d /etc/systemd/timesyncd.conf.d "$NETWORKD_BACKUP"
 
 for f in /etc/systemd/network/*.link /etc/systemd/network/*.network; do
   [ -e "$f" ] || continue
@@ -86,6 +121,11 @@ MAC_FF0B=${MAC_FF0B}
 MAC_FF0C=${MAC_FF0C}
 IPV6_CIDR=${IPV6_CIDR}
 GW6=${GW6}
+NTP1=${NTP1}
+NTP2=${NTP2}
+NTP3=${NTP3}
+PROXY_URL=${PROXY_URL}
+NO_PROXY_VALUE=${NO_PROXY_VALUE}
 EOF
 
 cat <<'APPLY_EOF' > /usr/local/sbin/ff0b-net-apply.sh
@@ -149,9 +189,41 @@ fi
 if [ -n "${GW6:-}" ]; then
   ip -6 route replace default via "$GW6" dev "$FF0B_IF" 2>/dev/null || true
 fi
+
+# Restart timesync after network+DNS are in place.
+systemctl enable systemd-timesyncd >/dev/null 2>&1 || true
+systemctl restart systemd-timesyncd >/dev/null 2>&1 || true
+timedatectl set-ntp true >/dev/null 2>&1 || true
+
+# Give NTP a short settle window; keep boot non-fatal if unreachable.
+if command -v timedatectl >/dev/null 2>&1; then
+  i=0
+  while [ $i -lt 45 ]; do
+    sync_state=$(timedatectl show -p NTPSynchronized --value 2>/dev/null || echo "no")
+    [ "$sync_state" = "yes" ] && break
+    sleep 1
+    i=$((i + 1))
+  done
+fi
 APPLY_EOF
 
 chmod 0755 /usr/local/sbin/ff0b-net-apply.sh
+
+cat <<EOF > /etc/systemd/timesyncd.conf.d/cern.conf
+[Time]
+NTP=${NTP1} ${NTP2} ${NTP3}
+FallbackNTP=
+EOF
+
+cat <<EOF > /etc/profile.d/np04-proxy.sh
+export HTTP_PROXY=${PROXY_URL}
+export HTTPS_PROXY=${PROXY_URL}
+export NO_PROXY=${NO_PROXY_VALUE}
+export http_proxy=${PROXY_URL}
+export https_proxy=${PROXY_URL}
+export no_proxy=${NO_PROXY_VALUE}
+EOF
+chmod 0644 /etc/profile.d/np04-proxy.sh
 
 cat <<EOF > /etc/systemd/network/10-ff0b.link
 [Match]
@@ -217,7 +289,15 @@ if [ "${SET_HOSTNAME:-1}" = "1" ] && command -v hostnamectl >/dev/null 2>&1 && [
   hostnamectl set-hostname "$HOST_FQDN" || true
 fi
 
+if command -v git >/dev/null 2>&1; then
+  git config --system http.proxy "$PROXY_URL" || true
+  git config --system https.proxy "$PROXY_URL" || true
+  git config --system http.noProxy "$NO_PROXY_VALUE" || true
+fi
+
 systemctl daemon-reload
+systemctl enable systemd-timesyncd || true
+systemctl enable systemd-time-wait-sync.service >/dev/null 2>&1 || true
 systemctl enable force-ff0b-net.service
 systemctl restart systemd-networkd || true
 systemctl start force-ff0b-net.service
@@ -230,6 +310,7 @@ echo
 echo "Verify with:"
 echo "  systemctl status force-ff0b-net.service --no-pager"
 echo "  journalctl -b -u force-ff0b-net.service --no-pager"
+echo "  timedatectl status"
 echo "  ip -br link"
 echo "  ip -4 addr"
 echo "  ip route"

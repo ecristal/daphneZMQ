@@ -16,6 +16,26 @@ DAPHNE_BUILD_DIR="${DAPHNE_BUILD_DIR:-$DAPHNE_ROOT/build-petalinux}"
 DAPHNE_BIN="${DAPHNE_BIN:-$DAPHNE_BUILD_DIR/daphneServer}"
 DAPHNE_BIND="${DAPHNE_BIND:-tcp://*:40001}"
 DAPHNE_UTILS_DIR="${DAPHNE_UTILS_DIR:-$DAPHNE_ROOT/utils}"
+FW_APP="${FW_APP:-}"
+
+if [ -z "$FW_APP" ] && command -v xmutil >/dev/null 2>&1; then
+  FW_APP=$(
+    xmutil listapps 2>/dev/null | awk '
+      tolower($0) ~ /accelerator/ { next }
+      NF == 0 { next }
+      $NF ~ /,$/ {
+        app = $1
+        gsub(/,/, "", app)
+        if (app != "" && app != "_k26-starter-kits.disabled") {
+          print app
+          exit
+        }
+      }
+    '
+  )
+fi
+
+FW_APP="${FW_APP:-MEZ_SELF_TRIG_V15_OL_UPGRADED}"
 
 if [ ! -f "$DAPHNE_UTILS_DIR/clk_conf.sh" ] || [ ! -f "$DAPHNE_UTILS_DIR/endpoint.sh" ]; then
   echo "ERROR: missing required utility scripts in $DAPHNE_UTILS_DIR" >&2
@@ -44,7 +64,7 @@ SERVICE_EOF
 cat <<'DAPHNE_FW_EOF' > /usr/local/bin/daphne-fw.sh
 #!/bin/sh
 set -eu
-APP="${APP:-MEZ_SELF_TRIG_V15_OL}"
+APP="${APP:-MEZ_SELF_TRIG_V15_OL_UPGRADED}"
 XMUTIL="$(command -v xmutil || echo /usr/sbin/xmutil)"
 
 # Make sure dfx-mgrd is available before loading the app.
@@ -63,8 +83,8 @@ done
 echo "FPGA state: $(cat /sys/class/fpga_manager/fpga0/state 2>/dev/null || echo unknown)"
 DAPHNE_FW_EOF
 
-cat <<'DEFAULT_EOF' > /etc/default/firmware
-APP=MEZ_SELF_TRIG_V15_OL 
+cat <<DEFAULT_EOF > /etc/default/firmware
+APP=${FW_APP}
 DEFAULT_EOF
 
 cat <<'DFX_MGRD_EOF' > /etc/systemd/system/dfx-mgrd.service
@@ -161,5 +181,6 @@ echo "Created /etc/systemd/system/endpoint.service"
 echo "Configured DAPHNE_ROOT=${DAPHNE_ROOT}"
 echo "Configured DAPHNE_BIN=${DAPHNE_BIN}"
 echo "Configured DAPHNE_UTILS_DIR=${DAPHNE_UTILS_DIR}"
+echo "Configured FW_APP=${FW_APP}"
 echo "Disabled and removed legacy spidev/I2C overlay helper units"
 echo "Enabled: firmware.service hermes.service daphne.service endpoint.service"
