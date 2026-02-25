@@ -54,7 +54,9 @@ Type=oneshot
 EnvironmentFile=/etc/default/firmware
 Environment=ACCEL_CONFIG_PATH=/lib/firmware/xilinx
 ExecStart=/usr/local/bin/daphne-fw.sh
+ExecStop=/usr/local/bin/daphne-fw-stop.sh
 TimeoutStartSec=20
+TimeoutStopSec=20
 RemainAfterExit=yes
 
 [Install]
@@ -82,6 +84,21 @@ for i in $(seq 1 50); do
 done
 echo "FPGA state: $(cat /sys/class/fpga_manager/fpga0/state 2>/dev/null || echo unknown)"
 DAPHNE_FW_EOF
+
+cat <<'DAPHNE_FW_STOP_EOF' > /usr/local/bin/daphne-fw-stop.sh
+#!/bin/sh
+set -eu
+XMUTIL="$(command -v xmutil || echo /usr/sbin/xmutil)"
+
+if [ ! -x "$XMUTIL" ]; then
+  echo "xmutil not found, skipping unloadapp." >&2
+  exit 0
+fi
+
+echo "Unloading active firmware app via ${XMUTIL} ..."
+"$XMUTIL" unloadapp || true
+echo "FPGA state after stop: $(cat /sys/class/fpga_manager/fpga0/state 2>/dev/null || echo unknown)"
+DAPHNE_FW_STOP_EOF
 
 cat <<DEFAULT_EOF > /etc/default/firmware
 APP=${FW_APP}
@@ -169,13 +186,14 @@ systemctl disable --now spidev-restore.service 2>/dev/null || true
 rm -f /etc/systemd/system/spidev-restore.service /usr/local/bin/spidev-restore.sh /usr/local/bin/fpga-quiesce.sh
 
 chmod 0644 /etc/systemd/system/firmware.service /etc/systemd/system/dfx-mgrd.service /etc/systemd/system/hermes.service /etc/systemd/system/daphne.service /etc/systemd/system/endpoint.service /etc/default/firmware
-chmod 0755 /usr/local/bin/daphne-fw.sh
+chmod 0755 /usr/local/bin/daphne-fw.sh /usr/local/bin/daphne-fw-stop.sh
 
 systemctl daemon-reload
 systemctl enable firmware.service hermes.service daphne.service endpoint.service
 
 echo "Created /etc/systemd/system/firmware.service"
 echo "Created /usr/local/bin/daphne-fw.sh"
+echo "Created /usr/local/bin/daphne-fw-stop.sh"
 echo "Created /etc/default/firmware"
 echo "Created /etc/systemd/system/dfx-mgrd.service"
 echo "Created /etc/systemd/system/hermes.service"
