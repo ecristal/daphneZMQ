@@ -242,6 +242,28 @@ export PS1
 EOF
 chmod 0644 /etc/profile.d/np04-prompt.sh
 
+# Some Petalinux images reset PS1 after /etc/profile.d is sourced.
+# Install a user-level fallback so login shells keep the colored prompt.
+PETALINUX_HOME="/home/petalinux"
+if [ -d "$PETALINUX_HOME" ]; then
+  PETALINUX_PROFILE="$PETALINUX_HOME/.profile"
+  touch "$PETALINUX_PROFILE"
+  if ! grep -q 'NP04_PROMPT_BEGIN' "$PETALINUX_PROFILE"; then
+    cat <<'EOF' >> "$PETALINUX_PROFILE"
+
+# NP04_PROMPT_BEGIN
+case "$-" in
+  *i*)
+    PS1='\033[1;36m\u@\h\033[0m:\033[1;33m\w\033[0m\$ '
+    export PS1
+    ;;
+esac
+# NP04_PROMPT_END
+EOF
+  fi
+  chown petalinux:petalinux "$PETALINUX_PROFILE" 2>/dev/null || true
+fi
+
 cat <<EOF > /etc/systemd/network/10-ff0b.link
 [Match]
 Path=platform-ff0b0000.ethernet
