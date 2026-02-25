@@ -1,5 +1,5 @@
 # This file pins the exact dependency tarball required to build this repo in
-# "standalone" mode (no external prefix like ~/zmq, no network downloads).
+# standalone mode from the checkout (no network downloads).
 #
 # How to create/update:
 #   - On a reference Petalinux machine (or in a matching SDK container), build

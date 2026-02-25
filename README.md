@@ -171,38 +171,36 @@ For local testing of the produced aarch64 binaries, run them under an emulator (
 rootfs. The easiest workflow is usually to compile in a Petalinux SDK container or on a build VM that has the correct
 sysroot and libraries.
 
-## Building on Petalinux using an existing prefix (e.g. `~/zmq`)
+## Building on Petalinux from checkout only (`$HOME/daphne-server`)
 
-On the Petalinux machines you shared, dependencies live in a local prefix like `~/zmq` (containing `lib/`, `include/`,
-`bin/protoc`, etc). You can build on-target without installing the Petalinux SDK:
+The default Petalinux flow is self-contained in this checkout and uses a pinned
+deps tarball from `deps/deps.lock.cmake`.
 
 ```bash
 git clone <your-repo-url> daphne-server
-cd daphne-server
-./scripts/petalinux_build.sh "$HOME/zmq" ./build-petalinux
+cd "$HOME/daphne-server"
+./scripts/petalinux_build.sh ./build-petalinux ./deps_tarballs
 ./build-petalinux/daphneServer --bind tcp://*:9876
 ```
 
-To create a minimal deployable bundle (binaries + only the `.so` files that come from your prefix), run:
+To create a minimal deployable bundle (binaries + runtime libs copied from this
+checkout/build tree), run:
 
 ```bash
-./scripts/make_deploy_bundle.sh "$HOME/zmq" ./build-petalinux ./deploy
+./scripts/make_deploy_bundle.sh ./build-petalinux ./deploy
 ./deploy/run_daphneServer.sh --bind tcp://*:9876
 ```
 
-## Standalone build on Petalinux (no `~/zmq` prefix)
-
-If you want a self-contained checkout that does not depend on the `~/zmq` prefix, use a pinned “deps tarball” (with a
-clear versioned filename) and configure the build to verify+extract it locally.
+## Managing the pinned deps tarball
 
 ### 1) Create the deps tarball (once, on a reference machine)
 
-On a Petalinux machine where you already have a known-good prefix (like your current `~/zmq`), create a tarball that
-contains only the minimal `prefix/` tree (headers + libs + `protoc`):
+On a reference Petalinux machine with a known-good dependency prefix, create a
+tarball containing minimal headers/libs/tools:
 
 ```bash
 cd daphne-server
-./scripts/make_deps_tarball_from_prefix.sh "$HOME/zmq" ./deps_tarballs \
+./scripts/make_deps_tarball_from_prefix.sh /path/to/prefix ./deps_tarballs \
   daphne-deps-petalinux2024.1-aarch64-glibc2.36-protobuf30.1-zeromq4.3.4.tar.gz
 ```
 
@@ -213,46 +211,13 @@ That script prints a SHA256 and the `set(...)` lines to paste into `deps/deps.lo
 Copy the tarball to the target (or place it in a shared location), then:
 
 ```bash
-cd daphne-server
-cmake -S . -B build-petalinux \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DDAPHNE_DEPS_TARBALL_DIR="$PWD/deps_tarballs"
-cmake --build build-petalinux --parallel
+cd "$HOME/daphne-server"
+./scripts/petalinux_build.sh ./build-petalinux ./deps_tarballs
 ./build-petalinux/daphneServer --bind tcp://*:9876
 ```
 
-The configure step will fail fast if the tarball name or SHA256 does not match `deps/deps.lock.cmake`.
-
-### Fallback: build bundled ZeroMQ from source
-
-If you do not want to ship `libzmq.so` inside your tarball, you can also build bundled ZeroMQ from source
-(`third_party/zeromq-4.3.4`) by configuring with `-DDAPHNE_BUNDLE_ZEROMQ=ON`.
-
-```bash
-cd daphne-server
-./scripts/petalinux_build_standalone.sh ./build-petalinux
-./build-petalinux/daphneServer --bind tcp://*:9876
-```
-
-Notes:
-
-- This still requires Protobuf headers + `libprotobuf` to be present on the Petalinux machine (the `protoc` binary alone
-  is not sufficient if the development headers/libraries are missing).
-- If your Petalinux rootfs does not include the Protobuf dev files, the remaining option is to vendor/build Protobuf in
-  this repo as well (larger repo, longer build). If that is your situation, tell me and I’ll wire that up.
-
-## Using a prebuilt dependency prefix (e.g. `zmq.tar.gz`)
-
-If you have a prebuilt prefix that contains `libzmq`, `protobuf`, and headers (like the `zmq.tar.gz` bundle used on the
-Petalinux machines), extract it and point CMake at it:
-
-```bash
-tar -xzf zmq.tar.gz -C /opt
-cmake -S . -B build \
-  -DCMAKE_PREFIX_PATH=/opt/zmq \
-  -DCMAKE_BUILD_TYPE=Release
-cmake --build build --parallel
-```
+The build script fails fast if the pinned tarball is missing or does not match
+`deps/deps.lock.cmake`.
 
 ## Contributing
 

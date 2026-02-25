@@ -183,17 +183,7 @@ For standalone `daphne-server` builds, the deps tarball is pinned by filename+SH
 
 So transfer is a one-time manual step, then build is automatic.
 
-### Build `daphne-server` (recommended path 1: existing prefix)
-
-If the board already has a working prefix (e.g. `~/zmq`):
-
-```bash
-cd ~/daphne-server
-./scripts/petalinux_build.sh "$HOME/zmq" ./build-petalinux
-ls -l ./build-petalinux/daphneServer ./build-petalinux/daphne_zmq_server
-```
-
-### Build `daphne-server` (standalone path 2: pinned deps tarball)
+### Build `daphne-server` (pinned deps tarball in checkout)
 
 1. Check expected tarball name:
 
@@ -222,10 +212,7 @@ scp -O /path/to/<exact-tarball-name>.tar.gz \
 
 ```bash
 cd ~/daphne-server
-cmake -S . -B build-petalinux \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DDAPHNE_DEPS_TARBALL_DIR="$PWD/deps_tarballs"
-cmake --build build-petalinux --parallel
+./scripts/petalinux_build.sh ./build-petalinux ./deps_tarballs
 ls -l ./build-petalinux/daphneServer ./build-petalinux/daphne_zmq_server
 ```
 
