@@ -47,6 +47,7 @@ What this installs:
   - DNS resolver file (/etc/resolv.conf) refresh at every boot
   - CERN NTP config + timesync bootstrap (no hardcoded date)
   - Default proxy env + git proxy config
+  - Colored interactive shell prompt
 USAGE_EOF
 }
 
@@ -224,6 +225,22 @@ export https_proxy=${PROXY_URL}
 export no_proxy=${NO_PROXY_VALUE}
 EOF
 chmod 0644 /etc/profile.d/np04-proxy.sh
+
+cat <<'EOF' > /etc/profile.d/np04-prompt.sh
+# Interactive shell prompt colors for DAPHNE boards.
+case "$-" in
+  *i*) ;;
+  *) return 0 2>/dev/null || exit 0 ;;
+esac
+
+if [ -n "${BASH_VERSION:-}" ]; then
+  PS1='\[\033[1;36m\]\u@\h\[\033[0m\]:\[\033[1;33m\]\w\[\033[0m\]\$ '
+else
+  PS1='\033[1;36m\u@\h\033[0m:\033[1;33m\w\033[0m\$ '
+fi
+export PS1
+EOF
+chmod 0644 /etc/profile.d/np04-prompt.sh
 
 cat <<EOF > /etc/systemd/network/10-ff0b.link
 [Match]

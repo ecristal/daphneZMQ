@@ -253,6 +253,7 @@ This installs:
 - `/etc/systemd/system/force-ff0b-net.service`
 - `/etc/systemd/timesyncd.conf.d/cern.conf`
 - `/etc/profile.d/np04-proxy.sh`
+- `/etc/profile.d/np04-prompt.sh`
 
 ## 7) Install default firmware boot app
 
