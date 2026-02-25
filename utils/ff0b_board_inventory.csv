@@ -1,4 +1,4 @@
-# board_id,hostname_fqdn,ipv4_cidr,gw4,dns1,dns2,mac_ff0b,mac_ff0c,ipv6_cidr,gw6
-daphne-13,NP04-DAPHNE-013.CERN.CH,10.73.137.161/24,10.73.137.1,137.138.16.5,137.138.17.5,ba:be:ba:d1:ca:ff,ba:be:ba:d1:ca:fe,fd01:1458:904:4::100:96/64,fd01:1458:904:4::1
-daphne-14,NP04-DAPHNE-014.CERN.CH,10.73.137.160/24,10.73.137.1,137.138.16.5,137.138.17.5,ba:be:ba:d1:cb:ff,ba:be:ba:d1:cb:fe,fd01:1458:904:4::100:95/64,fd01:1458:904:4::1
-daphne-15,NP04-DAPHNE-015.CERN.CH,10.73.137.16/24,10.73.137.1,137.138.16.5,137.138.17.5,ba:be:ba:d1:cc:ff,ba:be:ba:d1:cc:fe,fd01:1458:904:4::100:0/64,fd01:1458:904:4::1
+# board_id,hostname_fqdn,ipv4_cidr,gw4,dns1,dns2,mac_ff0b,mac_ff0c,ipv6_cidr,gw6,endpoint_addr_hex
+daphne-13,NP04-DAPHNE-013.CERN.CH,10.73.137.161/24,10.73.137.1,137.138.16.5,137.138.17.5,ba:be:ba:d1:ca:ff,ba:be:ba:d1:ca:fe,fd01:1458:904:4::100:96/64,fd01:1458:904:4::1,0x13
+daphne-14,NP04-DAPHNE-014.CERN.CH,10.73.137.160/24,10.73.137.1,137.138.16.5,137.138.17.5,ba:be:ba:d1:cb:ff,ba:be:ba:d1:cb:fe,fd01:1458:904:4::100:95/64,fd01:1458:904:4::1,0x14
+daphne-15,NP04-DAPHNE-015.CERN.CH,10.73.137.16/24,10.73.137.1,137.138.16.5,137.138.17.5,ba:be:ba:d1:cc:ff,ba:be:ba:d1:cc:fe,fd01:1458:904:4::100:0/64,fd01:1458:904:4::1,0x15

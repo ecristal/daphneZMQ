@@ -46,6 +46,7 @@ What this installs:
   - Deterministic ff0b/ff0c MAC + IP routing at every boot
   - DNS resolver file (/etc/resolv.conf) refresh at every boot
   - CERN NTP config + timesync bootstrap (no hardcoded date)
+  - Board-specific endpoint address in /etc/default/ff0b-net.conf
   - Default proxy env + git proxy config
   - Colored interactive shell prompt
 USAGE_EOF
@@ -68,10 +69,10 @@ ROW=$(awk -F',' -v b="$BOARD_ID" '
   {
     id = tolower(trim($1))
     if (id == tolower(b)) {
-      printf "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
+      printf "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n",
         trim($1), trim($2), trim($3), trim($4), trim($5),
         trim($6), tolower(trim($7)), tolower(trim($8)),
-        trim($9), trim($10)
+        trim($9), trim($10), trim($11)
       exit
     }
   }
@@ -87,7 +88,7 @@ if [ -z "$ROW" ]; then
   exit 3
 fi
 
-IFS='|' read -r BOARD_ID HOST_FQDN IPV4_CIDR GW4 DNS1 DNS2 MAC_FF0B MAC_FF0C IPV6_CIDR GW6 <<EOF
+IFS='|' read -r BOARD_ID HOST_FQDN IPV4_CIDR GW4 DNS1 DNS2 MAC_FF0B MAC_FF0C IPV6_CIDR GW6 ENDPOINT_ADDR_HEX <<EOF
 $ROW
 EOF
 
@@ -95,6 +96,8 @@ if [ -z "$BOARD_ID" ] || [ -z "$IPV4_CIDR" ] || [ -z "$GW4" ] || [ -z "$MAC_FF0B
   echo "ERROR: incomplete row for board '$BOARD_ID' in $INVENTORY" >&2
   exit 4
 fi
+
+ENDPOINT_ADDR_HEX="${ENDPOINT_ADDR_HEX:-0x20}"
 
 PROXY_URL="${PROXY_URL:-http://np04-web-proxy.cern.ch:3128}"
 NO_PROXY_VALUE="${NO_PROXY_VALUE:-.cern.ch}"
@@ -122,6 +125,7 @@ MAC_FF0B=${MAC_FF0B}
 MAC_FF0C=${MAC_FF0C}
 IPV6_CIDR=${IPV6_CIDR}
 GW6=${GW6}
+ENDPOINT_ADDR_HEX=${ENDPOINT_ADDR_HEX}
 NTP1=${NTP1}
 NTP2=${NTP2}
 NTP3=${NTP3}

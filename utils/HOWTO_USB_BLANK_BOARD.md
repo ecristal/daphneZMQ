@@ -28,16 +28,19 @@ Use these values (same as `ff0b_board_inventory.csv`):
   - GW: `10.73.137.1`
   - MAC ff0b: `ba:be:ba:d1:ca:ff`
   - MAC ff0c: `ba:be:ba:d1:ca:fe`
+  - Endpoint addr: `0x13`
 - `daphne-14`
   - IPv4: `10.73.137.160/24`
   - GW: `10.73.137.1`
   - MAC ff0b: `ba:be:ba:d1:cb:ff`
   - MAC ff0c: `ba:be:ba:d1:cb:fe`
+  - Endpoint addr: `0x14`
 - `daphne-15`
   - IPv4: `10.73.137.16/24`
   - GW: `10.73.137.1`
   - MAC ff0b: `ba:be:ba:d1:cc:ff`
   - MAC ff0c: `ba:be:ba:d1:cc:fe`
+  - Endpoint addr: `0x15`
 
 Common DNS:
 

@@ -17,6 +17,13 @@ DAPHNE_BIN="${DAPHNE_BIN:-$DAPHNE_BUILD_DIR/daphneServer}"
 DAPHNE_BIND="${DAPHNE_BIND:-tcp://*:40001}"
 DAPHNE_UTILS_DIR="${DAPHNE_UTILS_DIR:-$DAPHNE_ROOT/utils}"
 FW_APP="${FW_APP:-}"
+ENDPOINT_ADDR_HEX="${ENDPOINT_ADDR_HEX:-}"
+
+if [ -z "$ENDPOINT_ADDR_HEX" ] && [ -r /etc/default/ff0b-net.conf ]; then
+  # shellcheck disable=SC1091
+  . /etc/default/ff0b-net.conf
+fi
+ENDPOINT_ADDR_HEX="${ENDPOINT_ADDR_HEX:-0x20}"
 
 if [ -z "$FW_APP" ] && command -v xmutil >/dev/null 2>&1; then
   FW_APP=$(
@@ -102,6 +109,7 @@ DAPHNE_FW_STOP_EOF
 
 cat <<DEFAULT_EOF > /etc/default/firmware
 APP=${FW_APP}
+ENDPOINT_ADDR_HEX=${ENDPOINT_ADDR_HEX}
 DEFAULT_EOF
 
 cat <<'DFX_MGRD_EOF' > /etc/systemd/system/dfx-mgrd.service
@@ -172,7 +180,7 @@ Type=oneshot
 # wait a bit to ensure DaphneSlowController is accepting connections
 ExecStartPre=/bin/sleep 5
 WorkingDirectory=${DAPHNE_UTILS_DIR}
-ExecStart=/bin/bash -c '${DAPHNE_UTILS_DIR}/clk_conf.sh && ${DAPHNE_UTILS_DIR}/endpoint.sh --configure --clock endpoint'
+ExecStart=/bin/bash -c '${DAPHNE_UTILS_DIR}/clk_conf.sh && ${DAPHNE_UTILS_DIR}/endpoint.sh --configure --clock endpoint --addr ${ENDPOINT_ADDR_HEX}'
 RemainAfterExit=yes
 StandardOutput=journal
 StandardError=journal
@@ -203,5 +211,6 @@ echo "Configured DAPHNE_ROOT=${DAPHNE_ROOT}"
 echo "Configured DAPHNE_BIN=${DAPHNE_BIN}"
 echo "Configured DAPHNE_UTILS_DIR=${DAPHNE_UTILS_DIR}"
 echo "Configured FW_APP=${FW_APP}"
+echo "Configured ENDPOINT_ADDR_HEX=${ENDPOINT_ADDR_HEX}"
 echo "Disabled and removed legacy spidev/I2C overlay helper units"
 echo "Enabled: firmware.service hermes.service daphne.service endpoint.service"
