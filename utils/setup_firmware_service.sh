@@ -107,6 +107,7 @@ cat <<'HERMES_EOF' > /etc/systemd/system/hermes.service
 Description=Hermes IPBus UDP server (DAPHNE mode)
 After=firmware.service
 Requires=firmware.service
+PartOf=firmware.service
 
 [Service]
 Type=simple
@@ -127,6 +128,7 @@ cat <<DAPHNE_SVC_EOF > /etc/systemd/system/daphne.service
 Description=DAPHNE Slow Controller
 After=hermes.service firmware.service
 Requires=firmware.service
+PartOf=firmware.service
 
 [Service]
 Type=simple
@@ -146,6 +148,7 @@ Description=Configure DAPHNE clock chip and timing endpoint
 # ensure Daphne is fully up before running
 After=daphne.service
 Requires=daphne.service
+PartOf=firmware.service daphne.service
 
 [Service]
 Type=oneshot
