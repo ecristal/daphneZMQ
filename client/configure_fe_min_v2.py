@@ -34,6 +34,47 @@ from client_dictionaries import (
 
 # ----------------- Helpers -----------------
 
+_AFE_COUNT = 5
+_AFE_MIN = 0
+_AFE_MAX = _AFE_COUNT - 1
+_BIAS_DAC_MIN = 0
+_BIAS_DAC_MAX = 4095
+
+
+def bias_volts_to_dac(volts: float) -> int:
+    # Same conversion used in legacy protobuf_configure_vbias_trim.py
+    return int(round((26.1 / (26.1 + 1000.0)) * 1000.0 * volts))
+
+
+def bias_control_volts_to_dac(volts: float) -> int:
+    # Same conversion used in legacy protobuf_configure_vbias_trim.py
+    return int(round((1.0 / 74.0) * volts * 1000.0))
+
+
+def _parse_afe_kv_tokens(tokens: list[str], *, label: str) -> list[tuple[int, float]]:
+    out: list[tuple[int, float]] = []
+    for raw in tokens:
+        for item in str(raw).split(","):
+            item = item.strip()
+            if not item:
+                continue
+            if ":" not in item:
+                raise ValueError(f"{label}: expected AFE:VALUE, got '{item}'")
+            afe_s, value_s = item.split(":", 1)
+            afe = int(afe_s.strip(), 0)
+            if afe < _AFE_MIN or afe > _AFE_MAX:
+                raise ValueError(f"{label}: AFE out of range ({_AFE_MIN}..{_AFE_MAX}), got {afe}")
+            value = float(value_s.strip())
+            out.append((afe, value))
+    return out
+
+
+def _validate_dac_range(name: str, value: int) -> int:
+    if value < _BIAS_DAC_MIN or value > _BIAS_DAC_MAX:
+        raise ValueError(f"{name}: DAC out of range ({_BIAS_DAC_MIN}..{_BIAS_DAC_MAX}), got {value}")
+    return value
+
+
 def set_adc_fields(adc, *, resolution=True, output_format=True, sb_first=True):
     if hasattr(adc, "resolution"):
         adc.resolution = resolution
@@ -194,6 +235,12 @@ def main():
     ap.add_argument("-port", "--port", dest="port", type=int, default=9876, help="Server port")
     ap.add_argument("--route", default="mezz/0", help="Optional logical route")
     ap.add_argument("--timeout", type=int, default=6000, help="Socket timeout (ms)")
+    ap.add_argument(
+        "--cfg-timeout-ms",
+        type=int,
+        default=None,
+        help="ConfigureRequest.timeout_ms sent to server (default: use --timeout)",
+    )
     ap.add_argument("--full", action="store_true", help="Print full ConfigureResponse message")
     ap.add_argument("--json", action="store_true", help="Emit a JSON summary to stdout at the end")
     ap.add_argument("-vgain", type=int, default=1600, help="AFE attenuator code (default 1600)")
@@ -205,6 +252,32 @@ def main():
     ap.add_argument("-lna_gain_control", type=str, choices=lna_gain_control_dict.keys(), default="12 dB")
     ap.add_argument("-lna_input_clamp", type=str, choices=lna_input_clamp_dict.keys(), default="auto")
     ap.add_argument("--adc_resolution", type=int, choices=[0, 1], default=1, help="ADC resolution bit (0/1)")
+    ap.add_argument(
+        "--biasctrl-dac",
+        type=int,
+        default=1300,
+        help="Bias control DAC code (0..4095). Ignored if --biasctrl-volts is given.",
+    )
+    ap.add_argument(
+        "--biasctrl-volts",
+        type=float,
+        default=None,
+        help="Bias control in volts (converted to DAC). Overrides --biasctrl-dac.",
+    )
+    ap.add_argument(
+        "--afe-bias-dac",
+        action="append",
+        default=[],
+        metavar="AFE:VALUE",
+        help="Per-AFE bias DAC override (repeatable or CSV), e.g. --afe-bias-dac 0:1017 --afe-bias-dac 1:1323",
+    )
+    ap.add_argument(
+        "--afe-bias-volts",
+        action="append",
+        default=[],
+        metavar="AFE:VOLT",
+        help="Per-AFE bias volts override (repeatable or CSV), e.g. --afe-bias-volts 0:40 --afe-bias-volts 1:52",
+    )
     args = ap.parse_args()
 
     endpoint = f"tcp://{args.host}:{args.port}"
@@ -213,6 +286,7 @@ def main():
     sock.setsockopt(zmq.IDENTITY, b"client-v2-meta")
     sock.setsockopt(zmq.RCVTIMEO, args.timeout)
     sock.setsockopt(zmq.SNDTIMEO, args.timeout)
+    sock.setsockopt(zmq.LINGER, 0)
     sock.connect(endpoint)
 
     lpf_val = lpf_dict[args.lpf_cutoff]
@@ -221,8 +295,22 @@ def main():
     lna_gain_val = lna_gain_control_dict[args.lna_gain_control]
     lna_clamp_val = lna_input_clamp_dict[args.lna_input_clamp]
 
+    biasctrl_dac = args.biasctrl_dac
+    if args.biasctrl_volts is not None:
+        biasctrl_dac = bias_control_volts_to_dac(args.biasctrl_volts)
+    biasctrl_dac = _validate_dac_range("biasctrl", int(biasctrl_dac))
+
+    afe_bias_overrides: dict[int, int] = {}
+    for afe, value in _parse_afe_kv_tokens(args.afe_bias_dac, label="--afe-bias-dac"):
+        afe_bias_overrides[afe] = _validate_dac_range(f"afe{afe} bias", int(round(value)))
+    for afe, volts in _parse_afe_kv_tokens(args.afe_bias_volts, label="--afe-bias-volts"):
+        afe_bias_overrides[afe] = _validate_dac_range(f"afe{afe} bias", bias_volts_to_dac(volts))
+
+    cfg_timeout_ms = args.timeout if args.cfg_timeout_ms is None else args.cfg_timeout_ms
     cfg = make_default_config(
         ip=args.host,
+        timeout_ms=cfg_timeout_ms,
+        biasctrl=biasctrl_dac,
         per_ch_offset=args.ch_offset,
         vgain=args.vgain,
         lpf_cutoff=lpf_val,
@@ -231,6 +319,10 @@ def main():
         lna_gain=lna_gain_val,
         lna_clamp=lna_clamp_val,
     )
+    if afe_bias_overrides:
+        for afe in cfg.afes:
+            if afe.id in afe_bias_overrides:
+                afe.v_bias = afe_bias_overrides[afe.id]
     for afe in cfg.afes:
         if hasattr(afe.adc, "resolution"):
             afe.adc.resolution = bool(args.adc_resolution)
@@ -239,12 +331,21 @@ def main():
     # Client timestamps & send
     t_send_ns = time.time_ns()
     print_envelope("REQUEST", req)
-    sock.send(req.SerializeToString())
+    try:
+        sock.send(req.SerializeToString())
+    except zmq.Again:
+        print(f"[timeout] send timed out after {args.timeout} ms to {endpoint} route={args.route}")
+        return 3
 
     # Receive multipart; last frame is payload
-    frames = [sock.recv()]
-    while sock.getsockopt(zmq.RCVMORE):
-        frames.append(sock.recv())
+    try:
+        frames = [sock.recv()]
+        while sock.getsockopt(zmq.RCVMORE):
+            frames.append(sock.recv())
+    except zmq.Again:
+        print(f"[timeout] no CONFIGURE_FE response after {args.timeout} ms from {endpoint} route={args.route}")
+        print("Hint: try --timeout 30000 and validate route with client/testreg_v2.py")
+        return 4
     reply_bytes = frames[-1]
     t_recv_ns = time.time_ns()
     rtt_ms = (t_recv_ns - t_send_ns) / 1e6
@@ -289,6 +390,120 @@ def main():
 
     summarize_configure_response(out, full=args.full)
 
+    explicit_bias_writes_json = []
+    if afe_bias_overrides:
+        print("[BIAS_WRITEBACK]")
+        for afe_id, bias_dac in sorted(afe_bias_overrides.items()):
+            wreq = pb_low.cmd_writeAFEBiasSet()
+            wreq.afeBlock = afe_id
+            wreq.biasValue = bias_dac
+
+            wenv = pb_high.ControlEnvelopeV2()
+            wenv.version = 2
+            wenv.dir = pb_high.DIR_REQUEST
+            wenv.type = pb_high.MT2_WRITE_AFE_BIAS_SET_REQ
+            wenv.payload = wreq.SerializeToString()
+            wenv.task_id, wenv.msg_id = next_ids()
+            wenv.timestamp_ns = time.time_ns()
+            wenv.route = args.route
+
+            tw_send = time.time_ns()
+            print_envelope(f"BIAS REQUEST AFE{afe_id}", wenv)
+            try:
+                sock.send(wenv.SerializeToString())
+            except zmq.Again:
+                print(f"[timeout] bias write send timed out for AFE{afe_id} after {args.timeout} ms")
+                return 9
+
+            try:
+                wframes = [sock.recv()]
+                while sock.getsockopt(zmq.RCVMORE):
+                    wframes.append(sock.recv())
+            except zmq.Again:
+                print(f"[timeout] no bias write response for AFE{afe_id} after {args.timeout} ms")
+                return 10
+            wreply_bytes = wframes[-1]
+            tw_recv = time.time_ns()
+            tw_rtt_ms = (tw_recv - tw_send) / 1e6
+
+            wreply = pb_high.ControlEnvelopeV2()
+            if not wreply.ParseFromString(wreply_bytes):
+                print(f"Failed to parse bias write reply envelope for AFE{afe_id}")
+                return 11
+
+            print_envelope(f"BIAS RESPONSE AFE{afe_id}", wreply)
+            print(f"[BIAS_METRICS AFE{afe_id}]")
+            print(f"  client_send_iso  : {ns_to_iso(tw_send)}")
+            print(f"  client_recv_iso  : {ns_to_iso(tw_recv)}")
+            print(f"  client_RTT_ms    : {tw_rtt_ms:.2f}")
+            if wreply.timestamp_ns:
+                print(f"  server_ts_iso    : {ns_to_iso(wreply.timestamp_ns)}")
+            print()
+
+            if wreply.dir != pb_high.DIR_RESPONSE:
+                print(f"Bias write dir mismatch for AFE{afe_id}: got {wreply.dir}")
+                return 12
+            if wreply.type != pb_high.MT2_WRITE_AFE_BIAS_SET_RESP:
+                print(
+                    f"Bias write type mismatch for AFE{afe_id}: "
+                    f"got {wreply.type}, expected {pb_high.MT2_WRITE_AFE_BIAS_SET_RESP}"
+                )
+                return 13
+            if wreply.task_id != wenv.task_id or wreply.correl_id != wenv.msg_id:
+                print(
+                    f"Bias write correlation mismatch for AFE{afe_id}: "
+                    f"task {wreply.task_id}/{wenv.task_id}, correl {wreply.correl_id}/{wenv.msg_id}"
+                )
+                return 14
+
+            wout = pb_low.cmd_writeAFEBiasSet_response()
+            if not wout.ParseFromString(wreply.payload):
+                print(f"Failed to parse cmd_writeAFEBiasSet_response for AFE{afe_id}")
+                return 15
+            print(
+                f"  AFE{afe_id}: success={wout.success} "
+                f"biasValue={getattr(wout, 'biasValue', None)} "
+                f"message={wout.message}"
+            )
+
+            explicit_bias_writes_json.append(
+                {
+                    "afe": afe_id,
+                    "requested_bias_dac": bias_dac,
+                    "request": {
+                        "version": wenv.version,
+                        "dir": int(wenv.dir),
+                        "type": int(wenv.type),
+                        "task_id": wenv.task_id,
+                        "msg_id": wenv.msg_id,
+                        "route": wenv.route,
+                        "timestamp_ns": wenv.timestamp_ns,
+                        "payload_size": len(wenv.payload),
+                    },
+                    "response": {
+                        "version": wreply.version,
+                        "dir": int(wreply.dir),
+                        "type": int(wreply.type),
+                        "task_id": wreply.task_id,
+                        "msg_id": wreply.msg_id,
+                        "correl_id": wreply.correl_id,
+                        "timestamp_ns": wreply.timestamp_ns,
+                        "payload_size": len(wreply.payload),
+                    },
+                    "metrics": {
+                        "client_send_ns": tw_send,
+                        "client_recv_ns": tw_recv,
+                        "rtt_ms": tw_rtt_ms,
+                    },
+                    "write_response": {
+                        "success": wout.success,
+                        "message": wout.message,
+                        "bias_value": getattr(wout, "biasValue", None),
+                    },
+                }
+            )
+        print()
+
     align_json = None
     if args.align_afes:
         align_req = pb_low.cmd_alignAFEs()
@@ -303,11 +518,20 @@ def main():
 
         t_align_send = time.time_ns()
         print_envelope("ALIGN REQUEST", align_env)
-        sock.send(align_env.SerializeToString())
+        try:
+            sock.send(align_env.SerializeToString())
+        except zmq.Again:
+            print(f"[timeout] align send timed out after {args.timeout} ms to {endpoint} route={args.route}")
+            return 7
 
-        align_frames = [sock.recv()]
-        while sock.getsockopt(zmq.RCVMORE):
-            align_frames.append(sock.recv())
+        try:
+            align_frames = [sock.recv()]
+            while sock.getsockopt(zmq.RCVMORE):
+                align_frames.append(sock.recv())
+        except zmq.Again:
+            print(f"[timeout] no ALIGN_AFE response after {args.timeout} ms from {endpoint} route={args.route}")
+            print("Hint: try --timeout 30000")
+            return 8
         align_reply_bytes = align_frames[-1]
         t_align_recv = time.time_ns()
         align_rtt_ms = (t_align_recv - t_align_send) / 1e6
@@ -391,6 +615,8 @@ def main():
         }
         if align_json:
             summary["align"] = align_json
+        if explicit_bias_writes_json:
+            summary["bias_writes"] = explicit_bias_writes_json
         print(json.dumps(summary, indent=2))
 
     return 0 if out.success else 1
