@@ -186,53 +186,59 @@ FpgaRegDict::FpgaRegDict(){
     this->fpgaRegDict["triggerEnableLow"] = {0x14000020, triggerEnableLow_bits};
     this->fpgaRegDict["triggerEnableHigh"] = {0x14000024, triggerEnableHigh_bits};
 
-    BitField idLink_bits = {
-        {"ID", {0, 5}}
-    };
+    // BitField idLink_bits = {
+    //     {"ID", {0, 5}}
+    // };
 
-    BitField idSlot_bits = {
-        {"ID", {0, 3}}
-    };
+    // BitField idSlot_bits = {
+    //     {"ID", {0, 3}}
+    // };
 
-    BitField idCrate_bits = {
-        {"ID", {0, 9}}
-    };
+    // BitField idCrate_bits = {
+    //     {"ID", {0, 9}}
+    // };
 
-    BitField idDetector_bits = {
-        {"ID", {0, 5}}
-    };
+    // BitField idDetector_bits = {
+    //     {"ID", {0, 5}}
+    // };
 
-    BitField idVersion_bits = {
-        {"ID", {0, 5}}
-    };
+    // BitField idVersion_bits = {
+    //     {"ID", {0, 5}}
+    // };
 
-    this->fpgaRegDict["idLink"] = {0x14000028, idLink_bits};
-    this->fpgaRegDict["idSlot"] = {0x1400002C, idSlot_bits};
-    this->fpgaRegDict["idCrate"] = {0x14000030, idCrate_bits};
-    this->fpgaRegDict["idDetector"] = {0x14000034, idDetector_bits};
-    this->fpgaRegDict["idVersion"] = {0x14000038, idVersion_bits};
+    // this->fpgaRegDict["idLink"] = {0x14000028, idLink_bits};
+    // this->fpgaRegDict["idSlot"] = {0x1400002C, idSlot_bits};
+    // this->fpgaRegDict["idCrate"] = {0x14000030, idCrate_bits};
+    // this->fpgaRegDict["idDetector"] = {0x14000034, idDetector_bits};
+    // this->fpgaRegDict["idVersion"] = {0x14000038, idVersion_bits};
 
     BitField adHocTriggerCommand_bits = {
         {"VALUE", {0, 7}}
     };
 
-    this->fpgaRegDict["adHocTriggerCommand"] = {0x1400003C, adHocTriggerCommand_bits};
+    this->fpgaRegDict["adHocTriggerCommand"] = {0x14000028, adHocTriggerCommand_bits};
 
-    BitField selfTriggerFullConfig_bits = {
-        {"VALUE", {0, 31}}
+    BitField spyBufferDeadtimeEnable_bits = {
+        {"VALUE", {0, 0}}
     };
 
-    this->fpgaRegDict["selfTriggerFullConfigLow"] = {0x14000040, selfTriggerFullConfig_bits};
-    this->fpgaRegDict["selfTriggerFullConfigHIGH"] = {0x14000044, selfTriggerFullConfig_bits};
+    this->fpgaRegDict["spyBufferDeadtimeEnable"] = {0x1400002C, spyBufferDeadtimeEnable_bits};
 
-    BitField matchingTriggerTemplate_bits = {
-        {"VALUE", {0, 27}}
-    };
+    // BitField selfTriggerFullConfig_bits = {
+    //     {"VALUE", {0, 31}}
+    // };
 
-    for (int i = 0; i < 16; ++i) {
-        uint32_t offset = i * 0x4;
-        this->fpgaRegDict["matchingTriggerTemplate_" + std::to_string(i)] = {0x14000048 + offset, matchingTriggerTemplate_bits};
-    }
+    // this->fpgaRegDict["selfTriggerFullConfigLow"] = {0x14000040, selfTriggerFullConfig_bits};
+    // this->fpgaRegDict["selfTriggerFullConfigHIGH"] = {0x14000044, selfTriggerFullConfig_bits};
+
+    // BitField matchingTriggerTemplate_bits = {
+    //     {"VALUE", {0, 27}}
+    // };
+
+    // for (int i = 0; i < 16; ++i) {
+    //     uint32_t offset = i * 0x4;
+    //     this->fpgaRegDict["matchingTriggerTemplate_" + std::to_string(i)] = {0x14000048 + offset, matchingTriggerTemplate_bits};
+    // }
 }
 
 FpgaRegDict::~FpgaRegDict(){}

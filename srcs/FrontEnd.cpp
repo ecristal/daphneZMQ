@@ -42,6 +42,11 @@ uint32_t FrontEnd::doTrigger(){
 	return this->fpgaReg->writeRegister("frontendTrigger", 0xBABA);
 }
 
+uint32_t FrontEnd::spyBufferReadoutDeadtimeEnable(const uint32_t& value){
+
+	return this->fpgaReg->setBits("spyBufferDeadtimeEnable", "VALUE", value);
+}
+
 uint32_t FrontEnd::setDelay(const uint8_t& afe,const uint32_t& delay){
 
 	return this->fpgaReg->setBits("frontendDelay_" + std::to_string(afe), "DELAY", delay);

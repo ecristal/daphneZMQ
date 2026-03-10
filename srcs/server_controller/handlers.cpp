@@ -882,8 +882,10 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest& request,
       const uint32_t mapped_channel = afe_block * 8 + afe_channel;
       for (uint32_t j = 0; j < number_of_waveforms; ++j) {
         if (software_trigger) front_end->doTrigger();
+        front_end->spyBufferReadoutDeadtimeEnable(1);
         uint32_t* waveform_start = data_ptr + number_of_samples * j;
         spy_buffer->extractMappedDataBulkSIMD(waveform_start, number_of_samples, mapped_channel);
+        front_end->spyBufferReadoutDeadtimeEnable(0);
       }
     } else {
       std::vector<uint32_t> mapped_channels;
@@ -895,11 +897,13 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest& request,
       }
       for (uint32_t j = 0; j < number_of_waveforms; ++j) {
         if (software_trigger) front_end->doTrigger();
+        front_end->spyBufferReadoutDeadtimeEnable(1);
         for (size_t i = 0; i < mapped_channels.size(); ++i) {
           const uint32_t mapped_channel = mapped_channels[i];
           uint32_t* waveform_start = data_ptr + number_of_samples * (j * mapped_channels.size() + i);
           spy_buffer->extractMappedDataBulkSIMD(waveform_start, number_of_samples, mapped_channel);
         }
+        front_end->spyBufferReadoutDeadtimeEnable(0);
       }
     }
 
