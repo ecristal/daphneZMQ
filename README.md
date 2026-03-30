@@ -85,6 +85,11 @@ Safety knobs:
 - `DAPHNE_MAX_SPYBUFFER_BYTES` caps the non-chunked spybuffer dump response size (default 64 MiB).
 - `DAPHNE_MAX_SPYBUFFER_CHUNK_BYTES` caps per-chunk size for chunked dumps (default 64 MiB).
 
+Frontend alignment and access-safety constraints are documented in
+`docs/frontend-safety-contract.md`. Keep that file in sync with firmware-side
+frontend/control contracts when changing alignment, register use, or optional
+block behavior.
+
 ## ZeroMQ register server
 
 The server provides blocking request/reply access to AXI registers. It accepts the
@@ -149,6 +154,13 @@ Alignment logic (`alignAFE()`):
 - Reset delay control and SERDES, disable delay VTC.
 - For each AFE (0–4), scan delay taps to find the longest stable FCLK window, then scan bitslip 0–15 looking for the exact `0x00FF00FF` pattern. The spy snapshot is taken by writing the frontend trigger magic value `0xBABA` and waiting briefly before reading the 32-bit FCLK word.
 - Re-enable delay VTC and report TAP/BITSLIP per AFE. When invoked via `configure_fe_min_v2.py -align_afes --full`, the response includes the delay window and the full bitslip scan words to aid debugging.
+
+Important frontend assumptions:
+
+- The frontend deserialize boundary is `16-bit`.
+- The required AFE serialization mode is `LSb-first`.
+- `DELAYCTRL_READY` is a prerequisite for trusting alignment.
+- Delay tap programming is only valid while VTC is disabled.
 
 Tuning knobs:
 - Set `DAPHNE_SKIP_CONFIG_RESET=1` to skip the reset/powercycle at the start of configure.
