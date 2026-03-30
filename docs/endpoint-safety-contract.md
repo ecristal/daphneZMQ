@@ -87,6 +87,16 @@ same as endpoint-synchronized running:
 
 ## Safe access policy
 
+The recommended bring-up order is:
+
+1. configure the external clock chip over I2C;
+2. load the PL and wait for FPGA manager `operating`;
+3. switch clock source and pulse MMCM reset if required;
+4. wait for both lock bits;
+5. program endpoint address;
+6. pulse endpoint reset if required;
+7. wait for endpoint-ready condition before starting higher-level services.
+
 When switching timing mode or initializing the endpoint:
 
 1. set clock source deliberately;
@@ -96,6 +106,9 @@ When switching timing mode or initializing the endpoint:
 5. pulse endpoint reset when required;
 6. wait for endpoint-ready condition before treating timing-derived behavior as
    valid downstream.
+
+The external clock-chip step is a board-level prerequisite and should not be
+hidden inside the PL endpoint step.
 
 ## Future work
 

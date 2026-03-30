@@ -52,8 +52,8 @@ fi
 cat <<'SERVICE_EOF' > /etc/systemd/system/firmware.service
 [Unit]
 Description=Program DAPHNE firmware (xmutil)
-After=local-fs.target dfx-mgrd.service
-Wants=dfx-mgrd.service
+After=local-fs.target dfx-mgrd.service clockchip.service
+Wants=dfx-mgrd.service clockchip.service
 Before=hermes.service daphne.service endpoint.service
 
 [Service]
@@ -127,12 +127,31 @@ Restart=on-failure
 WantedBy=multi-user.target
 DFX_MGRD_EOF
 
+cat <<'CLOCKCHIP_EOF' > /etc/systemd/system/clockchip.service
+[Unit]
+Description=Configure DAPHNE external clock chip
+After=local-fs.target
+Wants=local-fs.target
+Before=firmware.service endpoint.service hermes.service daphne.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=${DAPHNE_UTILS_DIR}
+ExecStart=/bin/bash -c '${DAPHNE_UTILS_DIR}/clk_conf.sh'
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+CLOCKCHIP_EOF
+
 cat <<'HERMES_EOF' > /etc/systemd/system/hermes.service
 [Unit]
 Description=Hermes IPBus UDP server (DAPHNE mode)
-After=endpoint.service firmware.service
-Requires=endpoint.service firmware.service
-PartOf=firmware.service
+After=clockchip.service endpoint.service firmware.service
+Requires=clockchip.service endpoint.service firmware.service
+PartOf=clockchip.service firmware.service
 
 [Service]
 Type=simple
@@ -151,9 +170,9 @@ HERMES_EOF
 cat <<DAPHNE_SVC_EOF > /etc/systemd/system/daphne.service
 [Unit]
 Description=DAPHNE Slow Controller
-After=endpoint.service hermes.service firmware.service
-Requires=endpoint.service firmware.service
-PartOf=firmware.service
+After=clockchip.service endpoint.service hermes.service firmware.service
+Requires=clockchip.service endpoint.service firmware.service
+PartOf=clockchip.service firmware.service
 
 [Service]
 Type=simple
@@ -169,16 +188,16 @@ DAPHNE_SVC_EOF
 
 cat <<ENDPOINT_SVC_EOF > /etc/systemd/system/endpoint.service
 [Unit]
-Description=Configure DAPHNE clock chip and timing endpoint
-After=firmware.service
-Requires=firmware.service
+Description=Configure DAPHNE timing endpoint
+After=clockchip.service firmware.service
+Requires=clockchip.service firmware.service
 Before=hermes.service daphne.service
-PartOf=firmware.service
+PartOf=clockchip.service firmware.service
 
 [Service]
 Type=oneshot
 WorkingDirectory=${DAPHNE_UTILS_DIR}
-ExecStart=/bin/bash -c '${DAPHNE_UTILS_DIR}/clk_conf.sh && ${DAPHNE_UTILS_DIR}/endpoint.sh --configure --clock endpoint --addr ${ENDPOINT_ADDR_HEX}'
+ExecStart=/bin/bash -c '${DAPHNE_UTILS_DIR}/endpoint.sh --configure --clock endpoint --addr ${ENDPOINT_ADDR_HEX}'
 RemainAfterExit=yes
 StandardOutput=journal
 StandardError=journal
@@ -191,13 +210,14 @@ ENDPOINT_SVC_EOF
 systemctl disable --now spidev-restore.service 2>/dev/null || true
 rm -f /etc/systemd/system/spidev-restore.service /usr/local/bin/spidev-restore.sh /usr/local/bin/fpga-quiesce.sh
 
-chmod 0644 /etc/systemd/system/firmware.service /etc/systemd/system/dfx-mgrd.service /etc/systemd/system/hermes.service /etc/systemd/system/daphne.service /etc/systemd/system/endpoint.service /etc/default/firmware
+chmod 0644 /etc/systemd/system/firmware.service /etc/systemd/system/clockchip.service /etc/systemd/system/dfx-mgrd.service /etc/systemd/system/hermes.service /etc/systemd/system/daphne.service /etc/systemd/system/endpoint.service /etc/default/firmware
 chmod 0755 /usr/local/bin/daphne-fw.sh /usr/local/bin/daphne-fw-stop.sh
 
 systemctl daemon-reload
-systemctl enable firmware.service hermes.service daphne.service endpoint.service
+systemctl enable clockchip.service firmware.service hermes.service daphne.service endpoint.service
 
 echo "Created /etc/systemd/system/firmware.service"
+echo "Created /etc/systemd/system/clockchip.service"
 echo "Created /usr/local/bin/daphne-fw.sh"
 echo "Created /usr/local/bin/daphne-fw-stop.sh"
 echo "Created /etc/default/firmware"
@@ -211,4 +231,4 @@ echo "Configured DAPHNE_UTILS_DIR=${DAPHNE_UTILS_DIR}"
 echo "Configured FW_APP=${FW_APP}"
 echo "Configured ENDPOINT_ADDR_HEX=${ENDPOINT_ADDR_HEX}"
 echo "Disabled and removed legacy spidev/I2C overlay helper units"
-echo "Enabled: firmware.service hermes.service daphne.service endpoint.service"
+echo "Enabled: clockchip.service firmware.service endpoint.service hermes.service daphne.service"

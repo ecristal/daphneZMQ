@@ -95,6 +95,13 @@ Timing-endpoint readiness and clock-source safety constraints are documented in
 timing contracts when changing endpoint initialization, readiness checks, or
 clock-source behavior.
 
+Recommended bring-up order on target:
+
+1. configure the external clock chip over I2C
+2. load the PL
+3. configure the timing endpoint and wait for ready
+4. start Hermes and the slow-control server
+
 ## ZeroMQ register server
 
 The server provides blocking request/reply access to AXI registers. It accepts the
