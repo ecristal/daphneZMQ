@@ -68,9 +68,23 @@ elif [[ -x /usr/sbin/devmem ]]; then DEVMEM="/usr/sbin/devmem"
 elif [[ -x /usr/bin/devmem ]]; then DEVMEM="/usr/bin/devmem"
 else err "devmem not found"; exit 2; fi
 SUDO=""; [[ $EUID -ne 0 ]] && SUDO="sudo"
+FPGA_STATE_PATH="/sys/class/fpga_manager/fpga0/state"
 
 wr32(){ $SUDO "$DEVMEM" "$1" 32 "$2" >/dev/null; }
 rd32(){ $SUDO "$DEVMEM" "$1"; }
+
+require_fpga_operating(){
+  if [[ ! -r "$FPGA_STATE_PATH" ]]; then
+    err "FPGA manager state file not readable: $FPGA_STATE_PATH"
+    return 2
+  fi
+  local st
+  st=$(cat "$FPGA_STATE_PATH" 2>/dev/null || echo unknown)
+  if [[ "$st" != "operating" ]]; then
+    err "FPGA is not in 'operating' state (state=$st). Load the PL before touching endpoint registers."
+    return 2
+  fi
+}
 
 # ---- Address Map -----------------------------------------------------------
 EP_BASE=0x84000000
@@ -149,12 +163,16 @@ wait_for_lock(){
 }
 
 wait_for_endpoint_ready(){
-  local t_ms="$WAIT_MS" step_ms="$POLL_MS" waited=0 v_hex v st
+  local t_ms="$WAIT_MS" step_ms="$POLL_MS" waited=0 v_hex v st ts_ok
   while (( waited < t_ms )); do
     v_hex=$(rd32 "$(printf '0x%X' "$EP_STAT")"); v=$(( v_hex )); st=$(( v & 0xF ))
+    ts_ok=0; bit_set "$v" 4 && ts_ok=1
     case "$st" in
       0x8|8)
-        ok "Endpoint READY: $(decode_ep_status "$v") (raw=$(printf '0x%X' "$v"))"; return 0;;
+        if (( ts_ok == 1 )); then
+          ok "Endpoint READY: $(decode_ep_status "$v") (raw=$(printf '0x%X' "$v"))"; return 0
+        fi
+        ;;
       0xC|12|0xD|13|0xE|14|0xF|15)
         err "Endpoint ERROR state: $(decode_ep_status "$v") (raw=$v_hex)"; return 2;;
       *) ;;
@@ -223,7 +241,7 @@ set_endpoint_addr(){
   wr32 "$(printf '0x%X' "$EP_CTRL")" $(( addr16 ))            # release reset, keep addr
   local es_hex; es_hex=$(rd32 "$(printf '0x%X' "$EP_STAT")")
   info "Endpoint status: $(decode_ep_status $((es_hex))) (raw=$es_hex)"
-  wait_for_endpoint_ready || true
+  wait_for_endpoint_ready
 }
 
 do_trigger_once(){
@@ -243,21 +261,24 @@ print_status(){
   echo -e "  EP addr (arg): 0x$(printf '%X' $((EP_ADDR_HEX & 0xFFFF)))"
   # Exit codes for quick scripting:
   local st=$(( ep_hex & 0xF ))
+  local ts_ok=0; bit_set "$((ep_hex))" 4 && ts_ok=1
   case "$st" in
-    0x8|8)   return 0 ;;             # READY
+    0x8|8)   (( ts_ok == 1 )) && return 0 || return 1 ;;  # READY only if timestamp valid
     0xC|12|0xD|13|0xE|14|0xF|15) return 2 ;;  # error states
     *)       return 1 ;;             # not ready yet
   esac
 }
 
 # ---- Run -------------------------------------------------------------------
+require_fpga_operating
+
 if (( DO_CONFIG )); then
   head1 "Configuring Timing Endpoint"
   set_clock "$CLOCK_MODE"
   set_endpoint_addr
   (( DO_TRIGGER )) && do_trigger_once
   head1 "Summary"
-  print_status || true
+  print_status
 else
   # Status-only, no writes
   print_status

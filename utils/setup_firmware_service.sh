@@ -130,8 +130,8 @@ DFX_MGRD_EOF
 cat <<'HERMES_EOF' > /etc/systemd/system/hermes.service
 [Unit]
 Description=Hermes IPBus UDP server (DAPHNE mode)
-After=firmware.service
-Requires=firmware.service
+After=endpoint.service firmware.service
+Requires=endpoint.service firmware.service
 PartOf=firmware.service
 
 [Service]
@@ -151,8 +151,8 @@ HERMES_EOF
 cat <<DAPHNE_SVC_EOF > /etc/systemd/system/daphne.service
 [Unit]
 Description=DAPHNE Slow Controller
-After=hermes.service firmware.service
-Requires=firmware.service
+After=endpoint.service hermes.service firmware.service
+Requires=endpoint.service firmware.service
 PartOf=firmware.service
 
 [Service]
@@ -170,15 +170,13 @@ DAPHNE_SVC_EOF
 cat <<ENDPOINT_SVC_EOF > /etc/systemd/system/endpoint.service
 [Unit]
 Description=Configure DAPHNE clock chip and timing endpoint
-# ensure Daphne is fully up before running
-After=daphne.service
-Requires=daphne.service
-PartOf=firmware.service daphne.service
+After=firmware.service
+Requires=firmware.service
+Before=hermes.service daphne.service
+PartOf=firmware.service
 
 [Service]
 Type=oneshot
-# wait a bit to ensure DaphneSlowController is accepting connections
-ExecStartPre=/bin/sleep 5
 WorkingDirectory=${DAPHNE_UTILS_DIR}
 ExecStart=/bin/bash -c '${DAPHNE_UTILS_DIR}/clk_conf.sh && ${DAPHNE_UTILS_DIR}/endpoint.sh --configure --clock endpoint --addr ${ENDPOINT_ADDR_HEX}'
 RemainAfterExit=yes
