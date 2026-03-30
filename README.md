@@ -90,6 +90,11 @@ Frontend alignment and access-safety constraints are documented in
 frontend/control contracts when changing alignment, register use, or optional
 block behavior.
 
+Timing-endpoint readiness and clock-source safety constraints are documented in
+`docs/endpoint-safety-contract.md`. Keep that file in sync with firmware-side
+timing contracts when changing endpoint initialization, readiness checks, or
+clock-source behavior.
+
 ## ZeroMQ register server
 
 The server provides blocking request/reply access to AXI registers. It accepts the
