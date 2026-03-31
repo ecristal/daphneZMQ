@@ -70,3 +70,16 @@ uint32_t FrontEnd::resetDelayCtrlValues(){
 	}
 	return 0;
 }
+
+bool FrontEnd::waitForDelayCtrlReady(std::chrono::milliseconds timeout,
+                                     std::chrono::milliseconds poll){
+    const auto deadline = std::chrono::steady_clock::now() + timeout;
+    do {
+        if (this->getDelayCtrlReady() != 0) {
+            return true;
+        }
+        std::this_thread::sleep_for(poll);
+    } while (std::chrono::steady_clock::now() < deadline);
+
+    return this->getDelayCtrlReady() != 0;
+}

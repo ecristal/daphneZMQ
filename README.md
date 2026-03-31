@@ -164,7 +164,9 @@ The “one-shot” client `client/configure_fe_min_v2.py` sends a CONFIGURE_FE (
 
 Alignment logic (`alignAFE()`):
 - Reset delay control and SERDES, disable delay VTC.
+- Refuse alignment if `DELAYCTRL_READY` does not assert after reset.
 - For each AFE (0–4), scan delay taps to find the longest stable FCLK window, then scan bitslip 0–15 looking for the exact `0x00FF00FF` pattern. The spy snapshot is taken by writing the frontend trigger magic value `0xBABA` and waiting briefly before reading the 32-bit FCLK word.
+- After choosing TAP/BITSLIP, perform a short verification sweep and require the expected `0x00FF00FF` pattern to remain stable. Do not report success for an AFE that only hits the target on a single lucky sample.
 - Re-enable delay VTC and report TAP/BITSLIP per AFE. When invoked via `configure_fe_min_v2.py -align_afes --full`, the response includes the delay window and the full bitslip scan words to aid debugging.
 
 Important frontend assumptions:

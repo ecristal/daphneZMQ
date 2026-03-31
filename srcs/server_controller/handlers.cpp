@@ -924,6 +924,8 @@ bool alignAFE(const cmd_alignAFEs&,
               Daphne& daphne,
               std::string& response_str) {
   try {
+    constexpr uint32_t kExpectedFclkWord = 0x00FF00FFu;
+    constexpr uint32_t kVerificationReads = 4;
     constexpr uint32_t afe_num = 5;
     std::vector<uint32_t> delay(afe_num, 0);
     std::vector<uint32_t> bitslip(afe_num, 0);
@@ -933,13 +935,43 @@ bool alignAFE(const cmd_alignAFEs&,
     daphne.getFrontEnd()->doResetSerDesCtrl();
     daphne.getFrontEnd()->setEnableDelayVtc(0);
 
+    if (!daphne.getFrontEnd()->waitForDelayCtrlReady()) {
+      throw std::runtime_error("DELAYCTRL_READY did not assert after reset; refusing alignment.");
+    }
+
     std::string report;
+    std::vector<std::string> failures;
     for (uint32_t afe_block = 0; afe_block < afe_num; ++afe_block) {
       std::string delay_dbg;
       std::string bitslip_dbg;
+      bool matched = false;
       daphne.setBestDelay(afe_block, 512, &delay_dbg);
-      daphne.setBestBitslip(afe_block, 16, &bitslip_dbg);
+      const uint32_t aligned_word = daphne.setBestBitslip(afe_block, 16, &bitslip_dbg, &matched);
       report += delay_dbg + bitslip_dbg;
+
+      bool verification_ok = matched;
+      report += "  VERIFY_SCAN:";
+      for (uint32_t i = 0; i < kVerificationReads; ++i) {
+        daphne.getFrontEnd()->doTrigger();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        const uint32_t verify_word = daphne.getSpyBuffer()->getFrameClock(afe_block, 0);
+        report += " [" + std::to_string(i) + "]=0x" +
+                  [&]() {
+                    std::ostringstream os;
+                    os << std::hex << std::uppercase << verify_word;
+                    return os.str();
+                  }();
+        if (verify_word != kExpectedFclkWord) {
+          verification_ok = false;
+        }
+      }
+      report += "\n";
+
+      if (!matched || aligned_word != kExpectedFclkWord || !verification_ok) {
+        failures.push_back(
+            "AFE_" + std::to_string(afe_block) +
+            " did not converge to stable 0x00FF00FF alignment.");
+      }
     }
 
     response.clear_delay();
@@ -954,6 +986,15 @@ bool alignAFE(const cmd_alignAFEs&,
     }
 
     daphne.getFrontEnd()->setEnableDelayVtc(1);
+    if (!failures.empty()) {
+      response_str = "AFE alignment failed.\n";
+      for (const auto& failure : failures) {
+        response_str += failure + "\n";
+      }
+      response_str += "\n" + report;
+      return false;
+    }
+
     response_str = "AFEs aligned.\n" + report;
     return true;
   } catch (const std::exception& e) {

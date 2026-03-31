@@ -60,6 +60,18 @@ The frontend alignment procedure assumes:
 
 These are operational constraints, not just implementation details.
 
+### Alignment acceptance criteria
+
+Alignment must not be reported as successful unless:
+
+- `DELAYCTRL_READY == 1` after reset;
+- the bitslip scan finds the expected `0x00FF00FF` pattern for each AFE;
+- a short post-alignment verification sequence continues to read
+  `0x00FF00FF` rather than succeeding on a single lucky sample.
+
+This is the minimum software-side guardrail against returning "aligned" while a
+chip is still marginal or misaligned.
+
 ### Training-pattern expectation
 
 The software bitslip search currently looks for:
@@ -105,3 +117,5 @@ extend to other optional blocks.
   inferring readiness only from procedural sequencing.
 - Keep this file aligned with the firmware-side frontend and control-plane
   contracts during modularization.
+- Consider promoting post-alignment stability metrics to structured response
+  fields instead of keeping them only in the diagnostic text report.

@@ -232,7 +232,7 @@ int Daphne::findIndex(const std::vector<T>& data, const T& target){
 	}
 }
 
-uint32_t Daphne::setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps, std::string* debug_out){
+uint32_t Daphne::setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps, std::string* debug_out, bool* matched_out){
 
 	const uint32_t initialBitslip = this->frontend->getBitslip(afe);
 
@@ -247,9 +247,10 @@ uint32_t Daphne::setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps, 
 		return word == kTarget32;
 	});
 	int bestBitslip = (it != data.end()) ? static_cast<int>(std::distance(data.begin(), it)) : -1;
+    const bool matched = (bestBitslip >= 0);
 
 	uint32_t finalBitslip = initialBitslip;
-	if (bestBitslip >= 0) {
+	if (matched) {
 		finalBitslip = static_cast<uint32_t>(bestBitslip);
 	} else {
 		std::cerr << "Warning: setBestBitslip could not find expected pattern for AFE "
@@ -269,6 +270,9 @@ uint32_t Daphne::setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps, 
 	this->frontend->setBitslip(afe, finalBitslip);
 	this->frontend->doTrigger();
 	uint32_t value = this->spyBuffer->getFrameClock(afe, 0);
+    if (matched_out) {
+        *matched_out = matched;
+    }
 	return value;
 }
 
