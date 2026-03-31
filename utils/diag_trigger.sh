@@ -8,7 +8,7 @@ set -euo pipefail
 BASE=0xA0010000
 STRIDE=0x20        # 32 bytes per channel block
 NUM_CH=40
-MASK_10BIT=0x3FF
+THRESH_MASK=0x0FFFFFFF
 
 # Offsets within each 0x20 block
 OFF_THR=0x00
@@ -64,13 +64,13 @@ read64() { # args: ch off_lo off_hi -> echo decimal
   echo $(( (hi<<32) | lo ))
 }
 
-read_thr() { # ch -> dec (masked)
+read_thr() { # ch -> dec (masked to threshold_xc field)
   local ch=$1 a=$(addr "$ch" "$OFF_THR")
   local v_hex=$(rd32 "$a"); v=${v_hex#0x}; v=$((16#$v))
-  echo $(( v & MASK_10BIT ))
+  echo $(( v & THRESH_MASK ))
 }
 
-write_thr() { # ch value(0..1023)
+write_thr() { # ch value(0..0x0FFFFFFF)
   local ch=$1 val=$2 a=$(addr "$ch" "$OFF_THR")
   wr32 "$a" "$(printf "0x%X" "$val")"
 }
@@ -87,7 +87,7 @@ Usage:
   $0 rate        [-c CHSPEC] [-i SEC] [-n N] [--base 0xADDR]
 
 Where CHSPEC is: "0", "0-7", "0,4,7", or "all" (default: all)
-VALUE accepts decimal or hex (e.g. 512 or 0x200). Only low 10 bits are meaningful.
+VALUE accepts decimal or hex (e.g. 512 or 0x200). The writable threshold field is bits 27:0.
 rate: samples counters every SEC seconds (default 1) for N iterations (default 1).
 
 Examples:
@@ -124,7 +124,7 @@ case "$cmd" in
       bsy=$(read64 "$ch" "$OFF_BSY_LO" "$OFF_BSY_HI")
       ful=$(read64 "$ch" "$OFF_FUL_LO" "$OFF_FUL_HI")
       printf "%-3d %-10s %-10d %-20d %-20d %-20d\n" \
-        "$ch" "$(printf '0x%03X' "$thr_dec")" "$thr_dec" "$rec" "$bsy" "$ful"
+        "$ch" "$(printf '0x%08X' "$thr_dec")" "$thr_dec" "$rec" "$bsy" "$ful"
     done
     ;;
 
@@ -132,21 +132,24 @@ case "$cmd" in
     printf "%-3s %-10s %-10s\n" "ch" "thr(hex)" "thr(dec)"
     for ch in "${CHANNELS[@]}"; do
       thr_dec=$(read_thr "$ch")
-      printf "%-3d %-10s %-10d\n" "$ch" "$(printf '0x%03X' "$thr_dec")" "$thr_dec"
+      printf "%-3d %-10s %-10d\n" "$ch" "$(printf '0x%08X' "$thr_dec")" "$thr_dec"
     done
     ;;
 
   set-thr)
     [[ -z "$VAL" ]] && { echo "set-thr requires -v VALUE" >&2; exit 2; }
     VAL_DEC=$(to_dec "$VAL")
-    (( VAL_DEC < 0 || VAL_DEC > 1023 )) && { echo "VALUE out of range (0..1023): $VAL" >&2; exit 2; }
-    echo "Writing threshold $(printf '0x%03X' "$VAL_DEC") ($VAL_DEC) to channels: ${CHANNELS[*]}"
+    (( VAL_DEC < 0 || VAL_DEC > 0x0FFFFFFF )) && {
+      echo "VALUE out of range (0..0x0FFFFFFF): $VAL" >&2
+      exit 2
+    }
+    echo "Writing threshold $(printf '0x%08X' "$VAL_DEC") ($VAL_DEC) to channels: ${CHANNELS[*]}"
     for ch in "${CHANNELS[@]}"; do
       a=$(addr "$ch" "$OFF_THR")
       write_thr "$ch" "$VAL_DEC"
       rb=$(read_thr "$ch")
-      printf "  ch %2d @ %s <- %s  [readback: 0x%03X (%d)]\n" \
-        "$ch" "$a" "$(printf '0x%03X' "$VAL_DEC")" "$rb" "$rb"
+      printf "  ch %2d @ %s <- %s  [readback: 0x%08X (%d)]\n" \
+        "$ch" "$a" "$(printf '0x%08X' "$VAL_DEC")" "$rb" "$rb"
     done
     ;;
 

@@ -128,12 +128,12 @@ def main():
         print("No snapshots returned.")
         return
 
-    cols = ("CH","THR(10b)","REC_CNT","BSY_CNT","FUL_CNT")
+    cols = ("CH","THR(28b)","REC_CNT","BSY_CNT","FUL_CNT")
     widths = (4,9,16,16,16)
     def row(vals): return " ".join(f"{str(v):>{w}}" for v,w in zip(vals,widths))
     print("\n"+row(cols)); print(row("-"*w for w in widths))
     for s in sorted(snaps, key=lambda t: t.channel):
-        print(row((s.channel, s.threshold & 0x3FF,
+        print(row((s.channel, s.threshold,
                    f"{s.record_count:,}".replace(",","_"),
                    f"{s.busy_count:,}".replace(",","_"),
                    f"{s.full_count:,}".replace(",","_"))))

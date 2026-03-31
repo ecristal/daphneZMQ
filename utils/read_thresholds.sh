@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Read consecutive threshold registers with devmem and print a table.
-# New map: step=32 (0x20), 10-bit thresholds -> mask=0x3FF
+# New map: step=32 (0x20), threshold_xc uses bits 27:0 by default.
 # Usage: ./read_thresholds.sh [BASE] [CHANNELS] [STEP] [WIDTH] [MASK]
 
 set -euo pipefail
@@ -9,7 +9,7 @@ BASE="${1:-0xA0010000}"
 CHANNELS="${2:-40}"
 STEP="${3:-32}"       # 0x20 bytes per channel
 WIDTH="${4:-32}"      # devmem access width: 8/16/32
-MASK="${5:-0x3FF}"    # 10-bit thresholds
+MASK="${5:-0x0FFFFFFF}"    # THRESH_S_AXI threshold_xc field
 
 printf "%-7s %-12s %-10s %-10s %-10s\n" "ch" "address" "hex" "dec" "dec&mask"
 printf "%-7s %-12s %-10s %-10s %-10s\n" "------" "------------" "----------" "----------" "----------"
