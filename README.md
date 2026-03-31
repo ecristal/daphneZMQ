@@ -95,6 +95,9 @@ Timing-endpoint readiness and clock-source safety constraints are documented in
 timing contracts when changing endpoint initialization, readiness checks, or
 clock-source behavior.
 
+Target-side compile, service installation, and bring-up validation steps are
+documented in `docs/bringup-validation.md`.
+
 Recommended bring-up order on target:
 
 1. configure the external clock chip over I2C
