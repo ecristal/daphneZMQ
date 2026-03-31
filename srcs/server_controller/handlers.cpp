@@ -149,7 +149,7 @@ constexpr uint32_t OFF_BSY_LO = 0x0Cu;
 constexpr uint32_t OFF_BSY_HI = 0x10u;
 constexpr uint32_t OFF_FUL_LO = 0x14u;
 constexpr uint32_t OFF_FUL_HI = 0x18u;
-constexpr uint32_t MASK_10BIT = 0x3FFu;
+constexpr uint32_t THRESH_MASK = 0x0FFFFFFFu;
 constexpr uint32_t MASK_REG_LOW = 0x94000020u;
 constexpr uint32_t MASK_REG_HIGH = 0x94000024u;
 }  // namespace trigregs
@@ -201,7 +201,7 @@ bool read_counters_raw(uint32_t base,
     const uint32_t b = base + ch * trigregs::STRIDE;
     auto* s = resp.add_snapshots();
     s->set_channel(ch);
-    s->set_threshold(rd32(b + trigregs::OFF_THR) & trigregs::MASK_10BIT);
+    s->set_threshold(rd32(b + trigregs::OFF_THR) & trigregs::THRESH_MASK);
     s->set_record_count(rd64(b + trigregs::OFF_REC_LO, b + trigregs::OFF_REC_HI));
     s->set_busy_count(rd64(b + trigregs::OFF_BSY_LO, b + trigregs::OFF_BSY_HI));
     s->set_full_count(rd64(b + trigregs::OFF_FUL_LO, b + trigregs::OFF_FUL_HI));
@@ -236,10 +236,12 @@ bool write_trigger_thresholds(const ConfigureRequest& cfg, std::string& response
     }
   }
 
-  uint32_t thr_val = static_cast<uint32_t>(cfg.self_trigger_threshold());
-  if (thr_val > 0x3FFF) {
-    out << "Requested threshold " << thr_val << " exceeds 14-bit range; clamping to 16383.\n";
-    thr_val = 0x3FFF;
+  const uint64_t requested_thr = cfg.self_trigger_threshold();
+  uint32_t thr_val = static_cast<uint32_t>(requested_thr & trigregs::THRESH_MASK);
+  if (requested_thr > static_cast<uint64_t>(trigregs::THRESH_MASK)) {
+    out << "Requested threshold " << requested_thr
+        << " exceeds 28-bit THRESH_S_AXI range; clamping to 0x0FFFFFFF.\n";
+    thr_val = trigregs::THRESH_MASK;
   }
 
   try {
@@ -250,7 +252,8 @@ bool write_trigger_thresholds(const ConfigureRequest& cfg, std::string& response
       const size_t off = static_cast<size_t>(ch) * trigregs::STRIDE + trigregs::OFF_THR;
       thr_mem.write(off, std::vector<uint32_t>{thr_val});
     }
-    out << "Trigger threshold 0x" << std::hex << thr_val << std::dec << " written to channels:";
+    out << "Trigger threshold_xc 0x" << std::hex << thr_val << std::dec
+        << " written to channels:";
     for (const auto ch : channels) out << " " << ch;
     out << ".\n";
   } catch (const std::exception& e) {

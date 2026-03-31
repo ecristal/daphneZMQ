@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # Write a value to a list/range of channels using the new 0x20-per-channel map.
-# Threshold is at +0x00 in each channel block, 10-bit R/W (mask 0x3FF by default).
+# Threshold is at +0x00 in each channel block, using bits 27:0 by default.
 #
 # Examples:
 #   ./write_thresholds.sh 0xA0010000 0x000003E8 0,3,7,10-15 --verify
 #   ./write_thresholds.sh 0xA0010000 800   0-39 --verify         # decimal value
-#   ./write_thresholds.sh 0xA0010000 0x2AA 5,6 --no-mask         # skip 10-bit mask
+#   ./write_thresholds.sh 0xA0010000 0x2AA 5,6 --no-mask         # skip default 28-bit mask
 #   ./write_thresholds.sh 0xA0010000 0x1   0-7  --offset 0x04    # (advanced) write record_lo
 
 set -euo pipefail
 
 usage() {
-  echo "Usage: $0 <base_hex> <value> <channels> [--width 32] [--step 32] [--offset 0x00] [--mask 0x3FF|--no-mask] [--verify]"
+  echo "Usage: $0 <base_hex> <value> <channels> [--width 32] [--step 32] [--offset 0x00] [--mask 0x0FFFFFFF|--no-mask] [--verify]"
   echo "  channels: comma-separated list; ranges allowed, e.g. 0,3,7-10"
   exit 1
 }
@@ -25,7 +25,7 @@ CH_SPEC="$1"; shift
 WIDTH=32
 STEP=32             # 0x20 bytes per-channel block
 OFFSET=0x00         # threshold lives at +0x00 within each block
-MASK=0x3FF          # 10-bit threshold
+MASK=0x0FFFFFFF     # THRESH_S_AXI threshold_xc field
 APPLY_MASK=1
 VERIFY=0
 
