@@ -24,11 +24,13 @@ TS_PROBE_N=0                # number of timestamp samples (0 = disabled)
 TS_INTERVAL_MS=10           # ms between timestamp samples
 WAIT_MS=1000                # wait for READY (configure path)
 POLL_MS=100                 # poll interval
+SUCCESS_STATES="${ENDPOINT_SUCCESS_STATES:-0x8}"  # comma-separated endpoint states accepted as success
 
 usage() {
   cat <<EOF
 Usage: sudo bash $0 [--configure] [--trigger] [--addr 0x20] [--clock endpoint|local]
                    [-t N] [--ts-interval-ms MS] [--wait-ms MS] [--poll-ms MS]
+                   [--success-states 0x6,0x8]
 Modes:
   (default)   Status-only (read-only): prints clock+endpoint state and exits
   --configure Bring-up: select clock, pulse resets, set endpoint addr, optional trigger
@@ -42,6 +44,8 @@ Options:
   --ts-interval-ms MS   Interval between ts samples (default ${TS_INTERVAL_MS})
   --wait-ms MS          Wait budget for lock/READY (default ${WAIT_MS})
   --poll-ms MS          Poll interval (default ${POLL_MS})
+  --success-states LIST Comma-separated endpoint FSM states accepted as success
+                        in both status and configure modes (default ${SUCCESS_STATES})
   -h, --help            Show this help
 EOF
 }
@@ -57,6 +61,7 @@ while [[ $# -gt 0 ]]; do
     --ts-interval-ms)    TS_INTERVAL_MS="$2"; shift 2 ;;
     --wait-ms)           WAIT_MS="$2"; shift 2 ;;
     --poll-ms)           POLL_MS="$2"; shift 2 ;;
+    --success-states)    SUCCESS_STATES="$2"; shift 2 ;;
     -h|--help)           usage; exit 0 ;;
     *) err "Unknown option: $1"; usage; exit 2 ;;
   esac
@@ -150,6 +155,22 @@ msleep(){
   fi
 }
 
+state_in_success_list(){
+  local target="$1"
+  local old_ifs="$IFS"
+  local token
+  IFS=', '
+  for token in $SUCCESS_STATES; do
+    [[ -z "$token" ]] && continue
+    if (( target == token )); then
+      IFS="$old_ifs"
+      return 0
+    fi
+  done
+  IFS="$old_ifs"
+  return 1
+}
+
 wait_for_lock(){
   local t_ms="$WAIT_MS" step_ms="$POLL_MS" waited=0 v_hex v
   while (( waited < t_ms )); do
@@ -169,13 +190,17 @@ wait_for_endpoint_ready(){
     ts_ok=0; bit_set "$v" 4 && ts_ok=1
     case "$st" in
       0x8|8)
-        if (( ts_ok == 1 )); then
+        if (( ts_ok == 1 )) && state_in_success_list "$st"; then
           ok "Endpoint READY: $(decode_ep_status "$v") (raw=$(printf '0x%X' "$v"))"; return 0
         fi
         ;;
       0xC|12|0xD|13|0xE|14|0xF|15)
         err "Endpoint ERROR state: $(decode_ep_status "$v") (raw=$v_hex)"; return 2;;
-      *) ;;
+      *)
+        if state_in_success_list "$st"; then
+          ok "Endpoint in accepted configured state: $(decode_ep_status "$v") (raw=$(printf '0x%X' "$v"))"; return 0
+        fi
+        ;;
     esac
     msleep "$step_ms"; (( waited += step_ms ))
   done
@@ -263,9 +288,9 @@ print_status(){
   local st=$(( ep_hex & 0xF ))
   local ts_ok=0; bit_set "$((ep_hex))" 4 && ts_ok=1
   case "$st" in
-    0x8|8)   (( ts_ok == 1 )) && return 0 || return 1 ;;  # READY only if timestamp valid
+    0x8|8)   (( ts_ok == 1 )) && state_in_success_list "$st" && return 0 || return 1 ;;
     0xC|12|0xD|13|0xE|14|0xF|15) return 2 ;;  # error states
-    *)       return 1 ;;             # not ready yet
+    *)       state_in_success_list "$st" && return 0 || return 1 ;;
   esac
 }
 

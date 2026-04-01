@@ -18,6 +18,8 @@ DAPHNE_BIND="${DAPHNE_BIND:-tcp://*:40001}"
 DAPHNE_UTILS_DIR="${DAPHNE_UTILS_DIR:-$DAPHNE_ROOT/utils}"
 FW_APP="${FW_APP:-}"
 ENDPOINT_ADDR_HEX="${ENDPOINT_ADDR_HEX:-}"
+ENDPOINT_WAIT_MS="${ENDPOINT_WAIT_MS:-1000}"
+ENDPOINT_SUCCESS_STATES="${ENDPOINT_SUCCESS_STATES:-0x8}"
 
 if [ -z "$ENDPOINT_ADDR_HEX" ] && [ -r /etc/default/ff0b-net.conf ]; then
   # shellcheck disable=SC1091
@@ -110,6 +112,8 @@ DAPHNE_FW_STOP_EOF
 cat <<DEFAULT_EOF > /etc/default/firmware
 APP=${FW_APP}
 ENDPOINT_ADDR_HEX=${ENDPOINT_ADDR_HEX}
+ENDPOINT_WAIT_MS=${ENDPOINT_WAIT_MS}
+ENDPOINT_SUCCESS_STATES=${ENDPOINT_SUCCESS_STATES}
 DEFAULT_EOF
 
 cat <<'DFX_MGRD_EOF' > /etc/systemd/system/dfx-mgrd.service
@@ -127,7 +131,7 @@ Restart=on-failure
 WantedBy=multi-user.target
 DFX_MGRD_EOF
 
-cat <<'CLOCKCHIP_EOF' > /etc/systemd/system/clockchip.service
+cat <<CLOCKCHIP_EOF > /etc/systemd/system/clockchip.service
 [Unit]
 Description=Configure DAPHNE external clock chip
 After=local-fs.target
@@ -196,8 +200,10 @@ PartOf=clockchip.service firmware.service
 
 [Service]
 Type=oneshot
+EnvironmentFile=/etc/default/firmware
 WorkingDirectory=${DAPHNE_UTILS_DIR}
-ExecStart=/bin/bash -c '${DAPHNE_UTILS_DIR}/endpoint.sh --configure --clock endpoint --addr ${ENDPOINT_ADDR_HEX}'
+ExecStart=/bin/bash -c '${DAPHNE_UTILS_DIR}/endpoint.sh --configure --clock endpoint --addr "${ENDPOINT_ADDR_HEX}" --wait-ms "${ENDPOINT_WAIT_MS}" --success-states "${ENDPOINT_SUCCESS_STATES}"'
+TimeoutStartSec=300
 RemainAfterExit=yes
 StandardOutput=journal
 StandardError=journal
@@ -230,5 +236,7 @@ echo "Configured DAPHNE_BIN=${DAPHNE_BIN}"
 echo "Configured DAPHNE_UTILS_DIR=${DAPHNE_UTILS_DIR}"
 echo "Configured FW_APP=${FW_APP}"
 echo "Configured ENDPOINT_ADDR_HEX=${ENDPOINT_ADDR_HEX}"
+echo "Configured ENDPOINT_WAIT_MS=${ENDPOINT_WAIT_MS}"
+echo "Configured ENDPOINT_SUCCESS_STATES=${ENDPOINT_SUCCESS_STATES}"
 echo "Disabled and removed legacy spidev/I2C overlay helper units"
 echo "Enabled: clockchip.service firmware.service endpoint.service hermes.service daphne.service"

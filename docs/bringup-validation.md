@@ -60,11 +60,17 @@ sudo DAPHNE_ROOT="$PWD" \
      DAPHNE_BIN="$PWD/build-petalinux/daphneServer" \
      FW_APP=MEZ_SELF_TRIG_V15_OL_UPGRADED \
      ENDPOINT_ADDR_HEX=0x20 \
+     ENDPOINT_SUCCESS_STATES=0x8 \
      ./utils/setup_firmware_service.sh
 ```
 
 Adjust `FW_APP` and `ENDPOINT_ADDR_HEX` if your board inventory requires a
 different overlay or endpoint address.
+
+If a board is expected to pause in a non-error endpoint FSM state while waiting
+for an external timing action, set `ENDPOINT_SUCCESS_STATES` accordingly. For
+example, `ENDPOINT_SUCCESS_STATES=0x6,0x8` treats `ST_W_SETUP` and full ready
+as acceptable endpoint outcomes for the service chain.
 
 ## 3. Restart and validate the chain
 
@@ -125,6 +131,9 @@ The important point for this stage is not physics-quality data taking; it is:
 - `endpoint.service` failure:
   do not continue to Hermes or `daphneServer`; inspect MMCM lock, endpoint
   state, and timestamp validity first.
+- `endpoint.service` success with a non-ready state:
+  this can be intentional if `ENDPOINT_SUCCESS_STATES` includes an accepted
+  waiting state such as `0x6` (`ST_W_SETUP`) for a board-specific workflow.
 - `daphne.service` failure with healthy endpoint:
   usually means a userspace build/dependency/runtime issue rather than a PL
   bring-up issue.

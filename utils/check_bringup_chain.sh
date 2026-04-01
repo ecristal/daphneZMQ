@@ -38,6 +38,7 @@ fi
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 ENDPOINT_SH="${SCRIPT_DIR}/endpoint.sh"
 FPGA_STATE_PATH="/sys/class/fpga_manager/fpga0/state"
+ENDPOINT_SUCCESS_STATES=0x8
 SERVICES=(
   clockchip.service
   firmware.service
@@ -50,6 +51,12 @@ if [[ ! -x "$ENDPOINT_SH" ]]; then
   echo "ERROR: missing endpoint helper at $ENDPOINT_SH" >&2
   exit 2
 fi
+
+if [[ -r /etc/default/firmware ]]; then
+  # shellcheck disable=SC1091
+  . /etc/default/firmware
+fi
+ENDPOINT_SUCCESS_STATES="${ENDPOINT_SUCCESS_STATES:-0x8}"
 
 show_service_state() {
   local unit="$1"
@@ -97,7 +104,7 @@ fi
 echo
 echo "Endpoint status probe"
 echo "====================="
-"$ENDPOINT_SH" -t "$TS_SAMPLES"
+"$ENDPOINT_SH" --success-states "$ENDPOINT_SUCCESS_STATES" -t "$TS_SAMPLES"
 
 for unit in "${SERVICES[@]}"; do
   show_journal_tail "$unit"
