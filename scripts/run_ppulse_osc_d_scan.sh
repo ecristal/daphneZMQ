@@ -13,6 +13,7 @@ OSC_IP="${OSC_IP:-127.0.0.1}"
 OSC_PORT="${OSC_PORT:-9876}"
 OSC_ROUTE="${OSC_ROUTE:-mezz/0}"
 OSC_CHANNELS="${OSC_CHANNELS:-0}"
+ACQ_MODE="${ACQ_MODE:-headless}"
 WAVEFORM_LEN="${WAVEFORM_LEN:-2048}"
 MAX_WAVEFORMS="${MAX_WAVEFORMS:-100}"
 OSC_PERIOD_MS="${OSC_PERIOD_MS:-20}"
@@ -58,6 +59,7 @@ Default osc settings:
   OSC_PORT=9876
   OSC_ROUTE=mezz/0
   OSC_CHANNELS=0
+  ACQ_MODE=headless
   WAVEFORM_LEN=2048
   MAX_WAVEFORMS=100
 
@@ -70,6 +72,7 @@ Environment overrides:
   OSC_PORT=9876
   OSC_ROUTE=mezz/0
   OSC_CHANNELS=0,1,2,3
+  ACQ_MODE=headless   # headless | gui
   WAVEFORM_LEN=2048
   MAX_WAVEFORMS=100
   OSC_PERIOD_MS=20
@@ -116,6 +119,11 @@ fi
 
 if (( MAX_WAVEFORMS <= 0 )); then
   echo "MAX_WAVEFORMS must be > 0." >&2
+  exit 2
+fi
+
+if [[ "$ACQ_MODE" != "headless" && "$ACQ_MODE" != "gui" ]]; then
+  echo "ACQ_MODE must be 'headless' or 'gui'." >&2
   exit 2
 fi
 
@@ -183,10 +191,37 @@ EOF
   SSH_PID="$!"
 }
 
-start_osc() {
+start_acquisition() {
   local point_dir="$1"
   local d_value="$2"
   local logfile="$3"
+
+  if [[ "$ACQ_MODE" == "headless" ]]; then
+    local -a cmd
+    cmd=(
+      "$PYTHON"
+      "$ROOT_DIR/client/protobuf_acquire_list_channels.py"
+      -ip "$OSC_IP"
+      -port "$OSC_PORT"
+      -foldername "$point_dir"
+      -channel_list "$OSC_CHANNELS"
+      -N "$MAX_WAVEFORMS"
+      -L "$WAVEFORM_LEN"
+      --timeout_ms "$OSC_TIMEOUT_MS"
+      --route "$OSC_ROUTE"
+      --osc_mode
+    )
+    if [[ "$SOFTWARE_TRIGGER" == "1" ]]; then
+      cmd+=(-software_trigger)
+    fi
+    if [[ "$ENABLE_FFT" == "1" ]]; then
+      echo "[warn] ENABLE_FFT is ignored in ACQ_MODE=headless" >>"$logfile"
+    fi
+    "${cmd[@]}" >>"$logfile" 2>&1 &
+    OSC_PID="$!"
+    return
+  fi
+
   local -a cmd
   cmd=(
     "$PYTHON"
@@ -234,6 +269,7 @@ write_scan_manifest() {
     echo "created_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     echo "ssh_target=$SSH_TARGET"
     echo "ppulse_template=$PPULSE_TEMPLATE"
+    echo "acq_mode=$ACQ_MODE"
     echo "osc_ip=$OSC_IP"
     echo "osc_port=$OSC_PORT"
     echo "osc_route=$OSC_ROUTE"
@@ -254,6 +290,7 @@ write_point_metadata() {
     echo "d_value=$d_value"
     echo "ssh_target=$SSH_TARGET"
     echo "ppulse_command=${PPULSE_TEMPLATE//\{d\}/$d_value}"
+    echo "acq_mode=$ACQ_MODE"
     echo "osc_channels=$OSC_CHANNELS"
     echo "waveform_len=$WAVEFORM_LEN"
     echo "max_waveforms=$MAX_WAVEFORMS"
@@ -270,12 +307,12 @@ while :; do
   write_point_metadata "$point_dir" "$current_value"
 
   ppulse_log="$point_dir/ppulse.log"
-  osc_log="$point_dir/osc.log"
+  osc_log="$point_dir/acquire.log"
 
   echo "[scan] d=$current_value -> $point_dir"
   start_remote_ppulse "$current_value" "$ppulse_log"
   sleep "$PPULSE_STARTUP_S"
-  start_osc "$point_dir" "$current_value" "$osc_log"
+  start_acquisition "$point_dir" "$current_value" "$osc_log"
 
   osc_status=0
   wait "$OSC_PID" || osc_status=$?
