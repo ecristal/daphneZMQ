@@ -251,6 +251,7 @@ class AcquisitionWorker(QtCore.QObject):
     telemetry = QtCore.pyqtSignal(object)
     fft_update = QtCore.pyqtSignal(object, int)  # (dBFS spectrum, number of averaged waveforms)
     plot_update = QtCore.pyqtSignal(object, float, int, int)  # (yk, rtt_ms, frame_id, t_ns)
+    acquisition_finished = QtCore.pyqtSignal(str)
 
     def __init__(
         self,
@@ -260,6 +261,7 @@ class AcquisitionWorker(QtCore.QObject):
         timeout_ms,
         req,
         period_ms,
+        max_waveforms=0,
         save_queue=None,
         save_health_checker=None,
         fft_config=None,
@@ -271,6 +273,7 @@ class AcquisitionWorker(QtCore.QObject):
         self.timeout_ms = max(1, int(timeout_ms))
         self.req = req
         self.period_ms = max(1, int(period_ms))
+        self.max_waveforms = max(0, int(max_waveforms))
 
         self.save_queue = save_queue
         self.save_health_checker = save_health_checker
@@ -300,6 +303,14 @@ class AcquisitionWorker(QtCore.QObject):
         self._fft_frames = 0
 
         self._setup_fft()
+
+    def _finish_acquisition(self, message):
+        self.status.emit(message)
+        self._emit_telemetry(force=True)
+        self._stop_evt.set()
+        if self._timer is not None:
+            self._timer.stop()
+        self.acquisition_finished.emit(message)
 
     def _setup_fft(self):
         if not self._fft_enabled:
@@ -464,6 +475,9 @@ class AcquisitionWorker(QtCore.QObject):
             self._update_fft(yk)
             self.plot_update.emit(yk, float(rtt_ms), int(self._frames_acquired), time.time_ns())
             self._push_save_frame(yk)
+            if self.max_waveforms > 0 and self._frames_acquired >= self.max_waveforms:
+                self._finish_acquisition(f"[done] acquired {self._frames_acquired} waveforms")
+                return
 
         except InterruptedError:
             pass
@@ -564,6 +578,7 @@ class DaphneOscApp(QtWidgets.QWidget):
             timeout_ms=self.timeout_ms,
             req=self.req,
             period_ms=args.period_ms,
+            max_waveforms=args.max_waveforms,
             save_queue=self.save_queue,
             save_health_checker=self._writer_error_text,
             fft_config={
@@ -581,6 +596,7 @@ class DaphneOscApp(QtWidgets.QWidget):
         self.worker.telemetry.connect(self._on_worker_telemetry)
         self.worker.fft_update.connect(self._on_fft_update)
         self.worker.plot_update.connect(self._on_plot_update)
+        self.worker.acquisition_finished.connect(self._on_acquisition_finished)
 
         self.worker_thread.started.connect(self.worker.start)
         self.worker_thread.finished.connect(self.worker.deleteLater)
@@ -603,6 +619,7 @@ class DaphneOscApp(QtWidgets.QWidget):
             "samples_per_waveform": self.n_samples,
             "software_trigger": bool(self.software_trigger),
             "acq_period_ms": int(args.period_ms),
+            "max_waveforms": int(args.max_waveforms),
             "ui_period_ms": int(args.ui_period_ms),
             "fft_every": int(args.fft_every),
             "autoscale": bool(args.autoscale),
@@ -734,6 +751,12 @@ class DaphneOscApp(QtWidgets.QWidget):
         if self.writer is None:
             return ""
         return self.writer.snapshot().get("error", "")
+
+    @QtCore.pyqtSlot(str)
+    def _on_acquisition_finished(self, msg):
+        self._latest_worker_msg = msg
+        self._refresh_status_line()
+        QtCore.QTimer.singleShot(100, QtWidgets.QApplication.instance().quit)
 
     def _toggle_autoscale(self):
         self.autoscale = not self.autoscale
@@ -894,6 +917,7 @@ def main():
     parser.add_argument("--fft_linear_x", action="store_true", help="Use linear x-axis for FFT (default is logarithmic)")
 
     parser.add_argument("-period_ms", type=int, default=20, help="Acquisition period (ms)")
+    parser.add_argument("--max_waveforms", type=int, default=0, help="Stop automatically after this many acquired waveforms (0 = run forever)")
     parser.add_argument("--ui_period_ms", type=int, default=33, help="UI redraw period (ms)")
     parser.add_argument("--fft_every", type=int, default=2, help="Publish FFT update every N acquired waveforms")
     parser.add_argument("--autoscale", action="store_true", help="Continuously autoscale waveform Y range")
@@ -936,6 +960,9 @@ def main():
 
     if args.ui_period_ms < 1:
         print("ui_period_ms must be >= 1")
+        return 2
+    if args.max_waveforms < 0:
+        print("max_waveforms must be >= 0")
         return 2
     if args.fft_every < 1:
         print("fft_every must be >= 1")
