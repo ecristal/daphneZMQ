@@ -119,12 +119,46 @@ first_netdev_from_path() {
   return 1
 }
 
+resolve_platform_path() {
+  token="$1"
+  for p in \
+    "/sys/bus/platform/devices/$token" \
+    /sys/bus/platform/devices/*"$token" \
+    "/sys/devices/platform/$token" \
+    "/sys/devices/platform/axi/$token"
+  do
+    [ -e "$p" ] || continue
+    readlink -f "$p" 2>/dev/null || printf '%s\n' "$p"
+    return 0
+  done
+
+  for n in /sys/class/net/*; do
+    [ -e "$n" ] || continue
+    dev_path=$(readlink -f "$n/device" 2>/dev/null || true)
+    case "$dev_path" in
+      *"/$token")
+        printf '%s\n' "$dev_path"
+        return 0
+        ;;
+    esac
+  done
+
+  return 1
+}
+
+first_netdev_for_token() {
+  token="$1"
+  p=$(resolve_platform_path "$token" 2>/dev/null || true)
+  [ -n "$p" ] || return 1
+  first_netdev_from_path "$p"
+}
+
 wait_for_netdev() {
-  p="$1"
+  token="$1"
   timeout="${2:-60}"
   i=0
   while [ "$i" -lt "$timeout" ]; do
-    if first_netdev_from_path "$p" >/dev/null 2>&1; then
+    if first_netdev_for_token "$token" >/dev/null 2>&1; then
       return 0
     fi
     sleep 1
@@ -133,26 +167,35 @@ wait_for_netdev() {
   return 1
 }
 
-FF0B_PATH="/sys/devices/platform/axi/ff0b0000.ethernet"
-FF0C_PATH="/sys/devices/platform/axi/ff0c0000.ethernet"
+print_detected_netdevs() {
+  echo "Detected netdevs:" >&2
+  for n in /sys/class/net/*; do
+    [ -e "$n" ] || continue
+    d=$(basename "$n")
+    dev_path=$(readlink -f "$n/device" 2>/dev/null || echo "no-device")
+    echo "  - $d -> $dev_path" >&2
+  done
+}
+
+FF0B_TOKEN="ff0b0000.ethernet"
+FF0C_TOKEN="ff0c0000.ethernet"
 
 echo "[1/4] Bringing emergency network up on ff0b..."
-wait_for_netdev "$FF0B_PATH" 60 || {
-  echo "ERROR: ff0b netdev not found under $FF0B_PATH/net" >&2
+wait_for_netdev "$FF0B_TOKEN" 60 || {
+  echo "ERROR: ff0b netdev not found for token $FF0B_TOKEN" >&2
+  print_detected_netdevs
   exit 5
 }
-FF0B_IF="$(first_netdev_from_path "$FF0B_PATH")"
+FF0B_IF="$(first_netdev_for_token "$FF0B_TOKEN")"
 FF0C_IF=""
-if wait_for_netdev "$FF0C_PATH" 5; then
-  FF0C_IF="$(first_netdev_from_path "$FF0C_PATH" || true)"
+if wait_for_netdev "$FF0C_TOKEN" 5; then
+  FF0C_IF="$(first_netdev_for_token "$FF0C_TOKEN" || true)"
 fi
 
-for n in /sys/class/net/eth*; do
-  [ -e "$n" ] || continue
-  d=$(basename "$n")
-  ip link set "$d" down || true
-  ip addr flush dev "$d" || true
-done
+ip link set "$FF0B_IF" down || true
+ip addr flush dev "$FF0B_IF" || true
+[ -n "$FF0C_IF" ] && ip link set "$FF0C_IF" down || true
+[ -n "$FF0C_IF" ] && ip addr flush dev "$FF0C_IF" || true
 while ip route del default 2>/dev/null; do :; done
 
 ip link set "$FF0B_IF" address "$MAC_FF0B" || true

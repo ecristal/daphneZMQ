@@ -11,6 +11,23 @@ This is the narrow validation path for a target that should:
 It assumes the service chain created by
 `utils/setup_firmware_service.sh`.
 
+## Current blocker
+
+Do not treat this service chain as meaningful unless the firmware overlay has
+already restored the Linux-visible PL I2C path used to reach the external clock
+chip.
+
+During the March 31, 2026 validation of `daphne-firmware` commit `7f032ac` on
+`NP04-DAPHNE-014`, the overlay loaded through `xmutil`, but the expected PL I2C
+bus did not reappear in Linux. In that state:
+
+- `clockchip.service` fails immediately
+- endpoint probing can hang the board because the external timing clock path is
+  not configured
+
+That is a firmware/DT integration blocker, not a `daphne-server` service-order
+bug.
+
 ## 1. Build `daphneServer`
 
 On the target or on a matching Petalinux build environment:

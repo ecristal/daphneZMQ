@@ -105,6 +105,77 @@ NTP1="${NTP1:-137.138.16.69}"
 NTP2="${NTP2:-137.138.17.69}"
 NTP3="${NTP3:-137.138.18.69}"
 
+first_netdev_from_dir() {
+  p="$1"
+  for n in "$p"/net/*; do
+    [ -e "$n" ] || continue
+    basename "$n"
+    return 0
+  done
+  return 1
+}
+
+resolve_platform_path() {
+  token="$1"
+  for p in \
+    "/sys/bus/platform/devices/$token" \
+    /sys/bus/platform/devices/*"$token" \
+    "/sys/devices/platform/$token" \
+    "/sys/devices/platform/axi/$token"
+  do
+    [ -e "$p" ] || continue
+    readlink -f "$p" 2>/dev/null || printf '%s\n' "$p"
+    return 0
+  done
+
+  for n in /sys/class/net/*; do
+    [ -e "$n" ] || continue
+    dev_path=$(readlink -f "$n/device" 2>/dev/null || true)
+    case "$dev_path" in
+      *"/$token")
+        printf '%s\n' "$dev_path"
+        return 0
+        ;;
+    esac
+  done
+
+  return 1
+}
+
+first_netdev_for_token() {
+  token="$1"
+  p=$(resolve_platform_path "$token" 2>/dev/null || true)
+  [ -n "$p" ] || return 1
+  first_netdev_from_dir "$p"
+}
+
+match_path_for_if() {
+  iface="$1"
+  command -v udevadm >/dev/null 2>&1 || return 1
+
+  dev_path=$(udevadm info -q path -n "$iface" 2>/dev/null || true)
+  [ -n "$dev_path" ] || return 1
+
+  udevadm info -q property -p "$dev_path" 2>/dev/null | awk -F= '
+    $1 == "ID_PATH" { print $2; exit }
+  '
+}
+
+emit_match_block() {
+  match_path="$1"
+  match_name="$2"
+  fallback_token="$3"
+
+  echo "[Match]"
+  if [ -n "$match_path" ]; then
+    echo "Path=$match_path"
+  elif [ -n "$match_name" ]; then
+    echo "Name=$match_name"
+  else
+    echo "Path=platform-$fallback_token"
+  fi
+}
+
 TIMESTAMP=$(date +%Y%m%d-%H%M%S)
 NETWORKD_BACKUP="/etc/systemd/network/backup-pre-ff0b-${TIMESTAMP}"
 install -d /etc/systemd/network /etc/default /usr/local/sbin /etc/systemd/system /etc/profile.d /etc/systemd/timesyncd.conf.d "$NETWORKD_BACKUP"
@@ -113,6 +184,20 @@ for f in /etc/systemd/network/*.link /etc/systemd/network/*.network; do
   [ -e "$f" ] || continue
   mv "$f" "$NETWORKD_BACKUP/"
 done
+
+FF0B_IF_CURRENT="$(first_netdev_for_token "ff0b0000.ethernet" 2>/dev/null || true)"
+FF0C_IF_CURRENT="$(first_netdev_for_token "ff0c0000.ethernet" 2>/dev/null || true)"
+FF0B_MATCH_PATH=""
+FF0C_MATCH_PATH=""
+
+if [ -n "$FF0B_IF_CURRENT" ]; then
+  FF0B_MATCH_PATH="$(match_path_for_if "$FF0B_IF_CURRENT" 2>/dev/null || true)"
+else
+  echo "WARNING: ff0b interface not detected during install; boot-time service will retry." >&2
+fi
+if [ -n "$FF0C_IF_CURRENT" ]; then
+  FF0C_MATCH_PATH="$(match_path_for_if "$FF0C_IF_CURRENT" 2>/dev/null || true)"
+fi
 
 cat <<EOF > /etc/default/ff0b-net.conf
 BOARD_ID=${BOARD_ID}
@@ -141,29 +226,89 @@ CONF="/etc/default/ff0b-net.conf"
 [ -r "$CONF" ] || { echo "missing $CONF" >&2; exit 1; }
 . "$CONF"
 
-FF0B_PATH="/sys/devices/platform/axi/ff0b0000.ethernet"
-FF0C_PATH="/sys/devices/platform/axi/ff0c0000.ethernet"
+first_netdev_from_dir() {
+  p="$1"
+  for n in "$p"/net/*; do
+    [ -e "$n" ] || continue
+    basename "$n"
+    return 0
+  done
+  return 1
+}
 
-# Wait for ff0b netdev to appear in slow boots.
-i=0
-while [ $i -lt 60 ] && [ ! -d "$FF0B_PATH/net" ]; do
-  sleep 1
-  i=$((i + 1))
-done
-[ -d "$FF0B_PATH/net" ] || { echo "ff0b netdev not found" >&2; exit 2; }
+resolve_platform_path() {
+  token="$1"
+  for p in \
+    "/sys/bus/platform/devices/$token" \
+    /sys/bus/platform/devices/*"$token" \
+    "/sys/devices/platform/$token" \
+    "/sys/devices/platform/axi/$token"
+  do
+    [ -e "$p" ] || continue
+    readlink -f "$p" 2>/dev/null || printf '%s\n' "$p"
+    return 0
+  done
 
-FF0B_IF=$(basename "$FF0B_PATH"/net/*)
-FF0C_IF=""
-if [ -d "$FF0C_PATH/net" ]; then
-  FF0C_IF=$(basename "$FF0C_PATH"/net/*)
-fi
+  for n in /sys/class/net/*; do
+    [ -e "$n" ] || continue
+    dev_path=$(readlink -f "$n/device" 2>/dev/null || true)
+    case "$dev_path" in
+      *"/$token")
+        printf '%s\n' "$dev_path"
+        return 0
+        ;;
+    esac
+  done
+
+  return 1
+}
+
+first_netdev_for_token() {
+  token="$1"
+  p=$(resolve_platform_path "$token" 2>/dev/null || true)
+  [ -n "$p" ] || return 1
+  first_netdev_from_dir "$p"
+}
+
+wait_for_netdev_token() {
+  token="$1"
+  timeout="${2:-60}"
+  i=0
+  while [ "$i" -lt "$timeout" ]; do
+    if first_netdev_for_token "$token" >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 1
+    i=$((i + 1))
+  done
+  return 1
+}
+
+print_detected_netdevs() {
+  echo "Detected netdevs:" >&2
+  for n in /sys/class/net/*; do
+    [ -e "$n" ] || continue
+    d=$(basename "$n")
+    dev_path=$(readlink -f "$n/device" 2>/dev/null || echo "no-device")
+    echo "  - $d -> $dev_path" >&2
+  done
+}
+
+FF0B_TOKEN="ff0b0000.ethernet"
+FF0C_TOKEN="ff0c0000.ethernet"
+
+wait_for_netdev_token "$FF0B_TOKEN" 60 || {
+  echo "ff0b netdev not found for token $FF0B_TOKEN" >&2
+  print_detected_netdevs
+  exit 2
+}
+
+FF0B_IF=$(first_netdev_for_token "$FF0B_TOKEN")
+FF0C_IF=$(first_netdev_for_token "$FF0C_TOKEN" 2>/dev/null || true)
 
 # Prevent split-brain routing from stale configs.
-for n in /sys/class/net/eth*; do
-  [ -e "$n" ] || continue
-  d=$(basename "$n")
-  ip addr flush dev "$d" || true
-done
+ip addr flush dev "$FF0B_IF" || true
+[ -n "$FF0C_IF" ] && ip addr flush dev "$FF0C_IF" || true
 while ip route del default 2>/dev/null; do :; done
 
 ip link set "$FF0B_IF" down || true
@@ -268,44 +413,40 @@ EOF
   chown petalinux:petalinux "$PETALINUX_PROFILE" 2>/dev/null || true
 fi
 
-cat <<EOF > /etc/systemd/network/10-ff0b.link
-[Match]
-Path=platform-ff0b0000.ethernet
+{
+  emit_match_block "$FF0B_MATCH_PATH" "$FF0B_IF_CURRENT" "ff0b0000.ethernet"
+  echo
+  echo "[Link]"
+  echo "MACAddress=${MAC_FF0B}"
+  echo "MACAddressPolicy=none"
+} > /etc/systemd/network/10-ff0b.link
 
-[Link]
-MACAddress=${MAC_FF0B}
-MACAddressPolicy=none
-EOF
+{
+  emit_match_block "$FF0C_MATCH_PATH" "$FF0C_IF_CURRENT" "ff0c0000.ethernet"
+  echo
+  echo "[Link]"
+  echo "MACAddress=${MAC_FF0C}"
+  echo "MACAddressPolicy=none"
+} > /etc/systemd/network/11-ff0c.link
 
-cat <<EOF > /etc/systemd/network/11-ff0c.link
-[Match]
-Path=platform-ff0c0000.ethernet
+{
+  emit_match_block "$FF0B_MATCH_PATH" "$FF0B_IF_CURRENT" "ff0b0000.ethernet"
+  echo
+  echo "[Network]"
+  echo "Address=${IPV4_CIDR}"
+  echo "Gateway=${GW4}"
+  echo "DNS=${DNS1}"
+  echo "DNS=${DNS2}"
+} > /etc/systemd/network/20-ff0b.network
 
-[Link]
-MACAddress=${MAC_FF0C}
-MACAddressPolicy=none
-EOF
-
-cat <<EOF > /etc/systemd/network/20-ff0b.network
-[Match]
-Path=platform-ff0b0000.ethernet
-
-[Network]
-Address=${IPV4_CIDR}
-Gateway=${GW4}
-DNS=${DNS1}
-DNS=${DNS2}
-EOF
-
-cat <<'EOF' > /etc/systemd/network/21-ff0c.network
-[Match]
-Path=platform-ff0c0000.ethernet
-
-[Network]
-DHCP=no
-LinkLocalAddressing=no
-IPv6AcceptRA=no
-EOF
+{
+  emit_match_block "$FF0C_MATCH_PATH" "$FF0C_IF_CURRENT" "ff0c0000.ethernet"
+  echo
+  echo "[Network]"
+  echo "DHCP=no"
+  echo "LinkLocalAddressing=no"
+  echo "IPv6AcceptRA=no"
+} > /etc/systemd/network/21-ff0c.network
 
 cat <<'SERVICE_EOF' > /etc/systemd/system/force-ff0b-net.service
 [Unit]
