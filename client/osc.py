@@ -27,6 +27,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
 
 # Shared waveform parser (same directory)
+from led_charge import ChargeWindow, FixedWindowChargeMonitor, load_charge_windows
 from waveparse import parse_dump_response
 
 
@@ -511,6 +512,7 @@ class DaphneOscApp(QtWidgets.QWidget):
         self.enable_fft = bool(args.enable_fft)
         self.fft_channel = int(args.fft_channel) if args.fft_channel is not None else int(self.channels[0])
         self.fft_channel_index = self.channels.index(self.fft_channel) if self.enable_fft else 0
+        self.enable_charge_hist = bool(args.enable_charge_hist)
         # Default to log-frequency FFT axis; allow explicit linear override.
         self.fft_log_x = bool(self.enable_fft and not getattr(args, "fft_linear_x", False))
         self._fft_samples_averaged = 0
@@ -531,6 +533,8 @@ class DaphneOscApp(QtWidgets.QWidget):
         self._latest_plot_packet = None
         self._last_seen_frame_id = 0
         self._last_rendered_frame_id = 0
+        self._latest_charge_info = None
+        self.charge_monitor = None
 
         self.writer = None
         self.save_queue = None
@@ -567,6 +571,15 @@ class DaphneOscApp(QtWidgets.QWidget):
             self._fft_pos_mask = np.isfinite(self.f_axis) & (self.f_axis > 0.0)
             self._win = get_window(args.fft_window_function, self.n_samples).astype(np.float64)
             self.avg_count = max(1, int(args.fft_avg_waves))
+        if self.enable_charge_hist:
+            self.charge_monitor = FixedWindowChargeMonitor(
+                channels=self.channels,
+                n_samples=self.n_samples,
+                windows=self._build_charge_windows(args),
+                history=args.charge_history,
+                hist_bins=args.charge_hist_bins,
+                clip_negative=args.charge_clip_negative,
+            )
 
         self._build_ui(args)
 
@@ -630,7 +643,17 @@ class DaphneOscApp(QtWidgets.QWidget):
             "fft_full_scale_counts": float(args.fft_full_scale_counts),
             "fft_window_function": args.fft_window_function,
             "sampling_rate_hz": float(self.fs_hz),
+            "charge_hist_enabled": bool(args.enable_charge_hist),
         }
+        if args.enable_charge_hist:
+            payload["charge_windows_json"] = str(args.charge_windows_json) if args.charge_windows_json else ""
+            payload["charge_start"] = int(args.charge_start)
+            payload["charge_stop"] = int(args.charge_stop)
+            payload["charge_baseline_start"] = int(args.charge_baseline_start)
+            payload["charge_baseline_stop"] = int(args.charge_baseline_stop)
+            payload["charge_hist_bins"] = int(args.charge_hist_bins)
+            payload["charge_history"] = int(args.charge_history)
+            payload["charge_clip_negative"] = bool(args.charge_clip_negative)
         if getattr(args, "run_label", ""):
             payload["run_label"] = str(args.run_label)
         if getattr(args, "run_notes", ""):
@@ -674,6 +697,25 @@ class DaphneOscApp(QtWidgets.QWidget):
             c = self.plot_wf.plot(pen=pens[i % len(pens)], name=f"ch {ch}")
             self.curves.append(c)
 
+        if self.enable_charge_hist:
+            self.plot_charge = pg.PlotWidget(title="Charge Histogram")
+            self.plot_charge.setLabel("left", "Counts")
+            self.plot_charge.setLabel("bottom", "Integrated charge (ADC x sample)")
+            charge_item = self.plot_charge.getPlotItem()
+            charge_item.setClipToView(False)
+            charge_item.setDownsampling(auto=False)
+            self.plot_charge.addLegend(offset=(10, 10))
+            self.charge_curves = []
+            for i, ch in enumerate(self.channels):
+                c = self.plot_charge.plot(
+                    pen=pens[i % len(pens)],
+                    name=f"ch {ch}",
+                    stepMode="center",
+                    connect="finite",
+                )
+                self.charge_curves.append(c)
+            layout.addWidget(self.plot_charge)
+
         if args.enable_fft:
             self.plot_fft = pg.PlotWidget(title=f"FFT (averaged power) - ch {self.fft_channel}")
             self.plot_fft.setLabel("left", "Magnitude (dBFS)")
@@ -716,6 +758,11 @@ class DaphneOscApp(QtWidgets.QWidget):
         if frame_id > (self._last_seen_frame_id + 1):
             self._plot_drops_ui += (frame_id - self._last_seen_frame_id - 1)
         self._last_seen_frame_id = frame_id
+        if self.charge_monitor is not None:
+            try:
+                self._latest_charge_info = self.charge_monitor.update(yk)
+            except Exception as exc:
+                self._latest_worker_msg = f"[charge error] {exc}"
         self._latest_plot_packet = (frame_id, yk, rtt_ms, timestamp_ns)
 
     @QtCore.pyqtSlot(object, int)
@@ -785,6 +832,14 @@ class DaphneOscApp(QtWidgets.QWidget):
             for i, curve in enumerate(self.curves):
                 curve.setData(self._x_axis, yk[i], connect="finite")
 
+            if self.charge_monitor is not None:
+                series = self.charge_monitor.histogram_series()
+                for i, ch in enumerate(self.channels):
+                    if ch in series:
+                        self.charge_curves[i].setData(series[ch]["centers"], series[ch]["counts"], connect="finite")
+                    else:
+                        self.charge_curves[i].clear()
+
             if self.autoscale:
                 y_min = float(yk.min())
                 y_max = float(yk.max())
@@ -829,6 +884,14 @@ class DaphneOscApp(QtWidgets.QWidget):
         if self.enable_fft:
             status_text += f" fftCh={self.fft_channel} fftAvg={self._fft_samples_averaged}"
             status_text += f" fftX={'log' if self.fft_log_x else 'lin'}"
+        if self.enable_charge_hist and self._latest_charge_info:
+            ch0 = int(self.channels[0])
+            latest_charge = self._latest_charge_info.get("latest_charge", {}).get(ch0)
+            win0 = self._latest_charge_info.get("windows", {}).get(ch0, {})
+            if latest_charge is not None:
+                status_text += f" qCh={ch0} q={latest_charge:.1f}"
+            if win0:
+                status_text += f" qWin={win0.get('integrate_start', '?')}:{win0.get('integrate_stop', '?')}"
 
         if writer_error:
             status_text += f" writerError={writer_error}"
@@ -866,6 +929,34 @@ class DaphneOscApp(QtWidgets.QWidget):
         if self.writer is not None:
             self.writer.stop(timeout_s=2.0)
             self.writer.join(timeout=5.0)
+
+    def _build_charge_windows(self, args):
+        if args.charge_windows_json:
+            windows = load_charge_windows(args.charge_windows_json)
+            missing = [ch for ch in self.channels if ch not in windows]
+            if missing:
+                raise ValueError(f"Missing charge windows for channels {missing} in {args.charge_windows_json}")
+            return {ch: windows[ch] for ch in self.channels}
+
+        start = int(args.charge_start)
+        stop = int(args.charge_stop)
+        if stop <= start:
+            raise ValueError("charge_stop must be greater than charge_start")
+
+        out = {}
+        for ch in self.channels:
+            out[ch] = ChargeWindow(
+                channel=int(ch),
+                baseline_start=int(args.charge_baseline_start),
+                baseline_stop=int(args.charge_baseline_stop),
+                search_start=start,
+                search_stop=stop,
+                onset_index=start,
+                peak_index=start,
+                integrate_start=start,
+                integrate_stop=stop,
+            )
+        return out
 
 
 # ---------------------- CLI + main ----------------------
@@ -925,6 +1016,15 @@ def main():
     parser.add_argument("-identity", type=str, default="osc-client", help="DEALER identity")
     parser.add_argument("--route", type=str, default="mezz/0", help="Optional logical route target")
     parser.add_argument("--sampling_rate_hz", type=float, default=62.5e6, help="Sample rate used for FFT axis")
+    parser.add_argument("--enable_charge_hist", action="store_true", help="Show live fixed-window charge histogram")
+    parser.add_argument("--charge_windows_json", type=str, default="", help="Per-channel charge windows JSON from a bright LED calibration run")
+    parser.add_argument("--charge_start", type=int, default=124, help="Manual charge integration start sample if no JSON is provided")
+    parser.add_argument("--charge_stop", type=int, default=148, help="Manual charge integration stop sample if no JSON is provided")
+    parser.add_argument("--charge_baseline_start", type=int, default=0, help="Charge baseline window start sample")
+    parser.add_argument("--charge_baseline_stop", type=int, default=100, help="Charge baseline window stop sample")
+    parser.add_argument("--charge_hist_bins", type=int, default=120, help="Histogram bins for the live charge plot")
+    parser.add_argument("--charge_history", type=int, default=2000, help="Number of recent charges kept per channel")
+    parser.add_argument("--charge_clip_negative", action="store_true", help="Clip negative baseline-subtracted samples before integration")
 
     parser.add_argument(
         "--save_dir",
@@ -976,6 +1076,13 @@ def main():
             args.fft_channel = args.channels[0]
         if args.fft_channel not in args.channels:
             print("fft_channel must be included in --channels")
+            return 2
+    if args.enable_charge_hist:
+        if args.charge_baseline_stop <= args.charge_baseline_start:
+            print("charge_baseline_stop must be greater than charge_baseline_start")
+            return 2
+        if (not args.charge_windows_json) and args.charge_stop <= args.charge_start:
+            print("charge_stop must be greater than charge_start")
             return 2
 
     app = QtWidgets.QApplication([])

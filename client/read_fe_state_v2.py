@@ -16,6 +16,7 @@ Optional:
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 import time
@@ -43,9 +44,16 @@ def build_envelope(payload: bytes, msg_type: int, route: str | None = None) -> p
     return env
 
 
-def send_and_recv(sock: zmq.Socket, env: pb_high.ControlEnvelopeV2, expected_type: int) -> pb_high.ControlEnvelopeV2:
+def send_and_recv(
+    sock: zmq.Socket,
+    env: pb_high.ControlEnvelopeV2,
+    expected_type: int,
+    *,
+    verbose: bool = True,
+) -> pb_high.ControlEnvelopeV2:
     t_send = time.time_ns()
-    print_envelope("REQUEST", env, show_payload_len=False)
+    if verbose:
+        print_envelope("REQUEST", env, show_payload_len=False)
     sock.send(env.SerializeToString())
 
     frames = [sock.recv()]
@@ -58,8 +66,9 @@ def send_and_recv(sock: zmq.Socket, env: pb_high.ControlEnvelopeV2, expected_typ
     if not reply.ParseFromString(reply_bytes):
         raise RuntimeError("Failed to parse ControlEnvelopeV2 reply")
 
-    print_envelope("RESPONSE", reply, show_payload_len=False)
-    print(f"[METRICS] send={ns_to_iso(t_send)} recv={ns_to_iso(t_recv)} rtt_ms={(t_recv - t_send)/1e6:.2f}\n")
+    if verbose:
+        print_envelope("RESPONSE", reply, show_payload_len=False)
+        print(f"[METRICS] send={ns_to_iso(t_send)} recv={ns_to_iso(t_recv)} rtt_ms={(t_recv - t_send)/1e6:.2f}\n")
 
     if reply.type != expected_type:
         raise RuntimeError(f"Unexpected response type {reply.type}, expected {expected_type}")
@@ -76,21 +85,32 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--timeout", type=int, default=6000, help="Socket timeout (ms)")
     ap.add_argument("--afe-count", type=int, default=5, help="Number of AFEs to query (default 5)")
     ap.add_argument("--skip-bias-monitor", action="store_true", help="Skip bias voltage monitor reads")
+    ap.add_argument("--json", action="store_true", help="Emit the FE state snapshot as JSON only")
     ap.add_argument("--afe-reg", nargs=2, action="append", metavar=("AFE", "REG"), help="Read specific AFE register (board index, reg addr). Can be repeated.")
     return ap.parse_args()
 
 
-def do_op(sock: zmq.Socket, req_msg, req_type: int, resp_type: int, resp_factory: Callable[[], object], label: str):
+def do_op(
+    sock: zmq.Socket,
+    req_msg,
+    req_type: int,
+    resp_type: int,
+    resp_factory: Callable[[], object],
+    label: str,
+    *,
+    verbose: bool = True,
+):
     req_env = build_envelope(req_msg.SerializeToString(), req_type, route=args.route)
-    reply_env = send_and_recv(sock, req_env, resp_type)
+    reply_env = send_and_recv(sock, req_env, resp_type, verbose=verbose)
     resp = resp_factory()
     if not resp.ParseFromString(reply_env.payload):
         raise RuntimeError(f"Failed to parse response for {label}")
-    print(f"[{label}] success={getattr(resp, 'success', None)} message={getattr(resp, 'message', '').strip()}")
+    if verbose:
+        print(f"[{label}] success={getattr(resp, 'success', None)} message={getattr(resp, 'message', '').strip()}")
     return resp
 
 
-def read_all(sock: zmq.Socket, args: argparse.Namespace):
+def read_all(sock: zmq.Socket, args: argparse.Namespace, *, verbose: bool = True) -> dict:
     # Trims (all channels)
     trim_all = do_op(
         sock,
@@ -99,6 +119,7 @@ def read_all(sock: zmq.Socket, args: argparse.Namespace):
         pb_high.MT2_READ_TRIM_ALL_CH_RESP,
         pb_low.cmd_readTrim_allChannels_response,
         "READ_TRIM_ALL_CH",
+        verbose=verbose,
     )
 
     # Offsets (all channels)
@@ -109,6 +130,7 @@ def read_all(sock: zmq.Socket, args: argparse.Namespace):
         pb_high.MT2_READ_OFFSET_ALL_CH_RESP,
         pb_low.cmd_readOffset_allChannels_response,
         "READ_OFFSET_ALL_CH",
+        verbose=verbose,
     )
 
     # Per-AFE data collectors
@@ -124,6 +146,7 @@ def read_all(sock: zmq.Socket, args: argparse.Namespace):
             pb_high.MT2_READ_AFE_VGAIN_RESP,
             pb_low.cmd_readAFEVgain_response,
             f"READ_AFE_VGAIN[afe={afe}]",
+            verbose=verbose,
         )
         req_bias = pb_low.cmd_readAFEBiasSet(afeBlock=afe)
         resp_bias = do_op(
@@ -133,6 +156,7 @@ def read_all(sock: zmq.Socket, args: argparse.Namespace):
             pb_high.MT2_READ_AFE_BIAS_SET_RESP,
             pb_low.cmd_readAFEBiasSet_response,
             f"READ_AFE_BIAS_SET[afe={afe}]",
+            verbose=verbose,
         )
         bias_monitor_val = None
         if not args.skip_bias_monitor:
@@ -144,6 +168,7 @@ def read_all(sock: zmq.Socket, args: argparse.Namespace):
                 pb_high.MT2_READ_BIAS_VOLTAGE_MONITOR_RESP,
                 pb_low.cmd_readBiasVoltageMonitor_response,
                 f"READ_BIAS_VOLTAGE_MONITOR[afe={afe}]",
+                verbose=verbose,
             )
             if getattr(resp_mon, "success", False):
                 bias_monitor_val = getattr(resp_mon, "biasVoltageValue", None)
@@ -165,6 +190,7 @@ def read_all(sock: zmq.Socket, args: argparse.Namespace):
         pb_high.MT2_READ_VBIAS_CONTROL_RESP,
         pb_low.cmd_readVbiasControl_response,
         "READ_VBIAS_CONTROL",
+        verbose=verbose,
     )
 
     # Optional AFE register reads
@@ -180,6 +206,7 @@ def read_all(sock: zmq.Socket, args: argparse.Namespace):
                 pb_high.MT2_READ_AFE_REG_RESP,
                 pb_low.cmd_readAFEReg_response,
                 f"READ_AFE_REG[afe={afe},reg=0x{reg_addr:X}]",
+                verbose=verbose,
             )
 
     # Pretty JSON-like output mirroring a seed structure
@@ -202,9 +229,11 @@ def read_all(sock: zmq.Socket, args: argparse.Namespace):
         },
         "bias_ctrl": bias_ctrl_val,
     }
-    import json
-    print("\n=== FE STATE SNAPSHOT (read-only) ===")
-    print(json.dumps(config, indent=2))
+    if verbose:
+        print("\n=== FE STATE SNAPSHOT (read-only) ===")
+        print(json.dumps(config, indent=2))
+
+    return config
 
 
 if __name__ == "__main__":
@@ -218,5 +247,8 @@ if __name__ == "__main__":
     sock.setsockopt(zmq.SNDTIMEO, args.timeout)
     sock.connect(endpoint)
 
-    print(f"Connected to {endpoint} route={args.route}")
-    read_all(sock, args)
+    if not args.json:
+        print(f"Connected to {endpoint} route={args.route}")
+    snapshot = read_all(sock, args, verbose=(not args.json))
+    if args.json:
+        print(json.dumps(snapshot, indent=2, sort_keys=True))

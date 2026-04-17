@@ -10,6 +10,8 @@ Usage:
   python3 configure_fe_min_v2.py 127.0.0.1 9876 --json
 """
 
+from __future__ import annotations
+
 import os
 import time
 import zmq
@@ -37,6 +39,9 @@ from client_dictionaries import (
 _AFE_COUNT = 5
 _AFE_MIN = 0
 _AFE_MAX = _AFE_COUNT - 1
+_CH_COUNT = 40
+_CH_MIN = 0
+_CH_MAX = _CH_COUNT - 1
 _BIAS_DAC_MIN = 0
 _BIAS_DAC_MAX = 4095
 
@@ -66,6 +71,24 @@ def _parse_afe_kv_tokens(tokens: list[str], *, label: str) -> list[tuple[int, fl
                 raise ValueError(f"{label}: AFE out of range ({_AFE_MIN}..{_AFE_MAX}), got {afe}")
             value = float(value_s.strip())
             out.append((afe, value))
+    return out
+
+
+def _parse_channel_kv_tokens(tokens: list[str], *, label: str) -> list[tuple[int, float]]:
+    out: list[tuple[int, float]] = []
+    for raw in tokens:
+        for item in str(raw).split(","):
+            item = item.strip()
+            if not item:
+                continue
+            if ":" not in item:
+                raise ValueError(f"{label}: expected CHANNEL:VALUE, got '{item}'")
+            ch_s, value_s = item.split(":", 1)
+            ch = int(ch_s.strip(), 0)
+            if ch < _CH_MIN or ch > _CH_MAX:
+                raise ValueError(f"{label}: channel out of range ({_CH_MIN}..{_CH_MAX}), got {ch}")
+            value = float(value_s.strip())
+            out.append((ch, value))
     return out
 
 
@@ -278,6 +301,13 @@ def main():
         metavar="AFE:VOLT",
         help="Per-AFE bias volts override (repeatable or CSV), e.g. --afe-bias-volts 0:40 --afe-bias-volts 1:52",
     )
+    ap.add_argument(
+        "--ch-trim",
+        action="append",
+        default=[],
+        metavar="CH:VALUE",
+        help="Per-channel trim DAC override (repeatable or CSV), e.g. --ch-trim 12:1000 --ch-trim 13:1200",
+    )
     args = ap.parse_args()
 
     endpoint = f"tcp://{args.host}:{args.port}"
@@ -306,6 +336,10 @@ def main():
     for afe, volts in _parse_afe_kv_tokens(args.afe_bias_volts, label="--afe-bias-volts"):
         afe_bias_overrides[afe] = _validate_dac_range(f"afe{afe} bias", bias_volts_to_dac(volts))
 
+    channel_trim_overrides: dict[int, int] = {}
+    for ch, value in _parse_channel_kv_tokens(args.ch_trim, label="--ch-trim"):
+        channel_trim_overrides[ch] = _validate_dac_range(f"ch{ch} trim", int(round(value)))
+
     cfg_timeout_ms = args.timeout if args.cfg_timeout_ms is None else args.cfg_timeout_ms
     cfg = make_default_config(
         ip=args.host,
@@ -323,6 +357,10 @@ def main():
         for afe in cfg.afes:
             if afe.id in afe_bias_overrides:
                 afe.v_bias = afe_bias_overrides[afe.id]
+    if channel_trim_overrides:
+        for ch in cfg.channels:
+            if ch.id in channel_trim_overrides:
+                ch.trim = channel_trim_overrides[ch.id]
     for afe in cfg.afes:
         if hasattr(afe.adc, "resolution"):
             afe.adc.resolution = bool(args.adc_resolution)

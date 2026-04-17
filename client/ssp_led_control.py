@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from __future__ import annotations
+
 import argparse
 import json
 import socket
@@ -17,6 +19,9 @@ HEADER_FORMAT = "<5I"
 HEADER_SIZE = struct.calcsize(HEADER_FORMAT)
 
 MODULE_ID = 0x80000024
+DP_FPGA_FW_BUILD = 0x80000010
+CALIB_BUILD = 0x80000014
+DP_CLOCK_STATUS = 0x80000020
 CAL_COUNT = 0x80000448
 PDTS_CMD_CONTROL_1 = 0x80000464
 PDTS_CMD_CONTROL_2 = 0x80000468
@@ -25,13 +30,41 @@ PDTS_STATUS = 0x800004C4
 DP_CLOCK_CONTROL = 0x80000520
 PDTS_CMD_DELAY_0 = 0x80000940
 BIAS_CONTROL = 0x40000300
+MASTER_LOGIC_CONTROL = 0x80000500
+MASTER_LOGIC_STATUS = 0x80000504
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 55001
 DEFAULT_TIMEOUT = 5.0
 DEFAULT_SSH_TUNNEL_REMOTE_HOST = "127.0.0.1"
+DEFAULT_PDTS_RESET_HOLD_SECONDS = 1.0
+DEFAULT_PDTS_RUN_SETTLE_SECONDS = 2.0
 
 NON_LATCHED_REGISTERS = {BIAS_CONTROL}
+
+PDTS_REPORT_REGISTERS = (
+    (DP_CLOCK_CONTROL, "dp_clock_control"),
+    (PDTS_CONTROL, "pdts_control"),
+    (PDTS_STATUS, "pdts_status"),
+    (PDTS_CMD_CONTROL_1, "pdts_cmd_control_1"),
+    (PDTS_CMD_CONTROL_2, "pdts_cmd_control_2"),
+    (CAL_COUNT, "cal_count"),
+    *tuple((PDTS_CMD_DELAY_0 + index * 4, f"pdts_cmd_delay_{index}") for index in range(16)),
+)
+
+INSPECT_REGISTERS = (
+    (DP_FPGA_FW_BUILD, "dp_fpga_fw_build"),
+    (CALIB_BUILD, "calib_build"),
+    (DP_CLOCK_STATUS, "dp_clock_status"),
+    (MASTER_LOGIC_CONTROL, "master_logic_control"),
+    (MASTER_LOGIC_STATUS, "master_logic_status"),
+    (DP_CLOCK_CONTROL, "dp_clock_control"),
+    (PDTS_CONTROL, "pdts_control"),
+    (PDTS_STATUS, "pdts_status"),
+    (PDTS_CMD_CONTROL_1, "pdts_cmd_control_1"),
+    (PDTS_CMD_CONTROL_2, "pdts_cmd_control_2"),
+    (CAL_COUNT, "cal_count"),
+)
 
 
 @dataclass
@@ -280,23 +313,36 @@ def sync_pdts(client: SSPClient, partition_number: int, timing_address: int) -> 
     else:
         print(f"Syncing PDTS: partition={partition_number} timing_address=0x{timing_address:02X}")
         for attempt in range(5):
+            reset_value = 0x80000000 + partition_number + timing_address * 0x10000
+            run_value = partition_number + timing_address * 0x10000
+
             write_and_log(client, DP_CLOCK_CONTROL, 0x30, label="pdts internal clock")
             write_and_log(
                 client,
                 PDTS_CONTROL,
-                0x80000000 + partition_number + timing_address * 0x10000,
+                reset_value,
                 label="pdts reset",
             )
+            time.sleep(DEFAULT_PDTS_RESET_HOLD_SECONDS)
             pdts_status = client.read(PDTS_STATUS)
+            pdts_control = client.read(PDTS_CONTROL)
+            dp_clock_control = client.read(DP_CLOCK_CONTROL)
+            print(
+                "PDTS after reset:"
+                f" status=0x{pdts_status:08X} control=0x{pdts_control:08X} dp_clock=0x{dp_clock_control:08X}"
+            )
             write_and_log(
                 client,
                 PDTS_CONTROL,
-                partition_number + timing_address * 0x10000,
+                run_value,
                 label="pdts run",
             )
-            time.sleep(2.0)
+            time.sleep(DEFAULT_PDTS_RUN_SETTLE_SECONDS)
+            pdts_status = client.read(PDTS_STATUS)
+            pdts_control = client.read(PDTS_CONTROL)
+            print(f"PDTS after run release: status=0x{pdts_status:08X} control=0x{pdts_control:08X}")
             write_and_log(client, DP_CLOCK_CONTROL, 0x31, label="pdts external clock")
-            time.sleep(2.0)
+            time.sleep(DEFAULT_PDTS_RUN_SETTLE_SECONDS)
             pdts_status = client.read(PDTS_STATUS)
             print(f"PDTS attempt {attempt + 1}: status=0x{pdts_status:08X}")
             if 0x6 <= (pdts_status & 0xF) <= 0x8:
@@ -314,13 +360,14 @@ def sync_pdts(client: SSPClient, partition_number: int, timing_address: int) -> 
     raise RuntimeError(f"PDTS did not reach running state 0x8; last status=0x{pdts_status:08X}")
 
 
-def configure_run(client: SSPClient, cfg: LEDRunConfig) -> None:
-    if cfg.pdts_sync:
-        sync_pdts(client, cfg.partition_number, cfg.timing_address)
+def dump_registers(client: SSPClient, registers: tuple[tuple[int, str], ...], *, heading: str) -> None:
+    print(heading)
+    for address, label in registers:
+        value = client.read(address)
+        print(f"  0x{address:08X}  0x{value:08X}  {label}")
 
-    if cfg.module_id is not None:
-        write_and_log(client, MODULE_ID, cfg.module_id, label="module_id")
 
+def configure_pdts_register_block(client: SSPClient) -> None:
     write_and_log(client, PDTS_CMD_CONTROL_1, 0x000002E7, label="pdts_cmd_control_1")
     for index in range(16):
         write_and_log(
@@ -331,6 +378,33 @@ def configure_run(client: SSPClient, cfg: LEDRunConfig) -> None:
         )
     write_and_log(client, PDTS_CMD_CONTROL_2, 0x80000000, label="pdts_cmd_control_2")
     write_and_log(client, DP_CLOCK_CONTROL, 0x00000011, label="pulser/dp clock control")
+
+
+def pulse_master_logic_reset(client: SSPClient) -> None:
+    current = client.read(MASTER_LOGIC_CONTROL)
+    cleared = current & ~0x00000101
+    print(f"Master logic before pulse: control=0x{current:08X}")
+    write_and_log(client, MASTER_LOGIC_CONTROL, cleared, label="master_logic clear reset bits")
+    time.sleep(0.1)
+    write_and_log(client, MASTER_LOGIC_CONTROL, 0x00000041, label="master_logic start")
+    status = client.read(MASTER_LOGIC_STATUS)
+    pdts_status = client.read(PDTS_STATUS)
+    print(
+        "Master logic after pulse:"
+        f" control=0x{client.read(MASTER_LOGIC_CONTROL):08X}"
+        f" status=0x{status:08X}"
+        f" pdts_status=0x{pdts_status:08X}"
+    )
+
+
+def configure_run(client: SSPClient, cfg: LEDRunConfig) -> None:
+    if cfg.pdts_sync:
+        sync_pdts(client, cfg.partition_number, cfg.timing_address)
+
+    if cfg.module_id is not None:
+        write_and_log(client, MODULE_ID, cfg.module_id, label="module_id")
+
+    configure_pdts_register_block(client)
 
     cal_count = 1 if cfg.pulse_mode == "single" else cfg.burst_count
     write_and_log(client, CAL_COUNT, cal_count, label="cal_count")
@@ -431,6 +505,26 @@ def build_parser() -> argparse.ArgumentParser:
     stop_parser = subparsers.add_parser("stop", help="Stop the SSP LED pulser")
     add_common_connection_args(stop_parser)
 
+    pdts_parser = subparsers.add_parser(
+        "pdts-sync-report",
+        help="Dump PDTS registers, resync the endpoint, reapply the PDTS register block, and dump again",
+    )
+    add_common_connection_args(pdts_parser)
+    pdts_parser.add_argument("--partition-number", type=lambda x: int(x, 0), required=True)
+    pdts_parser.add_argument("--timing-address", type=lambda x: int(x, 0), required=True)
+
+    inspect_parser = subparsers.add_parser(
+        "inspect",
+        help="Read firmware/version registers and key PDTS registers without modifying state",
+    )
+    add_common_connection_args(inspect_parser)
+
+    mlr_parser = subparsers.add_parser(
+        "master-logic-reset-report",
+        help="Dump key registers, pulse master_logic_control reset/start sequence, and dump again",
+    )
+    add_common_connection_args(mlr_parser)
+
     return parser
 
 
@@ -516,6 +610,73 @@ def main(argv: list[str] | None = None) -> int:
                 finally:
                     client.close()
             print("SSP LED run stopped")
+            return 0
+
+        if args.command == "pdts-sync-report":
+            if tunnel:
+                with tunnel:
+                    print(f"Connecting to {args.host}:{args.port}")
+                    client = SSPClient(args.host, args.port, args.timeout)
+                    try:
+                        dump_registers(client, PDTS_REPORT_REGISTERS, heading="PDTS register dump before sync:")
+                        sync_pdts(client, args.partition_number, args.timing_address)
+                        configure_pdts_register_block(client)
+                        dump_registers(client, PDTS_REPORT_REGISTERS, heading="PDTS register dump after sync:")
+                    finally:
+                        client.close()
+            else:
+                print(f"Connecting to {args.host}:{args.port}")
+                client = SSPClient(args.host, args.port, args.timeout)
+                try:
+                    dump_registers(client, PDTS_REPORT_REGISTERS, heading="PDTS register dump before sync:")
+                    sync_pdts(client, args.partition_number, args.timing_address)
+                    configure_pdts_register_block(client)
+                    dump_registers(client, PDTS_REPORT_REGISTERS, heading="PDTS register dump after sync:")
+                finally:
+                    client.close()
+            print("PDTS sync/report completed")
+            return 0
+
+        if args.command == "inspect":
+            if tunnel:
+                with tunnel:
+                    print(f"Connecting to {args.host}:{args.port}")
+                    client = SSPClient(args.host, args.port, args.timeout)
+                    try:
+                        dump_registers(client, INSPECT_REGISTERS, heading="SSP inspect dump:")
+                    finally:
+                        client.close()
+            else:
+                print(f"Connecting to {args.host}:{args.port}")
+                client = SSPClient(args.host, args.port, args.timeout)
+                try:
+                    dump_registers(client, INSPECT_REGISTERS, heading="SSP inspect dump:")
+                finally:
+                    client.close()
+            print("SSP inspect completed")
+            return 0
+
+        if args.command == "master-logic-reset-report":
+            if tunnel:
+                with tunnel:
+                    print(f"Connecting to {args.host}:{args.port}")
+                    client = SSPClient(args.host, args.port, args.timeout)
+                    try:
+                        dump_registers(client, INSPECT_REGISTERS, heading="Before master logic reset:")
+                        pulse_master_logic_reset(client)
+                        dump_registers(client, INSPECT_REGISTERS, heading="After master logic reset:")
+                    finally:
+                        client.close()
+            else:
+                print(f"Connecting to {args.host}:{args.port}")
+                client = SSPClient(args.host, args.port, args.timeout)
+                try:
+                    dump_registers(client, INSPECT_REGISTERS, heading="Before master logic reset:")
+                    pulse_master_logic_reset(client)
+                    dump_registers(client, INSPECT_REGISTERS, heading="After master logic reset:")
+                finally:
+                    client.close()
+            print("Master logic reset/report completed")
             return 0
     except Exception as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

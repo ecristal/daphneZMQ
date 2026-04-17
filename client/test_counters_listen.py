@@ -49,7 +49,7 @@ def parse_v2_and_print(b: bytes):
             print(f"  [V2][CountersResp] success={cnt.success} message='{cnt.message}' "
                   f"snapshots={len(cnt.snapshots)}")
             for s in cnt.snapshots[:10]:  # keep it readable
-                print(f"    ch={s.channel} thr={s.threshold&0x3FF} rec={s.record_count} "
+                print(f"    ch={s.channel} thr={s.threshold} rec={s.record_count} "
                       f"bsy={s.busy_count} ful={s.full_count}")
             if len(cnt.snapshots) > 10:
                 print(f"    … ({len(cnt.snapshots)-10} more)")
@@ -158,4 +158,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

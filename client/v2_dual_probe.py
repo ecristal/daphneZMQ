@@ -49,7 +49,7 @@ def parse_v2_and_print(b: bytes):
     if payload and c.ParseFromString(payload):
         print(f"  [CountersResp] success={c.success} message='{c.message}' snaps={len(c.snapshots)}")
         for s in c.snapshots[:10]:
-            print(f"    ch={s.channel} thr={s.threshold & 0x3FF} rec={s.record_count} bsy={s.busy_count} ful={s.full_count}")
+            print(f"    ch={s.channel} thr={s.threshold} rec={s.record_count} bsy={s.busy_count} ful={s.full_count}")
         if len(c.snapshots) > 10:
             print(f"    … ({len(c.snapshots)-10} more)")
         return True
