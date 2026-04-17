@@ -257,6 +257,9 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--led-config", default=default_led_config_path())
     ap.add_argument("--led-host", default="127.0.0.1")
     ap.add_argument("--led-port", type=int, default=55001)
+    ap.add_argument("--led-ssh-tunnel", default="")
+    ap.add_argument("--led-ssh-tunnel-remote-host", default="10.73.137.61")
+    ap.add_argument("--led-ssh-tunnel-remote-port", type=int, default=55002)
     ap.add_argument("--led-timeout-s", type=float, default=5.0)
     ap.add_argument("--led-channel-mask", type=lambda x: int(str(x), 0), default=1)
     ap.add_argument("--led-number-channels", type=int, default=12)
@@ -312,6 +315,9 @@ def main() -> int:
         "target_signal_fraction": args.target_signal_fraction,
         "pulse_width_ticks": args.pulse_width_ticks,
         "led_channel_mask": args.led_channel_mask,
+        "led_ssh_tunnel": args.led_ssh_tunnel,
+        "led_ssh_tunnel_remote_host": args.led_ssh_tunnel_remote_host,
+        "led_ssh_tunnel_remote_port": args.led_ssh_tunnel_remote_port,
         "bias_monitor_afes": args.bias_monitor_afes,
         "bias_monitor_board": args.bias_monitor_board or infer_tunnel_board(args.port),
         "bias_monitor_timeout_ms": args.bias_monitor_timeout_ms,
@@ -377,6 +383,9 @@ def main() -> int:
             led_config=args.led_config,
             led_host=args.led_host,
             led_port=args.led_port,
+            led_ssh_tunnel=args.led_ssh_tunnel,
+            led_ssh_tunnel_remote_host=args.led_ssh_tunnel_remote_host,
+            led_ssh_tunnel_remote_port=args.led_ssh_tunnel_remote_port,
             led_timeout_s=args.led_timeout_s,
             led_channel_mask=args.led_channel_mask,
             led_number_channels=args.led_number_channels,
@@ -522,6 +531,9 @@ def main() -> int:
             led_config=args.led_config,
             led_host=args.led_host,
             led_port=args.led_port,
+            led_ssh_tunnel=args.led_ssh_tunnel,
+            led_ssh_tunnel_remote_host=args.led_ssh_tunnel_remote_host,
+            led_ssh_tunnel_remote_port=args.led_ssh_tunnel_remote_port,
             led_timeout_s=args.led_timeout_s,
             led_channel_mask=args.led_channel_mask,
             led_number_channels=args.led_number_channels,
@@ -629,6 +641,9 @@ def main() -> int:
         led_stop_client=args.led_stop_client,
         led_host=args.led_host,
         led_port=args.led_port,
+        led_ssh_tunnel=args.led_ssh_tunnel,
+        led_ssh_tunnel_remote_host=args.led_ssh_tunnel_remote_host,
+        led_ssh_tunnel_remote_port=args.led_ssh_tunnel_remote_port,
         led_timeout_s=args.led_timeout_s,
         log_path=output_dir / "led_stop.log",
         dry_run=args.dry_run,

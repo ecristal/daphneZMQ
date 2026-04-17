@@ -197,6 +197,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--led-config", default=default_led_config_path())
     parser.add_argument("--led-host", default="127.0.0.1")
     parser.add_argument("--led-port", type=int, default=55001)
+    parser.add_argument("--led-ssh-tunnel", default="")
+    parser.add_argument("--led-ssh-tunnel-remote-host", default="10.73.137.61")
+    parser.add_argument("--led-ssh-tunnel-remote-port", type=int, default=55002)
     parser.add_argument("--led-timeout-s", type=float, default=5.0)
     parser.add_argument("--led-channel-mask", type=lambda x: int(str(x), 0), default=7)
     parser.add_argument("--led-number-channels", type=int, default=12)
@@ -243,6 +246,9 @@ def main() -> int:
             "config": args.led_config,
             "host": args.led_host,
             "port": args.led_port,
+            "ssh_tunnel": args.led_ssh_tunnel,
+            "ssh_tunnel_remote_host": args.led_ssh_tunnel_remote_host,
+            "ssh_tunnel_remote_port": args.led_ssh_tunnel_remote_port,
             "channel_mask": args.led_channel_mask,
             "number_channels": args.led_number_channels,
             "pulse_width_ticks": args.led_pulse_width_ticks,
@@ -268,6 +274,9 @@ def main() -> int:
                 led_config=args.led_config,
                 led_host=args.led_host,
                 led_port=args.led_port,
+                led_ssh_tunnel=args.led_ssh_tunnel,
+                led_ssh_tunnel_remote_host=args.led_ssh_tunnel_remote_host,
+                led_ssh_tunnel_remote_port=args.led_ssh_tunnel_remote_port,
                 led_timeout_s=args.led_timeout_s,
                 led_channel_mask=args.led_channel_mask,
                 led_number_channels=args.led_number_channels,
@@ -438,6 +447,9 @@ def main() -> int:
                 led_stop_client=args.led_stop_client,
                 led_host=args.led_host,
                 led_port=args.led_port,
+                led_ssh_tunnel=args.led_ssh_tunnel,
+                led_ssh_tunnel_remote_host=args.led_ssh_tunnel_remote_host,
+                led_ssh_tunnel_remote_port=args.led_ssh_tunnel_remote_port,
                 led_timeout_s=args.led_timeout_s,
                 log_path=output_dir / "led_stop.log",
                 dry_run=args.dry_run,

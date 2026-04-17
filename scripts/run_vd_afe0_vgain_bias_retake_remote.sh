@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+BASE_RUNNER="$ROOT_DIR/scripts/run_led_vgain_bias_scan_remote.sh"
+
+DATE_TAG="${DATE_TAG:-20260325}"
+RUN_SUFFIX="${RUN_SUFFIX:-}"
+DRY_RUN="${DRY_RUN:-0}"
+PRINT_OUTPUTS="${PRINT_OUTPUTS:-0}"
+
+CONTROL_HOST="${CONTROL_HOST:-10.73.137.161}"
+CONTROL_PORT="${CONTROL_PORT:-40001}"
+ROUTE="${ROUTE:-mezz/0}"
+
+LED_HOST="${LED_HOST:-10.73.137.61}"
+LED_PORT="${LED_PORT:-55002}"
+LED_TIMEOUT_S="${LED_TIMEOUT_S:-5}"
+LED_CONFIG="${LED_CONFIG:-$ROOT_DIR/configs/led_run_defaults.json}"
+LED_CHANNEL_MASK="${LED_CHANNEL_MASK:-1}"
+LED_NUMBER_CHANNELS="${LED_NUMBER_CHANNELS:-12}"
+LED_PULSE_WIDTH_TICKS="${LED_PULSE_WIDTH_TICKS:-2}"
+
+SCAN_WAVELENGTH="${SCAN_WAVELENGTH:-270}"
+GROUP_SPECS="${GROUP_SPECS:-0:725;1:730;2:750;3:755}"
+BIAS_AFE="${BIAS_AFE:-0}"
+BIAS_VALUES="${BIAS_VALUES:-1143,1169,1195}"
+FIXED_AFE_BIAS_OVERRIDES="${FIXED_AFE_BIAS_OVERRIDES:-1:0,2:0,3:0,4:0}"
+CH_OFFSET="${CH_OFFSET:-2275}"
+BIASCTRL_DAC="${BIASCTRL_DAC:-4095}"
+WAVEFORM_LEN="${WAVEFORM_LEN:-1024}"
+WAVEFORMS_PER_POINT="${WAVEFORMS_PER_POINT:-5000}"
+TIMEOUT_MS="${TIMEOUT_MS:-30000}"
+SETTLE_S="${SETTLE_S:-0.5}"
+SAVE_FE_STATE="${SAVE_FE_STATE:-1}"
+SOFTWARE_TRIGGER="${SOFTWARE_TRIGGER:-0}"
+ALIGN_AFES="${ALIGN_AFES:-1}"
+ADC_RESOLUTION="${ADC_RESOLUTION:-0}"
+LPF_CUTOFF="${LPF_CUTOFF:-10}"
+PGA_CLAMP_LEVEL="${PGA_CLAMP_LEVEL:-0 dBFS}"
+PGA_GAIN_CONTROL="${PGA_GAIN_CONTROL:-24 dB}"
+LNA_GAIN_CONTROL="${LNA_GAIN_CONTROL:-12 dB}"
+LNA_INPUT_CLAMP="${LNA_INPUT_CLAMP:-auto}"
+
+usage() {
+  cat <<EOF
+Usage:
+  $(basename "$0")
+
+Runs the VD AFE0 270 nm vgain x bias campaign in two sequential pieces:
+  1. vgain = 500
+  2. vgain = 1500:100:2800
+
+Defaults:
+  channels           = 0,1,2,3
+  AFE scanned        = 0
+  AFE0 bias values   = 1143,1169,1195
+  fixed other AFEs   = 1:0,2:0,3:0,4:0
+  LED intensities    = 0:725;1:730;2:750;3:755
+  ch_offset          = 2275
+  biasctrl_dac       = 4095
+  waveforms/point    = 5000
+
+Environment:
+  DRY_RUN=1
+  PRINT_OUTPUTS=1
+  RUN_SUFFIX=_r1
+  DATE_TAG=20260325
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+if [[ $# -ne 0 ]]; then
+  usage
+  exit 2
+fi
+
+if [[ ! -f "$BASE_RUNNER" ]]; then
+  echo "Base runner not found: $BASE_RUNNER" >&2
+  exit 1
+fi
+
+cd "$ROOT_DIR"
+
+OUT_500="${ROOT_DIR}/client/dynamic_range_led/runs/${DATE_TAG}_vd_ch0to3_vgain_scan_led270_i725_730_750_755_bias1143_1169_1195_off2275_vg0500${RUN_SUFFIX}"
+OUT_1500_2800="${ROOT_DIR}/client/dynamic_range_led/runs/${DATE_TAG}_vd_ch0to3_vgain_scan_led270_i725_730_750_755_bias1143_1169_1195_off2275_vg1500_2800_step0100${RUN_SUFFIX}"
+
+if [[ "$PRINT_OUTPUTS" == "1" ]]; then
+  printf '%s\n' "$OUT_500"
+  printf '%s\n' "$OUT_1500_2800"
+  exit 0
+fi
+
+run_cmd() {
+  printf '+'
+  printf ' %q' "$@"
+  printf '\n'
+  "$@"
+}
+
+common_env=(
+  DRY_RUN="$DRY_RUN"
+  CONTROL_HOST="$CONTROL_HOST"
+  CONTROL_PORT="$CONTROL_PORT"
+  ROUTE="$ROUTE"
+  LED_HOST="$LED_HOST"
+  LED_PORT="$LED_PORT"
+  LED_TIMEOUT_S="$LED_TIMEOUT_S"
+  LED_CONFIG="$LED_CONFIG"
+  SCAN_WAVELENGTH="$SCAN_WAVELENGTH"
+  LED_FIXED_INTENSITY_270NM=0
+  LED_FIXED_INTENSITY_367NM=0
+  LED_CHANNEL_MASK="$LED_CHANNEL_MASK"
+  LED_NUMBER_CHANNELS="$LED_NUMBER_CHANNELS"
+  LED_PULSE_WIDTH_TICKS="$LED_PULSE_WIDTH_TICKS"
+  GROUP_SPECS="$GROUP_SPECS"
+  BIAS_AFE="$BIAS_AFE"
+  BIAS_VALUES="$BIAS_VALUES"
+  FIXED_AFE_BIAS_OVERRIDES="$FIXED_AFE_BIAS_OVERRIDES"
+  CH_OFFSET="$CH_OFFSET"
+  BIASCTRL_DAC="$BIASCTRL_DAC"
+  WAVEFORM_LEN="$WAVEFORM_LEN"
+  WAVEFORMS_PER_POINT="$WAVEFORMS_PER_POINT"
+  TIMEOUT_MS="$TIMEOUT_MS"
+  SETTLE_S="$SETTLE_S"
+  SAVE_FE_STATE="$SAVE_FE_STATE"
+  SOFTWARE_TRIGGER="$SOFTWARE_TRIGGER"
+  ALIGN_AFES="$ALIGN_AFES"
+  ADC_RESOLUTION="$ADC_RESOLUTION"
+  LPF_CUTOFF="$LPF_CUTOFF"
+  PGA_CLAMP_LEVEL="$PGA_CLAMP_LEVEL"
+  PGA_GAIN_CONTROL="$PGA_GAIN_CONTROL"
+  LNA_GAIN_CONTROL="$LNA_GAIN_CONTROL"
+  LNA_INPUT_CLAMP="$LNA_INPUT_CLAMP"
+)
+
+echo "==> VD AFE0 vgain x bias retake: vgain=500"
+run_cmd env \
+  "${common_env[@]}" \
+  VGAIN_START=500 \
+  VGAIN_STOP=500 \
+  VGAIN_STEP=100 \
+  OUTPUT_BASE="$OUT_500" \
+  bash "$BASE_RUNNER"
+
+echo
+echo "==> VD AFE0 vgain x bias retake: vgain=1500:100:2800"
+run_cmd env \
+  "${common_env[@]}" \
+  VGAIN_START=1500 \
+  VGAIN_STOP=2800 \
+  VGAIN_STEP=100 \
+  OUTPUT_BASE="$OUT_1500_2800" \
+  bash "$BASE_RUNNER"
+
+echo
+echo "VD AFE0 retake completed."
+echo "Data saved under:"
+echo "  $OUT_500"
+echo "  $OUT_1500_2800"

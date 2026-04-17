@@ -22,7 +22,7 @@ def default_led_client_path(name: str) -> str:
 
 
 def default_led_config_path() -> str:
-    return str(Path.home() / "repo" / "pds" / "configs" / "vd_coldbox" / "02_run_defaults.json")
+    return str(DAPHNE_ROOT / "configs" / "led_run_defaults.json")
 
 
 def parse_channels(expr: str) -> list[int]:
@@ -143,6 +143,9 @@ def run_led(
     led_config: str,
     led_host: str,
     led_port: int,
+    led_ssh_tunnel: str,
+    led_ssh_tunnel_remote_host: str,
+    led_ssh_tunnel_remote_port: int,
     led_timeout_s: float,
     led_channel_mask: int,
     led_number_channels: int,
@@ -174,6 +177,17 @@ def run_led(
         "--pulse-bias-percent-367nm",
         str(led_intensity_367nm),
     ]
+    if led_ssh_tunnel:
+        cmd.extend(
+            [
+                "--ssh-tunnel",
+                led_ssh_tunnel,
+                "--ssh-tunnel-remote-host",
+                led_ssh_tunnel_remote_host,
+                "--ssh-tunnel-remote-port",
+                str(led_ssh_tunnel_remote_port),
+            ]
+        )
     rc, output = run_cmd(cmd, log_path=log_path, dry_run=dry_run)
     return {
         "command": cmd,
@@ -186,6 +200,9 @@ def run_led_stop(
     *,
     led_host: str,
     led_port: int,
+    led_ssh_tunnel: str,
+    led_ssh_tunnel_remote_host: str,
+    led_ssh_tunnel_remote_port: int,
     led_timeout_s: float,
     log_path: Path,
     dry_run: bool,
@@ -200,6 +217,17 @@ def run_led_stop(
         "--timeout",
         str(led_timeout_s),
     ]
+    if led_ssh_tunnel:
+        cmd.extend(
+            [
+                "--ssh-tunnel",
+                led_ssh_tunnel,
+                "--ssh-tunnel-remote-host",
+                led_ssh_tunnel_remote_host,
+                "--ssh-tunnel-remote-port",
+                str(led_ssh_tunnel_remote_port),
+            ]
+        )
     rc, output = run_cmd(cmd, log_path=log_path, dry_run=dry_run)
     return {
         "command": cmd,
