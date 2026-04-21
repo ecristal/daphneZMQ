@@ -1,5 +1,15 @@
 #include "SpiDevice.hpp"
 
+#ifdef __linux__
+
+#include <cerrno>
+#include <cstring>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+#include <linux/spi/spidev.h>
+
 SpiDevice::SpiDevice(const std::string& devPath, const uint32_t &speedHz,
             const uint8_t &mode, const uint8_t &bitsPerWord)
             : fd(-1),
@@ -56,3 +66,20 @@ uint8_t SpiDevice::getMode() const{
 uint8_t SpiDevice::getBitsPerWord() const{
     return this->bits;
 }
+
+#else
+
+namespace {
+[[noreturn]] void not_supported() {
+    throw std::runtime_error("SpiDevice is supported only on Linux");
+}
+}  // namespace
+
+SpiDevice::SpiDevice(const std::string&, const uint32_t&, const uint8_t&, const uint8_t&) { not_supported(); }
+SpiDevice::~SpiDevice() = default;
+std::vector<uint8_t> SpiDevice::transfer(const std::vector<uint8_t>&) { not_supported(); }
+uint32_t SpiDevice::getSpeedHz() const { not_supported(); }
+uint8_t SpiDevice::getMode() const { not_supported(); }
+uint8_t SpiDevice::getBitsPerWord() const { not_supported(); }
+
+#endif

@@ -1,0 +1,10 @@
+sudo bash clk_conf.sh --bus 2 --chip 0x70 --verify --verbose
+sudo bash clk_conf.sh --bus 2 --chip 0x70 --dry-run --only 0x06,0x1C-0x1E
+sudo bash clk_conf.sh --bus 2 --chip 0x70 --verify
+sudo bash clk_conf.sh --bus 2 --chip 0x70 --verify --only 0x1C-0x2A,0x56,0xE6
+sudo bash clk_conf.sh --bus 2 --chip 0x70 --dry-run --only 0x1C-0x1E
+
+
+
+sudo ./endpoint_cfg.sh --addr 0x20 --clock endpoint -t 3 --ts-interval-ms 10
+

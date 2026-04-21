@@ -34,8 +34,8 @@ def biasControlVolts2DAC(volts):
 
 parser = argparse.ArgumentParser(description="Channel bias and Trim configuration.")
 # Add also limiter range [0-39] to this line to -channel argument
-parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
-parser.add_argument("-port", type=int, required=False, default=9000, help="Port number of DAPHNE. Default 9000.")
+parser.add_argument("-ip", type=str, default="127.0.0.1", help="IP address of DAPHNE (default 127.0.0.1).")
+parser.add_argument("-port", type=int, required=False, default=9876, help="Port number of DAPHNE. Default 9876.")
 parser.add_argument("-channel", type=int, choices=range(0, 40), required=True, help="Channel number (0-39).")
 parser.add_argument("-bias", type=float, required=True, help="Bias voltage.")
 parser.add_argument("-bias_control", type=float, required=True, help="Bias control voltage. Sets the maximum bias voltage.")

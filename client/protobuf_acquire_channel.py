@@ -55,8 +55,8 @@ def stream_envelope(sock: zmq.Socket, env: pb_high.ControlEnvelope):
 # CLI
 # ------------------------------------------------------------------
 parser = argparse.ArgumentParser(description="Acquisition of waveforms (legacy or streaming).")
-parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
-parser.add_argument("-port", type=int, default=9000, help="Server port.")
+parser.add_argument("-ip", type=str, default="127.0.0.1", help="IP address of DAPHNE (default 127.0.0.1).")
+parser.add_argument("-port", type=int, default=9876, help="Server port.")
 parser.add_argument("-channel", type=int, choices=range(0, 40), required=True, help="0-39")
 parser.add_argument("-foldername", type=str, required=True, help="Folder location to save channel data.")
 parser.add_argument("-N", type=int, required=True, help="Number of waveforms")

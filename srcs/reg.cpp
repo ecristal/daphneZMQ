@@ -2,10 +2,12 @@
 #include "DevMem.hpp"
 #include "FpgaRegDict.hpp"
 
+#include <utility>
+
 reg::reg(uint64_t BaseAddr,  size_t MemLen, FpgaRegDict RegDict)
 	: RegMem(std::make_unique<DevMem>(BaseAddr)){
 	this->BaseAddr = BaseAddr;
-	this->regDict = regDict;
+	this->regDict = std::move(RegDict);
 	this->MemLen = MemLen;
 	this->RegMem->map_memory(this->MemLen);
 }

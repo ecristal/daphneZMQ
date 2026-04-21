@@ -25,8 +25,8 @@ def send_envelope_and_get_reply(socket, envelope) -> bytes:
     return frames[-1]  # Payload is always in the last frame
 
 parser = argparse.ArgumentParser(description="DAPHNE Configuration.")
-parser.add_argument("-ip", type=str, required=True, help="IP address of DAPHNE.")
-parser.add_argument("-port", type=int, required=False, default=9000, help="Port number of DAPHNE. Default 9000.")
+parser.add_argument("-ip", type=str, default="127.0.0.1", help="IP address of DAPHNE (default 127.0.0.1).")
+parser.add_argument("-port", type=int, required=False, default=9876, help="Port number of DAPHNE. Default 9876.")
 parser.add_argument("-vgain", type=int, required=False, default=1600, help="VGain value for AFE blocks. Default 1600.")
 parser.add_argument("-ch_offset", type=int, required=False, default=2275, help="Pedestal offset for channels. Default 2275.")
 parser.add_argument("-align_afes", action='store_true', help="Enables alignment of AFE blocks.")
@@ -52,7 +52,7 @@ vgain_value = args.vgain
 ch_offset_value = args.ch_offset
 align_afes = args.align_afes
 enable_integrators = args.enable_integrators
-lpf_cutoff = lpf_dict[args.lpf_cutoff]   
+lpf_cutoff = lpf_dict[args.lpf_cutoff]
 pga_clamp_level = pga_clamp_level_dict[args.pga_clamp_level]
 pga_gain_control = pga_gain_control_dict[args.pga_gain_control]
 lna_gain_control = lna_gain_control_dict[args.lna_gain_control]
@@ -77,7 +77,7 @@ for offsetCH in range(40):
         response.ParseFromString(responseEnvelope.payload)
         print("Success:", response.success)
         print("Message:", response.message)
-    
+
 
 for afe in range(5):
     request = pb_low.cmd_writeAFEVGAIN()
@@ -87,17 +87,17 @@ for afe in range(5):
     envelope.type = pb_high.WRITE_AFE_VGAIN
     envelope.payload = request.SerializeToString()
 
-    
+
     response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
 
     if responseEnvelope.type == pb_high.WRITE_AFE_VGAIN:
-        response = pb_low.cmd_writeAFEVgain_response()
+        response = pb_low.cmd_writeAFEVGAIN_response()
         response.ParseFromString(responseEnvelope.payload)
         print("Success:", response.success)
         print("Message:", response.message)
-    
+
 request = pb_low.cmd_doAFEReset()
 envelope = pb_high.ControlEnvelope()
 envelope.type = pb_high.DO_AFE_RESET
@@ -116,7 +116,7 @@ if responseEnvelope.type == pb_high.DO_AFE_RESET:
 #---------------------------------------
 
 request = pb_low.cmd_setAFEPowerState()
-request.powerState = False
+request.powerState = True
 envelope = pb_high.ControlEnvelope()
 envelope.type = pb_high.SET_AFE_POWERSTATE
 envelope.payload = request.SerializeToString()
@@ -182,7 +182,7 @@ for afe in range(5):
     envelope.type = pb_high.WRITE_AFE_FUNCTION
     envelope.payload = request.SerializeToString()
 
-    
+
     response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
@@ -192,7 +192,7 @@ for afe in range(5):
         response.ParseFromString(responseEnvelope.payload)
         print("Success:", response.success)
         print("Message:", response.message)
-    
+
     #---------------------------------------
     #---------------------------------------
     request = pb_low.cmd_writeAFEFunction()
@@ -203,7 +203,7 @@ for afe in range(5):
     envelope.type = pb_high.WRITE_AFE_FUNCTION
     envelope.payload = request.SerializeToString()
 
-    
+
     response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
@@ -213,7 +213,7 @@ for afe in range(5):
         response.ParseFromString(responseEnvelope.payload)
         print("Success:", response.success)
         print("Message:", response.message)
-    
+
     #---------------------------------------
     #---------------------------------------
     request = pb_low.cmd_writeAFEFunction()
@@ -224,7 +224,7 @@ for afe in range(5):
     envelope.type = pb_high.WRITE_AFE_FUNCTION
     envelope.payload = request.SerializeToString()
 
-    
+
     response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
@@ -234,7 +234,7 @@ for afe in range(5):
         response.ParseFromString(responseEnvelope.payload)
         print("Success:", response.success)
         print("Message:", response.message)
-    
+
     #---------------------------------------
     #---------------------------------------
     request = pb_low.cmd_writeAFEFunction()
@@ -245,7 +245,7 @@ for afe in range(5):
     envelope.type = pb_high.WRITE_AFE_FUNCTION
     envelope.payload = request.SerializeToString()
 
-    
+
     response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
@@ -255,7 +255,7 @@ for afe in range(5):
         response.ParseFromString(responseEnvelope.payload)
         print("Success:", response.success)
         print("Message:", response.message)
-    
+
     #---------------------------------------
     #---------------------------------------
     request = pb_low.cmd_writeAFEFunction()
@@ -266,7 +266,7 @@ for afe in range(5):
     envelope.type = pb_high.WRITE_AFE_FUNCTION
     envelope.payload = request.SerializeToString()
 
-    
+
     response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
@@ -276,7 +276,7 @@ for afe in range(5):
         response.ParseFromString(responseEnvelope.payload)
         print("Success:", response.success)
         print("Message:", response.message)
-    
+
     #---------------------------------------
     #---------------------------------------
     request = pb_low.cmd_writeAFEFunction()
@@ -287,7 +287,7 @@ for afe in range(5):
     envelope.type = pb_high.WRITE_AFE_FUNCTION
     envelope.payload = request.SerializeToString()
 
-    
+
     response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
@@ -297,7 +297,7 @@ for afe in range(5):
         response.ParseFromString(responseEnvelope.payload)
         print("Success:", response.success)
         print("Message:", response.message)
-    
+
     #---------------------------------------
     #---------------------------------------
     request = pb_low.cmd_writeAFEFunction()
@@ -308,7 +308,7 @@ for afe in range(5):
     envelope.type = pb_high.WRITE_AFE_FUNCTION
     envelope.payload = request.SerializeToString()
 
-    
+
     response_bytes = send_envelope_and_get_reply(socket, envelope)
     responseEnvelope = pb_high.ControlEnvelope()
     responseEnvelope.ParseFromString(response_bytes)
@@ -318,7 +318,7 @@ for afe in range(5):
         response.ParseFromString(responseEnvelope.payload)
         print("Success:", response.success)
         print("Message:", response.message)
-    
+
 request = pb_low.cmd_setAFEPowerState()
 request.powerState = True
 envelope = pb_high.ControlEnvelope()

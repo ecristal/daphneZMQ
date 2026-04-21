@@ -1,0 +1,254 @@
+#!/usr/bin/env bash
+# clk_conf_v2.sh — Robust I²C clock config (quiet by default, full logfile)
+# - Summary-only stdout; detailed steps/errors go to a timestamped log file
+# - Continues on individual i2c errors; reports totals at the end
+# - Payload updated to user's latest table (0x23=0x41, 0x28=0x64, 0x2A=0x24)
+
+set -Euo pipefail   # no -e to avoid aborts por errores individuales
+
+BUS=2
+CHIP=0x70
+VERIFY=0
+DRYRUN=0
+DO_RESET=1
+ONLY_FILTER=""
+VERBOSE=0
+LOGDIR="./logs"
+
+usage(){ cat <<EOF
+Usage: sudo bash \$0 [--bus N] [--chip 0x70] [--verify] [--dry-run] [--no-reset] [--only <ranges>] [--verbose] [--logdir DIR]
+  --bus N          I²C bus (default \${BUS})
+  --chip 0xADDR    I²C 7-bit addr (default \${CHIP})
+  --verify         Read-back comprobación por registro
+  --dry-run        No escribe, solo emula
+  --no-reset       No hace el pulso final de reset
+  --only RANGES    Subconjunto: "0x1C-0x2A,0x56,0xE6"
+  --verbose        Muestra cada write/read también en stdout
+  --logdir DIR     Directorio para el log (default: \${LOGDIR})
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --bus) BUS="$2"; shift 2;;
+    --chip) CHIP="$2"; shift 2;;
+    --verify) VERIFY=1; shift;;
+    --dry-run) DRYRUN=1; shift;;
+    --no-reset) DO_RESET=0; shift;;
+    --only) ONLY_FILTER="${2:-}"; shift 2;;
+    --verbose) VERBOSE=1; shift;;
+    --logdir) LOGDIR="$2"; shift 2;;
+    -h|--help) usage; exit 0;;
+    *) echo "Unknown arg: $1"; usage; exit 2;;
+  esac
+done
+
+for cmd in i2cset i2cget; do command -v "$cmd" >/dev/null || { echo "Missing $cmd"; exit 2; }; done
+
+mkdir -p "$LOGDIR"
+TS="$(date +%Y%m%d_%H%M%S)"
+LOGFILE="${LOGDIR}/clk_conf_${TS}_bus${BUS}_chip$(printf '%s' "$CHIP" | tr -d '0x')$( [[ $VERIFY -eq 1 ]] && echo '_ver' ).log"
+
+hex(){ printf "0x%02X" "$1"; }
+log(){ echo -e "$*" >> "$LOGFILE"; }
+out(){ ((VERBOSE)) && echo -e "$*"; log "$*"; }
+line(){ printf '%*s\n' "${COLUMNS:-80}" '' | tr ' ' '-' | tee -a "$LOGFILE" >/dev/null; }
+
+# ---------- parse --only ----------
+ONLY_HAS=0
+RANGE_LO=()
+RANGE_HI=()
+SINGLES=()
+if [[ -n "${ONLY_FILTER}" ]]; then
+  ONLY_HAS=1
+  IFS=',' read -r -a parts <<< "${ONLY_FILTER}"
+  for p in "${parts[@]}"; do
+    if [[ "$p" =~ ^0x[0-9A-Fa-f]+-0x[0-9A-Fa-f]+$ ]]; then
+      IFS='-' read -r lo hi <<< "$p"
+      lo=$((lo)); hi=$((hi))
+      ((hi<lo)) && { t=$lo; lo=$hi; hi=$t; }
+      RANGE_LO+=("$lo"); RANGE_HI+=("$hi")
+    elif [[ "$p" =~ ^0x[0-9A-Fa-f]+$ ]]; then
+      SINGLES+=($((p)))
+    else
+      echo "Bad --only token: $p"; exit 2
+    fi
+  done
+fi
+
+allowed(){
+  local addr="$1"
+  (( ONLY_HAS==0 )) && return 0
+  local i
+  for i in "${!SINGLES[@]}"; do
+    (( addr==SINGLES[i] )) && return 0
+  done
+  for i in "${!RANGE_LO[@]}"; do
+    (( addr>=RANGE_LO[i] && addr<=RANGE_HI[i] )) && return 0
+  done
+  return 1
+}
+
+write_reg(){
+  local reg="$1" val="$2"
+  if (( DRYRUN )); then
+    out "i2cset -y ${BUS} ${CHIP} $(hex "$reg") $(hex "$val")  (dry-run)"
+    return 0
+  fi
+  if ! i2cset -y "$BUS" "$CHIP" "$(hex "$reg")" "$(hex "$val")" >/dev/null 2>&1; then
+    out "WRITE ERROR  $(hex "$reg") <- $(hex "$val")"
+    return 1
+  fi
+  out "WRITE OK     $(hex "$reg") <- $(hex "$val")"
+  return 0
+}
+
+read_reg(){
+  i2cget -y "$BUS" "$CHIP" "$(hex "$1")"
+}
+
+verify_reg(){
+  local reg="$1" want="$2"
+  local got_hex
+  if ! got_hex=$(read_reg "$reg" 2>/dev/null); then
+    out "READ ERROR   $(hex "$reg") (wanted $(hex "$want"))"
+    return 2
+  fi
+  local got=$((got_hex))
+  if (( got!=want )); then
+    out "MISMATCH     $(hex "$reg") want=$(hex "$want") got=${got_hex}"
+    return 1
+  else
+    out "VERIFY OK    $(hex "$reg") == $(hex "$want")"
+    return 0
+  fi
+}
+
+# ---------- payload: UPDATED TABLE ----------
+REGVALS=(
+  0x06 0x08
+
+  0x1C 0x0B  0x1D 0x08  0x1E 0xB0  0x1F 0xC0
+  0x20 0xE3  0x21 0xE3  0x22 0xC0  0x23 0x41
+  0x24 0x06  0x25 0x00  0x26 0x00  0x27 0x06
+  0x28 0x64  0x29 0x0C  0x2A 0x24  0x2D 0x00
+  0x2E 0x00  0x2F 0x14  0x30 0x3A  0x31 0x00
+  0x32 0xC4  0x33 0x07  0x34 0x10  0x35 0x00
+  0x36 0x06  0x37 0x00  0x38 0x00  0x39 0x00
+  0x3A 0x00  0x3B 0x01  0x3C 0x00  0x3D 0x00
+  0x3E 0x00  0x3F 0x10  0x40 0x00  0x41 0x00
+  0x42 0x00  0x43 0x00  0x44 0x00  0x45 0x00
+  0x46 0x00  0x47 0x00  0x48 0x00  0x49 0x00
+  0x4A 0x10  0x4B 0x00  0x4C 0x00  0x4D 0x00
+  0x4E 0x00  0x4F 0x00  0x50 0x00  0x51 0x00
+  0x52 0x00  0x53 0x00  0x54 0x00  0x55 0x10
+  0x56 0x80  0x57 0x0A  0x58 0x00  0x59 0x00
+  0x5A 0x00  0x5B 0x00  0x5C 0x01  0x5D 0x00
+  0x5E 0x00  0x5F 0x00  0x61 0x00  0x62 0x30
+  0x63 0x00  0x64 0x00  0x65 0x00  0x66 0x00
+  0x67 0x01  0x68 0x00  0x69 0x00  0x6A 0x80
+  0x6B 0x00  0x6C 0x00  0x6D 0x00  0x6E 0x40
+  0x6F 0x00  0x70 0x00  0x71 0x00  0x72 0x40
+  0x73 0x00  0x74 0x80  0x75 0x00  0x76 0x40
+  0x77 0x00  0x78 0x00  0x79 0x00  0x7A 0x40
+  0x7B 0x00  0x7C 0x00  0x7D 0x00  0x7E 0x00
+  0x7F 0x00  0x80 0x00  0x81 0x00  0x82 0x00
+  0x83 0x00  0x84 0x00  0x85 0x00  0x86 0x00
+  0x87 0x00  0x88 0x00  0x89 0x00  0x8A 0x00
+  0x8B 0x00  0x8C 0x00  0x8D 0x00  0x8E 0x00
+  0x8F 0x00  0x90 0x00  0x98 0x00  0x99 0x00
+  0x9A 0x00  0x9B 0x00  0x9C 0x00  0x9D 0x00
+  0x9E 0x00  0x9F 0x00  0xA0 0x00  0xA1 0x00
+  0xA2 0x00  0xA3 0x00  0xA4 0x00  0xA5 0x00
+  0xA6 0x00  0xA7 0x00  0xA8 0x00  0xA9 0x00
+  0xAA 0x00  0xAB 0x00  0xAC 0x00  0xAD 0x00
+  0xAE 0x00  0xAF 0x00  0xB0 0x00  0xB1 0x00
+  0xB2 0x00  0xB3 0x00  0xB4 0x00  0xB5 0x00
+  0xB6 0x00  0xB7 0x00  0xB8 0x00  0xB9 0x00
+  0xBA 0x00  0xBB 0x00  0xBC 0x00  0xBD 0x00
+  0xBE 0x00  0xBF 0x00  0xC0 0x00  0xC1 0x00
+  0xC2 0x00  0xC3 0x00  0xC4 0x00  0xC5 0x00
+  0xC6 0x00  0xC7 0x00  0xC8 0x00  0xC9 0x00
+  0xCA 0x00  0xCB 0x00  0xCC 0x00  0xCD 0x00
+  0xCE 0x00  0xCF 0x00  0xD0 0x00  0xD1 0x00
+  0xD2 0x00  0xD3 0x00  0xD4 0x00  0xD5 0x00
+  0xD6 0x00  0xD7 0x00  0xD8 0x00  0xD9 0x00
+  0xE6 0x06
+)
+
+RESET_REG=0xF6
+RESET_SEQ=(0x02 0x00)
+
+line
+echo "--------------------------------------------------"
+echo "starting to program the clock chip"
+log  "Clock chip programming — bus=${BUS}, chip=${CHIP}"
+log  "logfile: ${LOGFILE}"
+line
+(( DRYRUN )) && log "(dry-run mode: no writes occur)"
+log "Starting raw I²C writes..."
+
+errors=0
+total=0
+
+for ((i=0; i<${#REGVALS[@]}; i+=2)); do
+  reg=${REGVALS[i]}; val=${REGVALS[i+1]}
+  reg_d=$((reg)); val_d=$((val))
+  if ! allowed "$reg_d"; then continue; fi
+
+  out "$(printf '%-11s ← %s' "$(hex "$reg_d")" "$(hex "$val_d")")"
+  if ! write_reg "$reg_d" "$val_d"; then
+    ((errors++))
+    continue
+  fi
+  (( total++ ))
+  if (( VERIFY )); then
+    verify_reg "$reg_d" "$val_d" || ((errors++))
+  fi
+done
+
+# Sanity peek 0xE6
+if allowed $((0xE6)); then
+  if got_hex=$(read_reg $((0xE6)) 2>/dev/null); then
+    out "READ 0xE6 -> ${got_hex}"
+  else
+    out "READ ERROR 0xE6"
+    ((errors++))
+  fi
+fi
+
+# Reset opcional
+if (( DO_RESET )); then
+  echo "reseting the clock chip"
+  out "Reset pulse @ $(hex $RESET_REG) ..."
+  for v in "${RESET_SEQ[@]}"; do
+    if (( DRYRUN )); then
+      out "i2cset -y ${BUS} ${CHIP} $(hex $RESET_REG) $(hex "$((v))")  (dry-run)"
+    else
+      if ! i2cset -y "$BUS" "$CHIP" "$(hex $RESET_REG)" "$(hex "$((v))")" >/dev/null 2>&1; then
+        out "RESET WRITE ERROR $(hex $RESET_REG) <- $(hex "$((v))")"
+        ((errors++))
+      fi
+      usleep 20000 2>/dev/null || sleep 0.02
+    fi
+  done
+else
+  out "Skipping reset (--no-reset)"
+fi
+
+echo " done configuring the clock chip"
+echo " ----------------------------------------------------------------- "
+echo " ----------------------------------------------------------------- "
+
+# ---------- resumen en stdout ----------
+echo "✅ Programmed ${total} register(s) on bus ${BUS}, chip ${CHIP}."
+(( VERIFY )) && echo "🔎 Verification enabled."
+if (( errors > 0 )); then
+  echo "⚠️  Completed with ${errors} error(s)/mismatch(es). See log:"
+  echo "   ${LOGFILE}"
+  exit 1
+else
+  echo "✨ Done with no detected errors."
+  echo "   Full log: ${LOGFILE}"
+  exit 0
+fi

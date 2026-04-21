@@ -1,7 +1,17 @@
 #include "I2CDevice.hpp"
+
+#ifdef __linux__
 extern "C" {
-    #include <i2c/smbus.h>
+#include <i2c/smbus.h>
 }
+#include <cerrno>
+#include <cstring>
+#include <fcntl.h>
+#include <sstream>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+#include <linux/i2c-dev.h>
 
 I2CDevice::I2CDevice(const std::string &devicePath, const uint8_t &deviceAddress)
     : devicePath(devicePath), deviceAddress(deviceAddress) {
@@ -13,7 +23,7 @@ I2CDevice::I2CDevice(const std::string &devicePath, const uint8_t &deviceAddress
     this->fileDescriptor = fileDescriptor;
 }
 
-I2CDevice::I2CDevice(const std::string &devicePath, const uint8_t &deviceAddress, const int &enablePEC)
+I2CDevice::I2CDevice(const std::string &devicePath, const uint8_t &deviceAddress, int enablePEC)
     : devicePath(devicePath), deviceAddress(deviceAddress) {
     fileDescriptor = this->openDevice(enablePEC);
     if (fileDescriptor < 0) {
@@ -42,7 +52,7 @@ int I2CDevice::openDevice() {
     return file;
 }
 
-int I2CDevice::openDevice(const int &enablePEC) {
+int I2CDevice::openDevice(int enablePEC) {
     int file = open(devicePath.c_str(), O_RDWR);
     if (file < 0) {
         std::cerr << "Error opening I2C device: " << strerror(errno) << std::endl;
@@ -62,7 +72,7 @@ int I2CDevice::openDevice(const int &enablePEC) {
     return file;
 }
 
-bool I2CDevice::closeDevice() {
+bool I2CDevice::closeDevice() noexcept {
     if (close(fileDescriptor) < 0) {
         std::cerr << "Error closing I2C device: " << strerror(errno) << std::endl;
         return false;
@@ -149,3 +159,27 @@ void I2CDevice::writeWordSMBus(const uint8_t &command, uint16_t value) {
             + devicePath + " addr " + std::to_string(deviceAddress));
     }
 }
+
+#else
+
+namespace {
+[[noreturn]] void not_supported() {
+    throw std::runtime_error("I2CDevice is supported only on Linux");
+}
+}  // namespace
+
+I2CDevice::I2CDevice(const std::string&, const uint8_t&) { not_supported(); }
+I2CDevice::I2CDevice(const std::string&, const uint8_t&, int) { not_supported(); }
+I2CDevice::~I2CDevice() = default;
+void I2CDevice::writeSingleByte(const uint8_t&) { not_supported(); }
+void I2CDevice::writeByte(const uint8_t&, const uint8_t&) { not_supported(); }
+void I2CDevice::writeBytes(const uint8_t&, const std::vector<uint8_t>&) { not_supported(); }
+void I2CDevice::writeFrame(std::vector<uint8_t>&) { not_supported(); }
+void I2CDevice::readSingleByte(uint8_t&) { not_supported(); }
+void I2CDevice::readByte(const uint8_t&, uint8_t&) { not_supported(); }
+void I2CDevice::readBytes(const uint8_t&, std::vector<uint8_t>&, const uint8_t&) { not_supported(); }
+void I2CDevice::readFrame(std::vector<uint8_t>&, const uint8_t&) { not_supported(); }
+uint16_t I2CDevice::readWordSMBus(const uint8_t&) { not_supported(); }
+void I2CDevice::writeWordSMBus(const uint8_t&, uint16_t) { not_supported(); }
+
+#endif

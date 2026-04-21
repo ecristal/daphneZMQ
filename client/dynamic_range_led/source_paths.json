@@ -1,0 +1,8 @@
+{
+  "combined_csv_source": "/Users/marroyav/repo/pds/scan_outputs/combined_dark_target_2000/per_channel_closest_offsets_target_2000_combined.csv",
+  "source_scans": {
+    "dark_low_offsets": "scan_outputs/vgain_offset_dark_low_offsets",
+    "raw_scan": "scan_outputs/vgain_offset_raw_scan"
+  },
+  "summary_csv_source": "/Users/marroyav/repo/pds/scan_outputs/combined_dark_target_2000/summary_by_vgain_target_2000_combined.csv"
+}

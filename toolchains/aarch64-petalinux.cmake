@@ -1,0 +1,25 @@
+set(CMAKE_SYSTEM_NAME Linux)
+set(CMAKE_SYSTEM_PROCESSOR aarch64)
+
+# Override these from the command line if needed:
+#   -DCMAKE_C_COMPILER=/path/to/aarch64-linux-gcc
+#   -DCMAKE_CXX_COMPILER=/path/to/aarch64-linux-g++
+#   -DCMAKE_SYSROOT=/path/to/sysroot
+
+if(NOT CMAKE_C_COMPILER)
+  set(CMAKE_C_COMPILER aarch64-linux-gnu-gcc)
+endif()
+
+if(NOT CMAKE_CXX_COMPILER)
+  set(CMAKE_CXX_COMPILER aarch64-linux-gnu-g++)
+endif()
+
+if(NOT CMAKE_SYSROOT AND DEFINED ENV{PETALINUX_SYSROOT})
+  set(CMAKE_SYSROOT "$ENV{PETALINUX_SYSROOT}")
+endif()
+
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+

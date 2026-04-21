@@ -38,7 +38,8 @@ uint32_t FrontEnd::getDelayCtrlReady(){
 
 uint32_t FrontEnd::doTrigger(){
 
-	return this->fpgaReg->setBits("frontendTrigger", "GO", 1);
+	// Snapshot spies requires magic value per FPGA design (0xBABA)
+	return this->fpgaReg->writeRegister("frontendTrigger", 0xBABA);
 }
 
 uint32_t FrontEnd::setDelay(const uint8_t& afe,const uint32_t& delay){
@@ -68,4 +69,17 @@ uint32_t FrontEnd::resetDelayCtrlValues(){
 		this->setDelay(afe, 0);
 	}
 	return 0;
+}
+
+bool FrontEnd::waitForDelayCtrlReady(std::chrono::milliseconds timeout,
+                                     std::chrono::milliseconds poll){
+    const auto deadline = std::chrono::steady_clock::now() + timeout;
+    do {
+        if (this->getDelayCtrlReady() != 0) {
+            return true;
+        }
+        std::this_thread::sleep_for(poll);
+    } while (std::chrono::steady_clock::now() < deadline);
+
+    return this->getDelayCtrlReady() != 0;
 }

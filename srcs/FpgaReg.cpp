@@ -1,6 +1,6 @@
-#include <memory>
-#include "reg.hpp"
 #include "FpgaRegDict.hpp"
+#include "reg.hpp"
+#include <memory>
 #include "FpgaReg.hpp"
 
 FpgaReg::FpgaReg()
@@ -26,6 +26,11 @@ const uint32_t* FpgaReg::getRegisterPointer(const std::string &regName, const st
 
 	uint32_t offset_ = offset*(sizeof(uint32_t));
 	return this->fpgaMem->getRegisterPointer(regName, bitName, offset_);
+}
+
+uint32_t FpgaReg::writeRegister(const std::string &regName, const uint32_t &value){
+    std::vector<uint32_t> v(1, value);
+    return this->fpgaMem->WriteRegister(regName, v);
 }
 
 uint32_t FpgaReg::getBitsFast(const uint32_t &offset, const bool& bitEndianess){

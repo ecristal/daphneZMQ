@@ -9,7 +9,11 @@ SpyBuffer::~SpyBuffer(){}
 
 uint32_t SpyBuffer::getFrameClock(const uint32_t& afe, const uint32_t& sample){
 
-	return this->fpgaReg->getBits("spyBuffer_" + std::to_string(afe) + "_8", "DATA", sample);
+	const uint32_t* ptr = this->fpgaReg->getRegisterPointer("spyBuffer_" + std::to_string(afe) + "_8", "DATA", sample);
+	if (!ptr) {
+		return 0;
+	}
+	return *ptr;  // full 32-bit word; caller can mask as needed
 }
 
 uint32_t SpyBuffer::getData(const uint32_t& sample) const{

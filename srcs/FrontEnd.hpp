@@ -33,6 +33,8 @@ public:
     uint32_t setBitslip(const uint8_t& afe,const uint32_t& bitslip);
     uint32_t getBitslip(const uint8_t& afe);
     uint32_t resetDelayCtrlValues();
+    bool waitForDelayCtrlReady(std::chrono::milliseconds timeout = std::chrono::milliseconds(250),
+                               std::chrono::milliseconds poll = std::chrono::milliseconds(5));
 
 private:
     std::unique_ptr<FpgaReg> fpgaReg;

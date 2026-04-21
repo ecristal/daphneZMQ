@@ -1,243 +1,255 @@
-# Introduction
+# daphne-server
 
-This project is the Slow Control software written in C++ to control and configure the DAPHNE V3/Mezz of the DUNE experiment. The project implements a ZMQ repply server that listen to incoming messages,
-executes configuration commands or retrieves sampled waveforms form the spybuffers and replies to the client. 
-The messaging protocol is implemented using Google's protobuf library. There are two levels of messaging commands: 
-  - High level commands: These are commands used to configure multiple systems at a time or high level configuration. Examples:
-      - Dump the spybuffers of a specific channel.
-      - Configure the entire frontend.
-      - Request voltage levels information. 
-  - Low level commands: These are atomic configuration commands that operates on specific systems.
-      - Configure CH offset.
-      - Configure AFE5808A registers.
-      - Configure AFE BIAS voltage.
+Configuration and monitoring toolkit for the DAPHNE front-end, targeting a Xilinx SoM Kria 260.  
+The project contains:
 
-These commands are defined in the following files:
-  - srcs/protobuf/daphneV3_high_level_confs.proto
-  - srcs/protobuf/daphneV3_low_level_confs.proto
+- low-level memory access helpers (`DevMem`) used to peek/poke AXI registers from the PS side;
+- a ZeroMQ-based register server (`srcs/srv.cpp`) that exposes simple `read`/`write` commands;
+- the main `daphneServer` application (v2-only), which orchestrates AFE, SPI, I²C and trigger primitives and uses Protocol Buffers for configuration exchanges.
 
-# Installation and usage for Users
-## Deploy DAPHNE SlowControl Application 
-Go to this repository realese page https://github.com/ecristal/daphneZMQ/releases and download the latest pre-release tarball. Then, secure copy the tarball to your DAPHNE V3/Mezz and untar it to your desired location. Navigate to the binary folder and execute the application:
-```sh
-cd /path/to/app/DaphneSlowController_V0_01_16/usr/bin
-sudo ./DaphneSlowController --ip <IP-ADDRESS> --port <PORT>
-#example: sudo ./DaphneSlowController --ip 193.206.157.36 --port 9000
+## Repository layout
+
+- `srcs/` – core C++ sources; most hardware interactions are implemented here.
+- `srcs/protobuf/` – protobuf schemas for higher-level commands.
+- `srcs/configurations/` – default runtime configuration snippets.
+- `client/`, `bash_scripts/` – helper clients and maintenance scripts.
+
+## Prerequisites
+
+- CMake ≥ 3.10 and a C++17-capable compiler.
+- [ZeroMQ](https://zeromq.org/) runtime (`libzmq`) and the `cppzmq` headers.
+- [Protocol Buffers](https://protobuf.dev/) compiler and library.
+- [CLI11](https://github.com/CLIUtils/CLI11) headers (vendored under `third_party/CLI11/include`).
+- `libi2c` (optional; needed when using the I²C features of `daphneServer`).
+- OpenMP (optional; enabled automatically if available).
+
+On Ubuntu-like systems the following packages cover the essentials:
+
+```bash
+sudo apt install build-essential cmake libzmq3-dev libprotobuf-dev protobuf-compiler \
+                 libi2c-dev
 ```
 
-## Client side python scripts 
-All client scripts are written in python and can be found in the client folder. To use these scripts, the best way to proceed is to create a python virtual environment and install all required packages using pip.
-### Creating a virtual environment in Windows
-To create a virtual environment in Windows, open a PowerShell and execute the following commands:
-```powershell
-python -m venv C:\desired\virtual\env_path\python_venvs\daphneZMQ
-```
-Then activate the environment:
-```powershell
-C:\desired\virtual\env_path\python_venvs\daphneZMQ\Scripts\Activate.ps1
-```
-### Creating a virtual environment in Linux
-To create a virtual environment in Linux, open a terminal and execute the following commands:
-```sh
-python -m venv /desired/virtual/env_path/python_venvs/daphneZMQ
-```
-Then activate the environment:
-```sh
-source /desired/virtual/env_path/python_venvs/daphneZMQ/bin/activate
-```
-### Installing the required python packages
-After activating the virtual environment, install the required python packages to run the client scripts. This step has to be done only once:
-```
-pip install pyzmq protobuf numpy matplotlib tqdm
-```
-After installing the python packages via pip, the scripts can be executed. 
-### Configuring DAPHNE
-The first step is to configure DAPHNE. To do so execute the script `protobuf_configure_daphne.py`. Example:
-```
-python .\protobuf_configure_daphne.py -ip 193.206.157.36 -port 9000 -vgain 1600 -ch_offset 2275 -align_afes -lpf_cutoff 10 -pga_clamp_level '0 dBFS' -pga_gain_control '24 dB' -lna_gain_control '12 dB' -lna_input_clamp auto
-```
-This script will configure all 40 channel and 5 AFEs with the provided arguments. For more information about the possible arguments execute:
-```
-python .\protobuf_configure_daphne.py -help
-```
-### Oscilloscope
-The oscilloscope script creates a window where the selected channel is plotted live. Execute the script `protobuf_oscilloscope.py` to open an osciloscope window. Example:
-```
-python .\protobuf_oscilloscope.py -ip 193.206.157.36 -port 9000 -channel 39 -L 2048 -software_trigger 
-```
-Do not supply the `-software_trigger` flag when using an external trigger. For more information about the possible arguments execute:
-```
-python .\protobuf_oscilloscope.py -help
-```
-### Acquire channel data
-To acquire and save an specific channel data. Execute the script `protobuf_acquire_channel.py` to open an osciloscope window. Example:
-```
-python .\protobuf_acquire_channel.py -ip 193.206.157.36 -port 9000 -channel 0 -L 2048 -N 10000 -filename channel_0_ext_power_vgain_900_30mhz.dat -software_trigger  
-```
-Do not supply the `-software_trigger` flag when using an external trigger. For more information about the possible arguments execute:
-```
-python .\protobuf_acquire_channel.py -help
-```
-This script will save a binary file containing `N` uint16 concatenated waveforms of length `L`.
+## Building
 
-# Installation procedure and application execution for developers
-## Installation
+```bash
+# Fast build (if Ninja is available)
+cmake -S . -B build -G Ninja
+ninja -C build
 
-To start developing in a DAPHNE V3/Mezz, follow this procedure to install the required libraries:
-
-First, clone, build and install the ZeroMQ library.
-```sh
-wget https://github.com/zeromq/libzmq/releases/download/v4.3.4/zeromq-4.3.4.tar.gz
-tar xvzf zeromq-4.3.4.tar.gz
-cd zeromq-4.3.4
-./configure --host=aarch64-linux-gnu
-make -j4 
-sudo make install
+# Standard makefiles
+# cmake -S . -B build
+# cmake --build build --parallel
 ```
 
+Note: on non-Linux hosts (e.g. macOS), the I²C/SPI backends are stubbed to allow compilation, but hardware access will
+not work at runtime. Build on (or for) Linux/Petalinux for deployment.
 
-Second, clone and install the header-only cppzmq library.
-```sh
-git clone https://github.com/zeromq/cppzmq.git
-cd cppzmq
-mkdir build && cd build
-cmake .. -DCPPZMQ_BUILD_TESTS=OFF 
+Minimal source set for building `daphneServer`:
+
+- `CMakeLists.txt`
+- `srcs/` (including `srcs/protobuf/*.proto`)
+- `third_party/CLI11/include`
+- `third_party/cppzmq` (optional; used when `zmq.hpp` is not installed system-wide)
+
+The build produces two main executables:
+
+- `build/daphneServer` – the high-level slow-control application (ControlEnvelopeV2 only).
+- `build/daphne_zmq_server` – a lightweight register access server.
+
+## daphneServer (v2-only)
+
+`daphneServer` is a ROUTER-based server that accepts `ControlEnvelopeV2` only. Legacy `ControlEnvelope`
+messages are deprecated and ignored.
+
+Transport behavior:
+
+- The server preserves `task_id`, sets `correl_id` to the request `msg_id`, and generates a fresh `msg_id` per response.
+- For chunked spybuffer dumps, a single request produces a sequence of responses with the same `task_id`/`correl_id`.
+
+### Usage
+
+```bash
+./build/daphneServer --bind tcp://*:9876
 ```
 
-Third, clone, build and install the abseil library.
-```sh
-mkdir ~/software/abseil-install
-git clone https://github.com/abseil/abseil-cpp.git
-cd abseil-cpp
-mkdir build && cd build
-cmake .. -DCMAKE_POSITION_INDEPENDENT_CODE=ON -DCMAKE_BUILD_TYPE=Release -DABSL_ENABLE_INSTALL=ON -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=~/software/abseil-install
-make -j4
-make install
+Optional flags:
+
+- `--disable-monitoring` disables the background I²C monitoring threads.
+- `--monitor-period-ms 200` controls monitoring cadence.
+
+Safety knobs:
+
+- `DAPHNE_SKIP_CONFIG_RESET=1` skips the reset/powercycle at the start of configure.
+- `DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE=1` skips the auto-align during configure.
+- `DAPHNE_MAX_SPYBUFFER_BYTES` caps the non-chunked spybuffer dump response size (default 64 MiB).
+- `DAPHNE_MAX_SPYBUFFER_CHUNK_BYTES` caps per-chunk size for chunked dumps (default 64 MiB).
+
+Frontend alignment and access-safety constraints are documented in
+`docs/frontend-safety-contract.md`. Keep that file in sync with firmware-side
+frontend/control contracts when changing alignment, register use, or optional
+block behavior.
+
+Timing-endpoint readiness and clock-source safety constraints are documented in
+`docs/endpoint-safety-contract.md`. Keep that file in sync with firmware-side
+timing contracts when changing endpoint initialization, readiness checks, or
+clock-source behavior.
+
+Target-side compile, service installation, and bring-up validation steps are
+documented in `docs/bringup-validation.md`.
+
+Recommended bring-up order on target:
+
+1. configure the external clock chip over I2C
+2. load the PL
+3. configure the timing endpoint and wait for ready
+4. start Hermes and the slow-control server
+
+## ZeroMQ register server
+
+The server provides blocking request/reply access to AXI registers. It accepts the
+optional bind endpoint as the first argument or via the `DAPHNEZMQ_BIND` env var.
+If neither is provided it falls back to `tcp://*:9000`.
+
+### Usage
+
+```bash
+# bind to all interfaces on port 9000
+./build/daphne_zmq_server
+
+# bind explicitly
+./build/daphne_zmq_server tcp://192.168.2.10:9000
+
+# or via environment variable
+export DAPHNEZMQ_BIND=tcp://0.0.0.0:6000
+./build/daphne_zmq_server
 ```
 
-Fourth, clone, build and install the protobuf library.
-```sh
-git clone --recursive https://github.com/protocolbuffers/protobuf.git
-cd protobuf
-git checkout v30.1
-git submodule update --init --recursive
-mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release -Dprotobuf_BUILD_SHARED_LIBS=ON -DCMAKE_INSTALL_PREFIX=/usr/local -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_BUILD_EXAMPLES=OFF -Dabsl_DIR=$HOME/software/abseil-install/lib64/cmake/absl
-make -j4 
-sudo make install
+Commands use ASCII hex tokens (with or without `0x` prefixes):
+
+```
+read <offset>
+write <offset> <value>
 ```
 
-Fifth, and finally clone this repository, build the Slow Control Application
-```sh
-git clone https://github.com/ecristal/daphneZMQ.git
-cd ~/daphneZMQ
-mkdir build && cd build 
-cmake ..
-make -j4
-``` 
-## Execution
-Execute the application.
-```sh
-sudo ./DaphneSlowController -ip <IP-ADDRESS> -port <PORT>
-#example: sudo ./DaphneSlowController -ip 193.206.157.36 -port 9000
-```
-## Usage and examples
-To be able to send commands, the user must develop a client software using C++ or Python. The python client is recommended for it's ease of develop. The protobuf library of the high and low level commands are available in the srcs/protobuf/ folder. 
+Replies are:
 
-The python protobuf package is required and can be installed with the following command:
-```sh
-pip install pyzmq protobuf numpy matplotlib tqdm
-```
+- `OK` for a successful write verification,
+- an 8-digit uppercase hex string for `read`,
+- or `ERROR: …` with diagnostics.
 
-## Example: Configure the bias control and AFE Bias Voltage
-In this example, this small client is executed in the ./client folder in the repository. The protobuf libraries are imported as `pb_high` and `pb_low`. The client configures:
+Offsets are interpreted as byte offsets within the mapped AXI window starting at
+`0x4000_0000` by default. Adjust `kAxiBaseAddr` / `kAxiWindowSize` in
+`srcs/srv.cpp` if your platform uses a different layout.
 
-  - Bias Control: The Bias Control value is the configurable maximum voltage output.
-  - Bias Value:  The Bias voltage value of each AFE block.  
+## Development notes
 
-Two functions converts the BIAS control and bias voltage to the DAC units required for the configuration: 
-  - `def biasVolts2DAC(volts)`
-  - `def biasControlVolts2DAC(volts)`
+- `DevMem` now validates offsets and length arguments and no longer leaks file
+  descriptors or mappings when remapping.
+- If you add new binaries, prefer reusing the existing CMake targets (e.g. by
+  adding to `SOURCES` or creating dedicated executables alongside
+  `daphne_zmq_server`).
+- For hardware-less testing consider mocking `/dev/mem` access or building with
+  a stub.
 
-For this specific example, the client configure the Bias Control value to 55.0V and the Bias Voltage value to 10.0, 20.0, 30.0, 40.0, 50.0 for AFE 0 to AFE 4, repectively.
+## Configure + Align (what happens when you run `configure_fe_min_v2.py`)
 
+The “one-shot” client `client/configure_fe_min_v2.py` sends a CONFIGURE_FE (V2 envelope) to `daphneServer` and optionally an explicit ALIGN request. The sequence on the server is:
 
-``` python
-import zmq
-import sys
-import os
+- CONFIGURE_FE handling (`MT2_CONFIGURE_FE_REQ` → `configureDaphne()`):
+  - If `DAPHNE_SKIP_CONFIG_RESET` is unset: reset AFEs and power them on.
+  - Program trigger thresholds for the listed channels using `/dev/mem` at `0xA0010000` (stride 0x20) and set trigger enable masks (`0x94000020` low / `0x94000024` high).
+  - Program per-channel TRIM/OFFSET DACs (40 channels).
+  - Program per-AFE attenuation (VGAIN) and AFE functions (serialized data rate, ADC output format, LPF, PGA clamp/integrator disable, LNA clamp/gain/integrator disable).
+  - Reinforce AFE power on.
+  - If `DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE` is unset: run `alignAFE()` (see below).
+- Optional explicit align: if the client flag `-align_afes` is set, the client sends `MT2_ALIGN_AFE_REQ` after configure, and the server runs `alignAFE()` again and returns TAP/BITSLIP plus scan details.
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+Alignment logic (`alignAFE()`):
+- Reset delay control and SERDES, disable delay VTC.
+- Refuse alignment if `DELAYCTRL_READY` does not assert after reset.
+- For each AFE (0–4), scan delay taps to find the longest stable FCLK window, then scan bitslip 0–15 looking for the exact `0x00FF00FF` pattern. The spy snapshot is taken by writing the frontend trigger magic value `0xBABA` and waiting briefly before reading the 32-bit FCLK word.
+- After choosing TAP/BITSLIP, perform a short verification sweep and require the expected `0x00FF00FF` pattern to remain stable. Do not report success for an AFE that only hits the target on a single lucky sample.
+- Re-enable delay VTC and report TAP/BITSLIP per AFE. When invoked via `configure_fe_min_v2.py -align_afes --full`, the response includes the delay window and the full bitslip scan words to aid debugging.
 
-from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
-from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
+Important frontend assumptions:
 
-def biasVolts2DAC(volts):
-    dac_values = []
-    for i in range(len(volts)):
-        dac_values.append(int((26.1/(26.1+1000))*1000.0*volts[i]))
-    return dac_values
+- The frontend deserialize boundary is `16-bit`.
+- The required AFE serialization mode is `LSb-first`.
+- `DELAYCTRL_READY` is a prerequisite for trusting alignment.
+- Delay tap programming is only valid while VTC is disabled.
 
-def biasControlVolts2DAC(volts):
-    return (1.0/74.0)*volts*1000.0
+Tuning knobs:
+- Set `DAPHNE_SKIP_CONFIG_RESET=1` to skip the reset/powercycle at the start of configure.
+- Set `DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE=1` to skip the auto-align during configure and rely only on the explicit `-align_afes` from the client.
 
-biasAFE_Volts = [10.0, 20.0, 30.0, 40.0, 50.0]
-biasAFE_DAC = biasVolts2DAC(biasAFE_Volts)
-biasControlVolts = 55.0
-biasControlDAC = int(biasControlVolts2DAC(biasControlVolts))
+## Cross-compiling for Petalinux (aarch64)
 
+This repository is designed to be built on the target (Petalinux) or cross-compiled using a sysroot.
+A minimal cross-compile invocation looks like:
 
-request = pb_low.cmd_writeVbiasControl()
-request.vBiasControlValue = biasControlDAC
-request.enable = True
-envelope = pb_high.ControlEnvelope()
-envelope.type = pb_high.WRITE_VBIAS_CONTROL
-envelope.payload = request.SerializeToString()
-
-# Send via ZMQ
-context = zmq.Context()
-socket = context.socket(zmq.REQ)
-socket.connect("tcp://193.206.157.36:9000")
-socket.send(envelope.SerializeToString())
-
-# Receive response
-response_bytes = socket.recv()
-responseEnvelope = pb_high.ControlEnvelope()
-responseEnvelope.ParseFromString(response_bytes)
-
-if responseEnvelope.type == pb_high.WRITE_VBIAS_CONTROL:
-    response = pb_low.cmd_writeVbiasControl_response()
-    response.ParseFromString(responseEnvelope.payload)
-    print("Success:", response.success)
-    print("Message:", response.message)
-socket.close()
-
-for afe in range(5):
-    request = pb_low.cmd_writeAFEBiasSet()
-    request.afeBlock = afe
-    request.biasValue = biasAFE_DAC[afe]
-    envelope = pb_high.ControlEnvelope()
-    envelope.type = pb_high.WRITE_AFE_BIAS_SET
-    envelope.payload = request.SerializeToString()
-
-    # Send via ZMQ
-    context = zmq.Context()
-    socket = context.socket(zmq.REQ)
-    socket.connect("tcp://193.206.157.36:9000")
-    socket.send(envelope.SerializeToString())
-
-    # Receive response
-    response_bytes = socket.recv()
-    responseEnvelope = pb_high.ControlEnvelope()
-    responseEnvelope.ParseFromString(response_bytes)
-
-    if responseEnvelope.type == pb_high.WRITE_AFE_BIAS_SET:
-        response = pb_low.cmd_writeAFEBiasSet_response()
-        response.ParseFromString(responseEnvelope.payload)
-        print("Success:", response.success)
-        print("Message:", response.message)
-    socket.close()
+```bash
+cmake -S . -B build-peta \
+  -DCMAKE_TOOLCHAIN_FILE=toolchains/aarch64-petalinux.cmake \
+  -DCMAKE_SYSROOT=/path/to/petalinux/sysroot \
+  -DCMAKE_BUILD_TYPE=Release
+cmake --build build-peta --parallel
 ```
 
+For local testing of the produced aarch64 binaries, run them under an emulator (e.g. `qemu-aarch64`) with a matching
+rootfs. The easiest workflow is usually to compile in a Petalinux SDK container or on a build VM that has the correct
+sysroot and libraries.
 
+## Building on Petalinux from checkout only (`$HOME/daphne-server`)
 
+The default Petalinux flow is self-contained in this checkout and uses a pinned
+deps tarball from `deps/deps.lock.cmake`.
+
+```bash
+git clone <your-repo-url> daphne-server
+cd "$HOME/daphne-server"
+./scripts/petalinux_build.sh ./build-petalinux ./deps_tarballs
+./build-petalinux/daphneServer --bind tcp://*:9876
+```
+
+To create a minimal deployable bundle (binaries + runtime libs copied from this
+checkout/build tree), run:
+
+```bash
+./scripts/make_deploy_bundle.sh ./build-petalinux ./deploy
+./deploy/run_daphneServer.sh --bind tcp://*:9876
+```
+
+## Managing the pinned deps tarball
+
+### 1) Create the deps tarball (once, on a reference machine)
+
+On a reference Petalinux machine with a known-good dependency prefix, create a
+tarball containing minimal headers/libs/tools:
+
+```bash
+cd daphne-server
+./scripts/make_deps_tarball_from_prefix.sh /path/to/prefix ./deps_tarballs \
+  daphne-deps-petalinux2024.1-aarch64-glibc2.36-protobuf30.1-zeromq4.3.4.tar.gz
+```
+
+That script prints a SHA256 and the `set(...)` lines to paste into `deps/deps.lock.cmake` (commit that file).
+
+### 2) Build using the pinned tarball (on any Petalinux machine)
+
+Copy the tarball to the target (or place it in a shared location), then:
+
+```bash
+cd "$HOME/daphne-server"
+./scripts/petalinux_build.sh ./build-petalinux ./deps_tarballs
+./build-petalinux/daphneServer --bind tcp://*:9876
+```
+
+The build script fails fast if the pinned tarball is missing or does not match
+`deps/deps.lock.cmake`.
+
+## Contributing
+
+Please open merge requests or issues with reproduction steps, expected behaviour,
+and board/bitstream details. Continuous improvements around documentation,
+automation, and error handling are especially welcome.

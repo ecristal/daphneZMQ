@@ -1,7 +1,10 @@
 #include "DevMem.hpp"
+
+#include <cerrno>
+#include <cstring>
 #include <fcntl.h>
-#include <unistd.h>
 #include <sys/mman.h>
+#include <unistd.h>
 
 // Constructor
 DevMem::DevMem(uint64_t base_addr, const std::string& filename)
@@ -23,31 +26,23 @@ DevMem::DevMem(uint64_t base_addr, const std::string& filename)
 
 // Destructor
 DevMem::~DevMem() {
-    if (mem_ != MAP_FAILED) {
-        munmap(mem_, length_);
-    }
+    unmap_if_mapped();
     if (fd_ != -1) {
         close(fd_);
     }
 }
 
 void DevMem::changeBaseAddr(const uint64_t &base_addr, const size_t length){
-    this->base_addr_ = base_addr & ~(page_size - 1);
-    this->offset_ = base_addr - base_addr_;
-    this->length_ = align_to_page(length + offset_);
-    
-    // Open the file
-    this->fd_ = open(filename_.c_str(), O_RDWR | O_SYNC);
-    if (this->fd_ == -1) {
-        throw std::runtime_error("Failed to open " + filename_);
+    if (length == 0) {
+        throw std::invalid_argument("Length must be greater than zero");
     }
 
-    // Map the memory
-    this->mem_ = mmap(nullptr, length_, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, base_addr_);
-    if (this->mem_ == MAP_FAILED) {
-        close(this->fd_);
-        throw std::runtime_error("Failed to mmap memory");
-    }
+    unmap_if_mapped();
+
+    base_addr_ = base_addr & ~(static_cast<uint64_t>(page_size) - 1);
+    offset_ = base_addr - base_addr_;
+
+    map_memory(length);
 }
 
 // Align length to page size
@@ -57,6 +52,7 @@ size_t DevMem::align_to_page(size_t length) const {
 
 // Validate offset and length
 void DevMem::validate_offset(size_t offset, size_t num_words) const {
+    require_mapped();
     if ((offset % word_size) != 0) {
         throw std::invalid_argument("Offset must be aligned to word size");
     }
@@ -66,9 +62,9 @@ void DevMem::validate_offset(size_t offset, size_t num_words) const {
 }
 
 // Read words
-std::vector<uint32_t> DevMem::read(size_t offset, size_t num_words) {
+std::vector<uint32_t> DevMem::read(size_t offset, size_t num_words) const {
     validate_offset(offset, num_words);
-    auto* mem_ptr = static_cast<uint32_t*>(mem_);
+    const auto* mem_ptr = static_cast<uint32_t*>(mem_);
     std::vector<uint32_t> data(num_words);
 
     for (size_t i = 0; i < num_words; ++i) {
@@ -78,24 +74,32 @@ std::vector<uint32_t> DevMem::read(size_t offset, size_t num_words) {
     return data;
 }
 
-const uint32_t* DevMem::get_read_ptr(size_t offset, size_t num_words){
+uint32_t DevMem::read_u32(size_t offset) const {
+    validate_offset(offset, 1);
+    return *word_ptr(offset);
+}
+
+const uint32_t* DevMem::get_read_ptr(size_t offset, size_t num_words) const{
     validate_offset(offset, num_words);
-    auto* mem_ptr = static_cast<uint32_t*>(mem_);
-    return mem_ptr + (offset_ + offset) / word_size;
+    return word_ptr(offset);
 }
 
 // Write words
 void DevMem::write(size_t offset, const std::vector<uint32_t>& data) {
     validate_offset(offset, data.size());
-    auto* mem_ptr = static_cast<uint32_t*>(mem_);
-
+    auto* mem_ptr = word_ptr(offset);
     for (size_t i = 0; i < data.size(); ++i) {
-        mem_ptr[(offset_ + offset) / word_size + i] = data[i];
+        mem_ptr[i] = data[i];
     }
 }
 
+void DevMem::write_u32(size_t offset, uint32_t value) {
+    validate_offset(offset, 1);
+    *word_ptr(offset) = value;
+}
+
 // Hexdump for debugging
-std::string DevMem::hexdump(const std::vector<uint32_t>& data) {
+std::string DevMem::hexdump(const std::vector<uint32_t>& data) const {
     std::ostringstream oss;
     for (size_t i = 0; i < data.size(); ++i) {
         if (i % 4 == 0) oss << std::endl;
@@ -105,11 +109,44 @@ std::string DevMem::hexdump(const std::vector<uint32_t>& data) {
 }
 
 void DevMem::map_memory(size_t length){
-    // Map the memory
-    this->length_ = align_to_page(length + this->offset_);
-    mem_ = mmap(nullptr, this->length_, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, base_addr_);
+    if (length == 0) {
+        throw std::invalid_argument("Length must be greater than zero");
+    }
+
+    unmap_if_mapped();
+
+    const size_t new_length = align_to_page(length + offset_);
+    void* new_mapping = mmap(nullptr,
+                             new_length,
+                             PROT_READ | PROT_WRITE,
+                             MAP_SHARED,
+                             fd_,
+                             base_addr_);
+    if (new_mapping == MAP_FAILED) {
+        const int err = errno;
+        throw std::runtime_error(
+            std::string("Failed to mmap memory: ") + std::strerror(err));
+    }
+
+    mem_ = new_mapping;
+    length_ = new_length;
+}
+
+void DevMem::require_mapped() const {
     if (mem_ == MAP_FAILED) {
-        close(fd_);
-        throw std::runtime_error("Failed to mmap memory");
+        throw std::runtime_error("Memory is not mapped; call map_memory() first");
+    }
+}
+
+uint32_t* DevMem::word_ptr(size_t offset) const {
+    auto* mem_ptr = static_cast<uint32_t*>(mem_);
+    return mem_ptr + (offset_ + offset) / word_size;
+}
+
+void DevMem::unmap_if_mapped() {
+    if (mem_ != MAP_FAILED) {
+        munmap(mem_, length_);
+        mem_ = MAP_FAILED;
+        length_ = 0;
     }
 }

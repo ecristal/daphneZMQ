@@ -1,0 +1,547 @@
+% ================================================================
+%  KR260 / DAPHNE-V3 – DAPHNE-15 Golden Recovery (2026-03-12)
+% ================================================================
+
+\documentclass[a4paper,11pt]{article}
+
+% ---------- packages ------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{minted}
+\usepackage{amsmath}
+
+\geometry{margin=25mm}
+
+% ---------- minted defaults -----------------------------------------
+\setminted{
+  fontsize   = \small,
+  frame      = single,
+  breaklines = true,
+  style      = colorful
+}
+
+\title{KR260 / DAPHNE-V3\\[4pt]\large DAPHNE-15 Golden Recovery (2026-03-12)}
+\author{}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\clearpage
+
+%--------------------------------------------------------------------
+\section{Overview}
+
+This runbook documents the recovery path that worked on March 12, 2026 for
+\texttt{daphne-15}.
+
+The board boot chain is:
+\[
+\textbf{QSPI (BOOT.BIN)} \rightarrow \textbf{FSBL/PMUFW/ATF} \rightarrow \textbf{U-Boot} \rightarrow \textbf{Linux on eMMC}.
+\]
+
+The recovery goal is:
+\begin{enumerate}[label=\arabic*.]
+  \item reach a working \texttt{ZynqMP>} prompt from QSPI or JTAG,
+  \item replace the broken eMMC DTB with the known-good golden DTB,
+  \item boot a \textbf{true RAM shell} (\texttt{/ = rootfs}, not \texttt{/dev/mmcblk0p2}),
+  \item bring up Ethernet with the \texttt{daphne-15} identity,
+  \item overwrite \texttt{mmcblk0p2} with the golden rootfs image,
+  \item rewrite \texttt{mmcblk0p1} boot files from the golden bundle,
+  \item reboot normally and re-pin \texttt{daphne-15} identity/services in Linux.
+\end{enumerate}
+
+\paragraph{Golden source used in this procedure.}
+\begin{itemize}
+  \item Golden bundle: \texttt{/nfs/home/marroyav/golden/daphne14-2026-03-12}
+  \item Working JTAG boot script: \texttt{/nfs/home/marroyav/daphne_v3/linux_13/boot.tcl}
+\end{itemize}
+
+\paragraph{Important conclusion from the recovery.}
+The board could reach U-Boot from QSPI, so QSPI was \textbf{not} reflashed first.
+The actual blocker was the installed DTB on \texttt{mmc0:1}. Once the golden DTB
+was written to \texttt{mmc0:1}, the usable management uplink appeared on
+\texttt{eth0}.
+
+\clearpage
+%--------------------------------------------------------------------
+\section{Artifacts and Known-Good Files}
+
+\subsection*{Golden bundle}
+\begin{listing}[H]
+\begin{minted}{bash}
+/nfs/home/marroyav/golden/daphne14-2026-03-12/
+├── boot/
+│   ├── BOOT.BIN
+│   ├── Image
+│   ├── boot.scr
+│   ├── ramdisk.cpio.gz.u-boot
+│   ├── system.dtb
+│   └── system-zynqmp-sck-kr-g-revB.dtb
+├── mmcblk0p2.ext4.img.gz
+├── qspi/
+└── meta/
+\end{minted}
+\caption{Golden recovery bundle}
+\end{listing}
+
+\subsection*{Golden DTB size}
+The correct DTB size used with \texttt{fatwrite} was:
+\begin{listing}[H]
+\begin{minted}{bash}
+wc -c /nfs/home/marroyav/golden/daphne14-2026-03-12/boot/system.dtb
+# 49280 .../system.dtb
+\end{minted}
+\caption{Golden DTB size}
+\end{listing}
+
+In U-Boot, this size must be written as hexadecimal:
+\begin{listing}[H]
+\begin{minted}{text}
+49280 decimal = 0xc080 hex
+\end{minted}
+\caption{DTB size for U-Boot fatwrite}
+\end{listing}
+
+\clearpage
+%--------------------------------------------------------------------
+\section{Consoles}
+
+\subsection*{Serial console}
+\begin{listing}[H]
+\begin{minted}{bash}
+screen -D -RR -S daphne-15 /dev/ttyUSB2 115200
+\end{minted}
+\caption{Serial console to daphne-15}
+\end{listing}
+
+\subsection*{XSCT / JTAG console}
+The reliable JTAG bootstrap path used the existing script in
+\texttt{linux\_13}:
+\begin{listing}[H]
+\begin{minted}{bash}
+cd /nfs/home/marroyav/daphne_v3/linux_13
+source /nfs/sw/fpga/Xilinx/Vitis/2024.1/settings64.sh
+xsct boot.tcl
+\end{minted}
+\caption{Use the known-good boot.tcl to reach U-Boot via JTAG}
+\end{listing}
+
+\paragraph{When to use XSCT.}
+Use \texttt{boot.tcl} only if the board does not reach a usable
+\texttt{ZynqMP>} prompt from QSPI on its own, or if a fresh JTAG-controlled
+start is desired before patching eMMC.
+
+\clearpage
+%--------------------------------------------------------------------
+\section{Patch the Installed DTB on \texttt{mmc0:1}}
+
+\subsection*{Why this step comes first}
+The failed recovery attempts showed that:
+\begin{itemize}
+  \item the board could boot a RAM shell,
+  \item but Ethernet did not work correctly with the installed DTB,
+  \item after replacing \texttt{system.dtb} on \texttt{mmc0:1} with the golden
+        DTB, the usable uplink appeared on \texttt{eth0}.
+\end{itemize}
+
+\subsection*{Stage the golden DTB into DDR from XSCT}
+On \texttt{np04-onl-004}:
+\begin{listing}[H]
+\begin{minted}{bash}
+cd /nfs/home/marroyav/daphne_v3/linux_13
+xsct
+\end{minted}
+\caption{Start XSCT}
+\end{listing}
+
+Inside the \texttt{xsct} shell:
+\begin{listing}[H]
+\begin{minted}{tcl}
+source boot.tcl
+targets -set -nocase -filter {name =~ "*A53*#0"}
+stop
+dow -data /nfs/home/marroyav/golden/daphne14-2026-03-12/boot/system.dtb 0x00100000
+con
+exit
+\end{minted}
+\caption{Stage the golden DTB at 0x00100000}
+\end{listing}
+
+\subsection*{Write the staged DTB into eMMC p1 from U-Boot}
+At the serial \texttt{ZynqMP>} prompt:
+\begin{listing}[H]
+\begin{minted}{bash}
+fdt addr 0x00100000
+fdt header
+mmc dev 0
+fatwrite mmc 0:1 0x00100000 system.dtb 0xc080
+fatwrite mmc 0:1 0x00100000 system-zynqmp-sck-kr-g-revB.dtb 0xc080
+fatls mmc 0:1
+\end{minted}
+\caption{Rewrite the installed DTB with the golden one}
+\end{listing}
+
+\paragraph{Expected result.}
+\texttt{fatls mmc 0:1} should show:
+\begin{listing}[H]
+\begin{minted}{text}
+49280   system.dtb
+49280   system-zynqmp-sck-kr-g-revB.dtb
+\end{minted}
+\caption{Correct DTB file sizes on eMMC p1}
+\end{listing}
+
+\clearpage
+%--------------------------------------------------------------------
+\section{Boot a True RAM Shell}
+
+\subsection*{Goal}
+Boot Linux from:
+\begin{itemize}
+  \item \texttt{Image} from \texttt{mmc0:1},
+  \item \texttt{ramdisk.cpio.gz.u-boot} from \texttt{mmc0:1},
+  \item the newly written golden \texttt{system.dtb},
+\end{itemize}
+with \texttt{rdinit=/bin/sh} so that the root filesystem remains the
+initramfs (\texttt{rootfs / rootfs}) and not \texttt{/dev/mmcblk0p2}.
+
+\subsection*{U-Boot commands}
+\begin{listing}[H]
+\begin{minted}{bash}
+mmc dev 0
+fatload mmc 0:1 ${kernel_addr_r} Image
+fatload mmc 0:1 ${fdt_addr_r} system.dtb
+fatload mmc 0:1 ${ramdisk_addr_r} ramdisk.cpio.gz.u-boot
+setenv bootargs 'console=ttyPS1,115200 earlycon root=/dev/ram rw rdinit=/bin/sh devtmpfs.mount=1'
+booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
+\end{minted}
+\caption{Boot to a real RAM shell}
+\end{listing}
+
+\subsection*{Verify the shell is running from RAM}
+At the shell prompt (\texttt{/ \#}):
+\begin{listing}[H]
+\begin{minted}{bash}
+mkdir -p /proc /sys /dev
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+cat /proc/mounts
+\end{minted}
+\caption{Verify the root is the initramfs}
+\end{listing}
+
+\paragraph{Expected result.}
+The output must include:
+\begin{listing}[H]
+\begin{minted}{text}
+rootfs / rootfs rw 0 0
+\end{minted}
+\caption{Correct RAM-root signature}
+\end{listing}
+
+and must \textbf{not} show:
+\begin{listing}[H]
+\begin{minted}{text}
+/dev/mmcblk0p2 on /
+\end{minted}
+\caption{Incorrect result: not safe for flashing}
+\end{listing}
+
+\clearpage
+%--------------------------------------------------------------------
+\section{Bring Up the Network in the RAM Shell}
+
+\subsection*{What changed after the DTB fix}
+With the corrected golden DTB:
+\begin{itemize}
+  \item \texttt{eth0} became the usable management uplink,
+  \item \texttt{eth0} corresponded to \texttt{ff0b0000} and came up with
+        \texttt{fixed/sgmii},
+  \item the working \texttt{daphne-15} recovery address was applied on
+        \texttt{eth0}.
+\end{itemize}
+
+\subsection*{Bring the interfaces up}
+\begin{listing}[H]
+\begin{minted}{bash}
+ip link set eth0 up 2>/dev/null || true
+ip link set eth1 up 2>/dev/null || true
+\end{minted}
+\caption{Bring the links up}
+\end{listing}
+
+\subsection*{Configure the recovery uplink on eth0}
+\begin{listing}[H]
+\begin{minted}{bash}
+ip addr flush dev eth0 2>/dev/null || true
+ip addr flush dev eth1 2>/dev/null || true
+ip route del default 2>/dev/null || true
+
+ip link set eth0 down
+ip link set eth0 address ba:be:ba:d1:cc:ff
+ip link set eth0 up
+
+ip addr add 10.73.137.16/24 dev eth0
+ip route replace default via 10.73.137.1 dev eth0
+
+ip -4 addr show dev eth0
+ip route
+ping -c 3 10.73.137.1
+ping -c 3 10.73.138.64
+\end{minted}
+\caption{Configure the working daphne-15 recovery uplink}
+\end{listing}
+
+\paragraph{Expected result.}
+Both pings succeeded after the DTB replacement:
+\begin{itemize}
+  \item gateway: \texttt{10.73.137.1}
+  \item bridge host: \texttt{10.73.138.64}
+\end{itemize}
+
+\clearpage
+%--------------------------------------------------------------------
+\section{Overwrite \texttt{mmcblk0p2} from the Golden Rootfs}
+
+\subsection*{Sender on \texttt{np04-onl-004}}
+\begin{listing}[H]
+\begin{minted}{bash}
+GOLDEN=/nfs/home/marroyav/golden/daphne14-2026-03-12
+gzip -dc $GOLDEN/mmcblk0p2.ext4.img.gz > $GOLDEN/mmcblk0p2.ext4
+dd if=$GOLDEN/mmcblk0p2.ext4 bs=1M status=progress | nc -l 9002
+\end{minted}
+\caption{Serve the golden rootfs image}
+\end{listing}
+
+\subsection*{Receiver on \texttt{daphne-15} RAM shell}
+\begin{listing}[H]
+\begin{minted}{bash}
+nc 10.73.138.64 9002 | dd of=/dev/mmcblk0p2 bs=1M
+sync
+\end{minted}
+\caption{Overwrite the eMMC rootfs partition}
+\end{listing}
+
+\paragraph{Why this is safe.}
+Because the board is running from the initramfs (\texttt{rootfs / rootfs}) and
+not from \texttt{/dev/mmcblk0p2}, the rootfs partition can be replaced in-place.
+
+\paragraph{BusyBox note.}
+The RAM shell used during this recovery provides the BusyBox implementation of
+\texttt{dd}. It does \textbf{not} support \texttt{conv=fsync} or
+\texttt{status=progress}. The transfer is considered active while:
+\begin{itemize}
+  \item the \texttt{dd} command on \texttt{daphne-15} has not returned to the prompt,
+  \item the sender command on \texttt{np04-onl-004}
+        (\texttt{dd if=... status=progress | nc -l 9002})
+        is still running.
+\end{itemize}
+\texttt{nc} itself does not provide progress output. Progress is shown on the
+sender by GNU \texttt{dd}.
+
+\clearpage
+%--------------------------------------------------------------------
+\section{Rewrite \texttt{mmcblk0p1} Boot Files from the Golden Bundle}
+
+\subsection*{Mount the FAT partition on \texttt{daphne-15}}
+\begin{listing}[H]
+\begin{minted}{bash}
+mkdir -p /mnt/p1
+mount -t vfat /dev/mmcblk0p1 /mnt/p1
+\end{minted}
+\caption{Mount eMMC boot partition}
+\end{listing}
+
+\subsection*{Send files one-by-one from \texttt{np04-onl-004}}
+\begin{listing}[H]
+\begin{minted}{bash}
+GOLDEN=/nfs/home/marroyav/golden/daphne14-2026-03-12
+nc -l 9003 < $GOLDEN/boot/BOOT.BIN
+nc -l 9004 < $GOLDEN/boot/Image
+nc -l 9005 < $GOLDEN/boot/boot.scr
+nc -l 9006 < $GOLDEN/boot/ramdisk.cpio.gz.u-boot
+\end{minted}
+\caption{Serve the golden boot files}
+\end{listing}
+
+\subsection*{Receive files on \texttt{daphne-15}}
+\begin{listing}[H]
+\begin{minted}{bash}
+nc 10.73.138.64 9003 > /mnt/p1/BOOT.BIN
+nc 10.73.138.64 9004 > /mnt/p1/Image
+nc 10.73.138.64 9005 > /mnt/p1/boot.scr
+nc 10.73.138.64 9006 > /mnt/p1/ramdisk.cpio.gz.u-boot
+sync
+umount /mnt/p1
+\end{minted}
+\caption{Update the eMMC boot partition}
+\end{listing}
+
+\paragraph{Note.}
+The DTB was already rewritten earlier from U-Boot with:
+\begin{itemize}
+  \item \texttt{system.dtb}
+  \item \texttt{system-zynqmp-sck-kr-g-revB.dtb}
+\end{itemize}
+so only the remaining boot files need to be transferred here.
+
+\clearpage
+%--------------------------------------------------------------------
+\section{Reboot and Re-pin DAPHNE-15 Identity}
+
+\subsection*{Reboot}
+\begin{listing}[H]
+\begin{minted}{bash}
+reboot -f
+\end{minted}
+\caption{Reboot after eMMC rewrite}
+\end{listing}
+
+\paragraph{Observed result during the 2026-03-12 recovery.}
+After the successful golden eMMC rewrite, the board booted fully into Linux but
+identified itself as the cloned source board:
+\begin{listing}[H]
+\begin{minted}{text}
+PetaLinux 2024.1+release-S05201002 NP04-DAPHNE-014.CERN.CH ttyPS1
+\end{minted}
+\caption{Expected first boot before re-pinning daphne-15 identity}
+\end{listing}
+
+\subsection*{Apply the board-specific persistent identity}
+After the board boots normally into Linux again:
+\begin{listing}[H]
+\begin{minted}{bash}
+cd ~/daphne-server/utils
+sudo FW_APP=MEZ_SELF_TRIG_V15_OL_UPGRADED ./bootstrap_blank_board.sh daphne-15
+sudo reboot
+\end{minted}
+\caption{Install the persistent daphne-15 identity}
+\end{listing}
+
+\paragraph{What this fixes persistently.}
+\begin{itemize}
+  \item changes the cloned \texttt{daphne-14} identity into \texttt{daphne-15},
+  \item hostname,
+  \item deterministic ff0b/ff0c MAC and IP configuration,
+  \item DNS and NTP,
+  \item firmware service,
+  \item Hermes / DAPHNE stack startup path.
+\end{itemize}
+
+\clearpage
+%--------------------------------------------------------------------
+\section{Verification}
+
+\subsection*{From U-Boot}
+\begin{listing}[H]
+\begin{minted}{bash}
+mmc dev 0
+fatls mmc 0:1
+printenv bootcmd bootdelay
+\end{minted}
+\caption{Basic U-Boot verification}
+\end{listing}
+
+\subsection*{From Linux after final boot}
+\begin{listing}[H]
+\begin{minted}{bash}
+hostname
+ip -4 addr
+ip route
+systemctl status force-ff0b-net.service --no-pager
+systemctl status firmware.service --no-pager
+xmutil listapps
+\end{minted}
+\caption{Final Linux verification}
+\end{listing}
+
+\paragraph{Expected identity before and after bootstrap.}
+\begin{itemize}
+  \item Before running \texttt{bootstrap\_blank\_board.sh daphne-15}: the system may
+        still present itself as \texttt{NP04-DAPHNE-014.CERN.CH}.
+  \item After running \texttt{bootstrap\_blank\_board.sh daphne-15} and rebooting:
+        the hostname/network identity should match \texttt{daphne-15}.
+\end{itemize}
+
+\clearpage
+%--------------------------------------------------------------------
+\section{Troubleshooting Notes from the 2026-03-12 Recovery}
+
+\begin{description}
+  \item[\texttt{Bad Linux ARM64 Image magic!}] The kernel image placed in DDR by JTAG was overwritten before \texttt{booti}. Do not rely on the JTAG-loaded kernel path for this recovery.
+  \item[\texttt{root=/dev/ram} but \texttt{/} still becomes \texttt{/dev/mmcblk0p2}] The initramfs pivoted to eMMC. Use \texttt{rdinit=/bin/sh} and verify \texttt{rootfs / rootfs} before flashing.
+  \item[\texttt{Network is unreachable}] If the DTB is wrong, the board may show link without a usable network path. Fix \texttt{system.dtb} on \texttt{mmc0:1} first.
+  \item[\texttt{fatwrite} wrote the wrong size] U-Boot interpreted the numeric argument as hexadecimal. For the 49\,280-byte DTB, use \texttt{0xc080}, not \texttt{49280}.
+  \item[\texttt{loady} over serial timing out] This path was not needed once the DTB was staged through XSCT and written from U-Boot.
+\end{description}
+
+\clearpage
+%--------------------------------------------------------------------
+\section*{Appendix: Quick Commands}
+
+\begin{listing}[H]
+\begin{minted}[linenos]{bash}
+# --- Stage golden DTB in DDR from XSCT ---
+cd /nfs/home/marroyav/daphne_v3/linux_13
+xsct
+source boot.tcl
+targets -set -nocase -filter {name =~ "*A53*#0"}
+stop
+dow -data /nfs/home/marroyav/golden/daphne14-2026-03-12/boot/system.dtb 0x00100000
+con
+exit
+
+# --- Write the golden DTB into mmc0:1 from U-Boot ---
+fdt addr 0x00100000
+fdt header
+mmc dev 0
+fatwrite mmc 0:1 0x00100000 system.dtb 0xc080
+fatwrite mmc 0:1 0x00100000 system-zynqmp-sck-kr-g-revB.dtb 0xc080
+
+# --- Boot the true RAM shell ---
+fatload mmc 0:1 ${kernel_addr_r} Image
+fatload mmc 0:1 ${fdt_addr_r} system.dtb
+fatload mmc 0:1 ${ramdisk_addr_r} ramdisk.cpio.gz.u-boot
+setenv bootargs 'console=ttyPS1,115200 earlycon root=/dev/ram rw rdinit=/bin/sh devtmpfs.mount=1'
+booti ${kernel_addr_r} ${ramdisk_addr_r} ${fdt_addr_r}
+
+# --- Configure the working uplink ---
+ip link set eth0 down
+ip link set eth0 address ba:be:ba:d1:cc:ff
+ip link set eth0 up
+ip addr add 10.73.137.16/24 dev eth0
+ip route replace default via 10.73.137.1 dev eth0
+
+# --- Overwrite rootfs ---
+gzip -dc /nfs/home/marroyav/golden/daphne14-2026-03-12/mmcblk0p2.ext4.img.gz \
+  > /nfs/home/marroyav/golden/daphne14-2026-03-12/mmcblk0p2.ext4
+dd if=/nfs/home/marroyav/golden/daphne14-2026-03-12/mmcblk0p2.ext4 \
+  bs=1M status=progress | nc -l 9002
+
+# On daphne-15:
+nc 10.73.138.64 9002 | dd of=/dev/mmcblk0p2 bs=1M
+
+# --- Rewrite /boot from the golden bundle ---
+mount -t vfat /dev/mmcblk0p1 /mnt/p1
+nc 10.73.138.64 9003 > /mnt/p1/BOOT.BIN
+nc 10.73.138.64 9004 > /mnt/p1/Image
+nc 10.73.138.64 9005 > /mnt/p1/boot.scr
+nc 10.73.138.64 9006 > /mnt/p1/ramdisk.cpio.gz.u-boot
+sync
+umount /mnt/p1
+\end{minted}
+\caption{Everything needed for the 2026-03-12 recovery}
+\end{listing}
+
+\end{document}
