@@ -108,6 +108,17 @@ using daphne::cmd_writeTrim_singleChannel;
 using daphne::cmd_writeTrim_singleChannel_response;
 using daphne::cmd_writeVbiasControl;
 using daphne::cmd_writeVbiasControl_response;
+using daphne::cmd_setHDMezzBlockEnable;
+using daphne::cmd_setHDMezzBlockEnable_response;
+using daphne::cmd_configureHDMezzBlock;
+using daphne::cmd_configureHDMezzBlock_response;
+using daphne::cmd_readHDMezzBlockConfig;
+using daphne::cmd_readHDMezzBlockConfig_response;
+using daphne::cmd_setHDMezzPowerStates;
+using daphne::cmd_setHDMezzPowerStates_response;
+using daphne::cmd_readHDMezzStatus;
+using daphne::cmd_readHDMezzStatus_response;
+
 
 struct I2C2ConfigGuard {
   Daphne& d;
@@ -1980,8 +1991,6 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers() {
     resp.set_message(msg);
     out = serialize_or_empty(resp);
   };
-
-  
 
   return handlers;
 }
