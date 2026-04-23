@@ -1992,6 +1992,21 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers() {
     out = serialize_or_empty(resp);
   };
 
+  handlers[daphne::MT2_READ_HDMEZZ_STATUS_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_readHDMezzStatus req;
+    cmd_readHDMezzStatus_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_readHDMezzStatus payload");
+      return;
+    }
+
+    std::string msg;
+    const bool ok = readHDMezzStatus(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
   return handlers;
 }
 
