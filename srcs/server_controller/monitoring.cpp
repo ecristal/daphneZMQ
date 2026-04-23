@@ -17,12 +17,12 @@ void i2c_2_monitor_thread(Daphne& daphne, std::chrono::milliseconds period) {
         if (hd) {
           for(size_t i = 0; i < 5; i++){
             if(hd->isAfeBlockEnabled(i)){
-              daphne.HDMezz_5V_voltage[i].store(hd->readRailVoltage5V(i));
-              daphne.HDMezz_5V_current[i].store(hd->readRailCurrent5V(i));
-              daphne.HDMezz_3V3_voltage[i].store(hd->readRailVoltage3V3(i));
-              daphne.HDMezz_3V3_current[i].store(hd->readRailCurrent3V3(i));
-              daphne.HDMezz_5V_power[i].store(hd->readRailPower5V(i));
-              daphne.HDMezz_3V3_power[i].store(hd->readRailPower3V3(i));
+              daphne.HDMezz_5V_voltage[i].store(hd->readRailVoltage(i, "5V"));
+              daphne.HDMezz_5V_current[i].store(hd->readRailCurrent(i, "5V"));
+              daphne.HDMezz_3V3_voltage[i].store(hd->readRailVoltage(i, "3V3"));
+              daphne.HDMezz_3V3_current[i].store(hd->readRailCurrent(i, "3V3"));
+              daphne.HDMezz_5V_power[i].store(hd->readRailPower(i, "5V"));
+              daphne.HDMezz_3V3_power[i].store(hd->readRailPower(i, "3V3"));
             }
           }
         }

@@ -15,35 +15,22 @@ namespace I2CMezzDrivers{
 
         void enableAfeBlock(const uint8_t &afeBlock, const bool &enable);
         bool isAfeBlockEnabled(const uint8_t &afeBlock);
-        void setRShunt5V(const uint8_t &afeBlock, const double &rShunt);
-        void setRShunt3V3(const uint8_t &afeBlock, const double &rShunt);
-        void setMaxCurrent5VScale(const uint8_t &afeBlock, const double &maxCurrent);
-        void setMaxCurrent3V3Scale(const uint8_t &afeBlock, const double &maxCurrent);
-        void setMaxCurrent5VShutdown(const uint8_t &afeBlock, const double &maxCurrent);
-        void setMaxCurrent3V3Shutdown(const uint8_t &afeBlock, const double &maxCurrent);
-        double getRShunt5V(const uint8_t &afeBlock);
-        double getRShunt3V3(const uint8_t &afeBlock);
-        double getMaxCurrent5VScale(const uint8_t &afeBlock);
-        double getMaxCurrent3V3Scale(const uint8_t &afeBlock);
-        double getMaxCurrent5VShutdown(const uint8_t &afeBlock);
-        double getMaxCurrent3V3Shutdown(const uint8_t &afeBlock);
-        double getMaxPower5V(const uint8_t &afeBlock);
-        double getMaxPower3V3(const uint8_t &afeBlock);
-        double getCurrentLsb5V(const uint8_t &afeBlock);
-        double getCurrentLsb3V3(const uint8_t &afeBlock);
-        uint16_t getShuntCal5V(const uint8_t &afeBlock);
-        uint16_t getShuntCal3V3(const uint8_t &afeBlock);
+        void setRShunt(const uint8_t &afeBlock, const double &rShunt, const std::string &rail);
+        void setMaxCurrentScale(const uint8_t &afeBlock, const double &maxCurrent, const std::string &rail);
+        void setMaxCurrentShutdown(const uint8_t &afeBlock, const double &maxCurrent, const std::string &rail);
+        double getRShunt(const uint8_t &afeBlock, const std::string &rail);
+        double getMaxCurrentScale(const uint8_t &afeBlock, const std::string &rail);
+        double getMaxCurrentShutdown(const uint8_t &afeBlock, const std::string &rail);
+        double getMaxPower(const uint8_t &afeBlock, const std::string &rail);
+        double getCurrentLsb(const uint8_t &afeBlock, const std::string &rail);
+        uint16_t getShuntCal(const uint8_t &afeBlock, const std::string &rail);
 
         void configureHdMezzAfeBlock(const uint8_t &afeBlock);
-        void powerOn_5V_HDMezzAfeBlock(const uint8_t &afeBlock, const bool &powerOn);
-        void powerOn_3V3_HDMezzAfeBlock(const uint8_t &afeBlock, const bool &powerOn);
+        void powerOn_HDMezzAfeBlock(const uint8_t &afeBlock, const bool &powerOn, const std::string &rail);
 
-        double readRailVoltage5V(const uint8_t &afeBlock);
-        double readRailVoltage3V3(const uint8_t &afeBlock);
-        double readRailCurrent5V(const uint8_t &afeBlock);
-        double readRailCurrent3V3(const uint8_t &afeBlock);
-        double readRailPower5V(const uint8_t &afeBlock);
-        double readRailPower3V3(const uint8_t &afeBlock);
+        double readRailVoltage(const uint8_t &afeBlock, const std::string &rail);
+        double readRailCurrent(const uint8_t &afeBlock, const std::string &rail);
+        double readRailPower(const uint8_t &afeBlock, const std::string &rail);
 
     private:
 
@@ -67,6 +54,11 @@ namespace I2CMezzDrivers{
         uint16_t enable_alert_flags = 0b0000100000000001;
 
         void configureCalibrationValues();
+        uint16_t readINA232Register(const uint8_t &afeBlock, const uint8_t &deviceAddress, const uint8_t &registerAddress);
+        void writeINA232Register(const uint8_t &afeBlock, const uint8_t &deviceAddress, const uint8_t &registerAddress, const uint16_t &value);
+        uint16_t readTCA9536Register(const uint8_t &afeBlock, const uint8_t &registerAddress);
+        void writeTCA9536Register(const uint8_t &afeBlock, const uint8_t &registerAddress, const uint8_t &value);
+        void selectAfeBlock(const uint8_t &afeBlock);
 
     };
 }
