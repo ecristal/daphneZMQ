@@ -280,6 +280,98 @@ message cmd_readBiasVoltageMonitor_response {
   uint32 biasVoltageValue = 4;
 }
 
+// --- HD Mezz control ---------------------------------------------------
+message cmd_setHDMezzBlockEnable {
+  int32  id         = 1;
+  uint32 afeBlock   = 2;
+  bool   enable     = 3;
+}
+
+message cmd_setHDMezzBlockEnable_response {
+  bool   success    = 1;
+  string message    = 2;
+  uint32 afeBlock   = 3;
+  bool   enable    = 4;
+}
+
+message cmd_configureHDMezzBlock {
+  int32  id                       = 1;
+  uint32 afeBlock                 = 2;
+  float r_shunt_5V                = 3;
+  float r_shunt_3V3               = 4;
+  float max_current_5V_scale      = 5;
+  float max_current_3V3_scale     = 6;
+  float max_current_5V_shutdown   = 7;
+  float max_current_3V3_shutdown  = 8;
+}
+
+message cmd_configureHDMezzBlock_response {
+  bool   success                  = 1;
+  string message                  = 2;
+  uint32 afeBlock                 = 3;
+  float r_shunt_5V                = 4;
+  float r_shunt_3V3               = 5;
+  float max_current_5V_scale      = 6;
+  float max_current_3V3_scale     = 7;
+  float max_current_5V_shutdown   = 8;
+  float max_current_3V3_shutdown  = 9;
+}
+
+message cmd_readHDMezzBlockConfig {
+  int32  id         = 1;
+  uint32 afeBlock   = 2;
+}
+
+message cmd_readHDMezzBlockConfig_response {
+  bool   success                  = 1;
+  string message                  = 2;
+  uint32 afeBlock                 = 3;
+  float r_shunt_5V                = 4;
+  float r_shunt_3V3               = 5;
+  float max_current_5V_scale      = 6;
+  float max_current_3V3_scale     = 7;
+  float max_current_5V_shutdown   = 8;
+  float max_current_3V3_shutdown  = 9;
+  float max_power_5V              = 10;
+  float max_power_3V3             = 11;
+  float current_lsb_5V            = 12;
+  float current_lsb_3V3           = 13;
+  int32 shunt_cal_5V              = 14;
+  int32 shunt_cal_3V3             = 15;
+}
+
+message cmd_setHDMezzPowerStates {
+  int32  id         = 1;
+  uint32 afeBlock   = 2;
+  bool   power5V    = 3;
+  bool   power3V3   = 4;
+}
+
+message cmd_setHDMezzPowerStates_response {
+  bool   success    = 1;
+  string message    = 2;
+  uint32 afeBlock   = 3;
+  bool   power5V    = 4;
+  bool   power3V3   = 5;
+}
+
+message cmd_readHDMezzStatus {
+  int32  id         = 1;
+  uint32 afeBlock   = 2;
+}
+
+message cmd_readHDMezzStatus_response {
+  bool   success             = 1;
+  string message             = 2;
+  uint32 afeBlock            = 3;
+  float  measured_voltage5V  = 4;
+  float  measured_voltage3V3 = 5;
+  float  measured_current5V  = 6;
+  float  measured_current3V3 = 7;
+  float  measured_power5V    = 8;
+  float  measured_power3V3   = 9;
+};
+
 // ------------------------ AFE control helpers ------------------------
 
 message cmd_setAFEReset {

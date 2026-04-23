@@ -15,49 +15,15 @@ void i2c_2_monitor_thread(Daphne& daphne, std::chrono::milliseconds period) {
       if (!daphne.isI2C_2_device_configuring.load()) {
         auto* hd = daphne.getHDMezzDriver();
         if (hd) {
-          if (hd->isAfeBlockEnabled(4)) {
-            daphne.HDMezz_5V_voltage_afe4.store(hd->readRailVoltage5V(4));
-            daphne.HDMezz_5V_current_afe4.store(hd->readRailCurrent5V(4));
-            daphne.HDMezz_3V3_voltage_afe4.store(hd->readRailVoltage3V3(4));
-            daphne.HDMezz_3V3_current_afe4.store(hd->readRailCurrent3V3(4));
-            daphne.HDMezz_5V_power_afe4.store(hd->readRailPower5V(4));
-            daphne.HDMezz_3V3_power_afe4.store(hd->readRailPower3V3(4));
-          }
-
-          if (hd->isAfeBlockEnabled(3)) {
-            daphne.HDMezz_5V_voltage_afe3.store(hd->readRailVoltage5V(3));
-            daphne.HDMezz_5V_current_afe3.store(hd->readRailCurrent5V(3));
-            daphne.HDMezz_3V3_voltage_afe3.store(hd->readRailVoltage3V3(3));
-            daphne.HDMezz_3V3_current_afe3.store(hd->readRailCurrent3V3(3));
-            daphne.HDMezz_5V_power_afe3.store(hd->readRailPower5V(3));
-            daphne.HDMezz_3V3_power_afe3.store(hd->readRailPower3V3(3));
-          }
-
-          if (hd->isAfeBlockEnabled(2)) {
-            daphne.HDMezz_5V_voltage_afe2.store(hd->readRailVoltage5V(2));
-            daphne.HDMezz_5V_current_afe2.store(hd->readRailCurrent5V(2));
-            daphne.HDMezz_3V3_voltage_afe2.store(hd->readRailVoltage3V3(2));
-            daphne.HDMezz_3V3_current_afe2.store(hd->readRailCurrent3V3(2));
-            daphne.HDMezz_5V_power_afe2.store(hd->readRailPower5V(2));
-            daphne.HDMezz_3V3_power_afe2.store(hd->readRailPower3V3(2));
-          }
-
-          if (hd->isAfeBlockEnabled(1)) {
-            daphne.HDMezz_5V_voltage_afe1.store(hd->readRailVoltage5V(1));
-            daphne.HDMezz_5V_current_afe1.store(hd->readRailCurrent5V(1));
-            daphne.HDMezz_3V3_voltage_afe1.store(hd->readRailVoltage3V3(1));
-            daphne.HDMezz_3V3_current_afe1.store(hd->readRailCurrent3V3(1));
-            daphne.HDMezz_5V_power_afe1.store(hd->readRailPower5V(1));
-            daphne.HDMezz_3V3_power_afe1.store(hd->readRailPower3V3(1));
-          }
-
-          if (hd->isAfeBlockEnabled(0)) {
-            daphne.HDMezz_5V_voltage_afe0.store(hd->readRailVoltage5V(0));
-            daphne.HDMezz_5V_current_afe0.store(hd->readRailCurrent5V(0));
-            daphne.HDMezz_3V3_voltage_afe0.store(hd->readRailVoltage3V3(0));
-            daphne.HDMezz_3V3_current_afe0.store(hd->readRailCurrent3V3(0));
-            daphne.HDMezz_5V_power_afe0.store(hd->readRailPower5V(0));
-            daphne.HDMezz_3V3_power_afe0.store(hd->readRailPower3V3(0));
+          for(size_t i = 0; i < 5; i++){
+            if(!hd->isAfeBlockEnabled(i)){
+              daphne.HDMezz_5V_voltage[i].store(hd->readRailVoltage5V(i));
+              daphne.HDMezz_5V_current[i].store(hd->readRailCurrent5V(i));
+              daphne.HDMezz_3V3_voltage[i].store(hd->readRailVoltage3V3(i));
+              daphne.HDMezz_3V3_current[i].store(hd->readRailCurrent3V3(i));
+              daphne.HDMezz_5V_power[i].store(hd->readRailPower5V(i));
+              daphne.HDMezz_3V3_power[i].store(hd->readRailPower3V3(i));
+            }
           }
         }
       }

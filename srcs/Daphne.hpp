@@ -72,40 +72,12 @@ public:
     std::atomic<bool> user_vbias_voltage_request;
     std::atomic<bool> is_vbias_voltage_monitor_reading;
     //Atomic monitor voltages and currents
-    std::atomic<double> HDMezz_5V_voltage_afe4;
-    std::atomic<double> HDMezz_5V_current_afe4;
-    std::atomic<double> HDMezz_3V3_voltage_afe4;
-    std::atomic<double> HDMezz_3V3_current_afe4;
-    std::atomic<double> HDMezz_5V_power_afe4;
-    std::atomic<double> HDMezz_3V3_power_afe4;
-
-    std::atomic<double> HDMezz_5V_voltage_afe3;
-    std::atomic<double> HDMezz_5V_current_afe3;
-    std::atomic<double> HDMezz_3V3_voltage_afe3;
-    std::atomic<double> HDMezz_3V3_current_afe3;
-    std::atomic<double> HDMezz_5V_power_afe3;
-    std::atomic<double> HDMezz_3V3_power_afe3;
-
-    std::atomic<double> HDMezz_5V_voltage_afe2;
-    std::atomic<double> HDMezz_5V_current_afe2;
-    std::atomic<double> HDMezz_3V3_voltage_afe2;
-    std::atomic<double> HDMezz_3V3_current_afe2;
-    std::atomic<double> HDMezz_5V_power_afe2;
-    std::atomic<double> HDMezz_3V3_power_afe2;
-
-    std::atomic<double> HDMezz_5V_voltage_afe1;
-    std::atomic<double> HDMezz_5V_current_afe1;
-    std::atomic<double> HDMezz_3V3_voltage_afe1;
-    std::atomic<double> HDMezz_3V3_current_afe1;
-    std::atomic<double> HDMezz_5V_power_afe1;
-    std::atomic<double> HDMezz_3V3_power_afe1;
-
-    std::atomic<double> HDMezz_5V_voltage_afe0;
-    std::atomic<double> HDMezz_5V_current_afe0;
-    std::atomic<double> HDMezz_3V3_voltage_afe0;
-    std::atomic<double> HDMezz_3V3_current_afe0;
-    std::atomic<double> HDMezz_5V_power_afe0;
-    std::atomic<double> HDMezz_3V3_power_afe0;
+    std::array<std::atomic<double>, 5> HDMezz_5V_voltage{0.0, 0.0, 0.0, 0.0, 0.0};
+    std::array<std::atomic<double>, 5> HDMezz_5V_current{0.0, 0.0, 0.0, 0.0, 0.0};
+    std::array<std::atomic<double>, 5> HDMezz_3V3_voltage{0.0, 0.0, 0.0, 0.0, 0.0};
+    std::array<std::atomic<double>, 5> HDMezz_3V3_current{0.0, 0.0, 0.0, 0.0, 0.0};
+    std::array<std::atomic<double>, 5> HDMezz_5V_power{0.0, 0.0, 0.0, 0.0, 0.0};
+    std::array<std::atomic<double>, 5> HDMezz_3V3_power{0.0, 0.0, 0.0, 0.0, 0.0};
 
     std::atomic<double> _1V8A_voltage;
     std::atomic<double> _3V3A_voltage;
@@ -118,8 +90,6 @@ public:
     std::atomic<double> _VBIAS_2_voltage;
     std::atomic<double> _VBIAS_3_voltage;
     std::atomic<double> _VBIAS_4_voltage;
-
-
 
 private:
     std::unique_ptr<Afe> afe;

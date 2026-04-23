@@ -52,40 +52,14 @@ Daphne::Daphne()
 		this->isI2C_2_device_configuring.store(false);
 		this->user_vbias_voltage_request.store(false);
 		this->is_vbias_voltage_monitor_reading.store(false);
-		this->HDMezz_5V_voltage_afe4.store(0.0);
-		this->HDMezz_5V_current_afe4.store(0.0);
-		this->HDMezz_3V3_voltage_afe4.store(0.0);
-		this->HDMezz_3V3_current_afe4.store(0.0);
-		this->HDMezz_5V_power_afe4.store(0.0);
-		this->HDMezz_3V3_power_afe4.store(0.0);
-
-		this->HDMezz_5V_voltage_afe3.store(0.0);
-		this->HDMezz_5V_current_afe3.store(0.0);
-		this->HDMezz_3V3_voltage_afe3.store(0.0);
-		this->HDMezz_3V3_current_afe3.store(0.0);
-		this->HDMezz_5V_power_afe3.store(0.0);
-		this->HDMezz_3V3_power_afe3.store(0.0);
-
-		this->HDMezz_5V_voltage_afe2.store(0.0);
-		this->HDMezz_5V_current_afe2.store(0.0);
-		this->HDMezz_3V3_voltage_afe2.store(0.0);
-		this->HDMezz_3V3_current_afe2.store(0.0);
-		this->HDMezz_5V_power_afe2.store(0.0);
-		this->HDMezz_3V3_power_afe2.store(0.0);
-
-		this->HDMezz_5V_voltage_afe1.store(0.0);
-		this->HDMezz_5V_current_afe1.store(0.0);
-		this->HDMezz_3V3_voltage_afe1.store(0.0);
-		this->HDMezz_3V3_current_afe1.store(0.0);
-		this->HDMezz_5V_power_afe1.store(0.0);
-		this->HDMezz_3V3_power_afe1.store(0.0);
-
-		this->HDMezz_5V_voltage_afe0.store(0.0);
-		this->HDMezz_5V_current_afe0.store(0.0);
-		this->HDMezz_3V3_voltage_afe0.store(0.0);
-		this->HDMezz_3V3_current_afe0.store(0.0);
-		this->HDMezz_5V_power_afe0.store(0.0);
-		this->HDMezz_3V3_power_afe0.store(0.0);
+		for(size_t i = 0; i < 5; i++){
+			this->HDMezz_5V_voltage[i].store(0.0);
+			this->HDMezz_5V_current[i].store(0.0);
+			this->HDMezz_3V3_voltage[i].store(0.0);
+			this->HDMezz_3V3_current[i].store(0.0);
+			this->HDMezz_5V_power[i].store(0.0);
+			this->HDMezz_3V3_power[i].store(0.0);
+		}
 	}
 
 Daphne::~Daphne(){}
