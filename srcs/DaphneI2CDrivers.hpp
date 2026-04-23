@@ -3,6 +3,9 @@
 
 #include <thread>
 #include <chrono>
+#include <sstream>
+#include <iomanip>
+
 
 #include "defines.hpp"
 #include "I2CDevice.hpp"

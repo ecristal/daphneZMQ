@@ -293,7 +293,13 @@ void I2CMezzDrivers::HDMezzDriver::writeINA232Register(const uint8_t &afeBlock, 
     INA232.readBytes(registerAddress, readback_bytes, 2);
     uint16_t readback_value = (static_cast<uint16_t>(readback_bytes[0]) << 8) | static_cast<uint16_t>(readback_bytes[1]);
     if(readback_value != value){
-        throw std::runtime_error("Failed to write value to INA232 register in AFE block " + std::to_string(afeBlock) + ". Expected: " + std::to_string(value) + ", Readback: " + std::to_string(readback_value));
+        std::ostringstream oss;
+        oss << "Failed to write value to TCA9536 register in AFE block "
+        << static_cast<int>(afeBlock)
+        << ", register 0x" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(registerAddress)
+        << ". Expected: 0x" << std::setw(2) << static_cast<int>(value)
+        << ", Readback: 0x" << std::setw(2) << static_cast<int>(readback_value);
+        throw std::runtime_error(oss.str());
     }
 }
 
@@ -314,7 +320,13 @@ void I2CMezzDrivers::HDMezzDriver::writeTCA9536Register(const uint8_t &afeBlock,
     uint8_t readback_value;
     TCA9536.readByte(registerAddress, readback_value);
     if(readback_value != value){
-        throw std::runtime_error("Failed to write value to TCA9536 register in AFE block " + std::to_string(afeBlock) + ". Expected: " + std::to_string(value) + ", Readback: " + std::to_string(readback_value));
+        std::ostringstream oss;
+        oss << "Failed to write value to TCA9536 register in AFE block "
+        << static_cast<int>(afeBlock)
+        << ", register 0x" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(registerAddress)
+        << ". Expected: 0x" << std::setw(2) << static_cast<int>(value)
+        << ", Readback: 0x" << std::setw(2) << static_cast<int>(readback_value);
+        throw std::runtime_error(oss.str());
     }
 }
 
