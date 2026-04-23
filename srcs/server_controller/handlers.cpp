@@ -1181,12 +1181,12 @@ bool configureHDMezzBlock(const cmd_configureHDMezzBlock& request,
                          std::string& response_str) {
   try {
     const uint32_t afeBlock = request.afeblock();
-    const float r_shunt_5V = request.rshunt5v();
-    const float r_shunt_3V3 = request.rshunt3v3();
-    const float max_current_5V_scale = request.maxcurrent5vscale();
-    const float max_current_3V3_scale = request.maxcurrent3v3scale();
-    const float max_current_5V_shutdown = request.maxcurrent5vshutdown();
-    const float max_current_3V3_shutdown = request.maxcurrent3v3shutdown();
+    const float r_shunt_5V = request.r_shunt_5v();
+    const float r_shunt_3V3 = request.r_shunt_3v3();
+    const float max_current_5V_scale = request.max_current_5v_scale();
+    const float max_current_3V3_scale = request.max_current_3v3_scale();
+    const float max_current_5V_shutdown = request.max_current_5v_shutdown();
+    const float max_current_3V3_shutdown = request.max_current_3v3_shutdown();
     if (afeBlock > 4) throw std::invalid_argument("HD mezzanine block out of range (0..4)");
     if(!daphne.getHDMezzDriver()) throw std::runtime_error("HD mezzanine driver not initialized");
     daphne.getHDMezzDriver()->setRShunt5V(afeBlock, r_shunt_5V);
@@ -1198,12 +1198,12 @@ bool configureHDMezzBlock(const cmd_configureHDMezzBlock& request,
     I2C2ConfigGuard config_guard(daphne);
     daphne.getHDMezzDriver()->configureHdMezzAfeBlock(afeBlock);
     response.set_afeblock(afeBlock);
-    response.set_rshunt5v(r_shunt_5V);
-    response.set_rshunt3v3(r_shunt_3V3);
-    response.set_maxcurrent5vscale(max_current_5V_scale);
-    response.set_maxcurrent3v3scale(max_current_3V3_scale);
-    response.set_maxcurrent5vshutdown(max_current_5V_shutdown);
-    response.set_maxcurrent3v3shutdown(max_current_3V3_shutdown);
+    response.set_r_shunt_5v(r_shunt_5V);
+    response.set_r_shunt_3v3(r_shunt_3V3);
+    response.set_max_current_5v_scale(max_current_5V_scale);
+    response.set_max_current_3v3_scale(max_current_3V3_scale);
+    response.set_max_current_5v_shutdown(max_current_5V_shutdown);
+    response.set_max_current_3v3_shutdown(max_current_3V3_shutdown);
     response_str = "HD mezzanine block " + std::to_string(afeBlock) + " configured with values " +
                    std::to_string(r_shunt_5V) + ", " + std::to_string(r_shunt_3V3) + ", " +
                    std::to_string(max_current_5V_scale) + ", " + std::to_string(max_current_3V3_scale) + ", " +
@@ -1224,18 +1224,18 @@ bool readHDMezzBlockConfig(const cmd_readHDMezzBlockConfig& request,
     if (afeBlock > 4) throw std::invalid_argument("HD mezzanine block out of range (0..4)");
     if(!daphne.getHDMezzDriver()) throw std::runtime_error("HD mezzanine driver not initialized");
     response.set_afeblock(afeBlock);
-    response.set_rshunt5v(daphne.getHDMezzDriver()->getRShunt5V(afeBlock));
-    response.set_rshunt3v3(daphne.getHDMezzDriver()->getRShunt3V3(afeBlock));
-    response.set_maxcurrent5vscale(daphne.getHDMezzDriver()->getMaxCurrent5VScale(afeBlock));
-    response.set_maxcurrent3v3scale(daphne.getHDMezzDriver()->getMaxCurrent3V3Scale(afeBlock));
-    response.set_maxcurrent5vshutdown(daphne.getHDMezzDriver()->getMaxCurrent5VShutdown(afeBlock));
-    response.set_maxcurrent3v3shutdown(daphne.getHDMezzDriver()->getMaxCurrent3V3Shutdown(afeBlock));
-    response.set_maxpower5v(daphne.getHDMezzDriver()->getMaxPower5V(afeBlock));
-    response.set_maxpower3v3(daphne.getHDMezzDriver()->getMaxPower3V3(afeBlock));
-    response.set_currentlsb5v(daphne.getHDMezzDriver()->getCurrentLsb5V(afeBlock));
-    response.set_currentlsb3v3(daphne.getHDMezzDriver()->getCurrentLsb3V3(afeBlock));
-    response.set_shuntcal5v(daphne.getHDMezzDriver()->getShuntCal5V(afeBlock));
-    response.set_shuntcal3v3(daphne.getHDMezzDriver()->getShuntCal3V3(afeBlock));
+    response.set_r_shunt_5v(daphne.getHDMezzDriver()->getRShunt5V(afeBlock));
+    response.set_r_shunt_3v3(daphne.getHDMezzDriver()->getRShunt3V3(afeBlock));
+    response.set_max_current_5v_scale(daphne.getHDMezzDriver()->getMaxCurrent5VScale(afeBlock));
+    response.set_max_current_3v3_scale(daphne.getHDMezzDriver()->getMaxCurrent3V3Scale(afeBlock));
+    response.set_max_current_5v_shutdown(daphne.getHDMezzDriver()->getMaxCurrent5VShutdown(afeBlock));
+    response.set_max_current_3v3_shutdown(daphne.getHDMezzDriver()->getMaxCurrent3V3Shutdown(afeBlock));
+    response.set_max_power_5v(daphne.getHDMezzDriver()->getMaxPower5V(afeBlock));
+    response.set_max_power_3v3(daphne.getHDMezzDriver()->getMaxPower3V3(afeBlock));
+    response.set_current_lsb_5v(daphne.getHDMezzDriver()->getCurrentLsb5V(afeBlock));
+    response.set_current_lsb_3v3(daphne.getHDMezzDriver()->getCurrentLsb3V3(afeBlock));
+    response.set_shunt_cal_5v(daphne.getHDMezzDriver()->getShuntCal5V(afeBlock));
+    response.set_shunt_cal_3v3(daphne.getHDMezzDriver()->getShuntCal3V3(afeBlock));
     response_str = "HD mezzanine block " + std::to_string(afeBlock) + " configuration read successfully.";
     return true;
   } catch (const std::exception& e) {
@@ -1279,12 +1279,12 @@ bool readHDMezzStatus(const cmd_readHDMezzStatus& request,
     if (afeBlock > 4) throw std::invalid_argument("HD mezzanine block out of range (0..4)");
     if(!daphne.getHDMezzDriver()) throw std::runtime_error("HD mezzanine driver not initialized");
     response.set_afeblock(afeBlock);
-    response.set_measuredvoltage5v(daphne.HDMezz_5V_voltage[afeBlock]);
-    response.set_measuredvoltage3v3(daphne.HDMezz_3V3_voltage[afeBlock]);
-    response.set_measuredcurrent5v(daphne.HDMezz_5V_current[afeBlock]);
-    response.set_measuredcurrent3v3(daphne.HDMezz_3V3_current[afeBlock]);
-    response.set_measuredpower5v(daphne.HDMezz_5V_power[afeBlock]);
-    response.set_measuredpower3v3(daphne.HDMezz_3V3_power[afeBlock]);
+    response.set_measured_voltage5v(daphne.HDMezz_5V_voltage[afeBlock]);
+    response.set_measured_voltage3v3(daphne.HDMezz_3V3_voltage[afeBlock]);
+    response.set_measured_current5v(daphne.HDMezz_5V_current[afeBlock]);
+    response.set_measured_current3v3(daphne.HDMezz_3V3_current[afeBlock]);
+    response.set_measured_power5v(daphne.HDMezz_5V_power[afeBlock]);
+    response.set_measured_power3v3(daphne.HDMezz_3V3_power[afeBlock]);
     response_str = "HD mezzanine block " + std::to_string(afeBlock) + " status read successfully.";
     return true;
   } catch (const std::exception& e) {
