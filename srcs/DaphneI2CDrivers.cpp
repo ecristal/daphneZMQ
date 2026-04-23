@@ -348,8 +348,10 @@ double I2CMezzDrivers::HDMezzDriver::readRailCurrent5V(const uint8_t &afeBlock){
     I2CDevice INA232_5V("/dev/i2c-2", I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"));
     std::vector<uint8_t> current_bytes;
     INA232_5V.readBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_CURRENT_REG"), current_bytes, 2);
-    uint16_t current_reg = (static_cast<uint16_t>(current_bytes[0]) << 8) | static_cast<uint16_t>(current_bytes[1]);
-    double current = ((double)current_reg)*this->current_lsb_5V[afeBlock]*1000; // 1mA/LSB
+    int16_t current_reg = static_cast<int16_t>(
+        (static_cast<uint16_t>(current_bytes[0]) << 8) | static_cast<uint16_t>(current_bytes[1])
+    );
+    double current = static_cast<double>(current_reg)*this->current_lsb_5V[afeBlock]*1000; // mA
     return current;
 }
 
@@ -366,8 +368,10 @@ double I2CMezzDrivers::HDMezzDriver::readRailCurrent3V3(const uint8_t &afeBlock)
     I2CDevice INA232_3V3("/dev/i2c-2", I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"));
     std::vector<uint8_t> current_bytes;
     INA232_3V3.readBytes(I2C_drivers_defines::HDMezzAddressMap.at("INA232_CURRENT_REG"), current_bytes, 2);
-    uint16_t current_reg = (static_cast<uint16_t>(current_bytes[0]) << 8) | static_cast<uint16_t>(current_bytes[1]);
-    double current = ((double)current_reg)*this->current_lsb_3V3[afeBlock]*1000; // 1mA/LSB
+    int16_t current_reg = static_cast<int16_t>(
+        (static_cast<uint16_t>(current_bytes[0]) << 8) | static_cast<uint16_t>(current_bytes[1])
+    );
+    double current = static_cast<double>(current_reg)*this->current_lsb_3V3[afeBlock]*1000; // mA
     return current;
 }
 

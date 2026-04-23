@@ -121,29 +121,29 @@ def build_parser() -> argparse.ArgumentParser:
 
 def print_config_response(resp) -> None:
     print(f"success={resp.success} afe={resp.afeBlock} message='{resp.message}'")
-    print(f"r_shunt_5V={resp.r_shunt_5V}")
-    print(f"r_shunt_3V3={resp.r_shunt_3V3}")
-    print(f"max_current_5V_scale={resp.max_current_5V_scale}")
-    print(f"max_current_3V3_scale={resp.max_current_3V3_scale}")
-    print(f"max_current_5V_shutdown={resp.max_current_5V_shutdown}")
-    print(f"max_current_3V3_shutdown={resp.max_current_3V3_shutdown}")
+    print(f"r_shunt_5V={resp.r_shunt_5V} ohm")
+    print(f"r_shunt_3V3={resp.r_shunt_3V3} ohm")
+    print(f"max_current_5V_scale={resp.max_current_5V_scale} A")
+    print(f"max_current_3V3_scale={resp.max_current_3V3_scale} A")
+    print(f"max_current_5V_shutdown={resp.max_current_5V_shutdown} A")
+    print(f"max_current_3V3_shutdown={resp.max_current_3V3_shutdown} A")
     if hasattr(resp, "max_power_5V"):
-        print(f"max_power_5V={resp.max_power_5V}")
-        print(f"max_power_3V3={resp.max_power_3V3}")
-        print(f"current_lsb_5V={resp.current_lsb_5V}")
-        print(f"current_lsb_3V3={resp.current_lsb_3V3}")
+        print(f"max_power_5V={resp.max_power_5V} W")
+        print(f"max_power_3V3={resp.max_power_3V3} W")
+        print(f"current_lsb_5V={resp.current_lsb_5V} A/LSB")
+        print(f"current_lsb_3V3={resp.current_lsb_3V3} A/LSB")
         print(f"shunt_cal_5V={resp.shunt_cal_5V}")
         print(f"shunt_cal_3V3={resp.shunt_cal_3V3}")
 
 
 def print_status_response(resp) -> None:
     print(f"success={resp.success} afe={resp.afeBlock} message='{resp.message}'")
-    print(f"measured_voltage_5V={resp.measured_voltage5V}")
-    print(f"measured_voltage_3V3={resp.measured_voltage3V3}")
-    print(f"measured_current_5V={resp.measured_current5V}")
-    print(f"measured_current_3V3={resp.measured_current3V3}")
-    print(f"measured_power_5V={resp.measured_power5V}")
-    print(f"measured_power_3V3={resp.measured_power3V3}")
+    print(f"measured_voltage_5V={resp.measured_voltage5V:.6f} V")
+    print(f"measured_voltage_3V3={resp.measured_voltage3V3:.6f} V")
+    print(f"measured_current_5V={resp.measured_current5V:.6f} mA")
+    print(f"measured_current_3V3={resp.measured_current3V3:.6f} mA")
+    print(f"measured_power_5V={resp.measured_power5V:.6f} mW")
+    print(f"measured_power_3V3={resp.measured_power3V3:.6f} mW")
 
 
 def main() -> int:
