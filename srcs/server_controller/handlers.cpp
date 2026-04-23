@@ -1256,8 +1256,8 @@ bool setHDMezzPowerStates(const cmd_setHDMezzPowerStates& request,
     const bool power_3v3 = request.power3v3();
     if (afeBlock > 4) throw std::invalid_argument("HD mezzanine block out of range (0..4)");
     I2C2ConfigGuard config_guard(daphne);
-    daphne.getHDMezzDriver()->powerOn_5V_HDMezzAfeBlock(afeBlock, power_5v);
-    daphne.getHDMezzDriver()->powerOn_3V3_HDMezzAfeBlock(afeBlock, power_3v3);
+    daphne.getHDMezzDriver()->powerOn_HDMezzAfeBlock(afeBlock, power_5v, "5V");
+    daphne.getHDMezzDriver()->powerOn_HDMezzAfeBlock(afeBlock, power_3v3, "3V3");
     response.set_afeblock(afeBlock);
     response.set_power5v(power_5v);
     response.set_power3v3(power_3v3);
