@@ -185,6 +185,18 @@ set(SOURCES
   srcs/server_controller/main.cpp
 )
 
+set(DAPHNE_PROTO_DEPRECATION_WARNING_SOURCES
+  srcs/server_controller/handlers.cpp
+  srcs/server_controller/spybuffer_chunker.cpp
+  srcs/server_controller/router_server.cpp
+)
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+  set_source_files_properties(${DAPHNE_PROTO_DEPRECATION_WARNING_SOURCES}
+    PROPERTIES COMPILE_OPTIONS "-Wno-deprecated-declarations"
+  )
+endif()
+
 add_executable(daphneServer ${SOURCES})
 target_include_directories(daphneServer PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
