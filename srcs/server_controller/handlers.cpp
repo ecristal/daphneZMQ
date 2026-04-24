@@ -1297,25 +1297,26 @@ bool readHDMezzStatus(const cmd_readHDMezzStatus& request,
     response_str = std::string("Error reading HD mezzanine block status: ") + e.what();
     return false;
   }
+}
 
-  bool clearHDMezzAlertFlag(const cmd_clearHDMezzAlertFlag& request,
-                          cmd_clearHDMezzAlertFlag_response& response,
-                          Daphne& daphne,
-                          std::string& response_str) {
-    try {
-      const uint32_t afeBlock = request.afeblock();
-      if (afeBlock > 4) throw std::invalid_argument("HD mezzanine block out of range (0..4)");
-      if(!daphne.getHDMezzDriver()) throw std::runtime_error("HD mezzanine driver not initialized");
-      I2C2ConfigGuard config_guard(daphne);
-      daphne.HDMezz_5V_alert[afeBlock].store(false);
-      daphne.HDMezz_3V3_alert[afeBlock].store(false);
-      response.set_afeblock(afeBlock);
-      response_str = "HD mezzanine block " + std::to_string(afeBlock) + " alert flags cleared.";
-      return true;
-    } catch (const std::exception& e) {
-      response_str = std::string("Error clearing HD mezzanine block alert flags: ") + e.what();
-      return false;
-    }
+bool clearHDMezzAlertFlag(const cmd_clearHDMezzAlertFlag& request,
+                        cmd_clearHDMezzAlertFlag_response& response,
+                        Daphne& daphne,
+                        std::string& response_str) {
+  try {
+    const uint32_t afeBlock = request.afeblock();
+    if (afeBlock > 4) throw std::invalid_argument("HD mezzanine block out of range (0..4)");
+    if(!daphne.getHDMezzDriver()) throw std::runtime_error("HD mezzanine driver not initialized");
+    I2C2ConfigGuard config_guard(daphne);
+    daphne.HDMezz_5V_alert[afeBlock].store(false);
+    daphne.HDMezz_3V3_alert[afeBlock].store(false);
+    response.set_afeblock(afeBlock);
+    response_str = "HD mezzanine block " + std::to_string(afeBlock) + " alert flags cleared.";
+    return true;
+  } catch (const std::exception& e) {
+    response_str = std::string("Error clearing HD mezzanine block alert flags: ") + e.what();
+    return false;
+  }
 }
 
 template <typename Msg>
