@@ -14,6 +14,7 @@ Supported operations:
 from __future__ import annotations
 
 import argparse
+from collections import deque
 import os
 import random
 import sys
@@ -421,19 +422,20 @@ def run_visual(args) -> int:
             self._syncing = False
 
             layout = QtWidgets.QVBoxLayout(self)
-            layout.setContentsMargins(4, 4, 4, 4)
-            layout.setSpacing(4)
+            layout.setContentsMargins(2, 2, 2, 2)
+            layout.setSpacing(3)
 
             label = QtWidgets.QLabel(title)
             label.setProperty("role", "section")
             label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            label.setStyleSheet("font-size: 8.5pt; padding: 0; margin: 0;")
             layout.addWidget(label)
 
             self.dial = QtWidgets.QDial()
             self.dial.setNotchesVisible(True)
             self.dial.setRange(0, self._steps)
             self.dial.setWrapping(False)
-            self.dial.setFixedSize(92, 92)
+            self.dial.setFixedSize(86, 86)
             layout.addWidget(self.dial, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
             self.spin = QtWidgets.QDoubleSpinBox()
@@ -507,6 +509,151 @@ def run_visual(args) -> int:
         def set_value(self, value: float) -> None:
             self.lcd.display(f"{value:0.3f}")
 
+    class SectionBay(QtWidgets.QFrame):
+        def __init__(self, title: str):
+            super().__init__()
+            self.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+            self.setStyleSheet(
+                "QFrame { border: 1px solid #31556d; border-radius: 10px; background: #08131d; }"
+            )
+            layout = QtWidgets.QVBoxLayout(self)
+            layout.setContentsMargins(10, 8, 10, 10)
+            layout.setSpacing(8)
+
+            title_label = QtWidgets.QLabel(title)
+            title_label.setProperty("role", "section")
+            title_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            title_label.setStyleSheet("color: #f9c66f; font-size: 9pt; font-weight: 700; letter-spacing: 1px;")
+            layout.addWidget(title_label, 0, QtCore.Qt.AlignmentFlag.AlignTop)
+            self.body = QtWidgets.QVBoxLayout()
+            self.body.setContentsMargins(0, 0, 0, 0)
+            self.body.setSpacing(8)
+            layout.addLayout(self.body, 1)
+
+    class TrendGraph(QtWidgets.QFrame):
+        def __init__(self, title: str, unit: str, series_specs, history_len: int = 90):
+            super().__init__()
+            self.unit = unit
+            self.history_len = history_len
+            self.series_specs = series_specs
+            self.history = {name: deque(maxlen=history_len) for name, _label, _color in series_specs}
+
+            self.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+            self.setStyleSheet("QFrame { border: 1px solid #31556d; border-radius: 9px; background: #02070a; }")
+
+            layout = QtWidgets.QVBoxLayout(self)
+            layout.setContentsMargins(8, 8, 8, 8)
+            layout.setSpacing(4)
+
+            title_label = QtWidgets.QLabel(title)
+            title_label.setProperty("role", "section")
+            title_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            title_label.setStyleSheet("color: #f9c66f; font-size: 9pt; font-weight: 700; letter-spacing: 1px;")
+            layout.addWidget(title_label)
+
+            legend = QtWidgets.QHBoxLayout()
+            legend.setSpacing(10)
+            legend.addStretch(1)
+            for _name, label, color in series_specs:
+                chip = QtWidgets.QLabel(f"{label}")
+                chip.setStyleSheet(
+                    f"QLabel {{ color: {color}; font-size: 8pt; font-weight: 700; padding: 0 2px; }}"
+                )
+                legend.addWidget(chip)
+            legend.addStretch(1)
+            layout.addLayout(legend)
+
+            self.canvas = QtWidgets.QWidget()
+            self.canvas.setMinimumHeight(132)
+            self.canvas.paintEvent = self._paint_canvas
+            layout.addWidget(self.canvas)
+
+            self.scale_label = QtWidgets.QLabel(f"Y max: 0.000 {unit}   X: newest at right")
+            self.scale_label.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
+            self.scale_label.setStyleSheet("color: #8ff0ff; font-size: 7.5pt;")
+            layout.addWidget(self.scale_label)
+
+        def append_values(self, values: dict) -> None:
+            for name, _label, _color in self.series_specs:
+                self.history[name].append(float(values.get(name, 0.0)))
+            visible = [v for series in self.history.values() for v in series]
+            peak = max([1.0] + [abs(v) for v in visible])
+            self.scale_label.setText(f"Y max: {peak:0.3f} {self.unit}   X: {self.history_len} samples")
+            self.canvas.update()
+
+        def _paint_canvas(self, _event) -> None:
+            painter = QtGui.QPainter(self.canvas)
+            painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+            rect = self.canvas.rect().adjusted(34, 10, -14, -24)
+            painter.fillRect(rect, QtGui.QColor("#02070a"))
+
+            grid_pen = QtGui.QPen(QtGui.QColor("#173526"))
+            grid_pen.setWidth(1)
+            painter.setPen(grid_pen)
+            for frac in (0.25, 0.5, 0.75):
+                y = rect.top() + int(rect.height() * frac)
+                painter.drawLine(rect.left(), y, rect.right(), y)
+
+            axis_pen = QtGui.QPen(QtGui.QColor("#8ff0ff"))
+            axis_pen.setWidth(1)
+            painter.setPen(axis_pen)
+            painter.drawLine(rect.left(), rect.top(), rect.left(), rect.bottom())
+            painter.drawLine(rect.left(), rect.bottom(), rect.right(), rect.bottom())
+
+            tick_pen = QtGui.QPen(QtGui.QColor("#6baec4"))
+            tick_pen.setWidth(1)
+            painter.setPen(tick_pen)
+            for frac in (0.0, 0.25, 0.5, 0.75, 1.0):
+                y = rect.bottom() - int(rect.height() * frac)
+                painter.drawLine(rect.left() - 4, y, rect.left(), y)
+            for frac in (0.0, 0.25, 0.5, 0.75, 1.0):
+                x = rect.left() + int(rect.width() * frac)
+                painter.drawLine(x, rect.bottom(), x, rect.bottom() + 4)
+
+            all_values = [v for series in self.history.values() for v in series]
+            axis_label_pen = QtGui.QPen(QtGui.QColor("#8ff0ff"))
+            painter.setPen(axis_label_pen)
+            axis_font = painter.font()
+            axis_font.setPointSizeF(7.0)
+            painter.setFont(axis_font)
+            painter.drawText(4, rect.top() + 2, 24, 12, int(QtCore.Qt.AlignmentFlag.AlignRight), f"{1.0:0.1f}")
+            painter.drawText(4, rect.center().y() - 6, 24, 12, int(QtCore.Qt.AlignmentFlag.AlignRight), "0.0")
+            painter.drawText(rect.left(), rect.bottom() + 6, 36, 12, int(QtCore.Qt.AlignmentFlag.AlignLeft), "old")
+            painter.drawText(rect.right() - 36, rect.bottom() + 6, 36, 12, int(QtCore.Qt.AlignmentFlag.AlignRight), "new")
+
+            if not all_values:
+                painter.end()
+                return
+
+            peak = max([1.0] + [abs(v) for v in all_values])
+            span = peak * 1.1
+            if span <= 0:
+                span = 1.0
+
+            painter.drawText(4, rect.top() + 2, 24, 12, int(QtCore.Qt.AlignmentFlag.AlignRight), f"{span:0.1f}")
+            painter.drawText(4, rect.bottom() - 10, 24, 12, int(QtCore.Qt.AlignmentFlag.AlignRight), f"{-span:0.1f}")
+
+            for name, _label, color in self.series_specs:
+                data = list(self.history[name])
+                if len(data) < 2:
+                    continue
+                path = QtGui.QPainterPath()
+                for idx, value in enumerate(data):
+                    x = rect.left() + (rect.width() * idx / max(1, self.history_len - 1))
+                    y_norm = (value + span) / (2.0 * span)
+                    y = rect.bottom() - (rect.height() * y_norm)
+                    point = QtCore.QPointF(float(x), float(y))
+                    if idx == 0:
+                        path.moveTo(point)
+                    else:
+                        path.lineTo(point)
+                pen = QtGui.QPen(QtGui.QColor(color))
+                pen.setWidth(2)
+                painter.setPen(pen)
+                painter.drawPath(path)
+
+            painter.end()
+
     class AFEPanel(QtWidgets.QGroupBox):
         def __init__(self, afe: int, client: HDMezzClient, log_fn):
             super().__init__(f"AFE BLOCK {afe}")
@@ -567,12 +714,11 @@ def run_visual(args) -> int:
             shell.addLayout(left, 0)
 
             middle = QtWidgets.QVBoxLayout()
-            middle.setSpacing(8)
-            middle.addWidget(self._section_label("KNOBS"))
-
+            middle.setSpacing(0)
+            knobs_bay = SectionBay("KNOBS")
             knobs_grid = QtWidgets.QGridLayout()
-            knobs_grid.setHorizontalSpacing(10)
-            knobs_grid.setVerticalSpacing(10)
+            knobs_grid.setHorizontalSpacing(8)
+            knobs_grid.setVerticalSpacing(8)
             self.r_shunt_5v = KnobSpin("R SHUNT 5V", DEFAULT_R_SHUNT_5V, 0.0, 1.0, 6, 0.001)
             self.r_shunt_3v3 = KnobSpin("R SHUNT 3V3", DEFAULT_R_SHUNT_3V3, 0.0, 1.0, 6, 0.001)
             self.max_current_5v_scale = KnobSpin("I SCALE 5V", DEFAULT_MAX_CURRENT_5V_SCALE, 0.0, 1.0, 6, 0.001)
@@ -589,7 +735,12 @@ def run_visual(args) -> int:
             ]
             for idx, widget in enumerate(knob_widgets):
                 knobs_grid.addWidget(widget, idx // 3, idx % 3)
-            middle.addLayout(knobs_grid)
+            knobs_grid.setRowStretch(0, 1)
+            knobs_grid.setRowStretch(1, 1)
+            knobs_container = QtWidgets.QWidget()
+            knobs_container.setLayout(knobs_grid)
+            knobs_bay.body.addWidget(knobs_container, 1, QtCore.Qt.AlignmentFlag.AlignTop)
+            middle.addWidget(knobs_bay, 1)
             shell.addLayout(middle, 1)
 
             right = QtWidgets.QVBoxLayout()
@@ -616,7 +767,30 @@ def run_visual(args) -> int:
             for idx, widget in enumerate(displays):
                 telemetry_grid.addWidget(widget, idx // 2, idx % 2)
             right.addLayout(telemetry_grid)
-            right.addStretch(1)
+
+            graphs_bay = SectionBay("TREND ANALYSIS")
+            graph_stack = QtWidgets.QVBoxLayout()
+            graph_stack.setSpacing(8)
+            self.voltage_graph = TrendGraph(
+                "VOLTAGE TREND",
+                "V",
+                [("v5", "5V", "#8ff0ff"), ("v3", "3V3", "#f9c66f")],
+            )
+            self.current_graph = TrendGraph(
+                "CURRENT TREND",
+                "mA",
+                [("i5", "5V", "#39f07f"), ("i3", "3V3", "#ffb347")],
+            )
+            self.power_graph = TrendGraph(
+                "POWER TREND",
+                "mW",
+                [("p5", "5V", "#ff7b72"), ("p3", "3V3", "#c792ea")],
+            )
+            graph_stack.addWidget(self.voltage_graph)
+            graph_stack.addWidget(self.current_graph)
+            graph_stack.addWidget(self.power_graph)
+            graphs_bay.body.addLayout(graph_stack)
+            right.addWidget(graphs_bay, 1)
             shell.addLayout(right, 1)
 
         @staticmethod
@@ -682,8 +856,8 @@ def run_visual(args) -> int:
                 ),
             )
 
-        def read_status(self):
-            resp = self._run("READ_STATUS", lambda: self.client.read_status(self.afe))
+        def read_status(self, *, log_result: bool = True):
+            resp = self._run("READ_STATUS", lambda: self.client.read_status(self.afe)) if log_result else self._read_status_silent()
             if resp is None:
                 return
             self.power_5v.setChecked(bool(resp.power5V))
@@ -698,22 +872,36 @@ def run_visual(args) -> int:
             self.i3_display.set_value(resp.measured_current3V3)
             self.p5_display.set_value(resp.measured_power5V)
             self.p3_display.set_value(resp.measured_power3V3)
-            self.log(
-                f"[AFE {self.afe}] STATUS: "
-                f"V5={resp.measured_voltage5V:.4f} V "
-                f"V3={resp.measured_voltage3V3:.4f} V "
-                f"I5={resp.measured_current5V:.4f} mA "
-                f"I3={resp.measured_current3V3:.4f} mA "
-                f"P5={resp.measured_power5V:.4f} mW "
-                f"P3={resp.measured_power3V3:.4f} mW "
-                f"PW5={int(resp.power5V)} PW3={int(resp.power3V3)} "
-                f"AL5={int(resp.alert_5V)} AL3={int(resp.alert_3V3)}"
-            )
+            self.voltage_graph.append_values({"v5": resp.measured_voltage5V, "v3": resp.measured_voltage3V3})
+            self.current_graph.append_values({"i5": resp.measured_current5V, "i3": resp.measured_current3V3})
+            self.power_graph.append_values({"p5": resp.measured_power5V, "p3": resp.measured_power3V3})
+            if log_result:
+                self.log(
+                    f"[AFE {self.afe}] STATUS: "
+                    f"V5={resp.measured_voltage5V:.4f} V "
+                    f"V3={resp.measured_voltage3V3:.4f} V "
+                    f"I5={resp.measured_current5V:.4f} mA "
+                    f"I3={resp.measured_current3V3:.4f} mA "
+                    f"P5={resp.measured_power5V:.4f} mW "
+                    f"P3={resp.measured_power3V3:.4f} mW "
+                    f"PW5={int(resp.power5V)} PW3={int(resp.power3V3)} "
+                    f"AL5={int(resp.alert_5V)} AL3={int(resp.alert_3V3)}"
+                )
 
         def clear_alerts(self):
             resp = self._run("CLEAR_ALERT_FLAG", lambda: self.client.clear_alert_flag(self.afe))
             if resp is not None:
                 self.read_status()
+
+        def _read_status_silent(self):
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CursorShape.BusyCursor)
+            try:
+                return self.client.read_status(self.afe)
+            except Exception as exc:
+                self.log(f"[AFE {self.afe}] AUTO_REFRESH: ERROR {exc}")
+                return None
+            finally:
+                QtWidgets.QApplication.restoreOverrideCursor()
 
     class HDMezzControlApp(QtWidgets.QWidget):
         def __init__(self, client: HDMezzClient):
@@ -739,6 +927,22 @@ def run_visual(args) -> int:
             title_stack.addWidget(subtitle)
             banner_layout.addLayout(title_stack)
             banner_layout.addStretch(1)
+
+            controls = QtWidgets.QHBoxLayout()
+            controls.setSpacing(8)
+            self.auto_refresh = QtWidgets.QCheckBox("AUTO REFRESH")
+            self.auto_refresh.setChecked(False)
+            self.auto_refresh_interval = QtWidgets.QSpinBox()
+            self.auto_refresh_interval.setRange(250, 10000)
+            self.auto_refresh_interval.setSingleStep(250)
+            self.auto_refresh_interval.setValue(1000)
+            self.auto_refresh_interval.setSuffix(" ms")
+            self.refresh_now = QtWidgets.QPushButton("Refresh All")
+            self.refresh_now.clicked.connect(self.refresh_all_now)
+            controls.addWidget(self.auto_refresh)
+            controls.addWidget(self.auto_refresh_interval)
+            controls.addWidget(self.refresh_now)
+            banner_layout.addLayout(controls)
             root.addWidget(banner)
 
             scroll = QtWidgets.QScrollArea()
@@ -746,8 +950,11 @@ def run_visual(args) -> int:
             scroll_host = QtWidgets.QWidget()
             scroll_layout = QtWidgets.QVBoxLayout(scroll_host)
             scroll_layout.setSpacing(12)
+            self.panels = []
             for afe in range(5):
-                scroll_layout.addWidget(AFEPanel(afe, client, self.append_log))
+                panel = AFEPanel(afe, client, self.append_log)
+                self.panels.append(panel)
+                scroll_layout.addWidget(panel)
             scroll_layout.addStretch(1)
             scroll.setWidget(scroll_host)
             root.addWidget(scroll, 1)
@@ -759,11 +966,35 @@ def run_visual(args) -> int:
             self.log.setFixedHeight(160)
             root.addWidget(self.log)
 
+            self.refresh_timer = QtCore.QTimer(self)
+            self.refresh_timer.timeout.connect(self._auto_refresh_tick)
+            self.auto_refresh.toggled.connect(self._toggle_auto_refresh)
+            self.auto_refresh_interval.valueChanged.connect(self._update_refresh_interval)
+
             QtWidgets.QApplication.instance().aboutToQuit.connect(self.client.close)
 
         def append_log(self, text: str) -> None:
             ts = QtCore.QDateTime.currentDateTime().toString("HH:mm:ss")
             self.log.appendPlainText(f"{ts}  {text}")
+
+        def refresh_all_now(self) -> None:
+            for panel in self.panels:
+                panel.read_status(log_result=False)
+
+        def _auto_refresh_tick(self) -> None:
+            if not self.auto_refresh.isChecked():
+                return
+            self.refresh_all_now()
+
+        def _toggle_auto_refresh(self, enabled: bool) -> None:
+            if enabled:
+                self.refresh_timer.start(self.auto_refresh_interval.value())
+            else:
+                self.refresh_timer.stop()
+
+        def _update_refresh_interval(self, interval_ms: int) -> None:
+            if self.refresh_timer.isActive():
+                self.refresh_timer.start(interval_ms)
 
     client = HDMezzClient(
         ip=args.ip,
