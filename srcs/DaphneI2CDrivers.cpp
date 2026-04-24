@@ -227,7 +227,7 @@ void I2CMezzDrivers::HDMezzDriver::powerOn_HDMezzAfeBlock(const uint8_t &afeBloc
 }
 
 double I2CMezzDrivers::HDMezzDriver::readRailVoltage(const uint8_t &afeBlock, const std::string &rail){
-    uint16_t bus_voltage_reg_value = this->readINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR"), "BUS_VOLTAGE");
+    uint16_t bus_voltage_reg_value = this->readINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR"), "VBUS");
     double bus_voltage = ((double)bus_voltage_reg_value)*1.6e-3; // Each bit represents 1.6mV
     return bus_voltage;
 }
