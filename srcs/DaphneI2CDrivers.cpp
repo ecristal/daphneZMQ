@@ -184,19 +184,21 @@ uint16_t I2CMezzDrivers::HDMezzDriver::getShuntCal(const uint8_t &afeBlock, cons
 
 void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(const uint8_t &afeBlock){
 
-    this->writeINA232Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"), I2C_drivers_defines::HDMezzAddressMap.at("INA232_CALIBRATION_REG"), this->shunt_cal_5V[afeBlock]);
+    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"), "SHUNT_CAL", this->shunt_cal_5V[afeBlock]);
 
     uint16_t max_power_5V_reg = (uint16_t)(this->max_power_5V[afeBlock] / (32*this->current_lsb_5V[afeBlock]));
-    this->writeINA232Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"), I2C_drivers_defines::HDMezzAddressMap.at("INA232_ALERT_LIMIT_REG"), max_power_5V_reg);
+    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"), "LIMIT", max_power_5V_reg);
     
-    this->writeINA232Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"), I2C_drivers_defines::HDMezzAddressMap.at("INA232_MASK_ENABLE_REG"), this->enable_alert_flags);
+    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"), "LEN", 0x1);
+    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"), "POL", 0x1);
 
-    this->writeINA232Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"), I2C_drivers_defines::HDMezzAddressMap.at("INA232_CALIBRATION_REG"), this->shunt_cal_3V3[afeBlock]);
+    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"), "SHUNT_CAL", this->shunt_cal_3V3[afeBlock]);
 
     uint16_t max_power_3V3_reg = (uint16_t)(this->max_power_3V3[afeBlock] / (32*this->current_lsb_3V3[afeBlock]));
-    this->writeINA232Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"), I2C_drivers_defines::HDMezzAddressMap.at("INA232_ALERT_LIMIT_REG"), max_power_3V3_reg);
+    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"), "LIMIT", max_power_3V3_reg);
 
-    this->writeINA232Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"), I2C_drivers_defines::HDMezzAddressMap.at("INA232_MASK_ENABLE_REG"), this->enable_alert_flags);
+    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"), "LEN", 0x1);
+    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"), "POL", 0x1);
 
     this->writeTCA9536Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_CONF_REG"), 0xF0); // Set all pins as outputs
 
@@ -225,13 +227,13 @@ void I2CMezzDrivers::HDMezzDriver::powerOn_HDMezzAfeBlock(const uint8_t &afeBloc
 }
 
 double I2CMezzDrivers::HDMezzDriver::readRailVoltage(const uint8_t &afeBlock, const std::string &rail){
-    uint16_t bus_voltage_reg_value = this->readINA232Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR"), I2C_drivers_defines::HDMezzAddressMap.at("INA232_BUS_VOLTAGE_REG"));
+    uint16_t bus_voltage_reg_value = this->readINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR"), "BUS_VOLTAGE");
     double bus_voltage = ((double)bus_voltage_reg_value)*1.6e-3; // Each bit represents 1.6mV
     return bus_voltage;
 }
 
 double I2CMezzDrivers::HDMezzDriver::readRailCurrent(const uint8_t &afeBlock, const std::string &rail){
-    int16_t current_reg_value = this->readINA232Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR"), I2C_drivers_defines::HDMezzAddressMap.at("INA232_CURRENT_REG"));
+    int16_t current_reg_value = this->readINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR"), "CURRENT");
     double current = 0.0;
     if(rail == "5V"){
         current = static_cast<double>(current_reg_value)*this->current_lsb_5V[afeBlock]*1000; // mA
@@ -246,7 +248,7 @@ double I2CMezzDrivers::HDMezzDriver::readRailCurrent(const uint8_t &afeBlock, co
 }
 
 double I2CMezzDrivers::HDMezzDriver::readRailPower(const uint8_t &afeBlock, const std::string &rail){
-    uint16_t power_reg_value = this->readINA232Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR"), I2C_drivers_defines::HDMezzAddressMap.at("INA232_POWER_REG"));
+    uint16_t power_reg_value = this->readINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR"), "POWER");
     double power = 0.0;
     if(rail == "5V"){
         power = 32*((double)power_reg_value)*this->current_lsb_5V[afeBlock]*1000; // 1mW/LSB
