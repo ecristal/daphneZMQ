@@ -1287,8 +1287,8 @@ bool readHDMezzStatus(const cmd_readHDMezzStatus& request,
     response.set_measured_current3v3(daphne.HDMezz_3V3_current[afeBlock].load());
     response.set_measured_power5v(daphne.HDMezz_5V_power[afeBlock].load());
     response.set_measured_power3v3(daphne.HDMezz_3V3_power[afeBlock].load());
-    response.set_alert5v(daphne.HDMezz_5V_alert[afeBlock].load());
-    response.set_alert3v3(daphne.HDMezz_3V3_alert[afeBlock].load());
+    response.set_alert_5v(daphne.HDMezz_5V_alert[afeBlock].load());
+    response.set_alert_3v3(daphne.HDMezz_3V3_alert[afeBlock].load());
     response_str = "HD mezzanine block " + std::to_string(afeBlock) + " status read successfully.";
     return true;
   } catch (const std::exception& e) {
