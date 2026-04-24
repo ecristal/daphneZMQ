@@ -118,6 +118,8 @@ using daphne::cmd_setHDMezzPowerStates;
 using daphne::cmd_setHDMezzPowerStates_response;
 using daphne::cmd_readHDMezzStatus;
 using daphne::cmd_readHDMezzStatus_response;
+using daphne::cmd_clearHDMezzAlertFlag;
+using daphne::cmd_clearHDMezzAlertFlag_response;
 
 
 struct I2C2ConfigGuard {
@@ -1295,6 +1297,25 @@ bool readHDMezzStatus(const cmd_readHDMezzStatus& request,
     response_str = std::string("Error reading HD mezzanine block status: ") + e.what();
     return false;
   }
+
+  bool clearHDMezzAlertFlag(const cmd_clearHDMezzAlertFlag& request,
+                          cmd_clearHDMezzAlertFlag_response& response,
+                          Daphne& daphne,
+                          std::string& response_str) {
+    try {
+      const uint32_t afeBlock = request.afeblock();
+      if (afeBlock > 4) throw std::invalid_argument("HD mezzanine block out of range (0..4)");
+      if(!daphne.getHDMezzDriver()) throw std::runtime_error("HD mezzanine driver not initialized");
+      I2C2ConfigGuard config_guard(daphne);
+      daphne.HDMezz_5V_alert[afeBlock].store(false);
+      daphne.HDMezz_3V3_alert[afeBlock].store(false);
+      response.set_afeblock(afeBlock);
+      response_str = "HD mezzanine block " + std::to_string(afeBlock) + " alert flags cleared.";
+      return true;
+    } catch (const std::exception& e) {
+      response_str = std::string("Error clearing HD mezzanine block alert flags: ") + e.what();
+      return false;
+    }
 }
 
 template <typename Msg>
@@ -2006,6 +2027,21 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers() {
 
     std::string msg;
     const bool ok = readHDMezzStatus(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_CLEAR_HDMEZZ_ALERT_FLAG_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_clearHDMezzAlertFlag req;
+    cmd_clearHDMezzAlertFlag_response resp;
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(resp, "Bad cmd_clearHDMezzAlertFlag payload");
+      return;
+    }
+
+    std::string msg;
+    const bool ok = clearHDMezzAlertFlag(req, resp, d, msg);
     resp.set_success(ok);
     resp.set_message(msg);
     out = serialize_or_empty(resp);

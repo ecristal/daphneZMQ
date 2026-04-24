@@ -8,6 +8,7 @@ Supported operations:
   - read-block-config
   - set-power-states
   - read-status
+  - clear-alert-flag
 """
 
 from __future__ import annotations
@@ -146,6 +147,10 @@ def build_parser() -> argparse.ArgumentParser:
     add_common_args(p)
     p.add_argument("--afe", type=int, required=True, choices=range(0, 5), help="AFE block [0..4]")
 
+    p = sub.add_parser("clear-alert-flag", help="Clear HD mezzanine alert flags for one block")
+    add_common_args(p)
+    p.add_argument("--afe", type=int, required=True, choices=range(0, 5), help="AFE block [0..4]")
+
     return ap
 
 
@@ -270,6 +275,18 @@ class HDMezzClient:
             req,
             pb_high.MT2_READ_HDMEZZ_STATUS_RESP,
             pb_low.cmd_readHDMezzStatus_response,
+            route=self.route,
+            timeout_ms=self.timeout_ms,
+        )
+
+    def clear_alert_flag(self, afe: int):
+        req = pb_low.cmd_clearHDMezzAlertFlag(id=0, afeBlock=afe)
+        return v2_rpc(
+            self.sock,
+            pb_high.MT2_CLEAR_HDMEZZ_ALERT_FLAG_REQ,
+            req,
+            pb_high.MT2_CLEAR_HDMEZZ_ALERT_FLAG_RESP,
+            pb_low.cmd_clearHDMezzAlertFlag_response,
             route=self.route,
             timeout_ms=self.timeout_ms,
         )
@@ -531,6 +548,8 @@ def run_visual(args) -> int:
             self.power_button.clicked.connect(self.apply_power)
             self.read_status_button = QtWidgets.QPushButton("Scan Telemetry")
             self.read_status_button.clicked.connect(self.read_status)
+            self.clear_alert_button = QtWidgets.QPushButton("Clear Alerts")
+            self.clear_alert_button.clicked.connect(self.clear_alerts)
             self.read_config_button = QtWidgets.QPushButton("Recall Config")
             self.read_config_button.clicked.connect(self.read_config)
             self.configure_button = QtWidgets.QPushButton("Program Block")
@@ -539,6 +558,7 @@ def run_visual(args) -> int:
                 self.enable_button,
                 self.power_button,
                 self.read_status_button,
+                self.clear_alert_button,
                 self.read_config_button,
                 self.configure_button,
             ):
@@ -690,6 +710,11 @@ def run_visual(args) -> int:
                 f"AL5={int(resp.alert_5V)} AL3={int(resp.alert_3V3)}"
             )
 
+        def clear_alerts(self):
+            resp = self._run("CLEAR_ALERT_FLAG", lambda: self.client.clear_alert_flag(self.afe))
+            if resp is not None:
+                self.read_status()
+
     class HDMezzControlApp(QtWidgets.QWidget):
         def __init__(self, client: HDMezzClient):
             super().__init__()
@@ -807,6 +832,11 @@ def main() -> int:
         if args.command == "read-status":
             resp = client.read_status(args.afe)
             print_status_response(resp)
+            return 0 if resp.success else 2
+
+        if args.command == "clear-alert-flag":
+            resp = client.clear_alert_flag(args.afe)
+            print(f"success={resp.success} afe={resp.afeBlock} message='{resp.message}'")
             return 0 if resp.success else 2
 
         raise RuntimeError(f"Unhandled command {args.command}")

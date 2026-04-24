@@ -376,6 +376,17 @@ message cmd_readHDMezzStatus_response {
   bool   alert_3V3           = 13;
 };
 
+message cmd_clearHDMezzAlertFlag {
+  int32  id         = 1;
+  uint32 afeBlock   = 2;
+};
+
+message cmd_clearHDMezzAlertFlag_response {
+  bool   success    = 1;
+  string message    = 2;
+  uint32 afeBlock   = 3;
+};
+
 // ------------------------ AFE control helpers ------------------------
 
 message cmd_setAFEReset {
