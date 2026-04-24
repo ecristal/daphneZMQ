@@ -58,9 +58,13 @@ namespace I2CMezzDrivers{
 
         void configureCalibrationValues();
         uint16_t readINA232Register(const uint8_t &afeBlock, const uint8_t &deviceAddress, const uint8_t &registerAddress);
+        uint16_t readINA232Function(const uint8_t &afeblock, const uint8_t &deviceAddress, const std::string &functionName);
         void writeINA232Register(const uint8_t &afeBlock, const uint8_t &deviceAddress, const uint8_t &registerAddress, const uint16_t &value);
+        void writeINA232Function(const uint8_t &afeBlock, const uint8_t &deviceAddress, const std::string &functionName, const uint16_t &value);
+
         uint16_t readTCA9536Register(const uint8_t &afeBlock, const uint8_t &registerAddress);
         void writeTCA9536Register(const uint8_t &afeBlock, const uint8_t &registerAddress, const uint8_t &value);
+        
         void selectAfeBlock(const uint8_t &afeBlock);
 
     };

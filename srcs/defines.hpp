@@ -218,6 +218,8 @@ namespace afe_definitions {
 }
 
 namespace I2C_drivers_defines{
+    
+    using BitField = std::unordered_map<uint32_t, std::pair<int, int>>;
 
     const std::unordered_map<std::string, uint8_t> I2CDevicesAddress = {
         {"SW_REG_3VD3", 0x12}, // DIGITAL +3.3VD
@@ -291,6 +293,34 @@ namespace I2C_drivers_defines{
         {"TCA9536_POLARITY_INVERSION_REG", 0x2},
         {"TCA9536_CONF_REG", 0x3},
         {"TCA9536_SPECIAL_FUNCTION_REG", 0x50}
+    };
+
+    const std::unordered_map<std::string, BitField> INA232FunctionDict = { 
+        {"RST", {{0x0, {15, 15}}}},
+        {"ADCRANGE", {{0x0, {12, 12}}}},
+        {"AVG", {{0x0, {11, 9}}}},
+        {"VBUSCT", {{0x0, {8, 6}}}},
+        {"VSHCT", {{0x0, {5, 3}}}},
+        {"MODE", {{0x0, {2, 0}}}},
+        {"VSHUNT", {{0x1, {15, 0}}}},
+        {"VBUS", {{0x2, {14, 0}}}},
+        {"POWER", {{0x3, {15, 0}}}},
+        {"CURRENT", {{0x4, {15, 0}}}},
+        {"SHUNT_CAL", {{0x5, {14, 0}}}},
+        {"SOL", {{0x6, {15, 15}}}},
+        {"SUL", {{0x6, {14, 14}}}},
+        {"BOL", {{0x6, {13, 13}}}},
+        {"BUL", {{0x6, {12, 12}}}},
+        {"POL", {{0x6, {11, 11}}}},
+        {"CNVR", {{0x6, {10, 10}}}},
+        {"MemError", {{0x6, {5, 5}}}},
+        {"AFF", {{0x6, {4, 4}}}},
+        {"CVRF", {{0x6, {3, 3}}}},
+        {"OVF", {{0x6, {2, 2}}}},
+        {"APOL", {{0x6, {1, 1}}}},
+        {"LEN", {{0x6, {0, 0}}}},
+        {"LIMIT", {{0x7, {15, 0}}}},
+        {"MANUFACTURE_ID", {{0x3e, {15, 0}}}}
     };
 
     // AFE Mezzanine Board encoder for the I2C expander configuration

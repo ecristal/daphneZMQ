@@ -288,17 +288,47 @@ void I2CMezzDrivers::HDMezzDriver::writeINA232Register(const uint8_t &afeBlock, 
     register_bytes[1] = value & 0xFF;
     INA232.writeBytes(registerAddress, register_bytes);
     std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
-    // readback and confirm the value was written correctly
-    std::vector<uint8_t> readback_bytes;
-    INA232.readBytes(registerAddress, readback_bytes, 2);
-    uint16_t readback_value = (static_cast<uint16_t>(readback_bytes[0]) << 8) | static_cast<uint16_t>(readback_bytes[1]);
-    if(readback_value != value){
+}
+
+uint16_t I2CMezzDrivers::HDMezzDriver::readINA232Function(const uint8_t &afeBlock, const uint8_t &deviceAddress, const std::string &functionName){
+    const auto it = I2C_drivers_defines::INA232FunctionDict.find(functionName);
+    if(it == I2C_drivers_defines::INA232FunctionDict.end()){
+        throw std::invalid_argument("Invalid INA232 function name: " + functionName);
+    }
+    
+    const auto& bit_field = it->second;
+	const auto& registerAddr = bit_field.begin()->first;
+	const auto& msb_pos = bit_field.begin()->second.first;
+	const auto& lsb_pos = bit_field.begin()->second.second;
+    uint16_t register_value = this->readINA232Register(afeBlock, deviceAddress, registerAddr);
+    uint16_t function_value = (register_value >> lsb_pos) & ((1 << (msb_pos - lsb_pos + 1)) - 1);
+    return function_value;
+}
+
+void I2CMezzDrivers::HDMezzDriver::writeINA232Function(const uint8_t &afeBlock, const uint8_t &deviceAddress, const std::string &functionName, const uint16_t &value){
+    const auto it = I2C_drivers_defines::INA232FunctionDict.find(functionName);
+    if(it == I2C_drivers_defines::INA232FunctionDict.end()){
+        throw std::invalid_argument("Invalid INA232 function name: " + functionName);
+    }
+    
+    const auto& bit_field = it->second;
+    const auto& registerAddr = bit_field.begin()->first;
+    const auto& msb_pos = bit_field.begin()->second.first;
+    const auto& lsb_pos = bit_field.begin()->second.second;
+
+    uint16_t register_value = this->readINA232Register(afeBlock, deviceAddress, registerAddr);
+    uint16_t mask = ((1 << (msb_pos - lsb_pos + 1)) - 1) << lsb_pos;
+    register_value = (register_value & ~mask) | ((value << lsb_pos) & mask);
+    this->writeINA232Register(afeBlock, deviceAddress, registerAddr, register_value);
+    // readback and confirm the value was written correctly with the register value
+    uint16_t readback_register_value = this->readINA232Register(afeBlock, deviceAddress, registerAddr);
+    if(readback_register_value != register_value){
         std::ostringstream oss;
-        oss << "Failed to write value to TCA9536 register in AFE block "
+        oss << "Failed to write value to INA232 function " << functionName << " in AFE block "
         << static_cast<int>(afeBlock)
-        << ", register 0x" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(registerAddress)
-        << ". Expected: 0x" << std::setw(2) << static_cast<int>(value)
-        << ", Readback: 0x" << std::setw(2) << static_cast<int>(readback_value);
+        << ", register 0x" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(registerAddr)
+        << ". Expected Register Value: 0x" << std::setw(4) << static_cast<int>(register_value)
+        << ", Readback Register Value: 0x" << std::setw(4) << static_cast<int>(readback_register_value);
         throw std::runtime_error(oss.str());
     }
 }
