@@ -30,15 +30,20 @@ namespace I2CMezzDrivers{
 
         void configureHdMezzAfeBlock(const uint8_t &afeBlock);
         void powerOn_HDMezzAfeBlock(const uint8_t &afeBlock, const bool &powerOn, const std::string &rail);
+        bool isPowerOn(const uint8_t &afeBlock, const std::string &rail);
 
         double readRailVoltage(const uint8_t &afeBlock, const std::string &rail);
         double readRailCurrent(const uint8_t &afeBlock, const std::string &rail);
         double readRailPower(const uint8_t &afeBlock, const std::string &rail);
+        bool checkAlertStatus(const uint8_t &afeBlock, const std::string &rail);
+        
 
     private:
 
         I2CDevice I2C_exp_mezz; // Get the adress from defines.hpp
-        
+        bool powerStatus5V = true;
+        bool powerStatus3V3 = true;
+
         std::vector<double> r_shunt_5V = {36e-3, 36e-3, 36e-3, 36e-3, 36e-3}; // Ohm
         std::vector<double> r_shunt_3V3 = {0.3, 0.3, 0.3, 0.3, 0.3}; // Ohm
         std::vector<double> max_current_5V_scale = {200e-3, 200e-3, 200e-3, 200e-3, 200e-3}; // Ampere. This sets the maximun current that can be measured
@@ -53,8 +58,6 @@ namespace I2CMezzDrivers{
         std::vector<uint16_t> shunt_cal_3V3 = {0, 0, 0, 0, 0};
         
         std::vector<bool> enabled_afeBlocks = {false, false, false, false, false}; // to keep track of which AFE blocks are populated with HDMezz's
-
-        uint16_t enable_alert_flags = 0b0000100000000001;
 
         void configureCalibrationValues();
         uint16_t readINA232Register(const uint8_t &afeBlock, const uint8_t &deviceAddress, const uint8_t &registerAddress);

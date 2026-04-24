@@ -1279,12 +1279,16 @@ bool readHDMezzStatus(const cmd_readHDMezzStatus& request,
     if (afeBlock > 4) throw std::invalid_argument("HD mezzanine block out of range (0..4)");
     if(!daphne.getHDMezzDriver()) throw std::runtime_error("HD mezzanine driver not initialized");
     response.set_afeblock(afeBlock);
+    response.set_power5v(daphne.HDMezz_5V_is_powered[afeBlock].load());
+    response.set_power3v3(daphne.HDMezz_3V3_is_powered[afeBlock].load());
     response.set_measured_voltage5v(daphne.HDMezz_5V_voltage[afeBlock].load());
     response.set_measured_voltage3v3(daphne.HDMezz_3V3_voltage[afeBlock].load());
     response.set_measured_current5v(daphne.HDMezz_5V_current[afeBlock].load());
     response.set_measured_current3v3(daphne.HDMezz_3V3_current[afeBlock].load());
     response.set_measured_power5v(daphne.HDMezz_5V_power[afeBlock].load());
     response.set_measured_power3v3(daphne.HDMezz_3V3_power[afeBlock].load());
+    response.set_alert5v(daphne.HDMezz_5V_alert[afeBlock].load());
+    response.set_alert3v3(daphne.HDMezz_3V3_alert[afeBlock].load());
     response_str = "HD mezzanine block " + std::to_string(afeBlock) + " status read successfully.";
     return true;
   } catch (const std::exception& e) {

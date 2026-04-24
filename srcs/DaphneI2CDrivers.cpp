@@ -208,7 +208,7 @@ void I2CMezzDrivers::HDMezzDriver::powerOn_HDMezzAfeBlock(const uint8_t &afeBloc
     uint8_t output_port;
     output_port = this->readTCA9536Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_OUTPUT_PORT_REG"));
     if(rail == "5V"){
-        if(powerOn){ 
+        if(powerOn){
             output_port |= 0b00000001; // Set bit 0 to 1 to power on the 5V
         } else {
             output_port &= 0b11111110; // Set bit 0 to 0 to power off the 5V
@@ -222,8 +222,27 @@ void I2CMezzDrivers::HDMezzDriver::powerOn_HDMezzAfeBlock(const uint8_t &afeBloc
     }else{
         throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
     }
-    this->writeTCA9536Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_OUTPUT_PORT_REG"), output_port);
+    try{
+        this->writeTCA9536Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_OUTPUT_PORT_REG"), output_port);
+        if(rail == "5V"){
+            this->powerStatus5V = powerOn;
+        } else if(rail == "3V3"){
+            this->powerStatus3V3 = powerOn;
+        }
+    }catch(const std::exception& e){
+        throw std::runtime_error("Failed to write to TCA9536 expander: " + std::string(e.what()));
+    }
     std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
+}
+
+bool I2CMezzDrivers::HDMezzDriver::isPowerOn(const uint8_t &afeBlock, const std::string &rail){
+    if(rail == "5V"){
+        return this->powerStatus5V;
+    } else if(rail == "3V3"){
+        return this->powerStatus3V3;
+    }else{
+        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
+    }
 }
 
 double I2CMezzDrivers::HDMezzDriver::readRailVoltage(const uint8_t &afeBlock, const std::string &rail){
@@ -260,6 +279,11 @@ double I2CMezzDrivers::HDMezzDriver::readRailPower(const uint8_t &afeBlock, cons
         throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
     }
     return power;
+}
+
+bool I2CMezzDrivers::HDMezzDriver::checkAlertStatus(const uint8_t &afeBlock, const std::string &rail){
+    uint16_t alert_reg_value = this->readINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR"), "AFF");
+    return (alert_reg_value & 0x1) != 0; // Check if the alert bit is set
 }
 
 void I2CMezzDrivers::HDMezzDriver::selectAfeBlock(const uint8_t &afeBlock){

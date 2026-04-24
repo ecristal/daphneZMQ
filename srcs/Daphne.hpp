@@ -72,12 +72,16 @@ public:
     std::atomic<bool> user_vbias_voltage_request;
     std::atomic<bool> is_vbias_voltage_monitor_reading;
     //Atomic monitor voltages and currents
+    std::array<std::atomic<bool>, 5> HDMezz_5V_is_powered{false, false, false, false, false};
+    std::array<std::atomic<bool>, 5> HDMezz_3V3_is_powered{false, false, false, false, false};
     std::array<std::atomic<double>, 5> HDMezz_5V_voltage{0.0, 0.0, 0.0, 0.0, 0.0};
     std::array<std::atomic<double>, 5> HDMezz_5V_current{0.0, 0.0, 0.0, 0.0, 0.0};
     std::array<std::atomic<double>, 5> HDMezz_3V3_voltage{0.0, 0.0, 0.0, 0.0, 0.0};
     std::array<std::atomic<double>, 5> HDMezz_3V3_current{0.0, 0.0, 0.0, 0.0, 0.0};
     std::array<std::atomic<double>, 5> HDMezz_5V_power{0.0, 0.0, 0.0, 0.0, 0.0};
     std::array<std::atomic<double>, 5> HDMezz_3V3_power{0.0, 0.0, 0.0, 0.0, 0.0};
+    std::array<std::atomic<bool>, 5>   HDMezz_5V_alert{false, false, false, false, false};
+    std::array<std::atomic<bool>, 5>   HDMezz_3V3_alert{false, false, false, false, false};
 
     std::atomic<double> _1V8A_voltage;
     std::atomic<double> _3V3A_voltage;

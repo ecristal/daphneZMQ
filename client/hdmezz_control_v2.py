@@ -168,6 +168,10 @@ def print_config_response(resp) -> None:
 
 def print_status_response(resp) -> None:
     print(f"success={resp.success} afe={resp.afeBlock} message='{resp.message}'")
+    print(f"power_5V={int(resp.power5V)}")
+    print(f"power_3V3={int(resp.power3V3)}")
+    print(f"alert_5V={int(resp.alert_5V)}")
+    print(f"alert_3V3={int(resp.alert_3V3)}")
     print(f"measured_voltage_5V={resp.measured_voltage5V:.6f} V")
     print(f"measured_voltage_3V3={resp.measured_voltage3V3:.6f} V")
     print(f"measured_current_5V={resp.measured_current5V:.6f} mA")
@@ -353,6 +357,44 @@ def run_visual(args) -> int:
     }
     """
 
+    class StatusLamp(QtWidgets.QFrame):
+        def __init__(self, label: str, *, on_color: str, off_color: str):
+            super().__init__()
+            self.on_color = on_color
+            self.off_color = off_color
+            self._is_on = False
+
+            layout = QtWidgets.QVBoxLayout(self)
+            layout.setContentsMargins(6, 6, 6, 6)
+            layout.setSpacing(4)
+
+            self.bulb = QtWidgets.QLabel()
+            self.bulb.setFixedSize(26, 26)
+            self.bulb.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            layout.addWidget(self.bulb, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+
+            title = QtWidgets.QLabel(label)
+            title.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            title.setStyleSheet("color: #dceff5; font-size: 9pt; font-weight: 700;")
+            layout.addWidget(title)
+
+            self.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
+            self.setStyleSheet("QFrame { border: 1px solid #31556d; border-radius: 9px; background: #08131d; }")
+            self.set_on(False)
+
+        def set_on(self, is_on: bool) -> None:
+            self._is_on = bool(is_on)
+            color = self.on_color if self._is_on else self.off_color
+            glow = color if self._is_on else "#0d1117"
+            self.bulb.setStyleSheet(
+                f"QLabel {{"
+                f"background: qradialgradient(cx:0.45, cy:0.35, radius:0.8, stop:0 #f7fbff, stop:0.18 {color}, stop:1 #11151b);"
+                f"border: 1px solid #50606d;"
+                f"border-radius: 13px;"
+                f"box-shadow: 0 0 12px {glow};"
+                f"}}"
+            )
+
     class KnobSpin(QtWidgets.QWidget):
         def __init__(self, title: str, value: float, min_v: float, max_v: float, decimals: int, step: float):
             super().__init__()
@@ -469,6 +511,14 @@ def run_visual(args) -> int:
             left.addWidget(self.enable_check)
             left.addWidget(self.power_5v)
             left.addWidget(self.power_3v3)
+
+            lamp_row = QtWidgets.QHBoxLayout()
+            lamp_row.setSpacing(8)
+            self.power_lamp = StatusLamp("POWER", on_color="#39f07f", off_color="#153324")
+            self.alert_lamp = StatusLamp("ALERT", on_color="#ff4d4d", off_color="#34161b")
+            lamp_row.addWidget(self.power_lamp)
+            lamp_row.addWidget(self.alert_lamp)
+            left.addLayout(lamp_row)
 
             self.enable_button = QtWidgets.QPushButton("Commit Enable")
             self.enable_button.clicked.connect(self.apply_enable)
@@ -611,6 +661,10 @@ def run_visual(args) -> int:
             resp = self._run("READ_STATUS", lambda: self.client.read_status(self.afe))
             if resp is None:
                 return
+            self.power_5v.setChecked(bool(resp.power5V))
+            self.power_3v3.setChecked(bool(resp.power3V3))
+            self.power_lamp.set_on(bool(resp.power5V or resp.power3V3))
+            self.alert_lamp.set_on(bool(resp.alert_5V or resp.alert_3V3))
             self.v5_display.set_value(resp.measured_voltage5V)
             self.v3_display.set_value(resp.measured_voltage3V3)
             self.i5_display.set_value(resp.measured_current5V)
@@ -624,7 +678,9 @@ def run_visual(args) -> int:
                 f"I5={resp.measured_current5V:.4f} mA "
                 f"I3={resp.measured_current3V3:.4f} mA "
                 f"P5={resp.measured_power5V:.4f} mW "
-                f"P3={resp.measured_power3V3:.4f} mW"
+                f"P3={resp.measured_power3V3:.4f} mW "
+                f"PW5={int(resp.power5V)} PW3={int(resp.power3V3)} "
+                f"AL5={int(resp.alert_5V)} AL3={int(resp.alert_3V3)}"
             )
 
     class HDMezzControlApp(QtWidgets.QWidget):

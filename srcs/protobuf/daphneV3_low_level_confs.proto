@@ -364,12 +364,16 @@ message cmd_readHDMezzStatus_response {
   bool   success             = 1;
   string message             = 2;
   uint32 afeBlock            = 3;
-  float  measured_voltage5V  = 4;
-  float  measured_voltage3V3 = 5;
-  float  measured_current5V  = 6;
-  float  measured_current3V3 = 7;
-  float  measured_power5V    = 8;
-  float  measured_power3V3   = 9;
+  bool   power5V             = 4;
+  bool   power3V3            = 5;
+  float  measured_voltage5V  = 6;
+  float  measured_voltage3V3 = 7;
+  float  measured_current5V  = 8;
+  float  measured_current3V3 = 9;
+  float  measured_power5V    = 10;
+  float  measured_power3V3   = 11;
+  bool   alert_5V            = 12;
+  bool   alert_3V3           = 13;
 };
 
 // ------------------------ AFE control helpers ------------------------
