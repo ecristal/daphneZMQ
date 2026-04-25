@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <mutex>
 #include <thread>
 
 #include "Daphne.hpp"
@@ -12,31 +13,35 @@ namespace {
 void i2c_2_monitor_thread(Daphne& daphne, std::chrono::milliseconds period) {
   while (true) {
     try {
-      if (!daphne.isI2C_2_device_configuring.load()) {
-        auto* hd = daphne.getHDMezzDriver();
-        if (hd) {
-          for(size_t i = 0; i < 5; i++){
-            if(hd->isAfeBlockEnabled(i)){
-              daphne.HDMezz_5V_is_powered[i].store(hd->isPowerOn(i, "5V"));
-              daphne.HDMezz_3V3_is_powered[i].store(hd->isPowerOn(i, "3V3"));
-              daphne.HDMezz_5V_voltage[i].store(hd->readRailVoltage(i, "5V"));
-              daphne.HDMezz_5V_current[i].store(hd->readRailCurrent(i, "5V"));
-              daphne.HDMezz_3V3_voltage[i].store(hd->readRailVoltage(i, "3V3"));
-              daphne.HDMezz_3V3_current[i].store(hd->readRailCurrent(i, "3V3"));
-              daphne.HDMezz_5V_power[i].store(hd->readRailPower(i, "5V"));
-              daphne.HDMezz_3V3_power[i].store(hd->readRailPower(i, "3V3"));
-              // Check and latch the alert condition.
-              if(!daphne.HDMezz_5V_alert[i].load()) daphne.HDMezz_5V_alert[i].store(hd->checkAlertStatus(i, "5V"));
-              if(!daphne.HDMezz_3V3_alert[i].load()) daphne.HDMezz_3V3_alert[i].store(hd->checkAlertStatus(i, "3V3"));
-              if((daphne.HDMezz_5V_alert[i].load() || daphne.HDMezz_3V3_alert[i].load())
-                 && (daphne.HDMezz_5V_is_powered[i].load() || daphne.HDMezz_3V3_is_powered[i].load())){ // If there's an alert and the rail is powered, power off the rails for safety
-                hd->powerOn_HDMezzAfeBlock(i, false, "5V");
-                hd->powerOn_HDMezzAfeBlock(i, false, "3V3");
-                std::cerr << "Alert on AFE block " << i << ": "
-                          << (daphne.HDMezz_5V_alert[i].load() ? "5V alert " : "")
-                          << (daphne.HDMezz_3V3_alert[i].load() ? "3V3 alert" : "")
-                          << std::endl;
-              }
+      std::unique_lock<std::mutex> i2c2_lock(daphne.i2c_2_mutex, std::try_to_lock);
+      if (!i2c2_lock.owns_lock()) {
+        std::this_thread::sleep_for(period);
+        continue;
+      }
+
+      auto* hd = daphne.getHDMezzDriver();
+      if (hd) {
+        for(size_t i = 0; i < 5; i++){
+          if(hd->isAfeBlockEnabled(i)){
+            daphne.HDMezz_5V_is_powered[i].store(hd->isPowerOn(i, "5V"));
+            daphne.HDMezz_3V3_is_powered[i].store(hd->isPowerOn(i, "3V3"));
+            daphne.HDMezz_5V_voltage[i].store(hd->readRailVoltage(i, "5V"));
+            daphne.HDMezz_5V_current[i].store(hd->readRailCurrent(i, "5V"));
+            daphne.HDMezz_3V3_voltage[i].store(hd->readRailVoltage(i, "3V3"));
+            daphne.HDMezz_3V3_current[i].store(hd->readRailCurrent(i, "3V3"));
+            daphne.HDMezz_5V_power[i].store(hd->readRailPower(i, "5V"));
+            daphne.HDMezz_3V3_power[i].store(hd->readRailPower(i, "3V3"));
+            // Check and latch the alert condition.
+            if(!daphne.HDMezz_5V_alert[i].load()) daphne.HDMezz_5V_alert[i].store(hd->checkAlertStatus(i, "5V"));
+            if(!daphne.HDMezz_3V3_alert[i].load()) daphne.HDMezz_3V3_alert[i].store(hd->checkAlertStatus(i, "3V3"));
+            if((daphne.HDMezz_5V_alert[i].load() || daphne.HDMezz_3V3_alert[i].load())
+               && (daphne.HDMezz_5V_is_powered[i].load() || daphne.HDMezz_3V3_is_powered[i].load())){ // If there's an alert and the rail is powered, power off the rails for safety
+              hd->powerOn_HDMezzAfeBlock(i, false, "5V");
+              hd->powerOn_HDMezzAfeBlock(i, false, "3V3");
+              std::cerr << "Alert on AFE block " << i << ": "
+                        << (daphne.HDMezz_5V_alert[i].load() ? "5V alert " : "")
+                        << (daphne.HDMezz_3V3_alert[i].load() ? "3V3 alert" : "")
+                        << std::endl;
             }
           }
         }

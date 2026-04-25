@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <mutex>
 #include <numeric>
 #include <sstream>
 #include <stdexcept>
@@ -122,12 +123,15 @@ using daphne::cmd_clearHDMezzAlertFlag;
 using daphne::cmd_clearHDMezzAlertFlag_response;
 
 
-struct I2C2ConfigGuard {
+struct I2C2BusGuard {
   Daphne& d;
-  explicit I2C2ConfigGuard(Daphne& daphne) : d(daphne) {
+  std::unique_lock<std::mutex> lock;
+
+  explicit I2C2BusGuard(Daphne& daphne) : d(daphne), lock(daphne.i2c_2_mutex) {
     d.isI2C_2_device_configuring.store(true);
   }
-  ~I2C2ConfigGuard() {
+
+  ~I2C2BusGuard() {
     d.isI2C_2_device_configuring.store(false);
   }
 };
@@ -1165,6 +1169,7 @@ bool setHDMezzBlockEnable(const cmd_setHDMezzBlockEnable& request,
     const bool enable = request.enable();
     if (afeBlock > 4) throw std::invalid_argument("HD mezzanine block out of range (0..4)");
     if(!daphne.getHDMezzDriver()) throw std::runtime_error("HD mezzanine driver not initialized");
+    I2C2BusGuard bus_guard(daphne);
     daphne.getHDMezzDriver()->enableAfeBlock(afeBlock, enable);
     response.set_afeblock(afeBlock);
     response.set_enable(enable);
@@ -1191,13 +1196,13 @@ bool configureHDMezzBlock(const cmd_configureHDMezzBlock& request,
     const float max_current_3V3_shutdown = request.max_current_3v3_shutdown();
     if (afeBlock > 4) throw std::invalid_argument("HD mezzanine block out of range (0..4)");
     if(!daphne.getHDMezzDriver()) throw std::runtime_error("HD mezzanine driver not initialized");
+    I2C2BusGuard bus_guard(daphne);
     daphne.getHDMezzDriver()->setRShunt(afeBlock, r_shunt_5V, "5V");
     daphne.getHDMezzDriver()->setRShunt(afeBlock, r_shunt_3V3, "3V3");
     daphne.getHDMezzDriver()->setMaxCurrentScale(afeBlock, max_current_5V_scale, "5V");
     daphne.getHDMezzDriver()->setMaxCurrentScale(afeBlock, max_current_3V3_scale, "3V3");
     daphne.getHDMezzDriver()->setMaxCurrentShutdown(afeBlock, max_current_5V_shutdown, "5V");
     daphne.getHDMezzDriver()->setMaxCurrentShutdown(afeBlock, max_current_3V3_shutdown, "3V3");
-    I2C2ConfigGuard config_guard(daphne);
     daphne.getHDMezzDriver()->configureHdMezzAfeBlock(afeBlock);
     response.set_afeblock(afeBlock);
     response.set_r_shunt_5v(r_shunt_5V);
@@ -1225,6 +1230,7 @@ bool readHDMezzBlockConfig(const cmd_readHDMezzBlockConfig& request,
     const uint32_t afeBlock = request.afeblock();
     if (afeBlock > 4) throw std::invalid_argument("HD mezzanine block out of range (0..4)");
     if(!daphne.getHDMezzDriver()) throw std::runtime_error("HD mezzanine driver not initialized");
+    I2C2BusGuard bus_guard(daphne);
     response.set_afeblock(afeBlock);
     response.set_r_shunt_5v(daphne.getHDMezzDriver()->getRShunt(afeBlock, "5V"));
     response.set_r_shunt_3v3(daphne.getHDMezzDriver()->getRShunt(afeBlock, "3V3"));
@@ -1257,7 +1263,7 @@ bool setHDMezzPowerStates(const cmd_setHDMezzPowerStates& request,
     const bool power_5v = request.power5v();
     const bool power_3v3 = request.power3v3();
     if (afeBlock > 4) throw std::invalid_argument("HD mezzanine block out of range (0..4)");
-    I2C2ConfigGuard config_guard(daphne);
+    I2C2BusGuard bus_guard(daphne);
     daphne.getHDMezzDriver()->powerOn_HDMezzAfeBlock(afeBlock, power_5v, "5V");
     daphne.getHDMezzDriver()->powerOn_HDMezzAfeBlock(afeBlock, power_3v3, "3V3");
     response.set_afeblock(afeBlock);
@@ -1307,7 +1313,7 @@ bool clearHDMezzAlertFlag(const cmd_clearHDMezzAlertFlag& request,
     const uint32_t afeBlock = request.afeblock();
     if (afeBlock > 4) throw std::invalid_argument("HD mezzanine block out of range (0..4)");
     if(!daphne.getHDMezzDriver()) throw std::runtime_error("HD mezzanine driver not initialized");
-    I2C2ConfigGuard config_guard(daphne);
+    I2C2BusGuard bus_guard(daphne);
     daphne.HDMezz_5V_alert[afeBlock].store(false);
     daphne.HDMezz_3V3_alert[afeBlock].store(false);
     response.set_afeblock(afeBlock);
