@@ -338,6 +338,44 @@ class AcquisitionWorker(QtCore.QObject):
         self._fft_ring = np.zeros((self._fft_avg_count, n_bins), dtype=np.float64)
         self._fft_sum = np.zeros(n_bins, dtype=np.float64)
 
+    @QtCore.pyqtSlot(int)
+    def set_fft_channel_index(self, channel_index):
+        if not self._fft_enabled:
+            return
+
+        channel_index = int(channel_index)
+        n_channels = len(getattr(self.req, "channelList", []))
+        if channel_index < 0 or channel_index >= n_channels:
+            self.status.emit(f"[fft] invalid channel index {channel_index}")
+            return
+
+        if channel_index == self._fft_channel_index:
+            return
+
+        self._fft_channel_index = channel_index
+        if self._fft_ring is not None:
+            self._fft_ring.fill(0.0)
+        if self._fft_sum is not None:
+            self._fft_sum.fill(0.0)
+        self._fft_frames = 0
+        try:
+            channel_id = int(self.req.channelList[channel_index])
+            self.status.emit(f"[fft] source channel set to {channel_id}")
+        except Exception:
+            self.status.emit("[fft] source channel changed")
+
+    @QtCore.pyqtSlot()
+    def reset_fft_average(self):
+        if not self._fft_enabled:
+            return
+
+        if self._fft_ring is not None:
+            self._fft_ring.fill(0.0)
+        if self._fft_sum is not None:
+            self._fft_sum.fill(0.0)
+        self._fft_frames = 0
+        self.status.emit("[fft] average reset")
+
     def _update_fft(self, yk):
         if not self._fft_enabled:
             return
@@ -496,6 +534,9 @@ class AcquisitionWorker(QtCore.QObject):
 
 # ---------------------- Main UI app ----------------------
 class DaphneOscApp(QtWidgets.QWidget):
+    fft_channel_index_changed = QtCore.pyqtSignal(int)
+    fft_reset_requested = QtCore.pyqtSignal()
+
     def __init__(self, args):
         super().__init__()
         self.args = args
@@ -516,6 +557,8 @@ class DaphneOscApp(QtWidgets.QWidget):
         # Default to log-frequency FFT axis; allow explicit linear override.
         self.fft_log_x = bool(self.enable_fft and not getattr(args, "fft_linear_x", False))
         self._fft_samples_averaged = 0
+        self._latest_fft_x = None
+        self._latest_fft_y = None
 
         self._x_axis = np.arange(self.n_samples)
         self._latest_worker_msg = "Ready"
@@ -610,6 +653,8 @@ class DaphneOscApp(QtWidgets.QWidget):
         self.worker.fft_update.connect(self._on_fft_update)
         self.worker.plot_update.connect(self._on_plot_update)
         self.worker.acquisition_finished.connect(self._on_acquisition_finished)
+        self.fft_channel_index_changed.connect(self.worker.set_fft_channel_index)
+        self.fft_reset_requested.connect(self.worker.reset_fft_average)
 
         self.worker_thread.started.connect(self.worker.start)
         self.worker_thread.finished.connect(self.worker.deleteLater)
@@ -729,8 +774,19 @@ class DaphneOscApp(QtWidgets.QWidget):
                 # Keep running in linear mode if log mode isn't supported.
                 self.fft_log_x = False
                 self.plot_fft.setLabel("bottom", "Frequency (Hz)")
+            else:
+                try:
+                    fft_item.ctrl.logXCheck.toggled.connect(self._on_fft_log_x_changed)
+                    fft_item.ctrl.averageGroup.toggled.connect(
+                        lambda _checked: QtCore.QTimer.singleShot(0, self._repair_fft_average_curve_data)
+                    )
+                except Exception:
+                    pass
             self.curve_fft = self.plot_fft.plot(pen="c")
             layout.addWidget(self.plot_fft)
+
+            self._install_fft_source_menu(self.plot_wf)
+            self._install_fft_source_menu(self.plot_fft)
 
         self.status = QtWidgets.QLabel("Ready")
         layout.addWidget(self.status)
@@ -742,6 +798,124 @@ class DaphneOscApp(QtWidgets.QWidget):
             self.plot_wf.setYRange(-32768, 32767, padding=0)
 
         self.resize(1180, 760)
+
+    def _install_fft_source_menu(self, plot_widget):
+        plot_item = plot_widget.getPlotItem()
+        view_box = plot_item.getViewBox()
+        menu = getattr(view_box, "menu", None)
+
+        if menu is None:
+            plot_widget.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
+            plot_widget.customContextMenuRequested.connect(
+                lambda pos, widget=plot_widget: self._show_fft_source_menu(widget.mapToGlobal(pos))
+            )
+            return
+
+        fft_menu = QtWidgets.QMenu("FFT source channel", menu)
+        fft_menu.aboutToShow.connect(lambda menu=fft_menu: self._populate_fft_source_menu(menu))
+        menu.addSeparator()
+        menu.addMenu(fft_menu)
+        menu.addAction("Reset FFT", self._reset_fft)
+
+    def _show_fft_source_menu(self, global_pos):
+        menu = QtWidgets.QMenu(self)
+        self._populate_fft_source_menu(menu)
+        menu.addSeparator()
+        menu.addAction("Reset FFT", self._reset_fft)
+        menu.exec(global_pos)
+
+    def _populate_fft_source_menu(self, menu):
+        menu.clear()
+        for idx, ch in enumerate(self.channels):
+            action = menu.addAction(f"ch {ch}")
+            action.setCheckable(True)
+            action.setChecked(int(ch) == int(self.fft_channel))
+            action.triggered.connect(
+                lambda _checked=False, channel=int(ch), channel_index=int(idx): self._select_fft_channel(
+                    channel, channel_index
+                )
+            )
+
+    def _select_fft_channel(self, channel, channel_index):
+        if not self.enable_fft:
+            return
+
+        self.fft_channel = int(channel)
+        self.fft_channel_index = int(channel_index)
+        self._fft_samples_averaged = 0
+        if hasattr(self, "curve_fft"):
+            self.curve_fft.clear()
+        if hasattr(self, "plot_fft"):
+            self.plot_fft.setTitle(f"FFT (averaged power) - ch {self.fft_channel}")
+        self.fft_channel_index_changed.emit(self.fft_channel_index)
+        self._refresh_status_line(extra=f"FFT source ch {self.fft_channel}")
+
+    def _reset_fft(self):
+        if not self.enable_fft:
+            return
+
+        self._fft_samples_averaged = 0
+        self._latest_fft_x = None
+        self._latest_fft_y = None
+        if hasattr(self, "curve_fft"):
+            self.curve_fft.clear()
+        if hasattr(self, "plot_fft"):
+            self.plot_fft.enableAutoRange(axis="xy", enable=True)
+            self._sync_fft_average_curve_log_mode()
+        self.fft_reset_requested.emit()
+        self._refresh_status_line(extra="FFT reset")
+
+    def _fft_plot_log_x_enabled(self):
+        if not hasattr(self, "plot_fft"):
+            return bool(self.fft_log_x)
+
+        try:
+            return bool(self.plot_fft.getPlotItem().ctrl.logXCheck.isChecked())
+        except Exception:
+            return bool(self.fft_log_x)
+
+    def _on_fft_log_x_changed(self, checked):
+        self.fft_log_x = bool(checked)
+        if hasattr(self, "plot_fft"):
+            self.plot_fft.setLabel("bottom", "Frequency (Hz" + (", log)" if self.fft_log_x else ")"))
+        self._sync_fft_average_curve_log_mode()
+        self._refresh_status_line()
+
+    def _sync_fft_average_curve_log_mode(self):
+        if not self.enable_fft or not hasattr(self, "plot_fft"):
+            return
+
+        plot_item = self.plot_fft.getPlotItem()
+        try:
+            log_x = bool(plot_item.ctrl.logXCheck.isChecked())
+            log_y = bool(plot_item.ctrl.logYCheck.isChecked())
+        except Exception:
+            log_x = bool(self.fft_log_x)
+            log_y = False
+
+        for _key, (_count, avg_curve) in getattr(plot_item, "avgCurves", {}).items():
+            if hasattr(avg_curve, "setLogMode"):
+                avg_curve.setLogMode(log_x, log_y)
+
+    def _repair_fft_average_curve_data(self):
+        if not self.enable_fft or not hasattr(self, "plot_fft"):
+            return
+        if self._latest_fft_x is None:
+            self._sync_fft_average_curve_log_mode()
+            return
+
+        plot_item = self.plot_fft.getPlotItem()
+        for _key, (_count, avg_curve) in getattr(plot_item, "avgCurves", {}).items():
+            try:
+                _avg_x, avg_y = avg_curve.getOriginalDataset()
+            except Exception:
+                avg_y = None
+            if avg_y is None:
+                continue
+            if avg_y.shape == self._latest_fft_x.shape:
+                avg_curve.setData(self._latest_fft_x, avg_y, connect="finite")
+
+        self._sync_fft_average_curve_log_mode()
 
     @QtCore.pyqtSlot(str)
     def _on_worker_status(self, msg):
@@ -773,6 +947,7 @@ class DaphneOscApp(QtWidgets.QWidget):
             return
 
         k0 = 4 if self.f_axis.size > 4 else 0
+        self.fft_log_x = self._fft_plot_log_x_enabled()
         if self.fft_log_x:
             # Log-x cannot include DC/non-positive frequency bins.
             k0 = max(k0, 1)
@@ -791,6 +966,8 @@ class DaphneOscApp(QtWidgets.QWidget):
                 return
 
         self.curve_fft.setData(x, y, connect="finite")
+        self._latest_fft_x = x
+        self._latest_fft_y = y
         self._fft_samples_averaged = int(navg)
         self._refresh_status_line()
 
@@ -994,7 +1171,7 @@ def main():
     parser.add_argument("-L", type=int, required=True, help="Samples per waveform (<= 2048)")
     parser.add_argument("-software_trigger", action="store_true", help="Use software trigger")
 
-    parser.add_argument("-enable_fft", action="store_true", help="Show statistically averaged FFT plot")
+    parser.add_argument("-enable_fft", "--enable_fft", action="store_true", help="Show statistically averaged FFT plot")
     parser.add_argument("-fft_avg_waves", type=int, default=2000, help="Averages for FFT")
     parser.add_argument(
         "-fft_window_function",
