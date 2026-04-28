@@ -8,6 +8,7 @@ import queue
 import sys
 import threading
 import time
+from collections import deque
 from pathlib import Path
 
 import numpy as np
@@ -554,6 +555,8 @@ class DaphneOscApp(QtWidgets.QWidget):
         self.fft_channel = int(args.fft_channel) if args.fft_channel is not None else int(self.channels[0])
         self.fft_channel_index = self.channels.index(self.fft_channel) if self.enable_fft else 0
         self.enable_charge_hist = bool(args.enable_charge_hist)
+        self.enable_rms = not bool(args.disable_rms)
+        self.rms_window = max(1, int(args.rms_window))
         # Default to log-frequency FFT axis; allow explicit linear override.
         self.fft_log_x = bool(self.enable_fft and not getattr(args, "fft_linear_x", False))
         self._fft_samples_averaged = 0
@@ -576,6 +579,11 @@ class DaphneOscApp(QtWidgets.QWidget):
         self._latest_plot_packet = None
         self._last_seen_frame_id = 0
         self._last_rendered_frame_id = 0
+        self._rms_history = {ch: deque(maxlen=self.rms_window) for ch in self.channels}
+        self._rms_latest = {}
+        self._rms_rolling = {}
+        self._rms_transform_signature = None
+        self.rms_text = None
         self._latest_charge_info = None
         self.charge_monitor = None
 
@@ -688,6 +696,8 @@ class DaphneOscApp(QtWidgets.QWidget):
             "fft_full_scale_counts": float(args.fft_full_scale_counts),
             "fft_window_function": args.fft_window_function,
             "sampling_rate_hz": float(self.fs_hz),
+            "rms_enabled": bool(self.enable_rms),
+            "rms_window": int(self.rms_window),
             "charge_hist_enabled": bool(args.enable_charge_hist),
         }
         if args.enable_charge_hist:
@@ -741,6 +751,20 @@ class DaphneOscApp(QtWidgets.QWidget):
         for i, ch in enumerate(self.channels):
             c = self.plot_wf.plot(pen=pens[i % len(pens)], name=f"ch {ch}")
             self.curves.append(c)
+
+        self.rms_text = pg.TextItem(
+            text="",
+            anchor=(1, 0),
+            color=(245, 245, 245),
+            fill=pg.mkBrush(20, 20, 20, 190),
+            border=pg.mkPen(220, 220, 220, 130),
+        )
+        self.rms_text.setZValue(1000)
+        self.plot_wf.addItem(self.rms_text, ignoreBounds=True)
+        self.plot_wf.getViewBox().sigRangeChanged.connect(lambda *_args: self._position_rms_text())
+        self._update_rms_text()
+
+        self._install_waveform_rms_menu(self.plot_wf)
 
         if self.enable_charge_hist:
             self.plot_charge = pg.PlotWidget(title="Charge Histogram")
@@ -798,6 +822,65 @@ class DaphneOscApp(QtWidgets.QWidget):
             self.plot_wf.setYRange(-32768, 32767, padding=0)
 
         self.resize(1180, 760)
+
+    def _install_waveform_rms_menu(self, plot_widget):
+        plot_item = plot_widget.getPlotItem()
+        view_box = plot_item.getViewBox()
+        menu = getattr(view_box, "menu", None)
+
+        if menu is None:
+            plot_widget.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
+            plot_widget.customContextMenuRequested.connect(
+                lambda pos, widget=plot_widget: self._show_waveform_rms_menu(widget.mapToGlobal(pos))
+            )
+            return
+
+        rms_menu = QtWidgets.QMenu("Live RMS", menu)
+        rms_menu.aboutToShow.connect(lambda menu=rms_menu: self._populate_waveform_rms_menu(menu))
+        menu.addSeparator()
+        menu.addMenu(rms_menu)
+
+    def _show_waveform_rms_menu(self, global_pos):
+        menu = QtWidgets.QMenu(self)
+        self._populate_waveform_rms_menu(menu)
+        menu.exec(global_pos)
+
+    def _populate_waveform_rms_menu(self, menu):
+        menu.clear()
+
+        enabled_action = menu.addAction("Enable RMS")
+        enabled_action.setCheckable(True)
+        enabled_action.setChecked(bool(self.enable_rms))
+        enabled_action.triggered.connect(self._set_rms_enabled)
+
+        menu.addAction("Reset RMS", self._reset_rms_from_menu)
+
+        window_menu = menu.addMenu("Rolling window")
+        for window in (10, 25, 50, 100, 250, 500, 1000):
+            action = window_menu.addAction(str(window))
+            action.setCheckable(True)
+            action.setChecked(int(window) == int(self.rms_window))
+            action.triggered.connect(
+                lambda _checked=False, value=int(window): self._set_rms_window(value)
+            )
+
+    def _set_rms_enabled(self, checked):
+        self.enable_rms = bool(checked)
+        self._reset_rms_metrics()
+        self._update_rms_text()
+        self._refresh_status_line(extra=f"RMS {'ON' if self.enable_rms else 'OFF'}")
+
+    def _set_rms_window(self, window):
+        self.rms_window = max(1, int(window))
+        self._rms_history = {ch: deque(maxlen=self.rms_window) for ch in self.channels}
+        self._reset_rms_metrics()
+        self._update_rms_text()
+        self._refresh_status_line(extra=f"RMS window {self.rms_window}")
+
+    def _reset_rms_from_menu(self):
+        self._reset_rms_metrics()
+        self._update_rms_text()
+        self._refresh_status_line(extra="RMS reset")
 
     def _install_fft_source_menu(self, plot_widget):
         plot_item = plot_widget.getPlotItem()
@@ -1009,6 +1092,8 @@ class DaphneOscApp(QtWidgets.QWidget):
             for i, curve in enumerate(self.curves):
                 curve.setData(self._x_axis, yk[i], connect="finite")
 
+            self._update_rms_metrics()
+
             if self.charge_monitor is not None:
                 series = self.charge_monitor.histogram_series()
                 for i, ch in enumerate(self.channels):
@@ -1023,6 +1108,7 @@ class DaphneOscApp(QtWidgets.QWidget):
                 pad = max(50.0, 0.1 * max(1.0, y_max - y_min))
                 self.plot_wf.setYRange(y_min - pad, y_max + pad, padding=0)
 
+            self._update_rms_text()
             self._frames_rendered += 1
             self._last_rendered_frame_id = frame_id
             self._last_render_ns = time.time_ns()
@@ -1032,6 +1118,133 @@ class DaphneOscApp(QtWidgets.QWidget):
             self._last_render_error = str(exc)
             self._latest_worker_msg = f"[render error] {exc}"
             self._refresh_status_line()
+
+    def _waveform_transform_signature(self):
+        if not hasattr(self, "plot_wf"):
+            return None
+
+        try:
+            ctrl = self.plot_wf.getPlotItem().ctrl
+        except Exception:
+            return None
+
+        signature = []
+        for name in (
+            "subtractMeanCheck",
+            "derivativeCheck",
+            "phasemapCheck",
+            "fftCheck",
+            "logXCheck",
+            "logYCheck",
+            "downsampleCheck",
+            "autoDownsampleCheck",
+            "clipToViewCheck",
+        ):
+            widget = getattr(ctrl, name, None)
+            if widget is not None and hasattr(widget, "isChecked"):
+                signature.append((name, bool(widget.isChecked())))
+
+        spin = getattr(ctrl, "downsampleSpin", None)
+        if spin is not None and hasattr(spin, "value"):
+            signature.append(("downsampleSpin", int(spin.value())))
+
+        return tuple(signature)
+
+    def _reset_rms_metrics(self):
+        for history in self._rms_history.values():
+            history.clear()
+        self._rms_latest = {}
+        self._rms_rolling = {}
+
+    def _update_rms_metrics(self):
+        if not self.enable_rms:
+            return
+
+        signature = self._waveform_transform_signature()
+        if signature != self._rms_transform_signature:
+            self._rms_transform_signature = signature
+            self._reset_rms_metrics()
+
+        for ch, curve in zip(self.channels, self.curves):
+            try:
+                _x_data, y_data = curve.getData()
+            except Exception:
+                continue
+            if y_data is None:
+                continue
+
+            y = np.asarray(y_data, dtype=np.float64)
+            finite = np.isfinite(y)
+            if not np.any(finite):
+                self._rms_latest[ch] = float("nan")
+                self._rms_rolling[ch] = float("nan")
+                continue
+
+            mean_square = float(np.mean(y[finite] * y[finite]))
+            frame_rms = float(np.sqrt(mean_square))
+            self._rms_latest[ch] = frame_rms
+
+            history = self._rms_history[ch]
+            history.append(mean_square)
+            self._rms_rolling[ch] = float(np.sqrt(np.mean(history))) if history else float("nan")
+
+    def _format_rms_status(self):
+        if not self.enable_rms or not self._rms_rolling:
+            return ""
+
+        shown = []
+        max_items = 4
+        for ch in self.channels[:max_items]:
+            value = self._rms_rolling.get(ch)
+            if value is None or not np.isfinite(value):
+                continue
+            shown.append(f"{ch}:{value:.1f}")
+
+        if not shown:
+            return ""
+
+        suffix = ",..." if len(self.channels) > max_items else ""
+        return f" rms{self.rms_window}=[{','.join(shown)}{suffix}]"
+
+    def _position_rms_text(self):
+        if self.rms_text is None or not hasattr(self, "plot_wf"):
+            return
+
+        try:
+            (x_min, x_max), (y_min, y_max) = self.plot_wf.getViewBox().viewRange()
+        except Exception:
+            return
+
+        x_span = max(1.0, float(x_max) - float(x_min))
+        y_span = max(1.0, float(y_max) - float(y_min))
+        self.rms_text.setPos(float(x_max) - 0.015 * x_span, float(y_max) - 0.04 * y_span)
+
+    def _update_rms_text(self):
+        if self.rms_text is None:
+            return
+
+        if not self.enable_rms:
+            self.rms_text.setVisible(False)
+            return
+
+        self.rms_text.setVisible(True)
+        if not self._rms_rolling:
+            self.rms_text.setHtml(f"<b>RMS</b> N={self.rms_window}<br>waiting...")
+            self._position_rms_text()
+            return
+
+        rows = [f"<b>RMS</b> N={self.rms_window}"]
+        for ch in self.channels:
+            value = self._rms_rolling.get(ch)
+            if value is None or not np.isfinite(value):
+                continue
+            rows.append(f"ch {int(ch)}: {value:.2f}")
+
+        if len(rows) == 1:
+            rows.append("waiting...")
+
+        self.rms_text.setHtml("<br>".join(rows))
+        self._position_rms_text()
 
     def _refresh_status_line(self, extra=""):
         writer_frames = 0
@@ -1061,6 +1274,7 @@ class DaphneOscApp(QtWidgets.QWidget):
         if self.enable_fft:
             status_text += f" fftCh={self.fft_channel} fftAvg={self._fft_samples_averaged}"
             status_text += f" fftX={'log' if self.fft_log_x else 'lin'}"
+        status_text += self._format_rms_status()
         if self.enable_charge_hist and self._latest_charge_info:
             ch0 = int(self.channels[0])
             latest_charge = self._latest_charge_info.get("latest_charge", {}).get(ch0)
@@ -1193,6 +1407,8 @@ def main():
     parser.add_argument("-identity", type=str, default="osc-client", help="DEALER identity")
     parser.add_argument("--route", type=str, default="mezz/0", help="Optional logical route target")
     parser.add_argument("--sampling_rate_hz", type=float, default=62.5e6, help="Sample rate used for FFT axis")
+    parser.add_argument("--rms_window", type=int, default=100, help="Waveforms used for rolling live RMS")
+    parser.add_argument("--disable_rms", action="store_true", help="Disable live rolling RMS in the status line")
     parser.add_argument("--enable_charge_hist", action="store_true", help="Show live fixed-window charge histogram")
     parser.add_argument("--charge_windows_json", type=str, default="", help="Per-channel charge windows JSON from a bright LED calibration run")
     parser.add_argument("--charge_start", type=int, default=124, help="Manual charge integration start sample if no JSON is provided")
@@ -1246,6 +1462,9 @@ def main():
         return 2
     if args.fft_full_scale_counts <= 0:
         print("fft_full_scale_counts must be > 0")
+        return 2
+    if args.rms_window < 1:
+        print("rms_window must be >= 1")
         return 2
 
     if args.enable_fft:
