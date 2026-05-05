@@ -728,6 +728,118 @@ The timing properties are delay-loop values. The physical SCLK high/low times
 must still be measured on the scope because GPIO operation overhead is added to
 the configured delays.
 
+### Custom driver build checkpoint
+
+The custom driver has been compiled out-of-tree against the PetaLinux/Xilinx
+kernel build tree for the 2024.1 K26 SOM project.
+
+The kernel build directory used was:
+
+```bash
+KDIR=/home/cristaldo/Documents/xilinx_projects/petalinux/xilinx-k26-som-2024.1/build/tmp/work/xilinx_k26_som-xilinx-linux/linux-xlnx/6.6.10-xilinx-v2024.1+git999-r0/linux-xlnx-6.6.10-xilinx-v2024.1+git999
+```
+
+The path was validated by checking that these files existed:
+
+```bash
+ls "$KDIR/Makefile"
+ls "$KDIR/include/generated/autoconf.h"
+ls "$KDIR/Module.symvers"
+```
+
+The first build attempt failed because Kbuild used the host compiler:
+
+```text
+The kernel was built by: aarch64-xilinx-linux-gcc (GCC) 12.2.0
+You are using:           gcc (GCC) 8.5.0
+gcc: error: unrecognized command line option '-ftrivial-auto-var-init=zero'
+```
+
+After exporting the Xilinx cross compiler path, the module built correctly:
+
+```bash
+export ARCH=arm64
+export CROSS_COMPILE=aarch64-xilinx-linux-
+export PATH=/home/cristaldo/Documents/xilinx_projects/petalinux/xilinx-k26-som-2024.1/build/tmp/work/xilinx_k26_som-xilinx-linux/linux-xlnx/6.6.10-xilinx-v2024.1+git999-r0/recipe-sysroot-native/usr/bin/aarch64-xilinx-linux:$PATH
+
+cd /home/cristaldo/Documents/daphneZMQ/kernel/daphne-mezz-spi-gpio
+make clean
+make KDIR="$KDIR" ARCH="$ARCH" CROSS_COMPILE="$CROSS_COMPILE"
+```
+
+Successful build output ended with:
+
+```text
+CC [M]  /home/cristaldo/Documents/daphneZMQ/kernel/daphne-mezz-spi-gpio/spi-daphne-mezz-gpio.o
+MODPOST /home/cristaldo/Documents/daphneZMQ/kernel/daphne-mezz-spi-gpio/Module.symvers
+CC [M]  /home/cristaldo/Documents/daphneZMQ/kernel/daphne-mezz-spi-gpio/spi-daphne-mezz-gpio.mod.o
+LD [M]  /home/cristaldo/Documents/daphneZMQ/kernel/daphne-mezz-spi-gpio/spi-daphne-mezz-gpio.ko
+```
+
+The resulting module is:
+
+```text
+kernel/daphne-mezz-spi-gpio/spi-daphne-mezz-gpio.ko
+```
+
+### Custom driver runtime checkpoint
+
+Before applying the custom overlay, the old stock `spi-gpio` overlays from
+`scripts/apply_mezz_spigpio_overlays.sh` should be removed, because they claim
+the same MIO pins:
+
+```bash
+cd /home/petalinux/daphne-server
+sh scripts/apply_mezz_spigpio_overlays.sh remove
+```
+
+The custom module was copied to DAPHNE, loaded, and then the MEZ0 custom
+overlay was applied:
+
+```bash
+insmod /tmp/spi-daphne-mezz-gpio.ko
+cd /home/petalinux/daphne-server
+sh scripts/apply_mezz0_daphne_spigpio_overlay.sh apply
+```
+
+The driver bound successfully. Relevant `dmesg` output:
+
+```text
+spi_daphne_mezz_gpio: loading out-of-tree module taints kernel.
+daphne-mezz-spi-gpio spi_mezz0: registered master spi4
+spi spi4.0: setup mode 0, 8 bits/w, 800000 Hz max --> 0
+daphne-mezz-spi-gpio spi_mezz0: registered child spi4.0
+daphne-mezz-spi-gpio spi_mezz0: DAPHNE mezz SPI GPIO driver active: high_delay=250 ns low_delay=250 ns setup=0 ns critical_max=4 preempt=1 irqs=1
+```
+
+The expected spidev nodes were present:
+
+```text
+/dev/spidev3.0  // existing PL AXI Quad SPI, not the mezzanine MIO bus
+/dev/spidev4.0  // MEZ0 through spi-daphne-mezz-gpio
+```
+
+The GPIO ownership confirmed that the custom driver, not stock `spi-gpio`, now
+owns the MEZ0 lines:
+
+```text
+gpio-38  (                    |cs                  ) out hi ACTIVE LOW
+gpio-39  (                    |sck                 ) out lo
+gpio-40  (                    |miso                ) in  hi
+gpio-50  (                    |mosi                ) out lo
+```
+
+This is the current checkpoint:
+
+- the custom module builds against the target Xilinx/PetaLinux kernel tree
+- the module loads on DAPHNE
+- the MEZ0 custom overlay binds to `daphne,mezz-spi-gpio`
+- Linux registers `spi4` and `spi4.0`
+- `/dev/spidev4.0` is now the custom-driver MEZ0 SPI path
+- pinctrl and GPIO ownership for MEZ0 are correct
+- oscilloscope validation of the custom driver's SCLK duty cycle, jitter, MOSI
+  timing, and CS envelope is still pending
+
 ## Implementation options
 
 There are two practical approaches.
