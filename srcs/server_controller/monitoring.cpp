@@ -58,6 +58,11 @@ void i2c_1_monitor_thread(Daphne& daphne, std::chrono::milliseconds period) {
   bool warned_missing_adc = false;
   while (true) {
     try {
+      std::unique_lock<std::mutex> i2c1_lock(daphne.i2c_1_mutex, std::try_to_lock);
+      if (!i2c1_lock.owns_lock()) {
+        std::this_thread::sleep_for(period);
+        continue;
+      }
       if (!daphne.isI2C_1_device_configuring.load() && !daphne.user_vbias_voltage_request.load()) {
         auto* adc0x10 = daphne.getADS7138_Driver_addr_0x10();
         auto* adc0x17 = daphne.getADS7138_Driver_addr_0x17();

@@ -70,6 +70,7 @@ public:
     std::atomic<bool> isI2C_1_device_configuring;
     std::atomic<bool> isI2C_2_device_configuring;
     std::mutex i2c_2_mutex;
+    std::mutex i2c_1_mutex;
     std::atomic<bool> user_vbias_voltage_request;
     std::atomic<bool> is_vbias_voltage_monitor_reading;
     //Atomic monitor voltages and currents

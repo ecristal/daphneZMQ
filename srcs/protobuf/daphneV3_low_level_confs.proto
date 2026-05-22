@@ -57,6 +57,65 @@ message cmd_writeAFEBiasSet_response {
   uint32 biasValue = 4;
 }
 
+message cmd_writeAFEBiasControlledSet {
+  int32  id              = 1;
+  uint32 afe_block       = 2;
+
+  // Physical target bias voltage, not DAC code.
+  // Example: 48000 means 48.000 V.
+  uint32 target_bias_mv  = 3;
+
+  // Optional controller parameters.
+  // If zero, the server should use its default.
+  uint32 tolerance_mv    = 4;  // default: 20 mV
+  uint32 settling_time_ms = 5; // default: 500 ms
+  uint32 dwell_time_ms   = 6;  // default: 20 ms
+  uint32 samples_per_read = 7; // default: 4
+  uint32 max_iterations   = 8; // default: 20
+  // Optional tuning.
+  // If zero, use server default.
+  double proportional_gain = 9; // default: 0.75
+  uint32 max_dac_step      = 10; // default: 64
+}
+
+enum AfeBiasControlStatus {
+  AFE_BIAS_CONTROL_STATUS_UNSPECIFIED = 0;
+  AFE_BIAS_CONTROL_STATUS_SETTLED = 1;
+  AFE_BIAS_CONTROL_STATUS_TIMEOUT_BEST_EFFORT = 2;
+  AFE_BIAS_CONTROL_STATUS_INVALID_REQUEST = 3;
+  AFE_BIAS_CONTROL_STATUS_HARDWARE_ERROR = 4;
+  AFE_BIAS_CONTROL_STATUS_SAFETY_ABORT = 5;
+}
+
+message cmd_writeAFEBiasControlledSet_response {
+  bool   success = 1;
+  string message = 2;
+
+  uint32 afe_block = 3;
+
+  // Requested target.
+  uint32 target_bias_mv = 4;
+
+  // Final measured result.
+  uint32 measured_bias_mv = 5;
+
+  // Signed because final voltage can be above or below target.
+  int32  error_mv = 6;
+
+  // Final hardware setting.
+  uint32 final_dac_code = 7;
+
+  // Best observed setting during the loop.
+  uint32 best_dac_code = 8;
+  uint32 best_bias_mv  = 9;
+  int32  best_error_mv = 10;
+
+  uint32 iterations = 11;
+  bool   settled    = 12;
+
+  AfeBiasControlStatus status = 13;
+}
+
 // TRIM
 message cmd_writeTRIM_allChannels {
   int32  id        = 1;

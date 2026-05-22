@@ -137,6 +137,19 @@ struct I2C2BusGuard {
   }
 };
 
+struct I2C1BusGuard {
+  Daphne& d;
+  std::unique_lock<std::mutex> lock;
+
+  explicit I2C1BusGuard(Daphne& daphne): d(daphne), lock(daphne.i2c_1_mutex) {
+    d.isI2C_1_device_configuring.store(true);
+  }
+
+  ~I2C1BusGuard(){
+    d.isI2C_1_device_configuring.store(false);
+  }
+}
+
 
 bool auto_align_enabled() {
   static const bool enabled = (std::getenv("DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE") == nullptr);
@@ -927,6 +940,185 @@ bool writeAFEBiasVoltage(const cmd_writeAFEBiasSet& request,
   }
 }
 
+bool writeControlledAFEBiasVoltage(
+    const cmd_writeAFEBiasControlledSet& request,
+    cmd_writeAFEBiasControlledSet_response& response,
+    Daphne& daphne,
+    std::string& response_str)
+{
+  try {
+    const uint32_t afe_block_u32 =
+        afe_definitions::AFE_board2PL_map.at(request.afe_block());
+
+    if (afe_block_u32 > 4) {
+      throw std::invalid_argument("mapped afeBlock out of range (0..4)");
+    }
+
+    const uint8_t afe_block = static_cast<uint8_t>(afe_block_u32);
+
+    const double target_bias_voltage =
+        static_cast<double>(request.target_bias_mv()) / 1000.0;
+
+    if (!std::isfinite(target_bias_voltage)) {
+      throw std::invalid_argument("target bias voltage is not finite");
+    }
+
+    if (target_bias_voltage < 0.0) {
+      throw std::invalid_argument("target bias voltage must be non-negative");
+    }
+
+    AfeBiasControlConfig cfg;
+
+    cfg.toleranceV =
+        request.tolerance_mv() == 0
+            ? 0.020
+            : static_cast<double>(request.tolerance_mv()) / 1000.0;
+
+    cfg.settlingTime =
+        std::chrono::milliseconds(
+            request.settling_time_ms() == 0
+                ? 500
+                : request.settling_time_ms()
+        );
+
+    cfg.dwellTime =
+        std::chrono::milliseconds(
+            request.dwell_time_ms() == 0
+                ? 20
+                : request.dwell_time_ms()
+        );
+
+    const uint32_t samples_per_read =
+        request.samples_per_read() == 0 ? 4 : request.samples_per_read();
+
+    if (samples_per_read > std::numeric_limits<uint8_t>::max()) {
+      throw std::invalid_argument("samples_per_read out of range");
+    }
+
+    cfg.samplesPerRead = static_cast<uint8_t>(samples_per_read);
+
+    const uint32_t max_iterations =
+        request.max_iterations() == 0 ? 20 : request.max_iterations();
+
+    if (max_iterations > std::numeric_limits<uint8_t>::max()) {
+      throw std::invalid_argument("max_iterations out of range");
+    }
+
+    cfg.maxIterations = static_cast<uint8_t>(max_iterations);
+
+    const double proportional_gain = request.proportional_gain();
+
+    if (proportional_gain == 0.0) {
+      cfg.proportionalGain = 0.75;
+    } else {
+      if (!std::isfinite(proportional_gain) || proportional_gain <= 0.0) {
+        throw std::invalid_argument("invalid proportional_gain");
+      }
+
+      cfg.proportionalGain = proportional_gain;
+    }
+
+    const uint32_t max_dac_step =
+        request.max_dac_step() == 0 ? 64 : request.max_dac_step();
+
+    if (max_dac_step >
+        static_cast<uint32_t>(std::numeric_limits<int32_t>::max())) {
+      throw std::invalid_argument("max_dac_step out of range");
+    }
+
+    cfg.maxDacStep = static_cast<int32_t>(max_dac_step);
+
+    cfg.minDacCode = 0;
+    cfg.maxDacCode = 4095;
+
+    const AfeBiasControlResult result =
+        setControlledAfeBiasVoltageDetailed(
+            target_bias_voltage,
+            afe_block,
+            daphne,
+            cfg
+        );
+
+    daphne.setBiasVoltageDictValue(afe_block, result.finalDacCode);
+
+    const uint32_t final_voltage_mv =
+        static_cast<uint32_t>(
+            std::lround(std::max(0.0, result.finalVoltage * 1000.0))
+        );
+
+    const int32_t final_error_mv =
+        static_cast<int32_t>(
+            std::lround(result.finalError * 1000.0)
+        );
+
+    const uint32_t best_voltage_mv =
+        static_cast<uint32_t>(
+            std::lround(std::max(0.0, result.bestVoltage * 1000.0))
+        );
+
+    const int32_t best_error_mv =
+        static_cast<int32_t>(
+            std::lround(result.bestError * 1000.0)
+        );
+
+    response.set_afe_block(request.afe_block());
+    response.set_target_bias_mv(request.target_bias_mv());
+
+    response.set_measured_bias_mv(final_voltage_mv);
+    response.set_error_mv(final_error_mv);
+
+    response.set_final_dac_code(result.finalDacCode);
+
+    response.set_best_dac_code(result.bestDacCode);
+    response.set_best_bias_mv(best_voltage_mv);
+    response.set_best_error_mv(best_error_mv);
+
+    response.set_iterations(static_cast<uint32_t>(result.iterations));
+    response.set_settled(result.settled);
+
+    response.set_status(
+        result.settled
+            ? AFE_BIAS_CONTROL_STATUS_SETTLED
+            : AFE_BIAS_CONTROL_STATUS_TIMEOUT_BEST_EFFORT
+    );
+
+    response_str =
+        "Controlled AFE bias voltage command completed for AFE " +
+        std::to_string(afe_definitions::AFE_PL2board_map.at(afe_block)) +
+        ". Target: " + std::to_string(request.target_bias_mv()) + " mV" +
+        ". Final: " + std::to_string(final_voltage_mv) + " mV" +
+        ". Error: " + std::to_string(final_error_mv) + " mV" +
+        ". DAC code: " + std::to_string(result.finalDacCode) +
+        ". Best DAC code: " + std::to_string(result.bestDacCode) +
+        ". Iterations: " + std::to_string(static_cast<int>(result.iterations)) +
+        ". Settled: " + std::string(result.settled ? "true" : "false") + ".";
+
+    return result.settled;
+
+  } catch (const std::invalid_argument& e) {
+    response.set_afe_block(request.afe_block());
+    response.set_target_bias_mv(request.target_bias_mv());
+    response.set_status(AFE_BIAS_CONTROL_STATUS_INVALID_REQUEST);
+    response.set_settled(false);
+
+    response_str =
+        std::string("Invalid controlled AFE bias request: ") + e.what();
+
+    return false;
+
+  } catch (const std::exception& e) {
+    response.set_afe_block(request.afe_block());
+    response.set_target_bias_mv(request.target_bias_mv());
+    response.set_status(AFE_BIAS_CONTROL_STATUS_HARDWARE_ERROR);
+    response.set_settled(false);
+
+    response_str =
+        std::string("Error controlling AFE bias voltage: ") + e.what();
+
+    return false;
+  }
+}
+
 bool writeChannelTrim(const cmd_writeTrim_singleChannel& request,
                       Daphne& daphne,
                       std::string& response_str,
@@ -1458,6 +1650,285 @@ bool readBiasVoltageMonitor(const cmd_readBiasVoltageMonitor& request,
 
   response_msg = oss.str();
   return true;
+}
+
+uint16_t biasVoltage2DAC(double biasValue)
+{
+    constexpr double R_TOP_KOHM = 1000.0;
+    constexpr double R_BOTTOM_KOHM = 26.1;
+    constexpr double DIVIDER_GAIN = R_BOTTOM_KOHM / (R_TOP_KOHM + R_BOTTOM_KOHM);
+    constexpr double DAC_LSB_PER_VOLT = 1000.0;
+    constexpr double SCALE = DIVIDER_GAIN * DAC_LSB_PER_VOLT;
+    if (!std::isfinite(biasValue)) {
+        return 0;
+    }
+    const double dacValue = std::round(SCALE * biasValue);
+    const double clamped = std::clamp(dacValue, 0.0, 
+      static_cast<double>(std::numeric_limits<uint16_t>::max())
+      );
+    return static_cast<uint16_t>(clamped);
+}
+
+namespace {
+
+  constexpr double AFE_BIAS_ADC_GAIN = 39.314;
+  constexpr uint8_t AFE_BLOCK_MAX = 4;
+  constexpr size_t AFE_BIAS_ADC_OFFSET = 2;
+  constexpr int ADS7138_CHANNEL_COUNT = 7;
+
+  // Must match biasVoltage2DAC().
+  constexpr double BIAS_DAC_CODES_PER_VOLT =
+      (26.1 / (26.1 + 1000.0)) * 1000.0;
+
+  struct AfeBiasControlConfig {
+      double toleranceV = 0.020;  // 20 mV
+
+      std::chrono::milliseconds settlingTime{500};
+      std::chrono::milliseconds dwellTime{20};
+
+      uint8_t samplesPerRead = 4;
+      uint8_t maxIterations = 20;
+
+      double proportionalGain = 0.75;
+
+      int32_t maxDacStep = 64;
+
+      uint16_t minDacCode = 0;
+      uint16_t maxDacCode = std::numeric_limits<uint16_t>::max();
+  };
+
+  struct AfeBiasControlResult {
+      double targetVoltage = 0.0;
+      double finalVoltage = 0.0;
+      double finalError = 0.0;
+
+      double bestVoltage = 0.0;
+      double bestError = 0.0;
+
+      uint16_t finalDacCode = 0;
+      uint16_t bestDacCode = 0;
+
+      uint8_t iterations = 0;
+      bool settled = false;
+  };
+
+  void validateAfeBlock(uint8_t afeBlock)
+  {
+      if (afeBlock > AFE_BLOCK_MAX) {
+          throw std::invalid_argument("afeBlock out of range (0..4)");
+      }
+  }
+
+  void validateTargetBiasVoltage(double biasVoltage)
+  {
+      if (!std::isfinite(biasVoltage)) {
+          throw std::invalid_argument("target bias voltage is not finite");
+      }
+      if (biasVoltage < 0.0) {
+          throw std::invalid_argument("target bias voltage must be non-negative");
+      }
+  }
+
+  int32_t clampInt32(int32_t value, int32_t minValue, int32_t maxValue)
+  {
+      return std::max(minValue, std::min(value, maxValue));
+  }
+
+  uint16_t clampDacCode(int32_t code, const AfeBiasControlConfig& cfg)
+  {
+      const int32_t clamped = clampInt32(code, static_cast<int32_t>(cfg.minDacCode), 
+        static_cast<int32_t>(cfg.maxDacCode)
+      );
+      return static_cast<uint16_t>(clamped);
+  }
+
+  double readAfeBiasVoltageUnlocked(uint8_t afeBlock, Daphne& daphne)
+  {
+      validateAfeBlock(afeBlock);
+      auto* adc0x10 = daphne.getADS7138_Driver_addr_0x10();
+      if (adc0x10 == nullptr) {
+          throw std::runtime_error("ADS7138 driver at address 0x10 is null");
+      }
+      const std::vector<double> adcValues = adc0x10->readData(ADS7138_CHANNEL_COUNT);
+      const size_t adcIndex = static_cast<size_t>(afeBlock) + AFE_BIAS_ADC_OFFSET;
+      if (adcValues.size() <= adcIndex) {
+          throw std::runtime_error("ADS7138 readData returned too few channels");
+      }
+      return adcValues[adcIndex] * AFE_BIAS_ADC_GAIN;
+  }
+
+  double readAfeBiasVoltageAverageUnlocked(uint8_t afeBlock,
+                                            Daphne& daphne,
+                                            uint8_t samples)
+  {
+      if (samples == 0) {
+          throw std::invalid_argument("samples must be greater than zero");
+      }
+      double sum = 0.0;
+      for (uint8_t i = 0; i < samples; ++i) {
+          sum += readAfeBiasVoltageUnlocked(afeBlock, daphne);
+      }
+      return sum / static_cast<double>(samples);
+  }
+
+  AfeBiasControlResult setControlledAfeBiasVoltageDetailed(
+    double targetBiasVoltage,
+    uint8_t afeBlock,
+    Daphne& daphne,
+    const AfeBiasControlConfig& cfg = AfeBiasControlConfig{}
+  )
+  {
+      validateAfeBlock(afeBlock);
+      validateTargetBiasVoltage(targetBiasVoltage);
+
+      if (cfg.toleranceV <= 0.0) {
+          throw std::invalid_argument("toleranceV must be positive");
+      }
+
+      if (cfg.proportionalGain <= 0.0) {
+          throw std::invalid_argument("proportionalGain must be positive");
+      }
+
+      if (cfg.maxDacStep <= 0) {
+          throw std::invalid_argument("maxDacStep must be positive");
+      }
+
+      if (cfg.minDacCode > cfg.maxDacCode) {
+          throw std::invalid_argument("invalid DAC clamp range");
+      }
+
+      I2C1BusGuard bus_guard(daphne);
+
+      auto* dac = daphne.getDac();
+
+      if (dac == nullptr) {
+          throw std::runtime_error("DAC driver is null");
+      }
+
+      AfeBiasControlResult result;
+      result.targetVoltage = targetBiasVoltage;
+
+      uint16_t dacCode = clampDacCode(
+          static_cast<int32_t>(biasVoltage2DAC(targetBiasVoltage)),
+          cfg
+      );
+
+      uint16_t bestDacCode = dacCode;
+      double bestVoltage = 0.0;
+      double bestAbsError = std::numeric_limits<double>::infinity();
+
+      const auto startTime = std::chrono::steady_clock::now();
+      const auto deadline = startTime + cfg.settlingTime;
+
+      for (uint8_t iteration = 0; iteration < cfg.maxIterations; ++iteration) {
+          if (std::chrono::steady_clock::now() >= deadline) {
+              break;
+          }
+
+          dac->setDacBias(afeBlock, dacCode);
+
+          std::this_thread::sleep_for(cfg.dwellTime);
+
+          const double measuredVoltage =
+              readAfeBiasVoltageAverageUnlocked(
+                  afeBlock,
+                  daphne,
+                  cfg.samplesPerRead
+              );
+
+          const double error = targetBiasVoltage - measuredVoltage;
+          const double absError = std::abs(error);
+
+          result.iterations = static_cast<uint8_t>(iteration + 1);
+          result.finalVoltage = measuredVoltage;
+          result.finalError = error;
+          result.finalDacCode = dacCode;
+
+          if (absError < bestAbsError) {
+              bestAbsError = absError;
+              bestVoltage = measuredVoltage;
+              bestDacCode = dacCode;
+          }
+
+          if (absError <= cfg.toleranceV) {
+              result.settled = true;
+              break;
+          }
+
+          int32_t correction = static_cast<int32_t>(
+              std::lround(
+                  cfg.proportionalGain *
+                  BIAS_DAC_CODES_PER_VOLT *
+                  error
+              )
+          );
+
+          correction = clampInt32(
+              correction,
+              -cfg.maxDacStep,
+              cfg.maxDacStep
+          );
+
+          if (correction == 0) {
+              correction = (error > 0.0) ? 1 : -1;
+          }
+
+          const uint16_t nextDacCode = clampDacCode(
+              static_cast<int32_t>(dacCode) + correction,
+              cfg
+          );
+
+          if (nextDacCode == dacCode) {
+              break;
+          }
+
+          dacCode = nextDacCode;
+      }
+
+      result.bestDacCode = bestDacCode;
+      result.bestVoltage = bestVoltage;
+      result.bestError = targetBiasVoltage - bestVoltage;
+
+      if (bestDacCode != result.finalDacCode) {
+          dac->setDacBias(afeBlock, bestDacCode);
+
+          std::this_thread::sleep_for(cfg.dwellTime);
+
+          result.finalVoltage =
+              readAfeBiasVoltageAverageUnlocked(
+                  afeBlock,
+                  daphne,
+                  cfg.samplesPerRead
+              );
+
+          result.finalError = targetBiasVoltage - result.finalVoltage;
+          result.finalDacCode = bestDacCode;
+      }
+
+      return result;
+  }
+
+} // namespace
+
+double readAfeBiasVoltage(uint8_t afeBlock, Daphne& daphne)
+{
+    I2C1BusGuard bus_guard(daphne);
+
+    return readAfeBiasVoltageUnlocked(afeBlock, daphne);
+}
+
+double setControlledAfeBiasVoltage(double targetBiasVoltage,
+                                    uint8_t afeBlock,
+                                    Daphne& daphne)
+{
+    const AfeBiasControlResult result =
+        setControlledAfeBiasVoltageDetailed(
+            targetBiasVoltage,
+            afeBlock,
+            daphne
+        );
+
+    return result.finalVoltage;
 }
 
 // --------------HD Mezzanine helper functions-------------------------
@@ -1996,6 +2467,30 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers() {
     resp.set_biasvalue(rb);
     out = serialize_or_empty(resp);
   };
+
+  handlers[daphne::MT2_WRITE_AFE_BIAS_CONTROLLED_SET_REQ] =
+    [](const std::string& in, std::string& out, Daphne& d) {
+    cmd_writeAFEBiasControlledSet req;
+    cmd_writeAFEBiasControlledSet_response resp;
+
+    if (!req.ParseFromString(in)) {
+      out = serialize_error_with_success_field(
+          resp,
+          "Bad cmd_writeAFEBiasControlledSet payload"
+      );
+      return;
+    }
+
+    std::string msg;
+
+    const bool ok =
+        writeControlledAFEBiasVoltage(req, resp, d, msg);
+
+    resp.set_success(ok);
+    resp.set_message(msg);
+
+    out = serialize_or_empty(resp);
+};
 
   handlers[daphne::MT2_WRITE_TRIM_CH_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
     cmd_writeTrim_singleChannel req;
