@@ -88,6 +88,8 @@ using daphne::cmd_setAFEReset;
 using daphne::cmd_setAFEReset_response;
 using daphne::cmd_writeAFEBiasSet;
 using daphne::cmd_writeAFEBiasSet_response;
+using daphne::cmd_writeAFEBiasControlledSet;
+using daphne::cmd_writeAFEBiasControlledSet_response;
 using daphne::cmd_writeAFEAttenuation;
 using daphne::cmd_writeAFEAttenuation_response;
 using daphne::cmd_writeAFEFunction;
@@ -123,6 +125,12 @@ using daphne::cmd_readHDMezzStatus_response;
 using daphne::cmd_clearHDMezzAlertFlag;
 using daphne::cmd_clearHDMezzAlertFlag_response;
 
+using daphne::AFE_BIAS_CONTROL_STATUS_UNSPECIFIED;
+using daphne::AFE_BIAS_CONTROL_STATUS_SETTLED;
+using daphne::AFE_BIAS_CONTROL_STATUS_TIMEOUT_BEST_EFFORT;
+using daphne::AFE_BIAS_CONTROL_STATUS_INVALID_REQUEST;
+using daphne::AFE_BIAS_CONTROL_STATUS_HARDWARE_ERROR;
+using daphne::AFE_BIAS_CONTROL_STATUS_SAFETY_ABORT;
 
 struct I2C2BusGuard {
   Daphne& d;
@@ -148,7 +156,7 @@ struct I2C1BusGuard {
   ~I2C1BusGuard(){
     d.isI2C_1_device_configuring.store(false);
   }
-}
+};
 
 
 bool auto_align_enabled() {
@@ -940,6 +948,283 @@ bool writeAFEBiasVoltage(const cmd_writeAFEBiasSet& request,
   }
 }
 
+uint16_t biasVoltage2DAC(double biasValue)
+{
+    constexpr double R_TOP_KOHM = 1000.0;
+    constexpr double R_BOTTOM_KOHM = 26.1;
+    constexpr double DIVIDER_GAIN = R_BOTTOM_KOHM / (R_TOP_KOHM + R_BOTTOM_KOHM);
+    constexpr double DAC_LSB_PER_VOLT = 1000.0;
+    constexpr double SCALE = DIVIDER_GAIN * DAC_LSB_PER_VOLT;
+    if (!std::isfinite(biasValue)) {
+        return 0;
+    }
+    const double dacValue = std::round(SCALE * biasValue);
+    const double clamped = std::clamp(dacValue, 0.0, 
+      static_cast<double>(std::numeric_limits<uint16_t>::max())
+      );
+    return static_cast<uint16_t>(clamped);
+}
+
+struct AfeBiasControlConfig {
+      double toleranceV = 0.020;  // 20 mV
+
+      std::chrono::milliseconds settlingTime{500};
+      std::chrono::milliseconds dwellTime{20};
+
+      uint8_t samplesPerRead = 4;
+      uint8_t maxIterations = 20;
+
+      double proportionalGain = 0.75;
+
+      int32_t maxDacStep = 64;
+
+      uint16_t minDacCode = 0;
+      uint16_t maxDacCode = std::numeric_limits<uint16_t>::max();
+  };
+
+struct AfeBiasControlResult {
+      double targetVoltage = 0.0;
+      double finalVoltage = 0.0;
+      double finalError = 0.0;
+
+      double bestVoltage = 0.0;
+      double bestError = 0.0;
+
+      uint16_t finalDacCode = 0;
+      uint16_t bestDacCode = 0;
+
+      uint8_t iterations = 0;
+      bool settled = false;
+};
+
+constexpr double AFE_BIAS_ADC_GAIN = 39.314;
+  constexpr uint8_t AFE_BLOCK_MAX = 4;
+  constexpr size_t AFE_BIAS_ADC_OFFSET = 2;
+  constexpr int ADS7138_CHANNEL_COUNT = 7;
+
+  // Must match biasVoltage2DAC().
+  constexpr double BIAS_DAC_CODES_PER_VOLT =
+      (26.1 / (26.1 + 1000.0)) * 1000.0;
+
+  void validateAfeBlock(uint8_t afeBlock)
+  {
+      if (afeBlock > AFE_BLOCK_MAX) {
+          throw std::invalid_argument("afeBlock out of range (0..4)");
+      }
+  }
+
+  void validateTargetBiasVoltage(double biasVoltage)
+  {
+      if (!std::isfinite(biasVoltage)) {
+          throw std::invalid_argument("target bias voltage is not finite");
+      }
+      if (biasVoltage < 0.0) {
+          throw std::invalid_argument("target bias voltage must be non-negative");
+      }
+  }
+
+  int32_t clampInt32(int32_t value, int32_t minValue, int32_t maxValue)
+  {
+      return std::max(minValue, std::min(value, maxValue));
+  }
+
+  uint16_t clampDacCode(int32_t code, const AfeBiasControlConfig& cfg)
+  {
+      const int32_t clamped = clampInt32(code, static_cast<int32_t>(cfg.minDacCode), 
+        static_cast<int32_t>(cfg.maxDacCode)
+      );
+      return static_cast<uint16_t>(clamped);
+  }
+
+  double readAfeBiasVoltageUnlocked(uint8_t afeBlock, Daphne& daphne)
+  {
+      validateAfeBlock(afeBlock);
+      auto* adc0x10 = daphne.getADS7138_Driver_addr_0x10();
+      if (adc0x10 == nullptr) {
+          throw std::runtime_error("ADS7138 driver at address 0x10 is null");
+      }
+      const std::vector<double> adcValues = adc0x10->readData(ADS7138_CHANNEL_COUNT);
+      const size_t adcIndex = static_cast<size_t>(afeBlock) + AFE_BIAS_ADC_OFFSET;
+      if (adcValues.size() <= adcIndex) {
+          throw std::runtime_error("ADS7138 readData returned too few channels");
+      }
+      return adcValues[adcIndex] * AFE_BIAS_ADC_GAIN;
+  }
+
+  double readAfeBiasVoltageAverageUnlocked(uint8_t afeBlock,
+                                            Daphne& daphne,
+                                            uint8_t samples)
+  {
+      if (samples == 0) {
+          throw std::invalid_argument("samples must be greater than zero");
+      }
+      double sum = 0.0;
+      for (uint8_t i = 0; i < samples; ++i) {
+          sum += readAfeBiasVoltageUnlocked(afeBlock, daphne);
+      }
+      return sum / static_cast<double>(samples);
+  }
+
+  AfeBiasControlResult setControlledAfeBiasVoltageDetailed(
+    double targetBiasVoltage,
+    uint8_t afeBlock,
+    Daphne& daphne,
+    const AfeBiasControlConfig& cfg = AfeBiasControlConfig{}
+  )
+  {
+      validateAfeBlock(afeBlock);
+      validateTargetBiasVoltage(targetBiasVoltage);
+
+      if (cfg.toleranceV <= 0.0) {
+          throw std::invalid_argument("toleranceV must be positive");
+      }
+
+      if (cfg.proportionalGain <= 0.0) {
+          throw std::invalid_argument("proportionalGain must be positive");
+      }
+
+      if (cfg.maxDacStep <= 0) {
+          throw std::invalid_argument("maxDacStep must be positive");
+      }
+
+      if (cfg.minDacCode > cfg.maxDacCode) {
+          throw std::invalid_argument("invalid DAC clamp range");
+      }
+
+      I2C1BusGuard bus_guard(daphne);
+
+      auto* dac = daphne.getDac();
+
+      if (dac == nullptr) {
+          throw std::runtime_error("DAC driver is null");
+      }
+
+      AfeBiasControlResult result;
+      result.targetVoltage = targetBiasVoltage;
+
+      uint16_t dacCode = clampDacCode(
+          static_cast<int32_t>(biasVoltage2DAC(targetBiasVoltage)),
+          cfg
+      );
+
+      uint16_t bestDacCode = dacCode;
+      double bestVoltage = 0.0;
+      double bestAbsError = std::numeric_limits<double>::infinity();
+
+      const auto startTime = std::chrono::steady_clock::now();
+      const auto deadline = startTime + cfg.settlingTime;
+
+      for (uint8_t iteration = 0; iteration < cfg.maxIterations; ++iteration) {
+          if (std::chrono::steady_clock::now() >= deadline) {
+              break;
+          }
+
+          dac->setDacBias(afeBlock, dacCode);
+
+          std::this_thread::sleep_for(cfg.dwellTime);
+
+          const double measuredVoltage =
+              readAfeBiasVoltageAverageUnlocked(
+                  afeBlock,
+                  daphne,
+                  cfg.samplesPerRead
+              );
+
+          const double error = targetBiasVoltage - measuredVoltage;
+          const double absError = std::abs(error);
+
+          result.iterations = static_cast<uint8_t>(iteration + 1);
+          result.finalVoltage = measuredVoltage;
+          result.finalError = error;
+          result.finalDacCode = dacCode;
+
+          if (absError < bestAbsError) {
+              bestAbsError = absError;
+              bestVoltage = measuredVoltage;
+              bestDacCode = dacCode;
+          }
+
+          if (absError <= cfg.toleranceV) {
+              result.settled = true;
+              break;
+          }
+
+          int32_t correction = static_cast<int32_t>(
+              std::lround(
+                  cfg.proportionalGain *
+                  BIAS_DAC_CODES_PER_VOLT *
+                  error
+              )
+          );
+
+          correction = clampInt32(
+              correction,
+              -cfg.maxDacStep,
+              cfg.maxDacStep
+          );
+
+          if (correction == 0) {
+              correction = (error > 0.0) ? 1 : -1;
+          }
+
+          const uint16_t nextDacCode = clampDacCode(
+              static_cast<int32_t>(dacCode) + correction,
+              cfg
+          );
+
+          if (nextDacCode == dacCode) {
+              break;
+          }
+
+          dacCode = nextDacCode;
+      }
+
+      result.bestDacCode = bestDacCode;
+      result.bestVoltage = bestVoltage;
+      result.bestError = targetBiasVoltage - bestVoltage;
+
+      if (bestDacCode != result.finalDacCode) {
+          dac->setDacBias(afeBlock, bestDacCode);
+
+          std::this_thread::sleep_for(cfg.dwellTime);
+
+          result.finalVoltage =
+              readAfeBiasVoltageAverageUnlocked(
+                  afeBlock,
+                  daphne,
+                  cfg.samplesPerRead
+              );
+
+          result.finalError = targetBiasVoltage - result.finalVoltage;
+          result.finalDacCode = bestDacCode;
+      }
+
+      return result;
+  }
+
+
+double readAfeBiasVoltage(uint8_t afeBlock, Daphne& daphne)
+{
+    I2C1BusGuard bus_guard(daphne);
+
+    return readAfeBiasVoltageUnlocked(afeBlock, daphne);
+}
+
+double setControlledAfeBiasVoltage(double targetBiasVoltage,
+                                    uint8_t afeBlock,
+                                    Daphne& daphne)
+{
+    const AfeBiasControlResult result =
+        setControlledAfeBiasVoltageDetailed(
+            targetBiasVoltage,
+            afeBlock,
+            daphne
+        );
+
+    return result.finalVoltage;
+}
+
+
 bool writeControlledAFEBiasVoltage(
     const cmd_writeAFEBiasControlledSet& request,
     cmd_writeAFEBiasControlledSet_response& response,
@@ -1650,285 +1935,6 @@ bool readBiasVoltageMonitor(const cmd_readBiasVoltageMonitor& request,
 
   response_msg = oss.str();
   return true;
-}
-
-uint16_t biasVoltage2DAC(double biasValue)
-{
-    constexpr double R_TOP_KOHM = 1000.0;
-    constexpr double R_BOTTOM_KOHM = 26.1;
-    constexpr double DIVIDER_GAIN = R_BOTTOM_KOHM / (R_TOP_KOHM + R_BOTTOM_KOHM);
-    constexpr double DAC_LSB_PER_VOLT = 1000.0;
-    constexpr double SCALE = DIVIDER_GAIN * DAC_LSB_PER_VOLT;
-    if (!std::isfinite(biasValue)) {
-        return 0;
-    }
-    const double dacValue = std::round(SCALE * biasValue);
-    const double clamped = std::clamp(dacValue, 0.0, 
-      static_cast<double>(std::numeric_limits<uint16_t>::max())
-      );
-    return static_cast<uint16_t>(clamped);
-}
-
-namespace {
-
-  constexpr double AFE_BIAS_ADC_GAIN = 39.314;
-  constexpr uint8_t AFE_BLOCK_MAX = 4;
-  constexpr size_t AFE_BIAS_ADC_OFFSET = 2;
-  constexpr int ADS7138_CHANNEL_COUNT = 7;
-
-  // Must match biasVoltage2DAC().
-  constexpr double BIAS_DAC_CODES_PER_VOLT =
-      (26.1 / (26.1 + 1000.0)) * 1000.0;
-
-  struct AfeBiasControlConfig {
-      double toleranceV = 0.020;  // 20 mV
-
-      std::chrono::milliseconds settlingTime{500};
-      std::chrono::milliseconds dwellTime{20};
-
-      uint8_t samplesPerRead = 4;
-      uint8_t maxIterations = 20;
-
-      double proportionalGain = 0.75;
-
-      int32_t maxDacStep = 64;
-
-      uint16_t minDacCode = 0;
-      uint16_t maxDacCode = std::numeric_limits<uint16_t>::max();
-  };
-
-  struct AfeBiasControlResult {
-      double targetVoltage = 0.0;
-      double finalVoltage = 0.0;
-      double finalError = 0.0;
-
-      double bestVoltage = 0.0;
-      double bestError = 0.0;
-
-      uint16_t finalDacCode = 0;
-      uint16_t bestDacCode = 0;
-
-      uint8_t iterations = 0;
-      bool settled = false;
-  };
-
-  void validateAfeBlock(uint8_t afeBlock)
-  {
-      if (afeBlock > AFE_BLOCK_MAX) {
-          throw std::invalid_argument("afeBlock out of range (0..4)");
-      }
-  }
-
-  void validateTargetBiasVoltage(double biasVoltage)
-  {
-      if (!std::isfinite(biasVoltage)) {
-          throw std::invalid_argument("target bias voltage is not finite");
-      }
-      if (biasVoltage < 0.0) {
-          throw std::invalid_argument("target bias voltage must be non-negative");
-      }
-  }
-
-  int32_t clampInt32(int32_t value, int32_t minValue, int32_t maxValue)
-  {
-      return std::max(minValue, std::min(value, maxValue));
-  }
-
-  uint16_t clampDacCode(int32_t code, const AfeBiasControlConfig& cfg)
-  {
-      const int32_t clamped = clampInt32(code, static_cast<int32_t>(cfg.minDacCode), 
-        static_cast<int32_t>(cfg.maxDacCode)
-      );
-      return static_cast<uint16_t>(clamped);
-  }
-
-  double readAfeBiasVoltageUnlocked(uint8_t afeBlock, Daphne& daphne)
-  {
-      validateAfeBlock(afeBlock);
-      auto* adc0x10 = daphne.getADS7138_Driver_addr_0x10();
-      if (adc0x10 == nullptr) {
-          throw std::runtime_error("ADS7138 driver at address 0x10 is null");
-      }
-      const std::vector<double> adcValues = adc0x10->readData(ADS7138_CHANNEL_COUNT);
-      const size_t adcIndex = static_cast<size_t>(afeBlock) + AFE_BIAS_ADC_OFFSET;
-      if (adcValues.size() <= adcIndex) {
-          throw std::runtime_error("ADS7138 readData returned too few channels");
-      }
-      return adcValues[adcIndex] * AFE_BIAS_ADC_GAIN;
-  }
-
-  double readAfeBiasVoltageAverageUnlocked(uint8_t afeBlock,
-                                            Daphne& daphne,
-                                            uint8_t samples)
-  {
-      if (samples == 0) {
-          throw std::invalid_argument("samples must be greater than zero");
-      }
-      double sum = 0.0;
-      for (uint8_t i = 0; i < samples; ++i) {
-          sum += readAfeBiasVoltageUnlocked(afeBlock, daphne);
-      }
-      return sum / static_cast<double>(samples);
-  }
-
-  AfeBiasControlResult setControlledAfeBiasVoltageDetailed(
-    double targetBiasVoltage,
-    uint8_t afeBlock,
-    Daphne& daphne,
-    const AfeBiasControlConfig& cfg = AfeBiasControlConfig{}
-  )
-  {
-      validateAfeBlock(afeBlock);
-      validateTargetBiasVoltage(targetBiasVoltage);
-
-      if (cfg.toleranceV <= 0.0) {
-          throw std::invalid_argument("toleranceV must be positive");
-      }
-
-      if (cfg.proportionalGain <= 0.0) {
-          throw std::invalid_argument("proportionalGain must be positive");
-      }
-
-      if (cfg.maxDacStep <= 0) {
-          throw std::invalid_argument("maxDacStep must be positive");
-      }
-
-      if (cfg.minDacCode > cfg.maxDacCode) {
-          throw std::invalid_argument("invalid DAC clamp range");
-      }
-
-      I2C1BusGuard bus_guard(daphne);
-
-      auto* dac = daphne.getDac();
-
-      if (dac == nullptr) {
-          throw std::runtime_error("DAC driver is null");
-      }
-
-      AfeBiasControlResult result;
-      result.targetVoltage = targetBiasVoltage;
-
-      uint16_t dacCode = clampDacCode(
-          static_cast<int32_t>(biasVoltage2DAC(targetBiasVoltage)),
-          cfg
-      );
-
-      uint16_t bestDacCode = dacCode;
-      double bestVoltage = 0.0;
-      double bestAbsError = std::numeric_limits<double>::infinity();
-
-      const auto startTime = std::chrono::steady_clock::now();
-      const auto deadline = startTime + cfg.settlingTime;
-
-      for (uint8_t iteration = 0; iteration < cfg.maxIterations; ++iteration) {
-          if (std::chrono::steady_clock::now() >= deadline) {
-              break;
-          }
-
-          dac->setDacBias(afeBlock, dacCode);
-
-          std::this_thread::sleep_for(cfg.dwellTime);
-
-          const double measuredVoltage =
-              readAfeBiasVoltageAverageUnlocked(
-                  afeBlock,
-                  daphne,
-                  cfg.samplesPerRead
-              );
-
-          const double error = targetBiasVoltage - measuredVoltage;
-          const double absError = std::abs(error);
-
-          result.iterations = static_cast<uint8_t>(iteration + 1);
-          result.finalVoltage = measuredVoltage;
-          result.finalError = error;
-          result.finalDacCode = dacCode;
-
-          if (absError < bestAbsError) {
-              bestAbsError = absError;
-              bestVoltage = measuredVoltage;
-              bestDacCode = dacCode;
-          }
-
-          if (absError <= cfg.toleranceV) {
-              result.settled = true;
-              break;
-          }
-
-          int32_t correction = static_cast<int32_t>(
-              std::lround(
-                  cfg.proportionalGain *
-                  BIAS_DAC_CODES_PER_VOLT *
-                  error
-              )
-          );
-
-          correction = clampInt32(
-              correction,
-              -cfg.maxDacStep,
-              cfg.maxDacStep
-          );
-
-          if (correction == 0) {
-              correction = (error > 0.0) ? 1 : -1;
-          }
-
-          const uint16_t nextDacCode = clampDacCode(
-              static_cast<int32_t>(dacCode) + correction,
-              cfg
-          );
-
-          if (nextDacCode == dacCode) {
-              break;
-          }
-
-          dacCode = nextDacCode;
-      }
-
-      result.bestDacCode = bestDacCode;
-      result.bestVoltage = bestVoltage;
-      result.bestError = targetBiasVoltage - bestVoltage;
-
-      if (bestDacCode != result.finalDacCode) {
-          dac->setDacBias(afeBlock, bestDacCode);
-
-          std::this_thread::sleep_for(cfg.dwellTime);
-
-          result.finalVoltage =
-              readAfeBiasVoltageAverageUnlocked(
-                  afeBlock,
-                  daphne,
-                  cfg.samplesPerRead
-              );
-
-          result.finalError = targetBiasVoltage - result.finalVoltage;
-          result.finalDacCode = bestDacCode;
-      }
-
-      return result;
-  }
-
-} // namespace
-
-double readAfeBiasVoltage(uint8_t afeBlock, Daphne& daphne)
-{
-    I2C1BusGuard bus_guard(daphne);
-
-    return readAfeBiasVoltageUnlocked(afeBlock, daphne);
-}
-
-double setControlledAfeBiasVoltage(double targetBiasVoltage,
-                                    uint8_t afeBlock,
-                                    Daphne& daphne)
-{
-    const AfeBiasControlResult result =
-        setControlledAfeBiasVoltageDetailed(
-            targetBiasVoltage,
-            afeBlock,
-            daphne
-        );
-
-    return result.finalVoltage;
 }
 
 // --------------HD Mezzanine helper functions-------------------------
