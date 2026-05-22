@@ -356,6 +356,18 @@ def main():
         help="Maximum DAC-code step per controller iteration, default 64.",
     )
     ap.add_argument(
+        "--bias-slope-tolerance-mv-per-s",
+        type=int,
+        default=5,
+        help="Controlled bias slope tolerance in mV/s, default 5.",
+    )
+    ap.add_argument(
+        "--bias-required-stable-samples",
+        type=int,
+        default=2,
+        help="Required consecutive stable controller samples, default 2.",
+    )
+    ap.add_argument(
         "--ch-trim",
         action="append",
         default=[],
@@ -660,6 +672,8 @@ def main():
             wreq.proportional_gain = float(args.bias_proportional_gain)
             wreq.max_dac_step = int(args.bias_max_dac_step)
 
+            wreq.slope_tolerance_mv_per_s = int(args.bias_slope_tolerance_mv_per_s)
+            wreq.required_stable_samples = int(args.bias_required_stable_samples)
             wenv = pb_high.ControlEnvelopeV2()
             wenv.version = 2
             wenv.dir = pb_high.DIR_REQUEST
@@ -731,6 +745,8 @@ def main():
                 f"target={wout.target_bias_mv} mV "
                 f"measured={wout.measured_bias_mv} mV "
                 f"error={wout.error_mv} mV "
+                f"final_slope={wout.final_slope_mv_per_s} mV/s "
+                f"stable_samples={wout.stable_samples} "
                 f"final_dac={wout.final_dac_code} "
                 f"best_dac={wout.best_dac_code} "
                 f"best_bias={wout.best_bias_mv} mV "
@@ -753,6 +769,8 @@ def main():
                         "max_iterations": wreq.max_iterations,
                         "proportional_gain": wreq.proportional_gain,
                         "max_dac_step": wreq.max_dac_step,
+                        "slope_tolerance_mv_per_s": wreq.slope_tolerance_mv_per_s,
+                        "required_stable_samples": wreq.required_stable_samples,
                     },
                     "request": {
                         "version": wenv.version,
@@ -785,6 +803,8 @@ def main():
                         "target_bias_mv": wout.target_bias_mv,
                         "measured_bias_mv": wout.measured_bias_mv,
                         "error_mv": wout.error_mv,
+                        "final_slope_mv_per_s": wout.final_slope_mv_per_s,
+                        "stable_samples": wout.stable_samples,
                         "final_dac_code": wout.final_dac_code,
                         "best_dac_code": wout.best_dac_code,
                         "best_bias_mv": wout.best_bias_mv,

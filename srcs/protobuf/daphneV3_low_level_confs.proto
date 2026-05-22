@@ -76,6 +76,11 @@ message cmd_writeAFEBiasControlledSet {
   // If zero, use server default.
   double proportional_gain = 9; // default: 0.75
   uint32 max_dac_step      = 10; // default: 64
+
+  // Optional settling criterion for capacitive loads.
+  // If zero, the server should use its default.
+  uint32 slope_tolerance_mv_per_s = 11; // default: 5 mV/s
+  uint32 required_stable_samples  = 12; // default: 2
 }
 
 enum AfeBiasControlStatus {
@@ -114,6 +119,10 @@ message cmd_writeAFEBiasControlledSet_response {
   bool   settled    = 12;
 
   AfeBiasControlStatus status = 13;
+
+  // Final measured voltage slope and number of consecutive stable samples.
+  int32  final_slope_mv_per_s = 14;
+  uint32 stable_samples       = 15;
 }
 
 // TRIM

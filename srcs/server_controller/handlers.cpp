@@ -980,6 +980,9 @@ struct AfeBiasControlConfig {
 
       uint16_t minDacCode = 0;
       uint16_t maxDacCode = std::numeric_limits<uint16_t>::max();
+
+      double slopeToleranceVPerS = 0.005;  // 5 mV/s
+      uint8_t requiredStableSamples = 2;
   };
 
 struct AfeBiasControlResult {
@@ -995,6 +998,9 @@ struct AfeBiasControlResult {
 
       uint8_t iterations = 0;
       bool settled = false;
+
+      double finalSlopeVPerS = 0.0;
+      uint8_t stableSamples = 0;
 };
 
 constexpr double AFE_BIAS_ADC_GAIN = 39.314;
@@ -1091,6 +1097,14 @@ constexpr double AFE_BIAS_ADC_GAIN = 39.314;
           throw std::invalid_argument("invalid DAC clamp range");
       }
 
+
+      if (!std::isfinite(cfg.slopeToleranceVPerS) || cfg.slopeToleranceVPerS <= 0.0) {
+          throw std::invalid_argument("slopeToleranceVPerS must be positive and finite");
+      }
+
+      if (cfg.requiredStableSamples == 0) {
+          throw std::invalid_argument("requiredStableSamples must be greater than zero");
+      }
       I2C1BusGuard bus_guard(daphne);
 
       auto* dac = daphne.getDac();
@@ -1114,6 +1128,11 @@ constexpr double AFE_BIAS_ADC_GAIN = 39.314;
       const auto startTime = std::chrono::steady_clock::now();
       const auto deadline = startTime + cfg.settlingTime;
 
+
+      bool havePreviousVoltage = false;
+      double previousVoltage = 0.0;
+      auto previousTime = startTime;
+      uint8_t stableSamples = 0;
       for (uint8_t iteration = 0; iteration < cfg.maxIterations; ++iteration) {
           if (std::chrono::steady_clock::now() >= deadline) {
               break;
@@ -1143,12 +1162,47 @@ constexpr double AFE_BIAS_ADC_GAIN = 39.314;
               bestVoltage = measuredVoltage;
               bestDacCode = dacCode;
           }
+          const auto measurementTime = std::chrono::steady_clock::now();
 
-          if (absError <= cfg.toleranceV) {
+          double slopeVPerS = 0.0;
+          double absSlopeVPerS = std::numeric_limits<double>::infinity();
+
+          if (havePreviousVoltage) {
+              const double dt =
+                  std::chrono::duration<double>(
+                      measurementTime - previousTime
+                  ).count();
+
+              if (dt > 0.0) {
+                  slopeVPerS = (measuredVoltage - previousVoltage) / dt;
+                  absSlopeVPerS = std::abs(slopeVPerS);
+              }
+          }
+
+          const bool errorIsStable = absError <= cfg.toleranceV;
+          const bool slopeIsStable =
+              havePreviousVoltage &&
+              absSlopeVPerS <= cfg.slopeToleranceVPerS;
+
+          if (errorIsStable && slopeIsStable) {
+              if (stableSamples < std::numeric_limits<uint8_t>::max()) {
+                  ++stableSamples;
+              }
+          } else {
+              stableSamples = 0;
+          }
+
+          result.finalSlopeVPerS = havePreviousVoltage ? slopeVPerS : 0.0;
+          result.stableSamples = stableSamples;
+
+          if (stableSamples >= cfg.requiredStableSamples) {
               result.settled = true;
               break;
           }
 
+          previousVoltage = measuredVoltage;
+          previousTime = measurementTime;
+          havePreviousVoltage = true;
           int32_t correction = static_cast<int32_t>(
               std::lround(
                   cfg.proportionalGain *
@@ -1313,6 +1367,29 @@ bool writeControlledAFEBiasVoltage(
 
     cfg.maxDacStep = static_cast<int32_t>(max_dac_step);
 
+
+
+    cfg.slopeToleranceVPerS =
+        request.slope_tolerance_mv_per_s() == 0
+            ? 0.005
+            : static_cast<double>(request.slope_tolerance_mv_per_s()) / 1000.0;
+
+    if (!std::isfinite(cfg.slopeToleranceVPerS) ||
+        cfg.slopeToleranceVPerS <= 0.0) {
+      throw std::invalid_argument("invalid slope_tolerance_mv_per_s");
+    }
+
+    const uint32_t required_stable_samples =
+        request.required_stable_samples() == 0
+            ? 2
+            : request.required_stable_samples();
+
+    if (required_stable_samples > std::numeric_limits<uint8_t>::max()) {
+      throw std::invalid_argument("required_stable_samples out of range");
+    }
+
+    cfg.requiredStableSamples =
+        static_cast<uint8_t>(required_stable_samples);
     cfg.minDacCode = 0;
     cfg.maxDacCode = 4095;
 
@@ -1367,15 +1444,33 @@ bool writeControlledAFEBiasVoltage(
             : AFE_BIAS_CONTROL_STATUS_TIMEOUT_BEST_EFFORT
     );
 
+
+
+    response.set_final_slope_mv_per_s(
+        static_cast<int32_t>(
+            std::lround(result.finalSlopeVPerS * 1000.0)
+        )
+    );
+
+    response.set_stable_samples(
+        static_cast<uint32_t>(result.stableSamples)
+    );
     response_str =
         "Controlled AFE bias voltage command completed for AFE " +
         std::to_string(afe_definitions::AFE_PL2board_map.at(afe_block)) +
         ". Target: " + std::to_string(request.target_bias_mv()) + " mV" +
         ". Final: " + std::to_string(final_voltage_mv) + " mV" +
         ". Error: " + std::to_string(final_error_mv) + " mV" +
+        ". Slope: " +
+        std::to_string(
+            static_cast<int32_t>(
+                std::lround(result.finalSlopeVPerS * 1000.0)
+            )
+        ) + " mV/s" +
         ". DAC code: " + std::to_string(result.finalDacCode) +
         ". Best DAC code: " + std::to_string(result.bestDacCode) +
         ". Iterations: " + std::to_string(static_cast<int>(result.iterations)) +
+        ". Stable samples: " + std::to_string(static_cast<int>(result.stableSamples)) +
         ". Settled: " + std::string(result.settled ? "true" : "false") + ".";
 
     return result.settled;
