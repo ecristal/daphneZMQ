@@ -1073,12 +1073,14 @@ constexpr double AFE_BIAS_ADC_GAIN = 39.314;
 
   AfeBiasControlResult setControlledAfeBiasVoltageDetailed(
     double targetBiasVoltage,
-    uint8_t afeBlock,
+    uint8_t boardAfe,
+    uint8_t plAfe,
     Daphne& daphne,
     const AfeBiasControlConfig& cfg = AfeBiasControlConfig{}
   )
   {
-      validateAfeBlock(afeBlock);
+      validateAfeBlock(boardAfe);
+      validateAfeBlock(plAfe);
       validateTargetBiasVoltage(targetBiasVoltage);
 
       if (cfg.toleranceV <= 0.0) {
@@ -1138,13 +1140,13 @@ constexpr double AFE_BIAS_ADC_GAIN = 39.314;
               break;
           }
 
-          dac->setDacBias(afeBlock, dacCode);
+          dac->setDacBias(plAfe, dacCode);
 
           std::this_thread::sleep_for(cfg.dwellTime);
 
           const double measuredVoltage =
               readAfeBiasVoltageAverageUnlocked(
-                  afeBlock,
+                  boardAfe,
                   daphne,
                   cfg.samplesPerRead
               );
@@ -1203,6 +1205,16 @@ constexpr double AFE_BIAS_ADC_GAIN = 39.314;
           previousVoltage = measuredVoltage;
           previousTime = measurementTime;
           havePreviousVoltage = true;
+
+          /*
+           * If the voltage is already inside tolerance, keep the DAC fixed
+           * and only wait for the slope/stability condition.  Do not apply
+           * the forced +/-1 DAC correction while already close enough.
+           */
+          if (errorIsStable) {
+              continue;
+          }
+
           int32_t correction = static_cast<int32_t>(
               std::lround(
                   cfg.proportionalGain *
@@ -1238,13 +1250,13 @@ constexpr double AFE_BIAS_ADC_GAIN = 39.314;
       result.bestError = targetBiasVoltage - bestVoltage;
 
       if (bestDacCode != result.finalDacCode) {
-          dac->setDacBias(afeBlock, bestDacCode);
+          dac->setDacBias(plAfe, bestDacCode);
 
           std::this_thread::sleep_for(cfg.dwellTime);
 
           result.finalVoltage =
               readAfeBiasVoltageAverageUnlocked(
-                  afeBlock,
+                  boardAfe,
                   daphne,
                   cfg.samplesPerRead
               );
@@ -1272,6 +1284,7 @@ double setControlledAfeBiasVoltage(double targetBiasVoltage,
         setControlledAfeBiasVoltageDetailed(
             targetBiasVoltage,
             afeBlock,
+            afeBlock,
             daphne
         );
 
@@ -1286,14 +1299,21 @@ bool writeControlledAFEBiasVoltage(
     std::string& response_str)
 {
   try {
-    const uint32_t afe_block_u32 =
-        afe_definitions::AFE_board2PL_map.at(request.afe_block());
+    const uint32_t board_afe_u32 = request.afe_block();
 
-    if (afe_block_u32 > 4) {
-      throw std::invalid_argument("mapped afeBlock out of range (0..4)");
+    if (board_afe_u32 > 4) {
+      throw std::invalid_argument("afe_block out of range (0..4)");
     }
 
-    const uint8_t afe_block = static_cast<uint8_t>(afe_block_u32);
+    const uint32_t pl_afe_u32 =
+        afe_definitions::AFE_board2PL_map.at(board_afe_u32);
+
+    if (pl_afe_u32 > 4) {
+      throw std::invalid_argument("mapped PL afeBlock out of range (0..4)");
+    }
+
+    const uint8_t board_afe = static_cast<uint8_t>(board_afe_u32);
+    const uint8_t pl_afe = static_cast<uint8_t>(pl_afe_u32);
 
     const double target_bias_voltage =
         static_cast<double>(request.target_bias_mv()) / 1000.0;
@@ -1396,12 +1416,13 @@ bool writeControlledAFEBiasVoltage(
     const AfeBiasControlResult result =
         setControlledAfeBiasVoltageDetailed(
             target_bias_voltage,
-            afe_block,
+            board_afe,
+            pl_afe,
             daphne,
             cfg
         );
 
-    daphne.setBiasVoltageDictValue(afe_block, result.finalDacCode);
+    daphne.setBiasVoltageDictValue(pl_afe, result.finalDacCode);
 
     const uint32_t final_voltage_mv =
         static_cast<uint32_t>(
@@ -1455,9 +1476,21 @@ bool writeControlledAFEBiasVoltage(
     response.set_stable_samples(
         static_cast<uint32_t>(result.stableSamples)
     );
+
+    const uint32_t effective_tolerance_mv =
+        request.tolerance_mv() == 0 ? 20 : request.tolerance_mv();
+
+    const bool final_in_tolerance =
+        std::abs(final_error_mv) <=
+        static_cast<int32_t>(effective_tolerance_mv);
+
+    const bool command_success =
+        result.settled || final_in_tolerance;
+
     response_str =
-        "Controlled AFE bias voltage command completed for AFE " +
-        std::to_string(afe_definitions::AFE_PL2board_map.at(afe_block)) +
+        "Controlled AFE bias voltage command completed for board AFE " +
+        std::to_string(board_afe) +
+        " / PL AFE " + std::to_string(pl_afe) +
         ". Target: " + std::to_string(request.target_bias_mv()) + " mV" +
         ". Final: " + std::to_string(final_voltage_mv) + " mV" +
         ". Error: " + std::to_string(final_error_mv) + " mV" +
@@ -1471,9 +1504,10 @@ bool writeControlledAFEBiasVoltage(
         ". Best DAC code: " + std::to_string(result.bestDacCode) +
         ". Iterations: " + std::to_string(static_cast<int>(result.iterations)) +
         ". Stable samples: " + std::to_string(static_cast<int>(result.stableSamples)) +
+        ". In tolerance: " + std::string(final_in_tolerance ? "true" : "false") +
         ". Settled: " + std::string(result.settled ? "true" : "false") + ".";
 
-    return result.settled;
+    return command_success;
 
   } catch (const std::invalid_argument& e) {
     response.set_afe_block(request.afe_block());
