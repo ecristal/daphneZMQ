@@ -135,6 +135,130 @@ message InfoResponse {
   GeneralInfo          general_info = 3;
 }
 
+// Board/PS status snapshot.  This is read-only monitoring: topology and
+// authority still come from the hardware database and run-control state.
+message ReadSystemStatusRequest {
+  uint32 level                   = 1; // 0 = summary, higher = slower details
+  bool   include_i2c_scan        = 2; // may be slow; server may return cached data
+  bool   include_xmutil          = 3; // may run xmutil/listapps on the target
+  bool   include_sfp_diagnostics = 4; // may touch SFP mux/I2C pages
+  bool   include_ps_values       = 5; // include generic PS-exposed values
+}
+
+message StatusValue {
+  string name             = 1;
+  string value            = 2;
+  string units            = 3;
+  bool   valid            = 4;
+  string source           = 5;
+  uint64 observed_unix_ns = 6;
+  string message          = 7;
+}
+
+message I2CPortStatus {
+  string device                    = 1; // e.g. /dev/i2c-2
+  uint32 bus                       = 2;
+  bool   present                   = 3;
+  bool   readable                  = 4;
+  repeated uint32 detected_addresses = 5; // 7-bit I2C addresses
+  string mux                       = 6; // e.g. TCA9548 0x72 channel 3
+  string message                   = 7;
+}
+
+message SFPMonitor {
+  string name             = 1;  // e.g. GTH0, GTH1, GTH2, GTH3, TMG, GTR
+  uint32 bus              = 2;
+  uint32 mux_address      = 3;
+  uint32 mux_channel      = 4;
+  uint32 a0_address       = 5;
+  uint32 a2_address       = 6;
+  bool   present          = 7;
+  bool   loss_of_signal   = 8;
+  bool   tx_disabled      = 9;
+  bool   tx_fault         = 10;
+  bool   data_ready       = 11;
+  string vendor           = 12;
+  string part             = 13;
+  string revision         = 14;
+  string serial           = 15;
+  string date_code        = 16;
+  double temperature_c    = 17;
+  double vcc_v            = 18;
+  double tx_bias_ma       = 19;
+  double tx_power_mw      = 20;
+  double rx_power_mw      = 21;
+  uint32 status_a2_0x6e   = 22;
+  uint32 status_a2_0x6f   = 23;
+  repeated StatusValue diagnostics = 24;
+  string message          = 25;
+}
+
+message FanStatus {
+  string name                 = 1; // e.g. fan0, fan1
+  bool   present              = 2;
+  bool   pwm_enabled          = 3;
+  double duty_cycle_percent   = 4;
+  double tach_rpm             = 5;
+  bool   tach_valid           = 6;
+  string source               = 7; // e.g. PL register, GPIO, hwmon
+  string message              = 8;
+}
+
+message TemperatureStatus {
+  string name          = 1;
+  double temperature_c = 2;
+  bool   valid         = 3;
+  string source        = 4; // regulator PMBus, SFP A2, PS thermal zone, etc.
+  string message       = 5;
+}
+
+message EndpointStatus {
+  bool   ready                            = 1;
+  uint32 endpoint_status_raw              = 2;
+  uint32 endpoint_control_raw             = 3;
+  uint32 endpoint_clock_status_raw        = 4;
+  bool   mmcm_locked                      = 5;
+  bool   timestamp_valid                  = 6;
+  uint64 last_timing_timestamp            = 7;
+  uint64 last_timing_timestamp_observed_ns = 8;
+  string message                          = 9;
+}
+
+message XmutilAppStatus {
+  string app_name = 1;
+  string status   = 2;
+  string raw_line = 3;
+}
+
+message ChipConfigStatus {
+  string name       = 1;
+  bool   configured = 2;
+  uint32 raw_status = 3;
+  string source     = 4;
+  string message    = 5;
+}
+
+message SystemStatusSnapshot {
+  bool   success               = 1;
+  string message               = 2;
+  string ps_local_time         = 3;
+  uint64 ps_local_unix_ns      = 4;
+  uint64 server_uptime_ms      = 5;
+  string hostname              = 6;
+  string kernel_release        = 7;
+  string petalinux_version     = 8;
+  string active_xmutil_app     = 9;
+  string xmutil_raw_output     = 10;
+  repeated I2CPortStatus i2c_ports       = 11;
+  repeated SFPMonitor sfps               = 12;
+  repeated FanStatus fans                = 13;
+  repeated TemperatureStatus temperatures = 14;
+  EndpointStatus endpoint                = 15;
+  repeated XmutilAppStatus xmutil_apps   = 16;
+  repeated ChipConfigStatus chip_configs = 17;
+  repeated StatusValue ps_values         = 18; // catch-all for other PS-exposed data
+}
+
 message TriggerChannelSnapshot {
   uint32 channel       = 1;   // 0..39
   uint32 threshold     = 2;   // 10-bit
@@ -276,6 +400,7 @@ enum MessageTypeV2 {
 
   // System / monitoring
   MT2_READ_GENERAL_INFO_REQ          = 322; MT2_READ_GENERAL_INFO_RESP          = 323;
+  MT2_READ_SYSTEM_STATUS_REQ         = 324; MT2_READ_SYSTEM_STATUS_RESP         = 325;
 }
 
 message ControlEnvelopeV2 {
