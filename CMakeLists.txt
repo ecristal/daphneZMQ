@@ -29,12 +29,42 @@ endif()
 
 option(DAPHNE_BUILD_PY_PROTO "Generate python *_pb2.py into build tree" ON)
 option(DAPHNE_BUNDLE_ZEROMQ "Build bundled libzmq from third_party" OFF)
+option(DAPHNE_BUILD_SERVER "Build the full ZMQ server" ON)
+option(DAPHNE_ENABLE_HARDWARE_TESTS "Enable tests that access real DAPHNE hardware" OFF)
 set(DAPHNE_DEPS_TARBALL_DIR "" CACHE PATH "Directory containing the pinned dependency tarball (see deps/deps.lock.cmake)")
+include(CTest)
 
 if(DAPHNE_DEPS_TARBALL_DIR AND NOT DAPHNE_DEPS_TARBALL_DIR STREQUAL "")
   include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/daphne_deps.cmake")
   daphne_use_locked_deps(TARBALL_DIR "${DAPHNE_DEPS_TARBALL_DIR}")
 endif()
+
+# ---------------- Hardware I2C layer ----
+find_package(Threads REQUIRED)
+find_library(I2C_LIB NAMES i2c HINTS /usr/lib /usr/local/lib)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT I2C_LIB)
+  message(FATAL_ERROR "libi2c is required by I2CDevice SMBus operations")
+endif()
+
+add_library(daphne_i2c_hw
+  srcs/I2CDevice.cpp
+  srcs/DaphneI2CDrivers.cpp
+)
+target_include_directories(daphne_i2c_hw PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/srcs
+)
+target_link_libraries(daphne_i2c_hw PUBLIC Threads::Threads)
+if(I2C_LIB)
+  target_link_libraries(daphne_i2c_hw PUBLIC ${I2C_LIB})
+endif()
+
+if(BUILD_TESTING)
+  add_subdirectory(tests)
+endif()
+
+# Everything below this point belongs to the full server and its dependencies.
+if(DAPHNE_BUILD_SERVER)
 
 # ---------------- OpenMP (optional) -----
 find_package(OpenMP QUIET)
@@ -154,13 +184,6 @@ else()
     INTERFACE_INCLUDE_DIRECTORIES "${CLI11_INCLUDE_DIR}")
 endif()
 
-# ---------------- Threads / i2c ----------
-find_package(Threads REQUIRED)
-find_library(I2C_LIB NAMES i2c HINTS /usr/lib /usr/local/lib)
-if(NOT I2C_LIB)
-  message(STATUS "libi2c not found; continuing without it (only needed if you call i2c API)")
-endif()
-
 # ---------------- Sources ----------------
 set(SOURCES
   srcs/DevMem.cpp
@@ -169,8 +192,6 @@ set(SOURCES
   srcs/FpgaReg.cpp
   srcs/Spi.cpp
   srcs/SpyBuffer.cpp
-  srcs/I2CDevice.cpp
-  srcs/DaphneI2CDrivers.cpp
   srcs/SpiDevice.cpp
   srcs/DaphneSpiDrivers.cpp
   srcs/Afe.cpp
@@ -207,6 +228,7 @@ target_include_directories(daphneServer PRIVATE
   ${PROTO_DIR}
 )
 target_link_libraries(daphneServer PRIVATE
+  daphne_i2c_hw
   daphne_proto
   cppzmq
   ${DAPHNE_ZMQ_TARGET}
@@ -216,10 +238,6 @@ target_link_libraries(daphneServer PRIVATE
 if(OpenMP_CXX_FOUND)
   target_link_libraries(daphneServer PRIVATE OpenMP::OpenMP_CXX)
 endif()
-if(I2C_LIB)
-  target_link_libraries(daphneServer PRIVATE ${I2C_LIB})
-endif()
-
 add_executable(daphne_zmq_server
   srcs/srv.cpp
   srcs/DevMem.cpp
@@ -238,3 +256,5 @@ message(STATUS "ZMQ target: ${DAPHNE_ZMQ_TARGET} (bundled=${DAPHNE_BUNDLE_ZEROMQ
 message(STATUS "cppzmq target: " $<TARGET_EXISTS:cppzmq>)
 message(STATUS "CLI11 target: " $<TARGET_EXISTS:CLI11::CLI11>)
 message(STATUS "I2C lib: ${I2C_LIB}")
+
+endif()

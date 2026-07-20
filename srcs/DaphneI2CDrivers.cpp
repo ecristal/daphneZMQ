@@ -1,389 +1,672 @@
 #include "DaphneI2CDrivers.hpp"
 
 #include <cmath>
+#include <utility>
 
-I2CMezzDrivers::HDMezzDriver::HDMezzDriver():
-    I2C_exp_mezz("/dev/i2c-2", I2C_drivers_defines::I2CDevicesAddress.at("I2C_EXP_MEZZ")){
-    configureCalibrationValues();
+namespace {
+
+constexpr uint16_t kIna232ManufacturerId = 0x5449;
+constexpr uint16_t kIna232DefaultConfiguration = 0x4127;
+constexpr uint16_t kIna232OverCurrentAlertConfiguration = 0x8001;
+constexpr uint16_t kIna232MaskWritableBits = 0xFC03;
+constexpr uint16_t kIna232ConfigurationWritableBits = 0x1FFF;
+constexpr double kIna232ShuntVoltageLsb = 2.5e-6;
+constexpr double kIna232ShuntPositiveFullScaleVolts = 0x7FFF * kIna232ShuntVoltageLsb;
+constexpr std::size_t kAfeBlockCount = 5;
+
+std::string hexValue(uint32_t value, unsigned width) {
+    std::ostringstream os;
+    os << "0x" << std::hex << std::uppercase << std::setw(width)
+       << std::setfill('0') << value;
+    return os.str();
 }
 
-I2CMezzDrivers::HDMezzDriver::~HDMezzDriver() {}
+}  // namespace
 
-void I2CMezzDrivers::HDMezzDriver::configureCalibrationValues(){
-    int numberOfAfes = 5;
-    for(int afeBlock = 0; afeBlock < numberOfAfes; afeBlock++){
-        this->current_lsb_5V[afeBlock] = this->max_current_5V_scale[afeBlock] / ((double)std::pow(2,15));
-        this->current_lsb_3V3[afeBlock] = this->max_current_3V3_scale[afeBlock] / ((double)std::pow(2,15));
-        this->shunt_cal_5V[afeBlock] = (uint16_t)(0.00512 / (this->current_lsb_5V[afeBlock] * this->r_shunt_5V[afeBlock]));
-        this->shunt_cal_3V3[afeBlock] = (uint16_t)(0.00512 / (this->current_lsb_3V3[afeBlock] * this->r_shunt_3V3[afeBlock]));
-        this->max_power_5V[afeBlock] = this->max_current_5V_shutdown[afeBlock] * 5.0;
-        this->max_power_3V3[afeBlock] = this->max_current_3V3_shutdown[afeBlock] * 3.3;
-    }
-}
+I2CMezzDrivers::HDMezzDriver::HDMezzDriver()
+    : HDMezzDriver(
+          "/dev/i2c-2",
+          [](const std::string& path, uint8_t address) {
+              return std::make_unique<I2CDevice>(path, address);
+          },
+          [](std::chrono::milliseconds duration) {
+              std::this_thread::sleep_for(duration);
+          }) {}
 
-void I2CMezzDrivers::HDMezzDriver::enableAfeBlock(const uint8_t &afeBlock, const bool &enable){
-    if(afeBlock > 4){
-        throw std::invalid_argument("Invalid AFE block number. Valid values are 0 to 4.");
+I2CMezzDrivers::HDMezzDriver::HDMezzDriver(
+    std::string devicePath,
+    DeviceFactory deviceFactory,
+    DelayFunction delayFunction)
+    : device_path_(std::move(devicePath)),
+      device_factory_(std::move(deviceFactory)),
+      delay_(std::move(delayFunction)) {
+    if (device_path_.empty()) {
+        throw std::invalid_argument("HDMezzDriver I2C device path cannot be empty");
     }
-    this->enabled_afeBlocks[afeBlock] = enable;
-}
+    if (!device_factory_) {
+        throw std::invalid_argument("HDMezzDriver device factory cannot be empty");
+    }
+    if (!delay_) {
+        throw std::invalid_argument("HDMezzDriver delay function cannot be empty");
+    }
 
-bool I2CMezzDrivers::HDMezzDriver::isAfeBlockEnabled(const uint8_t &afeBlock){
-    if(afeBlock > 4){
-        throw std::invalid_argument("Invalid AFE block number. Valid values are 0 to 4.");
-    }
-    return this->enabled_afeBlocks[afeBlock];
-}
-
-void I2CMezzDrivers::HDMezzDriver::setRShunt(const uint8_t &afeBlock, const double &rShunt, const std::string &rail){
-    if(afeBlock > 4){
-        throw std::invalid_argument("Invalid AFE block number. Valid values are 0 to 4.");
-    }
-    if(rShunt <= 0){
-        throw std::invalid_argument("Invalid Rshunt value. It must be greater than zero.");
-    }
-    if(rail == "5V"){
-        this->r_shunt_5V[afeBlock] = rShunt;
-    }
-    else if(rail == "3V3"){
-        this->r_shunt_3V3[afeBlock] = rShunt;
-    }
-    else{
-        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
-    }
-    configureCalibrationValues();
-}
-
-void I2CMezzDrivers::HDMezzDriver::setMaxCurrentScale(const uint8_t &afeBlock, const double &maxCurrent, const std::string &rail){
-    if(afeBlock > 4){
-        throw std::invalid_argument("Invalid AFE block number. Valid values are 0 to 4.");
-    }
-    if(maxCurrent <= 0){
-        throw std::invalid_argument("Invalid Max Current Scale value. It must be greater than zero.");
-    }
-    if(rail == "5V"){
-        this->max_current_5V_scale[afeBlock] = maxCurrent;
-    }
-    else if(rail == "3V3"){
-        this->max_current_3V3_scale[afeBlock] = maxCurrent;
-    }
-    else{
-        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
-    }
-    configureCalibrationValues();
-}
-
-void I2CMezzDrivers::HDMezzDriver::setMaxCurrentShutdown(const uint8_t &afeBlock, const double &maxCurrent, const std::string &rail){
-    if(afeBlock > 4){
-        throw std::invalid_argument("Invalid AFE block number. Valid values are 0 to 4.");
-    }
-    if(maxCurrent <= 0){
-        throw std::invalid_argument("Invalid Max Current Shutdown value. It must be greater than zero.");
-    }
-    if(rail == "5V"){
-        this->max_current_5V_shutdown[afeBlock] = maxCurrent;
-    }
-    else if(rail == "3V3"){
-        this->max_current_3V3_shutdown[afeBlock] = maxCurrent;
-    }
-    else{
-        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
-    }
-    configureCalibrationValues();
-}
-
-double I2CMezzDrivers::HDMezzDriver::getRShunt(const uint8_t &afeBlock, const std::string &rail){
-    if(afeBlock > 4){
-        throw std::invalid_argument("Invalid AFE block number. Valid values are 0 to 4.");
-    }
-    if(rail == "5V"){
-        return this->r_shunt_5V[afeBlock];
-    }
-    else if(rail == "3V3"){
-        return this->r_shunt_3V3[afeBlock];
-    }
-    else{
-        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
-    }
-}
-
-double I2CMezzDrivers::HDMezzDriver::getMaxCurrentScale(const uint8_t &afeBlock, const std::string &rail){
-    if(afeBlock > 4){
-        throw std::invalid_argument("Invalid AFE block number. Valid values are 0 to 4.");
-    }
-    if(rail == "5V"){
-        return this->max_current_5V_scale[afeBlock];
-    }
-    else if(rail == "3V3"){
-        return this->max_current_3V3_scale[afeBlock];
-    }
-    else{
-        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
-    }
-}
-
-double I2CMezzDrivers::HDMezzDriver::getMaxCurrentShutdown(const uint8_t &afeBlock, const std::string &rail){
-    if(afeBlock > 4){
-        throw std::invalid_argument("Invalid AFE block number. Valid values are 0 to 4.");
-    }
-    if(rail == "5V"){
-        return this->max_current_5V_shutdown[afeBlock];
-    }
-    else if(rail == "3V3"){
-        return this->max_current_3V3_shutdown[afeBlock];
-    }
-    else{
-        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
-    }
-}
-
-double I2CMezzDrivers::HDMezzDriver::getMaxPower(const uint8_t &afeBlock, const std::string &rail){
-    if(afeBlock > 4){
-        throw std::invalid_argument("Invalid AFE block number. Valid values are 0 to 4.");
-    }
-    if(rail == "5V"){
-        return this->max_power_5V[afeBlock];
-    }
-    else if(rail == "3V3"){
-        return this->max_power_3V3[afeBlock];
-    }
-    else{
-        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
-    }
-}
-
-double I2CMezzDrivers::HDMezzDriver::getCurrentLsb(const uint8_t &afeBlock, const std::string &rail){
-    if(afeBlock > 4){
-        throw std::invalid_argument("Invalid AFE block number. Valid values are 0 to 4.");
-    }
-    if(rail == "5V"){
-        return this->current_lsb_5V[afeBlock];
-    }
-    else if(rail == "3V3"){
-        return this->current_lsb_3V3[afeBlock];
-    }
-    else{
-        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
-    }
-}
-
-uint16_t I2CMezzDrivers::HDMezzDriver::getShuntCal(const uint8_t &afeBlock, const std::string &rail){
-    if(afeBlock > 4){
-        throw std::invalid_argument("Invalid AFE block number. Valid values are 0 to 4.");
-    }
-    if(rail == "5V"){
-        return this->shunt_cal_5V[afeBlock];
-    }
-    else if(rail == "3V3"){
-        return this->shunt_cal_3V3[afeBlock];
-    }
-    else{
-        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
-    }
-}
-
-void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(const uint8_t &afeBlock){
-
-    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"), "SHUNT_CAL", this->shunt_cal_5V[afeBlock]);
-
-    uint16_t max_power_5V_reg = (uint16_t)(this->max_power_5V[afeBlock] / (32*this->current_lsb_5V[afeBlock]));
-    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"), "LIMIT", max_power_5V_reg);
-    
-    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"), "LEN", 0x1);
-    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"), "POL", 0x1);
-
-    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"), "SHUNT_CAL", this->shunt_cal_3V3[afeBlock]);
-
-    uint16_t max_power_3V3_reg = (uint16_t)(this->max_power_3V3[afeBlock] / (32*this->current_lsb_3V3[afeBlock]));
-    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"), "LIMIT", max_power_3V3_reg);
-
-    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"), "LEN", 0x1);
-    this->writeINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"), "POL", 0x1);
-
-    this->writeTCA9536Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_CONF_REG"), 0xF0); // Set all pins as outputs
-
-}
-
-void I2CMezzDrivers::HDMezzDriver::powerOn_HDMezzAfeBlock(const uint8_t &afeBlock, const bool &powerOn, const std::string &rail){
-    uint8_t output_port;
-    output_port = this->readTCA9536Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_OUTPUT_PORT_REG"));
-    if(rail == "5V"){
-        if(powerOn){
-            output_port |= 0b00000001; // Set bit 0 to 1 to power on the 5V
-        } else {
-            output_port &= 0b11111110; // Set bit 0 to 0 to power off the 5V
+    const auto createDevice = [this](uint8_t address, const char* name) {
+        auto device = device_factory_(device_path_, address);
+        if (!device) {
+            throw std::runtime_error(std::string("HDMezzDriver factory returned null for ") + name +
+                                     " at " + hexValue(address, 2));
         }
-    } else if(rail == "3V3"){
-        if(powerOn){ 
-            output_port |= 0b00000010; // Set bit 1 to 1 to power on the 3.3V
-        } else {
-            output_port &= 0b11111101; // Set bit 1 to 0 to power off the 3.3V
-        }
-    }else{
-        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
-    }
-    try{
-        this->writeTCA9536Register(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_OUTPUT_PORT_REG"), output_port);
-        if(rail == "5V"){
-            this->powerStatus5V = powerOn;
-        } else if(rail == "3V3"){
-            this->powerStatus3V3 = powerOn;
-        }
-    }catch(const std::exception& e){
-        throw std::runtime_error("Failed to write to TCA9536 expander: " + std::string(e.what()));
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
+        return device;
+    };
+
+    mux_ = createDevice(I2C_drivers_defines::I2CDevicesAddress.at("I2C_EXP_MEZZ"), "mezzanine mux");
+    ina_5V_ = createDevice(I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR"), "5V INA232");
+    ina_3V3_ = createDevice(I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR"), "3V3/CE INA232");
+    tca9536_ = createDevice(I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_ADDR"), "TCA9536");
+    configureCalibrationValuesUnlocked();
 }
 
-bool I2CMezzDrivers::HDMezzDriver::isPowerOn(const uint8_t &afeBlock, const std::string &rail){
-    if(rail == "5V"){
-        return this->powerStatus5V;
-    } else if(rail == "3V3"){
-        return this->powerStatus3V3;
-    }else{
-        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
-    }
-}
-
-double I2CMezzDrivers::HDMezzDriver::readRailVoltage(const uint8_t &afeBlock, const std::string &rail){
-    uint16_t bus_voltage_reg_value = this->readINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR"), "VBUS");
-    double bus_voltage = ((double)bus_voltage_reg_value)*1.6e-3; // Each bit represents 1.6mV
-    return bus_voltage;
-}
-
-double I2CMezzDrivers::HDMezzDriver::readRailCurrent(const uint8_t &afeBlock, const std::string &rail){
-    int16_t current_reg_value = this->readINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR"), "CURRENT");
-    double current = 0.0;
-    if(rail == "5V"){
-        current = static_cast<double>(current_reg_value)*this->current_lsb_5V[afeBlock]*1000; // mA
-    }
-    else if(rail == "3V3"){
-        current = static_cast<double>(current_reg_value)*this->current_lsb_3V3[afeBlock]*1000; // mA
-    }
-    else{
-        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
-    }
-    return current;
-}
-
-double I2CMezzDrivers::HDMezzDriver::readRailPower(const uint8_t &afeBlock, const std::string &rail){
-    uint16_t power_reg_value = this->readINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR"), "POWER");
-    double power = 0.0;
-    if(rail == "5V"){
-        power = 32*((double)power_reg_value)*this->current_lsb_5V[afeBlock]*1000; // 1mW/LSB
-    }
-    else if(rail == "3V3"){
-        power = 32*((double)power_reg_value)*this->current_lsb_3V3[afeBlock]*1000; // 1mW/LSB
-    }
-    else{
-        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
-    }
-    return power;
-}
-
-bool I2CMezzDrivers::HDMezzDriver::checkAlertStatus(const uint8_t &afeBlock, const std::string &rail){
-    uint16_t alert_reg_value = this->readINA232Function(afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR"), "AFF");
-    return (alert_reg_value & 0x1) != 0; // Check if the alert bit is set
-}
-
-void I2CMezzDrivers::HDMezzDriver::selectAfeBlock(const uint8_t &afeBlock){
-    if(afeBlock > 4){
+void I2CMezzDrivers::HDMezzDriver::validateAfeBlock(uint8_t afeBlock) {
+    if (afeBlock >= kAfeBlockCount) {
         throw std::invalid_argument("Invalid AFE block number. Valid values are 0 to 4.");
     }
-    if(!this->enabled_afeBlocks[afeBlock]){
-        throw std::runtime_error("AFE block " + std::to_string(afeBlock) + " is not enabled. Please enable it before configuration.");
-    }
-    std::string afeBlockStr = "AFE" + std::to_string(afeBlock) + "_MEZZ";
-    I2C_exp_mezz.writeSingleByte(I2C_drivers_defines::HDMezzExpanderEncoder.at(afeBlockStr)); // Configuration the switch to the specific AFE block
-    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
 }
 
-uint16_t I2CMezzDrivers::HDMezzDriver::readINA232Register(const uint8_t &afeBlock, const uint8_t &deviceAddress, const uint8_t &registerAddress){
-    this->selectAfeBlock(afeBlock);
-    I2CDevice INA232("/dev/i2c-2", deviceAddress);
+void I2CMezzDrivers::HDMezzDriver::validateRail(const std::string &rail) {
+    if (rail != "5V" && rail != "3V3") {
+        throw std::invalid_argument("Invalid rail name. Valid values are '5V' or '3V3'.");
+    }
+}
+
+I2CMezzDrivers::HDMezzDriver::RailCalibration
+I2CMezzDrivers::HDMezzDriver::calculateRailCalibration(
+    double rShunt,
+    double maxCurrentScale,
+    double maxCurrentShutdown,
+    double nominalVoltage) {
+    if (!std::isfinite(rShunt) || rShunt <= 0.0) {
+        throw std::invalid_argument("Rshunt must be finite and greater than zero");
+    }
+    if (!std::isfinite(maxCurrentScale) || maxCurrentScale <= 0.0) {
+        throw std::invalid_argument("Maximum current scale must be finite and greater than zero");
+    }
+    if (!std::isfinite(maxCurrentShutdown) || maxCurrentShutdown <= 0.0) {
+        throw std::invalid_argument("Maximum current shutdown must be finite and greater than zero");
+    }
+    if (maxCurrentShutdown > maxCurrentScale) {
+        throw std::invalid_argument("Maximum current shutdown cannot exceed the measurement scale");
+    }
+    if (maxCurrentScale * rShunt > kIna232ShuntPositiveFullScaleVolts) {
+        throw std::invalid_argument(
+            "Current scale and Rshunt exceed the positive INA232 shunt range");
+    }
+
+    const double currentLsb = maxCurrentScale / 32768.0;
+    const double shuntCalValue = 0.00512 / (currentLsb * rShunt);
+    if (!std::isfinite(shuntCalValue) || shuntCalValue < 1.0 || shuntCalValue > 0x7FFF) {
+        throw std::invalid_argument("INA232 shunt calibration value is outside 1..0x7FFF");
+    }
+
+    const double maxPower = maxCurrentShutdown * nominalVoltage;
+    const double alertLimitValue =
+        (maxCurrentShutdown * rShunt) / kIna232ShuntVoltageLsb;
+    if (!std::isfinite(alertLimitValue) || alertLimitValue < 1.0 ||
+        alertLimitValue > 0x7FFF) {
+        throw std::invalid_argument("INA232 shunt-overvoltage alert limit is outside 1..0x7FFF");
+    }
+    // Preserve exact integer thresholds (for example, 3072) that can land a
+    // few ulps below the integer when represented as binary floating point.
+    const double quantizedAlertLimit = std::floor(alertLimitValue + 1e-9);
+
+    return RailCalibration{
+        currentLsb,
+        static_cast<uint16_t>(shuntCalValue),
+        maxPower,
+        static_cast<uint16_t>(quantizedAlertLimit)
+    };
+}
+
+void I2CMezzDrivers::HDMezzDriver::configureCalibrationValuesUnlocked(){
+    for(std::size_t afeBlock = 0; afeBlock < kAfeBlockCount; ++afeBlock){
+        const auto rail5V = calculateRailCalibration(
+            r_shunt_5V[afeBlock], max_current_5V_scale[afeBlock],
+            max_current_5V_shutdown[afeBlock], 5.0);
+        const auto rail3V3 = calculateRailCalibration(
+            r_shunt_3V3[afeBlock], max_current_3V3_scale[afeBlock],
+            max_current_3V3_shutdown[afeBlock], 3.3);
+
+        current_lsb_5V[afeBlock] = rail5V.currentLsb;
+        shunt_cal_5V[afeBlock] = rail5V.shuntCal;
+        max_power_5V[afeBlock] = rail5V.maxPower;
+        alert_limit_5V[afeBlock] = rail5V.alertLimit;
+        current_lsb_3V3[afeBlock] = rail3V3.currentLsb;
+        shunt_cal_3V3[afeBlock] = rail3V3.shuntCal;
+        max_power_3V3[afeBlock] = rail3V3.maxPower;
+        alert_limit_3V3[afeBlock] = rail3V3.alertLimit;
+    }
+}
+
+void I2CMezzDrivers::HDMezzDriver::requireEnabledUnlocked(uint8_t afeBlock) const {
+    if (!enabled_afeBlocks[afeBlock]) {
+        throw std::runtime_error("AFE block " + std::to_string(afeBlock) + " is not enabled");
+    }
+}
+
+void I2CMezzDrivers::HDMezzDriver::requireConfiguredUnlocked(uint8_t afeBlock) const {
+    requireEnabledUnlocked(afeBlock);
+    if (!configured_afeBlocks[afeBlock]) {
+        throw std::runtime_error("AFE block " + std::to_string(afeBlock) + " is not configured");
+    }
+}
+
+void I2CMezzDrivers::HDMezzDriver::enableAfeBlock(uint8_t afeBlock, bool enable){
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    if (enable && enabled_afeBlocks[afeBlock]) {
+        return;
+    }
+
+    if (enable) {
+        // Force unknown/stale output state safe before doing any INA probing.
+        initializeTcaSafeUnlocked(afeBlock);
+        probeAfeBlockUnlocked(afeBlock);
+        configured_afeBlocks[afeBlock] = false;
+        enabled_afeBlocks[afeBlock] = true;
+        return;
+    }
+
+    initializeTcaSafeUnlocked(afeBlock);
+    configured_afeBlocks[afeBlock] = false;
+    enabled_afeBlocks[afeBlock] = false;
+}
+
+bool I2CMezzDrivers::HDMezzDriver::isAfeBlockEnabled(uint8_t afeBlock) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    return enabled_afeBlocks[afeBlock];
+}
+
+bool I2CMezzDrivers::HDMezzDriver::isAfeBlockConfigured(uint8_t afeBlock) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    return configured_afeBlocks[afeBlock];
+}
+
+void I2CMezzDrivers::HDMezzDriver::probeAfeBlock(uint8_t afeBlock) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    probeAfeBlockUnlocked(afeBlock);
+}
+
+void I2CMezzDrivers::HDMezzDriver::setRShunt(uint8_t afeBlock, double rShunt, const std::string &rail){
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    if(rail == "5V"){
+        const auto derived = calculateRailCalibration(
+            rShunt, max_current_5V_scale[afeBlock], max_current_5V_shutdown[afeBlock], 5.0);
+        if (enabled_afeBlocks[afeBlock]) {
+            setPowerRequestsUnlocked(afeBlock, false, false);
+        }
+        r_shunt_5V[afeBlock] = rShunt;
+        current_lsb_5V[afeBlock] = derived.currentLsb;
+        shunt_cal_5V[afeBlock] = derived.shuntCal;
+        max_power_5V[afeBlock] = derived.maxPower;
+        alert_limit_5V[afeBlock] = derived.alertLimit;
+    }
+    else {
+        const auto derived = calculateRailCalibration(
+            rShunt, max_current_3V3_scale[afeBlock], max_current_3V3_shutdown[afeBlock], 3.3);
+        if (enabled_afeBlocks[afeBlock]) {
+            setPowerRequestsUnlocked(afeBlock, false, false);
+        }
+        r_shunt_3V3[afeBlock] = rShunt;
+        current_lsb_3V3[afeBlock] = derived.currentLsb;
+        shunt_cal_3V3[afeBlock] = derived.shuntCal;
+        max_power_3V3[afeBlock] = derived.maxPower;
+        alert_limit_3V3[afeBlock] = derived.alertLimit;
+    }
+    configured_afeBlocks[afeBlock] = false;
+}
+
+void I2CMezzDrivers::HDMezzDriver::setMaxCurrentScale(uint8_t afeBlock, double maxCurrent, const std::string &rail){
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    if(rail == "5V"){
+        const auto derived = calculateRailCalibration(
+            r_shunt_5V[afeBlock], maxCurrent, max_current_5V_shutdown[afeBlock], 5.0);
+        if (enabled_afeBlocks[afeBlock]) {
+            setPowerRequestsUnlocked(afeBlock, false, false);
+        }
+        max_current_5V_scale[afeBlock] = maxCurrent;
+        current_lsb_5V[afeBlock] = derived.currentLsb;
+        shunt_cal_5V[afeBlock] = derived.shuntCal;
+        max_power_5V[afeBlock] = derived.maxPower;
+        alert_limit_5V[afeBlock] = derived.alertLimit;
+    }
+    else {
+        const auto derived = calculateRailCalibration(
+            r_shunt_3V3[afeBlock], maxCurrent, max_current_3V3_shutdown[afeBlock], 3.3);
+        if (enabled_afeBlocks[afeBlock]) {
+            setPowerRequestsUnlocked(afeBlock, false, false);
+        }
+        max_current_3V3_scale[afeBlock] = maxCurrent;
+        current_lsb_3V3[afeBlock] = derived.currentLsb;
+        shunt_cal_3V3[afeBlock] = derived.shuntCal;
+        max_power_3V3[afeBlock] = derived.maxPower;
+        alert_limit_3V3[afeBlock] = derived.alertLimit;
+    }
+    configured_afeBlocks[afeBlock] = false;
+}
+
+void I2CMezzDrivers::HDMezzDriver::setMaxCurrentShutdown(uint8_t afeBlock, double maxCurrent, const std::string &rail){
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    if(rail == "5V"){
+        const auto derived = calculateRailCalibration(
+            r_shunt_5V[afeBlock], max_current_5V_scale[afeBlock], maxCurrent, 5.0);
+        if (enabled_afeBlocks[afeBlock]) {
+            setPowerRequestsUnlocked(afeBlock, false, false);
+        }
+        max_current_5V_shutdown[afeBlock] = maxCurrent;
+        current_lsb_5V[afeBlock] = derived.currentLsb;
+        shunt_cal_5V[afeBlock] = derived.shuntCal;
+        max_power_5V[afeBlock] = derived.maxPower;
+        alert_limit_5V[afeBlock] = derived.alertLimit;
+    }
+    else {
+        const auto derived = calculateRailCalibration(
+            r_shunt_3V3[afeBlock], max_current_3V3_scale[afeBlock], maxCurrent, 3.3);
+        if (enabled_afeBlocks[afeBlock]) {
+            setPowerRequestsUnlocked(afeBlock, false, false);
+        }
+        max_current_3V3_shutdown[afeBlock] = maxCurrent;
+        current_lsb_3V3[afeBlock] = derived.currentLsb;
+        shunt_cal_3V3[afeBlock] = derived.shuntCal;
+        max_power_3V3[afeBlock] = derived.maxPower;
+        alert_limit_3V3[afeBlock] = derived.alertLimit;
+    }
+    configured_afeBlocks[afeBlock] = false;
+}
+
+double I2CMezzDrivers::HDMezzDriver::getRShunt(uint8_t afeBlock, const std::string &rail) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    if(rail == "5V"){
+        return r_shunt_5V[afeBlock];
+    }
+    return r_shunt_3V3[afeBlock];
+}
+
+double I2CMezzDrivers::HDMezzDriver::getMaxCurrentScale(uint8_t afeBlock, const std::string &rail) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    if(rail == "5V"){
+        return max_current_5V_scale[afeBlock];
+    }
+    return max_current_3V3_scale[afeBlock];
+}
+
+double I2CMezzDrivers::HDMezzDriver::getMaxCurrentShutdown(uint8_t afeBlock, const std::string &rail) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    if(rail == "5V"){
+        return max_current_5V_shutdown[afeBlock];
+    }
+    return max_current_3V3_shutdown[afeBlock];
+}
+
+double I2CMezzDrivers::HDMezzDriver::getMaxPower(uint8_t afeBlock, const std::string &rail) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    if(rail == "5V"){
+        return max_power_5V[afeBlock];
+    }
+    return max_power_3V3[afeBlock];
+}
+
+double I2CMezzDrivers::HDMezzDriver::getCurrentLsb(uint8_t afeBlock, const std::string &rail) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    if(rail == "5V"){
+        return current_lsb_5V[afeBlock];
+    }
+    return current_lsb_3V3[afeBlock];
+}
+
+uint16_t I2CMezzDrivers::HDMezzDriver::getShuntCal(uint8_t afeBlock, const std::string &rail) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    if(rail == "5V"){
+        return shunt_cal_5V[afeBlock];
+    }
+    return shunt_cal_3V3[afeBlock];
+}
+
+void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(uint8_t afeBlock){
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    requireEnabledUnlocked(afeBlock);
+    configured_afeBlocks[afeBlock] = false;
+
+    initializeTcaSafeUnlocked(afeBlock);
+    probeAfeBlockUnlocked(afeBlock);
+
+    const uint8_t address5V = I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR");
+    const uint8_t address3V3 = I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR");
+    const uint8_t configRegister = I2C_drivers_defines::HDMezzAddressMap.at("INA232_CONF_REG");
+    const uint8_t calibrationRegister = I2C_drivers_defines::HDMezzAddressMap.at("INA232_CALIBRATION_REG");
+    const uint8_t maskRegister = I2C_drivers_defines::HDMezzAddressMap.at("INA232_MASK_ENABLE_REG");
+    const uint8_t limitRegister = I2C_drivers_defines::HDMezzAddressMap.at("INA232_ALERT_LIMIT_REG");
+
+    const auto configureIna = [this, afeBlock, configRegister, calibrationRegister,
+                               maskRegister, limitRegister](uint8_t address,
+                                                           uint16_t shuntCal,
+                                                           uint16_t alertLimit) {
+        writeINA232RegisterVerifiedUnlocked(afeBlock, address, configRegister,
+                                            kIna232DefaultConfiguration,
+                                            kIna232ConfigurationWritableBits);
+        writeINA232RegisterVerifiedUnlocked(afeBlock, address, calibrationRegister,
+                                            shuntCal, 0x7FFF);
+        writeINA232RegisterVerifiedUnlocked(afeBlock, address, limitRegister,
+                                            alertLimit);
+        writeINA232RegisterVerifiedUnlocked(afeBlock, address, maskRegister,
+                                            kIna232OverCurrentAlertConfiguration,
+                                            kIna232MaskWritableBits);
+    };
+
+    configureIna(address5V, shunt_cal_5V[afeBlock], alert_limit_5V[afeBlock]);
+    configureIna(address3V3, shunt_cal_3V3[afeBlock], alert_limit_3V3[afeBlock]);
+    configured_afeBlocks[afeBlock] = true;
+}
+
+void I2CMezzDrivers::HDMezzDriver::setPowerRequests(
+    uint8_t afeBlock, bool power5V, bool power3V3) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    setPowerRequestsUnlocked(afeBlock, power5V, power3V3);
+}
+
+I2CMezzDrivers::HDMezzDriver::PowerRequests
+I2CMezzDrivers::HDMezzDriver::readPowerRequests(uint8_t afeBlock) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    return readPowerRequestsUnlocked(afeBlock);
+}
+
+void I2CMezzDrivers::HDMezzDriver::powerOn_HDMezzAfeBlock(
+    uint8_t afeBlock, bool powerOn, const std::string &rail){
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    const auto current = readPowerRequestsUnlocked(afeBlock);
+    if (rail == "5V") {
+        setPowerRequestsUnlocked(afeBlock, powerOn, current.power3V3);
+    } else {
+        setPowerRequestsUnlocked(afeBlock, current.power5V, powerOn);
+    }
+}
+
+bool I2CMezzDrivers::HDMezzDriver::isPowerOn(uint8_t afeBlock, const std::string &rail){
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    const auto state = readPowerRequestsUnlocked(afeBlock);
+    return rail == "5V" ? state.power5V : state.power3V3;
+}
+
+double I2CMezzDrivers::HDMezzDriver::readRailVoltage(uint8_t afeBlock, const std::string &rail){
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    requireConfiguredUnlocked(afeBlock);
+    const uint8_t address = I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR");
+    const uint16_t raw = readINA232FunctionUnlocked(afeBlock, address, "VBUS");
+    return static_cast<double>(raw) * 1.6e-3; // V
+}
+
+double I2CMezzDrivers::HDMezzDriver::readRailCurrent(uint8_t afeBlock, const std::string &rail){
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    requireConfiguredUnlocked(afeBlock);
+    const uint8_t address = I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR");
+    const uint16_t raw = readINA232FunctionUnlocked(afeBlock, address, "CURRENT");
+    const int32_t signedRaw = (raw & 0x8000u) != 0
+        ? static_cast<int32_t>(raw) - 0x10000
+        : static_cast<int32_t>(raw);
+    const double currentLsb = rail == "5V" ? current_lsb_5V[afeBlock]
+                                             : current_lsb_3V3[afeBlock];
+    return static_cast<double>(signedRaw) * currentLsb * 1000.0; // mA
+}
+
+double I2CMezzDrivers::HDMezzDriver::readRailPower(uint8_t afeBlock, const std::string &rail){
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    requireConfiguredUnlocked(afeBlock);
+    const uint8_t address = I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR");
+    const uint16_t raw = readINA232FunctionUnlocked(afeBlock, address, "POWER");
+    const double currentLsb = rail == "5V" ? current_lsb_5V[afeBlock]
+                                             : current_lsb_3V3[afeBlock];
+    return 32.0 * static_cast<double>(raw) * currentLsb * 1000.0; // mW
+}
+
+bool I2CMezzDrivers::HDMezzDriver::checkAlertStatus(uint8_t afeBlock, const std::string &rail){
+    std::lock_guard<std::mutex> lock(mutex_);
+    validateAfeBlock(afeBlock);
+    validateRail(rail);
+    requireConfiguredUnlocked(afeBlock);
+    const uint8_t address = I2C_drivers_defines::HDMezzAddressMap.at("INA232_" + rail + "_ADDR");
+    const bool alert = readINA232FunctionUnlocked(afeBlock, address, "AFF") != 0;
+    if (alert) {
+        // Reading MASK/ENABLE clears a latched AFF. Remove both software rail
+        // requests immediately so that clearing the latch cannot re-energize
+        // the hardware-gated enable path while the monitor reacts.
+        setPowerRequestsUnlocked(afeBlock, false, false);
+    }
+    return alert;
+}
+
+void I2CMezzDrivers::HDMezzDriver::selectAfeBlockUnlocked(uint8_t afeBlock){
+    validateAfeBlock(afeBlock);
+    const std::string key = "AFE" + std::to_string(afeBlock) + "_MEZZ";
+    mux_->writeSingleByte(I2C_drivers_defines::HDMezzExpanderEncoder.at(key));
+}
+
+I2CRegisterDevice& I2CMezzDrivers::HDMezzDriver::inaDeviceUnlocked(uint8_t deviceAddress) {
+    if (deviceAddress == I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR")) {
+        return *ina_5V_;
+    }
+    if (deviceAddress == I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR")) {
+        return *ina_3V3_;
+    }
+    throw std::invalid_argument("Unsupported INA232 address " + hexValue(deviceAddress, 2));
+}
+
+uint16_t I2CMezzDrivers::HDMezzDriver::readINA232RegisterUnlocked(
+    uint8_t afeBlock, uint8_t deviceAddress, uint8_t registerAddress){
+    selectAfeBlockUnlocked(afeBlock);
     std::vector<uint8_t> register_bytes;
-    INA232.readBytes(registerAddress, register_bytes, 2);
+    inaDeviceUnlocked(deviceAddress).readBytes(registerAddress, register_bytes, 2);
+    if (register_bytes.size() != 2) {
+        throw std::runtime_error("INA232 read returned an invalid byte count");
+    }
     return (static_cast<uint16_t>(register_bytes[0]) << 8) | static_cast<uint16_t>(register_bytes[1]);
 }
 
-void I2CMezzDrivers::HDMezzDriver::writeINA232Register(const uint8_t &afeBlock, const uint8_t &deviceAddress, const uint8_t &registerAddress, const uint16_t &value){
-    this->selectAfeBlock(afeBlock);
-    I2CDevice INA232("/dev/i2c-2", deviceAddress);
-    std::vector<uint8_t> register_bytes(2);
-    register_bytes[0] = (value >> 8) & 0xFF;
-    register_bytes[1] = value & 0xFF;
-    INA232.writeBytes(registerAddress, register_bytes);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
+void I2CMezzDrivers::HDMezzDriver::writeINA232RegisterVerifiedUnlocked(
+    uint8_t afeBlock,
+    uint8_t deviceAddress,
+    uint8_t registerAddress,
+    uint16_t value,
+    uint16_t verificationMask){
+    selectAfeBlockUnlocked(afeBlock);
+    const std::vector<uint8_t> registerBytes = {
+        static_cast<uint8_t>((value >> 8) & 0xFF),
+        static_cast<uint8_t>(value & 0xFF)
+    };
+    inaDeviceUnlocked(deviceAddress).writeBytes(registerAddress, registerBytes);
+    const uint16_t readback =
+        readINA232RegisterUnlocked(afeBlock, deviceAddress, registerAddress);
+    if ((readback & verificationMask) != (value & verificationMask)) {
+        std::ostringstream os;
+        os << "INA232 verification failed for AFE block " << static_cast<unsigned>(afeBlock)
+           << ", address " << hexValue(deviceAddress, 2)
+           << ", register " << hexValue(registerAddress, 2)
+           << ": expected " << hexValue(value, 4)
+           << ", read " << hexValue(readback, 4)
+           << ", mask " << hexValue(verificationMask, 4);
+        throw std::runtime_error(os.str());
+    }
 }
 
-uint16_t I2CMezzDrivers::HDMezzDriver::readINA232Function(const uint8_t &afeBlock, const uint8_t &deviceAddress, const std::string &functionName){
+uint16_t I2CMezzDrivers::HDMezzDriver::readINA232FunctionUnlocked(
+    uint8_t afeBlock, uint8_t deviceAddress, const std::string &functionName){
     const auto it = I2C_drivers_defines::INA232FunctionDict.find(functionName);
     if(it == I2C_drivers_defines::INA232FunctionDict.end()){
         throw std::invalid_argument("Invalid INA232 function name: " + functionName);
     }
     
-    const auto& bit_field = it->second;
-	const auto& registerAddr = bit_field.begin()->first;
-	const auto& msb_pos = bit_field.begin()->second.first;
-	const auto& lsb_pos = bit_field.begin()->second.second;
-    uint16_t register_value = this->readINA232Register(afeBlock, deviceAddress, registerAddr);
-    uint16_t function_value = (register_value >> lsb_pos) & ((1 << (msb_pos - lsb_pos + 1)) - 1);
-    return function_value;
+    const auto& bitField = it->second;
+    const uint8_t registerAddr = bitField.begin()->first;
+    const uint8_t msbPos = bitField.begin()->second.first;
+    const uint8_t lsbPos = bitField.begin()->second.second;
+    const unsigned width = msbPos - lsbPos + 1;
+    const uint16_t fieldMask = width == 16 ? 0xFFFF
+                                           : static_cast<uint16_t>((1u << width) - 1u);
+    const uint16_t registerValue =
+        readINA232RegisterUnlocked(afeBlock, deviceAddress, registerAddr);
+    return static_cast<uint16_t>((registerValue >> lsbPos) & fieldMask);
 }
 
-void I2CMezzDrivers::HDMezzDriver::writeINA232Function(const uint8_t &afeBlock, const uint8_t &deviceAddress, const std::string &functionName, const uint16_t &value){
+void I2CMezzDrivers::HDMezzDriver::writeINA232FunctionUnlocked(
+    uint8_t afeBlock, uint8_t deviceAddress, const std::string &functionName, uint16_t value){
     const auto it = I2C_drivers_defines::INA232FunctionDict.find(functionName);
     if(it == I2C_drivers_defines::INA232FunctionDict.end()){
         throw std::invalid_argument("Invalid INA232 function name: " + functionName);
     }
     
-    const auto& bit_field = it->second;
-    const auto& registerAddr = bit_field.begin()->first;
-    const auto& msb_pos = bit_field.begin()->second.first;
-    const auto& lsb_pos = bit_field.begin()->second.second;
+    const auto& bitField = it->second;
+    const uint8_t registerAddr = bitField.begin()->first;
+    const uint8_t msbPos = bitField.begin()->second.first;
+    const uint8_t lsbPos = bitField.begin()->second.second;
+    const unsigned width = msbPos - lsbPos + 1;
+    const uint32_t fieldMax = width == 16 ? 0xFFFFu : ((1u << width) - 1u);
+    if (value > fieldMax) {
+        throw std::invalid_argument("Value does not fit INA232 function " + functionName);
+    }
 
-    uint16_t register_value = this->readINA232Register(afeBlock, deviceAddress, registerAddr);
-    uint16_t mask = ((1 << (msb_pos - lsb_pos + 1)) - 1) << lsb_pos;
-    register_value = (register_value & ~mask) | ((value << lsb_pos) & mask);
-    this->writeINA232Register(afeBlock, deviceAddress, registerAddr, register_value);
-    // readback and confirm the value was written correctly with the register value
-    uint16_t readback_register_value = this->readINA232Register(afeBlock, deviceAddress, registerAddr);
-    if(readback_register_value != register_value){
-        std::ostringstream oss;
-        oss << "Failed to write value to INA232 function " << functionName << " in AFE block "
-        << static_cast<int>(afeBlock)
-        << ", register 0x" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(registerAddr)
-        << ". Expected Register Value: 0x" << std::setw(4) << static_cast<int>(register_value)
-        << ", Readback Register Value: 0x" << std::setw(4) << static_cast<int>(readback_register_value);
-        throw std::runtime_error(oss.str());
+    const uint16_t mask = static_cast<uint16_t>(fieldMax << lsbPos);
+    uint16_t registerValue =
+        readINA232RegisterUnlocked(afeBlock, deviceAddress, registerAddr);
+    registerValue = static_cast<uint16_t>(
+        (registerValue & ~mask) | ((value << lsbPos) & mask));
+    writeINA232RegisterVerifiedUnlocked(
+        afeBlock, deviceAddress, registerAddr, registerValue, mask);
+}
+
+uint8_t I2CMezzDrivers::HDMezzDriver::readTCA9536RegisterUnlocked(
+    uint8_t afeBlock, uint8_t registerAddress){
+    selectAfeBlockUnlocked(afeBlock);
+    uint8_t registerValue = 0;
+    tca9536_->readByte(registerAddress, registerValue);
+    return registerValue;
+}
+
+void I2CMezzDrivers::HDMezzDriver::writeTCA9536RegisterVerifiedUnlocked(
+    uint8_t afeBlock,
+    uint8_t registerAddress,
+    uint8_t value,
+    uint8_t verificationMask){
+    selectAfeBlockUnlocked(afeBlock);
+    tca9536_->writeByte(registerAddress, value);
+    const uint8_t readback = readTCA9536RegisterUnlocked(afeBlock, registerAddress);
+    if ((readback & verificationMask) != (value & verificationMask)) {
+        std::ostringstream os;
+        os << "TCA9536 verification failed for AFE block " << static_cast<unsigned>(afeBlock)
+           << ", register " << hexValue(registerAddress, 2)
+           << ": expected " << hexValue(value, 2)
+           << ", read " << hexValue(readback, 2)
+           << ", mask " << hexValue(verificationMask, 2);
+        throw std::runtime_error(os.str());
     }
 }
 
-uint16_t I2CMezzDrivers::HDMezzDriver::readTCA9536Register(const uint8_t &afeBlock, const uint8_t &registerAddress){
-    this->selectAfeBlock(afeBlock);
-    I2CDevice TCA9536("/dev/i2c-2", I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_ADDR"));
-    uint8_t register_value;
-    TCA9536.readByte(registerAddress, register_value);
-    return register_value;
+void I2CMezzDrivers::HDMezzDriver::probeAfeBlockUnlocked(uint8_t afeBlock) {
+    validateAfeBlock(afeBlock);
+    (void)readTCA9536RegisterUnlocked(
+        afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_OUTPUT_PORT_REG"));
+    (void)readTCA9536RegisterUnlocked(
+        afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_CONF_REG"));
+
+    const uint8_t manufacturerRegister =
+        I2C_drivers_defines::HDMezzAddressMap.at("INA232_MANUFACTURER_ID_REG");
+    const uint8_t address5V = I2C_drivers_defines::HDMezzAddressMap.at("INA232_5V_ADDR");
+    const uint8_t address3V3 = I2C_drivers_defines::HDMezzAddressMap.at("INA232_3V3_ADDR");
+    const uint16_t id5V =
+        readINA232RegisterUnlocked(afeBlock, address5V, manufacturerRegister);
+    const uint16_t id3V3 =
+        readINA232RegisterUnlocked(afeBlock, address3V3, manufacturerRegister);
+    if (id5V != kIna232ManufacturerId || id3V3 != kIna232ManufacturerId) {
+        std::ostringstream os;
+        os << "HD mezzanine probe failed for AFE block " << static_cast<unsigned>(afeBlock)
+           << ": expected INA232 manufacturer ID " << hexValue(kIna232ManufacturerId, 4)
+           << ", read 5V=" << hexValue(id5V, 4)
+           << ", 3V3/CE=" << hexValue(id3V3, 4);
+        throw std::runtime_error(os.str());
+    }
 }
 
-void I2CMezzDrivers::HDMezzDriver::writeTCA9536Register(const uint8_t &afeBlock, const uint8_t &registerAddress, const uint8_t &value){
-    this->selectAfeBlock(afeBlock);
-    I2CDevice TCA9536("/dev/i2c-2", I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_ADDR"));
-    TCA9536.writeByte(registerAddress, value);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10)); // wait 10ms
-    // readback and confirm the value was written correctly
-    uint8_t readback_value;
-    TCA9536.readByte(registerAddress, readback_value);
-    if(readback_value != value){
-        std::ostringstream oss;
-        oss << "Failed to write value to TCA9536 register in AFE block "
-        << static_cast<int>(afeBlock)
-        << ", register 0x" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << static_cast<int>(registerAddress)
-        << ". Expected: 0x" << std::setw(2) << static_cast<int>(value)
-        << ", Readback: 0x" << std::setw(2) << static_cast<int>(readback_value);
-        throw std::runtime_error(oss.str());
+void I2CMezzDrivers::HDMezzDriver::initializeTcaSafeUnlocked(uint8_t afeBlock) {
+    const uint8_t outputRegister =
+        I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_OUTPUT_PORT_REG");
+    const uint8_t configRegister =
+        I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_CONF_REG");
+    const uint8_t oldOutput = readTCA9536RegisterUnlocked(afeBlock, outputRegister);
+    const uint8_t safeOutput = static_cast<uint8_t>(oldOutput & ~0x03u);
+
+    // Preload both rail request latches low before P0/P1 become outputs.
+    writeTCA9536RegisterVerifiedUnlocked(afeBlock, outputRegister, safeOutput, 0x03);
+    // P0/P1 are rail-request outputs; P2/P3 remain inputs. Upper bits are reserved.
+    writeTCA9536RegisterVerifiedUnlocked(afeBlock, configRegister, 0xFC, 0x0F);
+}
+
+I2CMezzDrivers::HDMezzDriver::PowerRequests
+I2CMezzDrivers::HDMezzDriver::readPowerRequestsUnlocked(uint8_t afeBlock) {
+    requireEnabledUnlocked(afeBlock);
+    const uint8_t output = readTCA9536RegisterUnlocked(
+        afeBlock, I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_OUTPUT_PORT_REG"));
+    return PowerRequests{(output & 0x01u) != 0, (output & 0x02u) != 0, output};
+}
+
+void I2CMezzDrivers::HDMezzDriver::setPowerRequestsUnlocked(
+    uint8_t afeBlock, bool power5V, bool power3V3) {
+    requireEnabledUnlocked(afeBlock);
+    if (power5V || power3V3) {
+        requireConfiguredUnlocked(afeBlock);
     }
+
+    const uint8_t outputRegister =
+        I2C_drivers_defines::HDMezzAddressMap.at("TCA9536_OUTPUT_PORT_REG");
+    const uint8_t oldOutput = readTCA9536RegisterUnlocked(afeBlock, outputRegister);
+    const uint8_t requestedBits = static_cast<uint8_t>((power5V ? 0x01u : 0u) |
+                                                        (power3V3 ? 0x02u : 0u));
+    const uint8_t newOutput =
+        static_cast<uint8_t>((oldOutput & ~0x03u) | requestedBits);
+    if (newOutput == oldOutput) {
+        return;
+    }
+    writeTCA9536RegisterVerifiedUnlocked(afeBlock, outputRegister, newOutput, 0x03);
+    delay_(std::chrono::milliseconds(10));
 }
 
 I2CRegulatorsDrivers::PJT004A0X43_SRZ_Driver::PJT004A0X43_SRZ_Driver():

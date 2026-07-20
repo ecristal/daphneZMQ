@@ -1,8 +1,12 @@
 #ifndef DaphneI2CDrivers_HPP
 #define DaphneI2CDrivers_HPP
 
+#include <array>
 #include <thread>
 #include <chrono>
+#include <functional>
+#include <memory>
+#include <mutex>
 #include <sstream>
 #include <iomanip>
 
@@ -13,36 +17,65 @@
 namespace I2CMezzDrivers{
     class HDMezzDriver {
     public:
+        struct PowerRequests {
+            bool power5V;
+            bool power3V3; // Kept for protocol compatibility; the schematic names this rail CE.
+            uint8_t outputPort;
+        };
+
+        using DeviceFactory = std::function<std::unique_ptr<I2CRegisterDevice>(const std::string&, uint8_t)>;
+        using DelayFunction = std::function<void(std::chrono::milliseconds)>;
+
         HDMezzDriver();
-        ~HDMezzDriver();
+        HDMezzDriver(std::string devicePath, DeviceFactory deviceFactory, DelayFunction delayFunction);
+        ~HDMezzDriver() = default;
 
-        void enableAfeBlock(const uint8_t &afeBlock, const bool &enable);
-        bool isAfeBlockEnabled(const uint8_t &afeBlock);
-        void setRShunt(const uint8_t &afeBlock, const double &rShunt, const std::string &rail);
-        void setMaxCurrentScale(const uint8_t &afeBlock, const double &maxCurrent, const std::string &rail);
-        void setMaxCurrentShutdown(const uint8_t &afeBlock, const double &maxCurrent, const std::string &rail);
-        double getRShunt(const uint8_t &afeBlock, const std::string &rail);
-        double getMaxCurrentScale(const uint8_t &afeBlock, const std::string &rail);
-        double getMaxCurrentShutdown(const uint8_t &afeBlock, const std::string &rail);
-        double getMaxPower(const uint8_t &afeBlock, const std::string &rail);
-        double getCurrentLsb(const uint8_t &afeBlock, const std::string &rail);
-        uint16_t getShuntCal(const uint8_t &afeBlock, const std::string &rail);
+        HDMezzDriver(const HDMezzDriver&) = delete;
+        HDMezzDriver& operator=(const HDMezzDriver&) = delete;
 
-        void configureHdMezzAfeBlock(const uint8_t &afeBlock);
-        void powerOn_HDMezzAfeBlock(const uint8_t &afeBlock, const bool &powerOn, const std::string &rail);
-        bool isPowerOn(const uint8_t &afeBlock, const std::string &rail);
+        void enableAfeBlock(uint8_t afeBlock, bool enable);
+        bool isAfeBlockEnabled(uint8_t afeBlock) const;
+        bool isAfeBlockConfigured(uint8_t afeBlock) const;
+        void probeAfeBlock(uint8_t afeBlock);
+        void setRShunt(uint8_t afeBlock, double rShunt, const std::string &rail);
+        void setMaxCurrentScale(uint8_t afeBlock, double maxCurrent, const std::string &rail);
+        void setMaxCurrentShutdown(uint8_t afeBlock, double maxCurrent, const std::string &rail);
+        double getRShunt(uint8_t afeBlock, const std::string &rail) const;
+        double getMaxCurrentScale(uint8_t afeBlock, const std::string &rail) const;
+        double getMaxCurrentShutdown(uint8_t afeBlock, const std::string &rail) const;
+        double getMaxPower(uint8_t afeBlock, const std::string &rail) const;
+        double getCurrentLsb(uint8_t afeBlock, const std::string &rail) const;
+        uint16_t getShuntCal(uint8_t afeBlock, const std::string &rail) const;
 
-        double readRailVoltage(const uint8_t &afeBlock, const std::string &rail);
-        double readRailCurrent(const uint8_t &afeBlock, const std::string &rail);
-        double readRailPower(const uint8_t &afeBlock, const std::string &rail);
-        bool checkAlertStatus(const uint8_t &afeBlock, const std::string &rail);
+        void configureHdMezzAfeBlock(uint8_t afeBlock);
+        void setPowerRequests(uint8_t afeBlock, bool power5V, bool power3V3);
+        PowerRequests readPowerRequests(uint8_t afeBlock);
+        void powerOn_HDMezzAfeBlock(uint8_t afeBlock, bool powerOn, const std::string &rail);
+        bool isPowerOn(uint8_t afeBlock, const std::string &rail);
+
+        double readRailVoltage(uint8_t afeBlock, const std::string &rail);
+        double readRailCurrent(uint8_t afeBlock, const std::string &rail);
+        double readRailPower(uint8_t afeBlock, const std::string &rail);
+        bool checkAlertStatus(uint8_t afeBlock, const std::string &rail);
         
 
     private:
 
-        I2CDevice I2C_exp_mezz; // Get the adress from defines.hpp
-        bool powerStatus5V = true;
-        bool powerStatus3V3 = true;
+        struct RailCalibration {
+            double currentLsb;
+            uint16_t shuntCal;
+            double maxPower;
+            uint16_t alertLimit;
+        };
+
+        std::string device_path_;
+        DeviceFactory device_factory_;
+        DelayFunction delay_;
+        std::unique_ptr<I2CRegisterDevice> mux_;
+        std::unique_ptr<I2CRegisterDevice> ina_5V_;
+        std::unique_ptr<I2CRegisterDevice> ina_3V3_;
+        std::unique_ptr<I2CRegisterDevice> tca9536_;
+        mutable std::mutex mutex_;
 
         std::vector<double> r_shunt_5V = {36e-3, 36e-3, 36e-3, 36e-3, 36e-3}; // Ohm
         std::vector<double> r_shunt_3V3 = {0.3, 0.3, 0.3, 0.3, 0.3}; // Ohm
@@ -56,19 +89,38 @@ namespace I2CMezzDrivers{
         std::vector<double> current_lsb_3V3 = {0.0, 0.0, 0.0, 0.0, 0.0};
         std::vector<uint16_t> shunt_cal_5V = {0, 0, 0, 0, 0};
         std::vector<uint16_t> shunt_cal_3V3 = {0, 0, 0, 0, 0};
+        std::vector<uint16_t> alert_limit_5V = {0, 0, 0, 0, 0};
+        std::vector<uint16_t> alert_limit_3V3 = {0, 0, 0, 0, 0};
         
         std::vector<bool> enabled_afeBlocks = {false, false, false, false, false}; // to keep track of which AFE blocks are populated with HDMezz's
+        std::vector<bool> configured_afeBlocks = {false, false, false, false, false};
 
-        void configureCalibrationValues();
-        uint16_t readINA232Register(const uint8_t &afeBlock, const uint8_t &deviceAddress, const uint8_t &registerAddress);
-        uint16_t readINA232Function(const uint8_t &afeblock, const uint8_t &deviceAddress, const std::string &functionName);
-        void writeINA232Register(const uint8_t &afeBlock, const uint8_t &deviceAddress, const uint8_t &registerAddress, const uint16_t &value);
-        void writeINA232Function(const uint8_t &afeBlock, const uint8_t &deviceAddress, const std::string &functionName, const uint16_t &value);
+        static void validateAfeBlock(uint8_t afeBlock);
+        static void validateRail(const std::string &rail);
+        static RailCalibration calculateRailCalibration(double rShunt, double maxCurrentScale,
+                                                         double maxCurrentShutdown, double nominalVoltage);
+        void configureCalibrationValuesUnlocked();
+        void requireEnabledUnlocked(uint8_t afeBlock) const;
+        void requireConfiguredUnlocked(uint8_t afeBlock) const;
+        void probeAfeBlockUnlocked(uint8_t afeBlock);
+        void initializeTcaSafeUnlocked(uint8_t afeBlock);
 
-        uint16_t readTCA9536Register(const uint8_t &afeBlock, const uint8_t &registerAddress);
-        void writeTCA9536Register(const uint8_t &afeBlock, const uint8_t &registerAddress, const uint8_t &value);
+        I2CRegisterDevice& inaDeviceUnlocked(uint8_t deviceAddress);
+        uint16_t readINA232RegisterUnlocked(uint8_t afeBlock, uint8_t deviceAddress, uint8_t registerAddress);
+        uint16_t readINA232FunctionUnlocked(uint8_t afeBlock, uint8_t deviceAddress, const std::string &functionName);
+        void writeINA232RegisterVerifiedUnlocked(uint8_t afeBlock, uint8_t deviceAddress,
+                                                  uint8_t registerAddress, uint16_t value,
+                                                  uint16_t verificationMask = 0xFFFF);
+        void writeINA232FunctionUnlocked(uint8_t afeBlock, uint8_t deviceAddress,
+                                         const std::string &functionName, uint16_t value);
+
+        uint8_t readTCA9536RegisterUnlocked(uint8_t afeBlock, uint8_t registerAddress);
+        void writeTCA9536RegisterVerifiedUnlocked(uint8_t afeBlock, uint8_t registerAddress,
+                                                   uint8_t value, uint8_t verificationMask = 0xFF);
+        PowerRequests readPowerRequestsUnlocked(uint8_t afeBlock);
+        void setPowerRequestsUnlocked(uint8_t afeBlock, bool power5V, bool power3V3);
         
-        void selectAfeBlock(const uint8_t &afeBlock);
+        void selectAfeBlockUnlocked(uint8_t afeBlock);
 
     };
 }
