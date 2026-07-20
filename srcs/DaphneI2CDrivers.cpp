@@ -355,6 +355,10 @@ void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(uint8_t afeBlock){
     std::lock_guard<std::mutex> lock(mutex_);
     validateAfeBlock(afeBlock);
     requireEnabledUnlocked(afeBlock);
+    configureHdMezzAfeBlockUnlocked(afeBlock);
+}
+
+void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlockUnlocked(uint8_t afeBlock){
     configured_afeBlocks[afeBlock] = false;
 
     initializeTcaSafeUnlocked(afeBlock);
@@ -401,9 +405,8 @@ void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(uint8_t afeBlock, con
     max_current_5V_shutdown[afeBlock]=c.maxCurrentShutdown5V; max_current_3V3_shutdown[afeBlock]=c.maxCurrentShutdown3V3;
     current_lsb_5V[afeBlock]=rail5V.currentLsb; shunt_cal_5V[afeBlock]=rail5V.shuntCal; max_power_5V[afeBlock]=rail5V.maxPower; alert_limit_5V[afeBlock]=rail5V.alertLimit;
     current_lsb_3V3[afeBlock]=rail3V3.currentLsb; shunt_cal_3V3[afeBlock]=rail3V3.shuntCal; max_power_3V3[afeBlock]=rail3V3.maxPower; alert_limit_3V3[afeBlock]=rail3V3.alertLimit;
-    lock.unlock();
-    try { configureHdMezzAfeBlock(afeBlock); }
-    catch (...) { lock.lock(); r_shunt_5V[afeBlock]=old.rShunt5V; r_shunt_3V3[afeBlock]=old.rShunt3V3; max_current_5V_scale[afeBlock]=old.maxCurrentScale5V; max_current_3V3_scale[afeBlock]=old.maxCurrentScale3V3; max_current_5V_shutdown[afeBlock]=old.maxCurrentShutdown5V; max_current_3V3_shutdown[afeBlock]=old.maxCurrentShutdown3V3; configureCalibrationValuesUnlocked(); configured_afeBlocks[afeBlock]=false; throw; }
+    try { configureHdMezzAfeBlockUnlocked(afeBlock); }
+    catch (...) { r_shunt_5V[afeBlock]=old.rShunt5V; r_shunt_3V3[afeBlock]=old.rShunt3V3; max_current_5V_scale[afeBlock]=old.maxCurrentScale5V; max_current_3V3_scale[afeBlock]=old.maxCurrentScale3V3; max_current_5V_shutdown[afeBlock]=old.maxCurrentShutdown5V; max_current_3V3_shutdown[afeBlock]=old.maxCurrentShutdown3V3; configureCalibrationValuesUnlocked(); configured_afeBlocks[afeBlock]=false; throw; }
 }
 
 void I2CMezzDrivers::HDMezzDriver::setPowerRequests(

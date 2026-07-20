@@ -378,6 +378,30 @@ void testWritableReadbackMismatchFailsConfiguration() {
           "failed readback left the block configured");
 }
 
+void testTransactionalConfigurationRestoresStateAfterProgrammingFailure() {
+    auto rig = makeRig();
+    enableAndConfigure(rig, 1);
+    rig.driver->setPowerRequests(1, true, true);
+    const auto oldRshunt = rig.driver->getRShunt(1, "5V");
+    const auto oldScale = rig.driver->getMaxCurrentScale(1, "5V");
+    const auto oldShutdown = rig.driver->getMaxCurrentShutdown(1, "5V");
+    { std::lock_guard<std::mutex> lock(rig.state->mutex); rig.state->corruptMaskWritableBit = true; }
+    expectThrows([&] { rig.driver->configureHdMezzAfeBlock(1, {
+        0.030, 0.25, 0.180, 0.180, 0.100, 0.009}); },
+        "transactional configuration accepted a late verification failure");
+    checkNear(rig.driver->getRShunt(1, "5V"), oldRshunt, 1e-12,
+              "failed transaction changed stored 5V shunt resistance");
+    checkNear(rig.driver->getMaxCurrentScale(1, "5V"), oldScale, 1e-12,
+              "failed transaction changed stored 5V current scale");
+    checkNear(rig.driver->getMaxCurrentShutdown(1, "5V"), oldShutdown, 1e-12,
+              "failed transaction changed stored 5V shutdown limit");
+    check(!rig.driver->isAfeBlockConfigured(1),
+          "failed transaction left block configured");
+    const auto requests = rig.driver->readPowerRequests(1);
+    check(!requests.power5V && !requests.power3V3,
+          "failed transaction left a rail request asserted");
+}
+
 void testConfigurationForcesRailsOffBeforeInaWrites() {
     auto rig = makeRig();
     rig.driver->enableAfeBlock(2, true);
@@ -590,6 +614,7 @@ int main() {
     run("probe identity failure after safe-off", testProbeRejectsWrongIdentityAfterSafeOff);
     run("default configuration and byte order", testDefaultConfigurationAndByteOrder);
     run("masked readback verification", testWritableReadbackMismatchFailsConfiguration);
+    run("transactional configuration rollback", testTransactionalConfigurationRestoresStateAfterProgrammingFailure);
     run("rail-off ordering during configuration", testConfigurationForcesRailsOffBeforeInaWrites);
     run("per-block power state and safe disable", testPerBlockPowerStateAndSafeDisable);
     run("idempotent disable enforces off", testDisableEnforcesOffWhenAlreadyDisabled);

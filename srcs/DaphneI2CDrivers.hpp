@@ -102,6 +102,7 @@ namespace I2CMezzDrivers{
         static RailCalibration calculateRailCalibration(double rShunt, double maxCurrentScale,
                                                          double maxCurrentShutdown, double nominalVoltage);
         void configureCalibrationValuesUnlocked();
+        void configureHdMezzAfeBlockUnlocked(uint8_t afeBlock);
         void requireEnabledUnlocked(uint8_t afeBlock) const;
         void requireConfiguredUnlocked(uint8_t afeBlock) const;
         void probeAfeBlockUnlocked(uint8_t afeBlock);
