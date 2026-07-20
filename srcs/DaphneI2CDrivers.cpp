@@ -389,10 +389,21 @@ void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(uint8_t afeBlock){
 }
 
 void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(uint8_t afeBlock, const BlockConfiguration& c) {
-    setRShunt(afeBlock, c.rShunt5V, "5V"); setRShunt(afeBlock, c.rShunt3V3, "3V3");
-    setMaxCurrentScale(afeBlock, c.maxCurrentScale5V, "5V"); setMaxCurrentScale(afeBlock, c.maxCurrentScale3V3, "3V3");
-    setMaxCurrentShutdown(afeBlock, c.maxCurrentShutdown5V, "5V"); setMaxCurrentShutdown(afeBlock, c.maxCurrentShutdown3V3, "3V3");
-    configureHdMezzAfeBlock(afeBlock);
+    // Validate the complete candidate before mutating state or touching hardware.
+    validateAfeBlock(afeBlock);
+    const auto rail5V = calculateRailCalibration(c.rShunt5V, c.maxCurrentScale5V, c.maxCurrentShutdown5V, 5.0);
+    const auto rail3V3 = calculateRailCalibration(c.rShunt3V3, c.maxCurrentScale3V3, c.maxCurrentShutdown3V3, 3.3);
+    std::unique_lock<std::mutex> lock(mutex_);
+    requireEnabledUnlocked(afeBlock);
+    const BlockConfiguration old{r_shunt_5V[afeBlock], r_shunt_3V3[afeBlock], max_current_5V_scale[afeBlock], max_current_3V3_scale[afeBlock], max_current_5V_shutdown[afeBlock], max_current_3V3_shutdown[afeBlock]};
+    r_shunt_5V[afeBlock]=c.rShunt5V; r_shunt_3V3[afeBlock]=c.rShunt3V3;
+    max_current_5V_scale[afeBlock]=c.maxCurrentScale5V; max_current_3V3_scale[afeBlock]=c.maxCurrentScale3V3;
+    max_current_5V_shutdown[afeBlock]=c.maxCurrentShutdown5V; max_current_3V3_shutdown[afeBlock]=c.maxCurrentShutdown3V3;
+    current_lsb_5V[afeBlock]=rail5V.currentLsb; shunt_cal_5V[afeBlock]=rail5V.shuntCal; max_power_5V[afeBlock]=rail5V.maxPower; alert_limit_5V[afeBlock]=rail5V.alertLimit;
+    current_lsb_3V3[afeBlock]=rail3V3.currentLsb; shunt_cal_3V3[afeBlock]=rail3V3.shuntCal; max_power_3V3[afeBlock]=rail3V3.maxPower; alert_limit_3V3[afeBlock]=rail3V3.alertLimit;
+    lock.unlock();
+    try { configureHdMezzAfeBlock(afeBlock); }
+    catch (...) { lock.lock(); r_shunt_5V[afeBlock]=old.rShunt5V; r_shunt_3V3[afeBlock]=old.rShunt3V3; max_current_5V_scale[afeBlock]=old.maxCurrentScale5V; max_current_3V3_scale[afeBlock]=old.maxCurrentScale3V3; max_current_5V_shutdown[afeBlock]=old.maxCurrentShutdown5V; max_current_3V3_shutdown[afeBlock]=old.maxCurrentShutdown3V3; configureCalibrationValuesUnlocked(); configured_afeBlocks[afeBlock]=false; throw; }
 }
 
 void I2CMezzDrivers::HDMezzDriver::setPowerRequests(
