@@ -48,7 +48,7 @@ The current default configuration in `srcs/DaphneI2CDrivers.hpp` is:
 - `max_current_5V_scale = 200e-3 A`
 - `max_current_CE_scale = 200e-3 A`
 - `max_current_5V_shutdown = 120e-3 A`
-- `max_current_CE_shutdown = 10e-3 A`
+- `max_current_CE_shutdown = 50e-3 A`
 
 These same defaults are mirrored in the Python client so that the CLI and the
 visual tool start from the same known operating point as the C++ driver.

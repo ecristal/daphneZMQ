@@ -84,7 +84,7 @@ namespace I2CMezzDrivers{
         std::vector<double> max_current_5V_scale = {200e-3, 200e-3, 200e-3, 200e-3, 200e-3}; // Ampere. This sets the maximun current that can be measured
         std::vector<double> max_current_3V3_scale = {200e-3, 200e-3, 200e-3, 200e-3, 200e-3}; // Ampere. This sets the maximun current that can be measured
         std::vector<double> max_current_5V_shutdown = {120e-3, 120e-3, 120e-3, 120e-3, 120e-3}; // Ampere. This sets the maximun current before an alert conditions is triggered
-        std::vector<double> max_current_3V3_shutdown = {10e-3, 10e-3, 10e-3, 10e-3, 10e-3}; // Ampere. This sets the maximun current before an alert conditions is triggered
+        std::vector<double> max_current_3V3_shutdown = {50e-3, 50e-3, 50e-3, 50e-3, 50e-3}; // Ampere. This sets the maximun current before an alert conditions is triggered
         std::vector<double> max_power_5V = {0.0, 0.0, 0.0, 0.0, 0.0}; // Watt. This sets the maximun power before an alert conditions is triggered
         std::vector<double> max_power_3V3 = {0.0, 0.0, 0.0, 0.0, 0.0}; // Watt. This sets the maximun power before an alert conditions is triggered
         std::vector<double> current_lsb_5V = {0.0, 0.0, 0.0, 0.0, 0.0};

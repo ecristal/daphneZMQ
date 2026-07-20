@@ -344,7 +344,7 @@ void testDefaultConfigurationAndByteOrder() {
         check(rig.state->ina5V[0][0x05] == 0x5B05, "wrong default 5V SHUNT_CAL");
         check(rig.state->ina3V3[0][0x05] == 0x0AEC, "wrong default 3V3 SHUNT_CAL");
         check(rig.state->ina5V[0][0x07] == 0x06C0, "wrong default 5V SOL limit");
-        check(rig.state->ina3V3[0][0x07] == 0x04B0, "wrong default 3V3 SOL limit");
+        check(rig.state->ina3V3[0][0x07] == 0x1770, "wrong default CE SOL limit");
         check(rig.state->ina5V[0][0x06] == 0x8001, "wrong 5V mask/enable");
         check(rig.state->ina3V3[0][0x06] == 0x8001, "wrong 3V3 mask/enable");
         check((rig.state->tca[0][0x01] & 0x03u) == 0, "configuration left a rail requested");

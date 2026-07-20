@@ -34,7 +34,7 @@ DEFAULT_R_SHUNT_CE = 0.3
 DEFAULT_MAX_CURRENT_5V_SCALE = 200e-3
 DEFAULT_MAX_CURRENT_CE_SCALE = 200e-3
 DEFAULT_MAX_CURRENT_5V_SHUTDOWN = 120e-3
-DEFAULT_MAX_CURRENT_CE_SHUTDOWN = 10e-3
+DEFAULT_MAX_CURRENT_CE_SHUTDOWN = 50e-3
 
 
 def next_ids() -> Tuple[int, int]:
@@ -387,7 +387,7 @@ def run_visual(args) -> int:
             layout.setSpacing(4)
 
             self.bulb = QtWidgets.QLabel()
-            self.bulb.setFixedSize(26, 26)
+            self.bulb.setFixedSize(38, 38)
             self.bulb.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(self.bulb, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
 
@@ -396,6 +396,7 @@ def run_visual(args) -> int:
             title.setStyleSheet("color: #dceff5; font-size: 9pt; font-weight: 700;")
             layout.addWidget(title)
 
+            self.setMinimumHeight(82)
             self.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
             self.setStyleSheet("QFrame { border: 1px solid #31556d; border-radius: 9px; background: #08131d; }")
             self.set_on(False)
@@ -408,65 +409,74 @@ def run_visual(args) -> int:
                 f"QLabel {{"
                 f"background: qradialgradient(cx:0.45, cy:0.35, radius:0.8, stop:0 #f7fbff, stop:0.18 {color}, stop:1 #11151b);"
                 f"border: 1px solid #50606d;"
-                f"border-radius: 13px;"
+                f"border-radius: 19px;"
                 f"box-shadow: 0 0 12px {glow};"
                 f"}}"
             )
 
-    class KnobSpin(QtWidgets.QWidget):
-        def __init__(self, title: str, value: float, min_v: float, max_v: float, decimals: int, step: float):
+    class VerticalConfigControl(QtWidgets.QWidget):
+        def __init__(self, title: str, unit: str, value: float, min_v: float,
+                     max_v: float, decimals: int, step: float):
             super().__init__()
             self._min = min_v
             self._max = max_v
             self._steps = 1000
             self._syncing = False
+            self.setMinimumWidth(125)
 
             layout = QtWidgets.QVBoxLayout(self)
-            layout.setContentsMargins(2, 2, 2, 2)
-            layout.setSpacing(3)
-
+            layout.setContentsMargins(6, 4, 6, 4)
+            layout.setSpacing(5)
             label = QtWidgets.QLabel(title)
-            label.setProperty("role", "section")
             label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-            label.setStyleSheet("font-size: 8.5pt; padding: 0; margin: 0;")
+            label.setWordWrap(True)
+            label.setStyleSheet("color: #f9c66f; font-weight: 700; font-size: 9pt;")
             layout.addWidget(label)
 
-            self.dial = QtWidgets.QDial()
-            self.dial.setNotchesVisible(True)
-            self.dial.setRange(0, self._steps)
-            self.dial.setWrapping(False)
-            self.dial.setFixedSize(86, 86)
-            layout.addWidget(self.dial, alignment=QtCore.Qt.AlignmentFlag.AlignCenter)
+            slider_row = QtWidgets.QHBoxLayout()
+            self.slider = QtWidgets.QSlider(QtCore.Qt.Orientation.Vertical)
+            self.slider.setRange(0, self._steps)
+            self.slider.setMinimumHeight(145)
+            self.slider.setTickPosition(QtWidgets.QSlider.TickPosition.TicksBothSides)
+            self.slider.setTickInterval(250)
+            limits = QtWidgets.QVBoxLayout()
+            max_label = QtWidgets.QLabel(f"{max_v:g}")
+            min_label = QtWidgets.QLabel(f"{min_v:g}")
+            for item in (max_label, min_label):
+                item.setStyleSheet("color: #7ea5b7; font-size: 8pt;")
+            limits.addWidget(max_label)
+            limits.addStretch(1)
+            limits.addWidget(min_label)
+            slider_row.addStretch(1)
+            slider_row.addWidget(self.slider)
+            slider_row.addLayout(limits)
+            slider_row.addStretch(1)
+            layout.addLayout(slider_row, 1)
 
             self.spin = QtWidgets.QDoubleSpinBox()
             self.spin.setRange(min_v, max_v)
             self.spin.setDecimals(decimals)
             self.spin.setSingleStep(step)
-            self.spin.setValue(value)
+            self.spin.setSuffix(f" {unit}")
             self.spin.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(self.spin)
+            self.slider.valueChanged.connect(self._slider_to_spin)
+            self.spin.valueChanged.connect(self._spin_to_slider)
+            self.setValue(value)
 
-            self.dial.valueChanged.connect(self._dial_to_spin)
-            self.spin.valueChanged.connect(self._spin_to_dial)
-            self._spin_to_dial(value)
-
-        def _dial_to_spin(self, pos: int) -> None:
+        def _slider_to_spin(self, pos: int) -> None:
             if self._syncing:
                 return
             self._syncing = True
-            value = self._min + (self._max - self._min) * (pos / self._steps)
-            self.spin.setValue(value)
+            self.spin.setValue(self._min + (self._max - self._min) * pos / self._steps)
             self._syncing = False
 
-        def _spin_to_dial(self, value: float) -> None:
+        def _spin_to_slider(self, value: float) -> None:
             if self._syncing:
                 return
             self._syncing = True
-            if self._max <= self._min:
-                pos = 0
-            else:
-                pos = round((value - self._min) / (self._max - self._min) * self._steps)
-            self.dial.setValue(max(0, min(self._steps, pos)))
+            pos = round((value - self._min) / (self._max - self._min) * self._steps)
+            self.slider.setValue(max(0, min(self._steps, pos)))
             self._syncing = False
 
         def value(self) -> float:
@@ -474,11 +484,81 @@ def run_visual(args) -> int:
 
         def setValue(self, value: float) -> None:
             self.spin.setValue(value)
+            self._spin_to_slider(value)
+
+    class ConfigurationDialog(QtWidgets.QDialog):
+        SPECS = (
+            ("r_shunt_5v", "R SHUNT 5V", "ohm", 0.001, 0.100, 6, 0.001),
+            ("r_shunt_ce", "R SHUNT CE", "ohm", 0.010, 1.000, 6, 0.010),
+            ("max_current_5v_scale", "I SCALE 5V", "A", 0.010, 0.500, 3, 0.010),
+            ("max_current_ce_scale", "I SCALE CE", "A", 0.010, 0.250, 3, 0.005),
+            ("max_current_5v_shutdown", "I CUT 5V", "A", 0.005, 0.200, 3, 0.005),
+            ("max_current_ce_shutdown", "I CUT CE", "A", 0.001, 0.200, 3, 0.005),
+        )
+
+        def __init__(self, afe: int, values: dict, parent=None):
+            super().__init__(parent)
+            self.setWindowTitle(f"AFE {afe} Hardware Configuration")
+            self.setModal(True)
+            self.setMinimumSize(900, 430)
+            root = QtWidgets.QVBoxLayout(self)
+            heading = QtWidgets.QLabel(f"AFE BLOCK {afe} - CURRENT MONITOR CONFIGURATION")
+            heading.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            heading.setStyleSheet("font-size: 13pt; font-weight: 800; color: #8ff0ff;")
+            root.addWidget(heading)
+            note = QtWidgets.QLabel("Adjust with the sliders or enter exact values. Applying configuration forces both rail requests off.")
+            note.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            note.setStyleSheet("color: #a7c8d6;")
+            root.addWidget(note)
+
+            controls = QtWidgets.QHBoxLayout()
+            controls.setSpacing(10)
+            self.controls = {}
+            for key, label, unit, minimum, maximum, decimals, step in self.SPECS:
+                control = VerticalConfigControl(label, unit, values[key], minimum, maximum, decimals, step)
+                self.controls[key] = control
+                controls.addWidget(control, 1)
+            root.addLayout(controls, 1)
+
+            buttons = QtWidgets.QDialogButtonBox(
+                QtWidgets.QDialogButtonBox.StandardButton.Cancel |
+                QtWidgets.QDialogButtonBox.StandardButton.Apply)
+            defaults = buttons.addButton("Restore Defaults", QtWidgets.QDialogButtonBox.ButtonRole.ResetRole)
+            defaults.clicked.connect(self.restore_defaults)
+            buttons.rejected.connect(self.reject)
+            buttons.button(QtWidgets.QDialogButtonBox.StandardButton.Apply).clicked.connect(self._validate_and_accept)
+            root.addWidget(buttons)
+
+        def restore_defaults(self) -> None:
+            defaults = {
+                "r_shunt_5v": DEFAULT_R_SHUNT_5V,
+                "r_shunt_ce": DEFAULT_R_SHUNT_CE,
+                "max_current_5v_scale": DEFAULT_MAX_CURRENT_5V_SCALE,
+                "max_current_ce_scale": DEFAULT_MAX_CURRENT_CE_SCALE,
+                "max_current_5v_shutdown": DEFAULT_MAX_CURRENT_5V_SHUTDOWN,
+                "max_current_ce_shutdown": DEFAULT_MAX_CURRENT_CE_SHUTDOWN,
+            }
+            for key, value in defaults.items():
+                self.controls[key].setValue(value)
+
+        def values(self) -> dict:
+            return {key: control.value() for key, control in self.controls.items()}
+
+        def _validate_and_accept(self) -> None:
+            values = self.values()
+            if values["max_current_5v_shutdown"] > values["max_current_5v_scale"]:
+                QtWidgets.QMessageBox.warning(self, "Invalid 5V configuration", "5V cutoff current cannot exceed the 5V measurement scale.")
+                return
+            if values["max_current_ce_shutdown"] > values["max_current_ce_scale"]:
+                QtWidgets.QMessageBox.warning(self, "Invalid CE configuration", "CE cutoff current cannot exceed the CE measurement scale.")
+                return
+            self.accept()
 
     class TelemetryDisplay(QtWidgets.QFrame):
         def __init__(self, label: str, unit: str, digits: int = 8):
             super().__init__()
             self.unit = unit
+            self.setMinimumHeight(92)
             self.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
             self.setStyleSheet("QFrame { border: 1px solid #31556d; border-radius: 9px; background: #02070a; }")
 
@@ -493,6 +573,7 @@ def run_visual(args) -> int:
 
             self.lcd = QtWidgets.QLCDNumber()
             self.lcd.setDigitCount(digits)
+            self.lcd.setMinimumHeight(38)
             self.lcd.setSegmentStyle(QtWidgets.QLCDNumber.SegmentStyle.Flat)
             self.lcd.setSmallDecimalPoint(True)
             self.lcd.display("0.000")
@@ -537,6 +618,8 @@ def run_visual(args) -> int:
             self.history_len = history_len
             self.series_specs = series_specs
             self.history = {name: deque(maxlen=history_len) for name, _label, _color in series_specs}
+            self._y_min, self._y_max = -1.0, 1.0
+            self.legend_chips = {}
 
             self.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
             self.setStyleSheet("QFrame { border: 1px solid #31556d; border-radius: 9px; background: #02070a; }")
@@ -554,8 +637,9 @@ def run_visual(args) -> int:
             legend = QtWidgets.QHBoxLayout()
             legend.setSpacing(10)
             legend.addStretch(1)
-            for _name, label, color in series_specs:
-                chip = QtWidgets.QLabel(f"{label}")
+            for name, label, color in series_specs:
+                chip = QtWidgets.QLabel(f"{label}: -- {unit}")
+                self.legend_chips[name] = (chip, label)
                 chip.setStyleSheet(
                     f"QLabel {{ color: {color}; font-size: 8pt; font-weight: 700; padding: 0 2px; }}"
                 )
@@ -564,7 +648,8 @@ def run_visual(args) -> int:
             layout.addLayout(legend)
 
             self.canvas = QtWidgets.QWidget()
-            self.canvas.setMinimumHeight(132)
+            self.setMinimumWidth(300)
+            self.canvas.setMinimumHeight(210)
             self.canvas.paintEvent = self._paint_canvas
             layout.addWidget(self.canvas)
 
@@ -574,11 +659,20 @@ def run_visual(args) -> int:
             layout.addWidget(self.scale_label)
 
         def append_values(self, values: dict) -> None:
-            for name, _label, _color in self.series_specs:
-                self.history[name].append(float(values.get(name, 0.0)))
+            for name, _label, color in self.series_specs:
+                value = float(values.get(name, 0.0))
+                self.history[name].append(value)
+                chip, label = self.legend_chips[name]
+                chip.setText(f"{label}: {value:.3f} {self.unit}")
             visible = [v for series in self.history.values() for v in series]
-            peak = max([1.0] + [abs(v) for v in visible])
-            self.scale_label.setText(f"Y max: {peak:0.3f} {self.unit}   X: {self.history_len} samples")
+            if visible:
+                raw_min, raw_max = min(visible), max(visible)
+                raw_min, raw_max = min(raw_min, 0.0), max(raw_max, 0.0)
+                spread = raw_max - raw_min
+                padding = max(abs(raw_max), abs(raw_min), 1.0) * 0.08 if spread == 0 else spread * 0.10
+                self._y_min, self._y_max = raw_min - padding, raw_max + padding
+            self.scale_label.setText(
+                f"Range: {self._y_min:.3f} to {self._y_max:.3f} {self.unit} | {self.history_len} samples")
             self.canvas.update()
 
         def _paint_canvas(self, _event) -> None:
@@ -616,8 +710,6 @@ def run_visual(args) -> int:
             axis_font = painter.font()
             axis_font.setPointSizeF(7.0)
             painter.setFont(axis_font)
-            painter.drawText(4, rect.top() + 2, 24, 12, int(QtCore.Qt.AlignmentFlag.AlignRight), f"{1.0:0.1f}")
-            painter.drawText(4, rect.center().y() - 6, 24, 12, int(QtCore.Qt.AlignmentFlag.AlignRight), "0.0")
             painter.drawText(rect.left(), rect.bottom() + 6, 36, 12, int(QtCore.Qt.AlignmentFlag.AlignLeft), "old")
             painter.drawText(rect.right() - 36, rect.bottom() + 6, 36, 12, int(QtCore.Qt.AlignmentFlag.AlignRight), "new")
 
@@ -625,13 +717,11 @@ def run_visual(args) -> int:
                 painter.end()
                 return
 
-            peak = max([1.0] + [abs(v) for v in all_values])
-            span = peak * 1.1
-            if span <= 0:
-                span = 1.0
-
-            painter.drawText(4, rect.top() + 2, 24, 12, int(QtCore.Qt.AlignmentFlag.AlignRight), f"{span:0.1f}")
-            painter.drawText(4, rect.bottom() - 10, 24, 12, int(QtCore.Qt.AlignmentFlag.AlignRight), f"{-span:0.1f}")
+            y_min, y_max = self._y_min, self._y_max
+            y_span = max(y_max - y_min, 1e-9)
+            for fraction, value in ((0.0, y_max), (0.5, (y_min + y_max) / 2.0), (1.0, y_min)):
+                y = rect.top() + int(rect.height() * fraction)
+                painter.drawText(1, y - 6, 30, 12, int(QtCore.Qt.AlignmentFlag.AlignRight), f"{value:.2f}")
 
             for name, _label, color in self.series_specs:
                 data = list(self.history[name])
@@ -640,7 +730,7 @@ def run_visual(args) -> int:
                 path = QtGui.QPainterPath()
                 for idx, value in enumerate(data):
                     x = rect.left() + (rect.width() * idx / max(1, self.history_len - 1))
-                    y_norm = (value + span) / (2.0 * span)
+                    y_norm = (value - y_min) / y_span
                     y = rect.bottom() - (rect.height() * y_norm)
                     point = QtCore.QPointF(float(x), float(y))
                     if idx == 0:
@@ -650,7 +740,14 @@ def run_visual(args) -> int:
                 pen = QtGui.QPen(QtGui.QColor(color))
                 pen.setWidth(2)
                 painter.setPen(pen)
+                painter.setBrush(QtCore.Qt.BrushStyle.NoBrush)
                 painter.drawPath(path)
+                latest = data[-1]
+                latest_x = rect.left() + (rect.width() * (len(data) - 1) / max(1, self.history_len - 1))
+                latest_y = rect.bottom() - (rect.height() * ((latest - y_min) / y_span))
+                painter.setBrush(QtGui.QBrush(QtGui.QColor(color)))
+                painter.drawEllipse(QtCore.QPointF(float(latest_x), float(latest_y)), 3.0, 3.0)
+                painter.setBrush(QtCore.Qt.BrushStyle.NoBrush)
 
             painter.end()
 
@@ -660,25 +757,31 @@ def run_visual(args) -> int:
             self.afe = afe
             self.client = client
             self.log = log_fn
+            self.config_values = {
+                "r_shunt_5v": DEFAULT_R_SHUNT_5V,
+                "r_shunt_ce": DEFAULT_R_SHUNT_CE,
+                "max_current_5v_scale": DEFAULT_MAX_CURRENT_5V_SCALE,
+                "max_current_ce_scale": DEFAULT_MAX_CURRENT_CE_SCALE,
+                "max_current_5v_shutdown": DEFAULT_MAX_CURRENT_5V_SHUTDOWN,
+                "max_current_ce_shutdown": DEFAULT_MAX_CURRENT_CE_SHUTDOWN,
+            }
 
+            self.setMinimumHeight(500)
             shell = QtWidgets.QHBoxLayout(self)
-            shell.setContentsMargins(12, 16, 12, 12)
+            shell.setContentsMargins(14, 18, 14, 14)
             shell.setSpacing(14)
 
-            left = QtWidgets.QVBoxLayout()
-            left.setSpacing(10)
-            left.addWidget(self._section_label("SWITCHES"))
-
+            command_bay = SectionBay("COMMAND & STATUS")
+            command_bay.setFixedWidth(300)
             self.enable_check = QtWidgets.QCheckBox("AFT BUS ENABLE")
             self.power_5v = QtWidgets.QCheckBox("5V RAIL")
             self.power_3v3 = QtWidgets.QCheckBox("CE RAIL")
-            left.addWidget(self.enable_check)
-            left.addWidget(self.power_5v)
-            left.addWidget(self.power_3v3)
+            for control in (self.enable_check, self.power_5v, self.power_3v3):
+                control.setToolTip("Pending command value. Telemetry refresh never changes this switch.")
+                command_bay.body.addWidget(control)
 
             lamp_grid = QtWidgets.QGridLayout()
-            lamp_grid.setHorizontalSpacing(8)
-            lamp_grid.setVerticalSpacing(8)
+            lamp_grid.setSpacing(8)
             self.power_5v_lamp = StatusLamp("5V POWER", on_color="#39f07f", off_color="#153324")
             self.power_3v3_lamp = StatusLamp("CE POWER", on_color="#39f07f", off_color="#153324")
             self.alert_5v_lamp = StatusLamp("5V ALERT", on_color="#ff4d4d", off_color="#34161b")
@@ -687,111 +790,71 @@ def run_visual(args) -> int:
             lamp_grid.addWidget(self.power_3v3_lamp, 0, 1)
             lamp_grid.addWidget(self.alert_5v_lamp, 1, 0)
             lamp_grid.addWidget(self.alert_3v3_lamp, 1, 1)
-            left.addLayout(lamp_grid)
+            command_bay.body.addLayout(lamp_grid)
 
             self.enable_button = QtWidgets.QPushButton("Commit Enable")
             self.enable_button.clicked.connect(self.apply_enable)
             self.power_button = QtWidgets.QPushButton("Commit Power")
             self.power_button.clicked.connect(self.apply_power)
+            self.configure_button = QtWidgets.QPushButton("\u2699  Configuration...")
+            self.configure_button.clicked.connect(self.open_configuration)
             self.read_status_button = QtWidgets.QPushButton("Scan Telemetry")
             self.read_status_button.clicked.connect(self.read_status)
             self.clear_alert_button = QtWidgets.QPushButton("Clear Alerts")
             self.clear_alert_button.clicked.connect(self.clear_alerts)
-            self.read_config_button = QtWidgets.QPushButton("Recall Config")
-            self.read_config_button.clicked.connect(self.read_config)
-            self.configure_button = QtWidgets.QPushButton("Program Block")
-            self.configure_button.clicked.connect(self.configure)
-            for button in (
-                self.enable_button,
-                self.power_button,
-                self.read_status_button,
-                self.clear_alert_button,
-                self.read_config_button,
-                self.configure_button,
-            ):
-                left.addWidget(button)
-            left.addStretch(1)
-            shell.addLayout(left, 0)
+            for button in (self.enable_button, self.power_button, self.configure_button,
+                           self.read_status_button, self.clear_alert_button):
+                button.setMinimumHeight(32)
+                command_bay.body.addWidget(button)
+            self.config_summary = QtWidgets.QLabel()
+            self.config_summary.setWordWrap(True)
+            self.config_summary.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            self.config_summary.setStyleSheet("color: #8ff0ff; font-size: 8pt; padding: 4px;")
+            command_bay.body.addWidget(self.config_summary)
+            command_bay.body.addStretch(1)
+            self._update_config_summary()
+            shell.addWidget(command_bay, 0)
 
-            middle = QtWidgets.QVBoxLayout()
-            middle.setSpacing(0)
-            knobs_bay = SectionBay("KNOBS")
-            knobs_grid = QtWidgets.QGridLayout()
-            knobs_grid.setHorizontalSpacing(8)
-            knobs_grid.setVerticalSpacing(8)
-            self.r_shunt_5v = KnobSpin("R SHUNT 5V", DEFAULT_R_SHUNT_5V, 0.0, 1.0, 6, 0.001)
-            self.r_shunt_3v3 = KnobSpin("R SHUNT CE", DEFAULT_R_SHUNT_CE, 0.0, 1.0, 6, 0.001)
-            self.max_current_5v_scale = KnobSpin("I SCALE 5V", DEFAULT_MAX_CURRENT_5V_SCALE, 0.0, 1.0, 6, 0.001)
-            self.max_current_3v3_scale = KnobSpin("I SCALE CE", DEFAULT_MAX_CURRENT_CE_SCALE, 0.0, 1.0, 6, 0.001)
-            self.max_current_5v_shutdown = KnobSpin("I CUT 5V", DEFAULT_MAX_CURRENT_5V_SHUTDOWN, 0.0, 1.0, 6, 0.001)
-            self.max_current_3v3_shutdown = KnobSpin("I CUT CE", DEFAULT_MAX_CURRENT_CE_SHUTDOWN, 0.0, 1.0, 6, 0.001)
-            knob_widgets = [
-                self.r_shunt_5v,
-                self.r_shunt_3v3,
-                self.max_current_5v_scale,
-                self.max_current_3v3_scale,
-                self.max_current_5v_shutdown,
-                self.max_current_3v3_shutdown,
-            ]
-            for idx, widget in enumerate(knob_widgets):
-                knobs_grid.addWidget(widget, idx // 3, idx % 3)
-            knobs_grid.setRowStretch(0, 1)
-            knobs_grid.setRowStretch(1, 1)
-            knobs_container = QtWidgets.QWidget()
-            knobs_container.setLayout(knobs_grid)
-            knobs_bay.body.addWidget(knobs_container, 1, QtCore.Qt.AlignmentFlag.AlignTop)
-            middle.addWidget(knobs_bay, 1)
-            shell.addLayout(middle, 1)
-
-            right = QtWidgets.QVBoxLayout()
-            right.setSpacing(8)
-            right.addWidget(self._section_label("SEVEN-SEG TELEMETRY"))
-
+            data_column = QtWidgets.QVBoxLayout()
+            data_column.setSpacing(10)
+            telemetry_bay = SectionBay("LIVE TELEMETRY")
             telemetry_grid = QtWidgets.QGridLayout()
             telemetry_grid.setHorizontalSpacing(10)
-            telemetry_grid.setVerticalSpacing(10)
-            self.v5_display = TelemetryDisplay("BUS 5V", "V")
-            self.v3_display = TelemetryDisplay("BUS CE", "V")
-            self.i5_display = TelemetryDisplay("LOAD 5V", "mA")
-            self.i3_display = TelemetryDisplay("LOAD CE", "mA")
-            self.p5_display = TelemetryDisplay("POWER 5V", "mW")
-            self.p3_display = TelemetryDisplay("POWER CE", "mW")
-            displays = [
-                self.v5_display,
-                self.v3_display,
-                self.i5_display,
-                self.i3_display,
-                self.p5_display,
-                self.p3_display,
-            ]
-            for idx, widget in enumerate(displays):
-                telemetry_grid.addWidget(widget, idx // 2, idx % 2)
-            right.addLayout(telemetry_grid)
+            telemetry_grid.setVerticalSpacing(8)
+            for column, title in enumerate(("VOLTAGE", "CURRENT", "POWER")):
+                heading = QtWidgets.QLabel(title)
+                heading.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+                heading.setStyleSheet("color: #f9c66f; font-size: 9pt; font-weight: 800; letter-spacing: 1px;")
+                telemetry_grid.addWidget(heading, 0, column)
+                telemetry_grid.setColumnStretch(column, 1)
+            self.v5_display = TelemetryDisplay("5V", "V")
+            self.i5_display = TelemetryDisplay("5V", "mA")
+            self.p5_display = TelemetryDisplay("5V", "mW")
+            self.v3_display = TelemetryDisplay("CE", "V")
+            self.i3_display = TelemetryDisplay("CE", "mA")
+            self.p3_display = TelemetryDisplay("CE", "mW")
+            displays = (
+                (self.v5_display, self.i5_display, self.p5_display),
+                (self.v3_display, self.i3_display, self.p3_display),
+            )
+            for row, display_row in enumerate(displays, start=1):
+                for column, widget in enumerate(display_row):
+                    telemetry_grid.addWidget(widget, row, column)
+            telemetry_bay.body.addLayout(telemetry_grid)
+            data_column.addWidget(telemetry_bay, 0)
 
             graphs_bay = SectionBay("TREND ANALYSIS")
-            graph_stack = QtWidgets.QVBoxLayout()
-            graph_stack.setSpacing(8)
-            self.voltage_graph = TrendGraph(
-                "VOLTAGE TREND",
-                "V",
-                [("v5", "5V", "#8ff0ff"), ("v3", "CE", "#f9c66f")],
-            )
-            self.current_graph = TrendGraph(
-                "CURRENT TREND",
-                "mA",
-                [("i5", "5V", "#39f07f"), ("i3", "CE", "#ffb347")],
-            )
-            self.power_graph = TrendGraph(
-                "POWER TREND",
-                "mW",
-                [("p5", "5V", "#ff7b72"), ("p3", "CE", "#c792ea")],
-            )
-            graph_stack.addWidget(self.voltage_graph)
-            graph_stack.addWidget(self.current_graph)
-            graph_stack.addWidget(self.power_graph)
-            graphs_bay.body.addLayout(graph_stack)
-            right.addWidget(graphs_bay, 1)
-            shell.addLayout(right, 1)
+            graphs = QtWidgets.QHBoxLayout()
+            graphs.setSpacing(10)
+            self.voltage_graph = TrendGraph("VOLTAGE", "V", [("v5", "5V", "#8ff0ff"), ("v3", "CE", "#f9c66f")])
+            self.current_graph = TrendGraph("CURRENT", "mA", [("i5", "5V", "#39f07f"), ("i3", "CE", "#ffb347")])
+            self.power_graph = TrendGraph("POWER", "mW", [("p5", "5V", "#ff7b72"), ("p3", "CE", "#c792ea")])
+            graphs.addWidget(self.voltage_graph, 1)
+            graphs.addWidget(self.current_graph, 1)
+            graphs.addWidget(self.power_graph, 1)
+            graphs_bay.body.addLayout(graphs)
+            data_column.addWidget(graphs_bay, 1)
+            shell.addLayout(data_column, 1)
 
         @staticmethod
         def _section_label(text: str) -> QtWidgets.QLabel:
@@ -816,38 +879,65 @@ def run_visual(args) -> int:
             if resp is not None:
                 self.enable_check.setChecked(bool(resp.enable))
 
-        def configure(self):
-            self._run(
-                "CONFIGURE_BLOCK",
-                lambda: self.client.configure_block(
-                    self.afe,
-                    r_shunt_5v=self.r_shunt_5v.value(),
-                    r_shunt_3v3=self.r_shunt_3v3.value(),
-                    max_current_5v_scale=self.max_current_5v_scale.value(),
-                    max_current_3v3_scale=self.max_current_3v3_scale.value(),
-                    max_current_5v_shutdown=self.max_current_5v_shutdown.value(),
-                    max_current_3v3_shutdown=self.max_current_3v3_shutdown.value(),
-                ),
+        def _update_config_summary(self) -> None:
+            self.config_summary.setText(
+                "Cutoff: 5V {:.0f} mA | CE {:.0f} mA\n"
+                "Scale: 5V {:.0f} mA | CE {:.0f} mA".format(
+                    self.config_values["max_current_5v_shutdown"] * 1000.0,
+                    self.config_values["max_current_ce_shutdown"] * 1000.0,
+                    self.config_values["max_current_5v_scale"] * 1000.0,
+                    self.config_values["max_current_ce_scale"] * 1000.0,
+                )
             )
 
         def read_config(self):
             resp = self._run("READ_BLOCK_CONFIG", lambda: self.client.read_block_config(self.afe))
-            if resp is None:
+            if resp is None or not resp.success:
+                return None
+            self.config_values.update({
+                "r_shunt_5v": float(resp.r_shunt_5V),
+                "r_shunt_ce": float(resp.r_shunt_3V3),
+                "max_current_5v_scale": float(resp.max_current_5V_scale),
+                "max_current_ce_scale": float(resp.max_current_3V3_scale),
+                "max_current_5v_shutdown": float(resp.max_current_5V_shutdown),
+                "max_current_ce_shutdown": float(resp.max_current_3V3_shutdown),
+            })
+            self._update_config_summary()
+            return resp
+
+        def open_configuration(self):
+            # Start from the server's current values when available; otherwise
+            # retain the last known/default values in this panel.
+            self.read_config()
+            dialog = ConfigurationDialog(self.afe, self.config_values, self)
+            if dialog.exec() != QtWidgets.QDialog.DialogCode.Accepted:
                 return
-            self.r_shunt_5v.setValue(resp.r_shunt_5V)
-            self.r_shunt_3v3.setValue(resp.r_shunt_3V3)
-            self.max_current_5v_scale.setValue(resp.max_current_5V_scale)
-            self.max_current_3v3_scale.setValue(resp.max_current_3V3_scale)
-            self.max_current_5v_shutdown.setValue(resp.max_current_5V_shutdown)
-            self.max_current_3v3_shutdown.setValue(resp.max_current_3V3_shutdown)
-            self.log(
-                f"[AFE {self.afe}] CONFIG values: "
-                f"r5={resp.r_shunt_5V:.6f} r3={resp.r_shunt_3V3:.6f} "
-                f"i5s={resp.max_current_5V_scale:.6f} i3s={resp.max_current_3V3_scale:.6f}"
+            previous = dict(self.config_values)
+            candidate = dialog.values()
+            self.config_values = candidate
+            resp = self._run(
+                "CONFIGURE_BLOCK",
+                lambda: self.client.configure_block(
+                    self.afe,
+                    r_shunt_5v=candidate["r_shunt_5v"],
+                    r_shunt_3v3=candidate["r_shunt_ce"],
+                    max_current_5v_scale=candidate["max_current_5v_scale"],
+                    max_current_3v3_scale=candidate["max_current_ce_scale"],
+                    max_current_5v_shutdown=candidate["max_current_5v_shutdown"],
+                    max_current_3v3_shutdown=candidate["max_current_ce_shutdown"],
+                ),
             )
+            if resp is None or not resp.success:
+                self.config_values = previous
+                self._update_config_summary()
+                return
+            # Hardware configuration deliberately forces both requests off.
+            self.power_5v.setChecked(False)
+            self.power_3v3.setChecked(False)
+            self._update_config_summary()
 
         def apply_power(self):
-            self._run(
+            resp = self._run(
                 "SET_POWER_STATES",
                 lambda: self.client.set_power_states(
                     self.afe,
@@ -855,13 +945,17 @@ def run_visual(args) -> int:
                     power_3v3=self.power_3v3.isChecked(),
                 ),
             )
+            if resp is not None:
+                self.power_5v.setChecked(bool(resp.power5V))
+                self.power_3v3.setChecked(bool(resp.power3V3))
 
         def read_status(self, *, log_result: bool = True):
             resp = self._run("READ_STATUS", lambda: self.client.read_status(self.afe)) if log_result else self._read_status_silent()
             if resp is None:
                 return
-            self.power_5v.setChecked(bool(resp.power5V))
-            self.power_3v3.setChecked(bool(resp.power3V3))
+            # Polling is telemetry-only: it must never overwrite pending user
+            # selections in the command controls.  Successful command replies
+            # above are the sole source that synchronizes the checkboxes.
             self.power_5v_lamp.set_on(bool(resp.power5V))
             self.power_3v3_lamp.set_on(bool(resp.power3V3))
             self.alert_5v_lamp.set_on(bool(resp.alert_5V))
@@ -908,7 +1002,8 @@ def run_visual(args) -> int:
             super().__init__()
             self.client = client
             self.setWindowTitle("HD MEZZANINE CONTROL PANEL")
-            self.resize(1600, 980)
+            self.resize(1720, 1040)
+            self.setMinimumSize(1180, 760)
             self.setStyleSheet(console_style)
 
             root = QtWidgets.QVBoxLayout(self)
@@ -930,7 +1025,8 @@ def run_visual(args) -> int:
 
             controls = QtWidgets.QHBoxLayout()
             controls.setSpacing(8)
-            self.auto_refresh = QtWidgets.QCheckBox("AUTO REFRESH")
+            self.auto_refresh = QtWidgets.QCheckBox("AUTO REFRESH - TELEMETRY ONLY")
+            self.auto_refresh.setToolTip("Updates meters, alarms, and graphs. It never changes command switches.")
             self.auto_refresh.setChecked(False)
             self.auto_refresh_interval = QtWidgets.QSpinBox()
             self.auto_refresh_interval.setRange(250, 10000)
