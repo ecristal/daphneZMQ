@@ -44,11 +44,11 @@ The class owns:
 The current default configuration in `srcs/DaphneI2CDrivers.hpp` is:
 
 - `r_shunt_5V = 36e-3 ohm`
-- `r_shunt_3V3 = 0.3 ohm`
+- `r_shunt_CE = 0.3 ohm`
 - `max_current_5V_scale = 200e-3 A`
-- `max_current_3V3_scale = 200e-3 A`
+- `max_current_CE_scale = 200e-3 A`
 - `max_current_5V_shutdown = 120e-3 A`
-- `max_current_3V3_shutdown = 10e-3 A`
+- `max_current_CE_shutdown = 10e-3 A`
 
 These same defaults are mirrored in the Python client so that the CLI and the
 visual tool start from the same known operating point as the C++ driver.
@@ -63,10 +63,10 @@ monitoring thread and stores them into `Daphne`:
 
 - `HDMezz_5V_voltage`
 - `HDMezz_5V_current`
-- `HDMezz_3V3_voltage`
-- `HDMezz_3V3_current`
+- `HDMezz_CE_voltage`
+- `HDMezz_CE_current`
 - `HDMezz_5V_power`
-- `HDMezz_3V3_power`
+- `HDMezz_CE_power`
 
 These are fixed-size arrays:
 
@@ -204,7 +204,7 @@ The root cause was the current register decode in
 The fix was applied in:
 
 - `readRailCurrent5V(...)`
-- `readRailCurrent3V3(...)`
+- `readRailCurrentCE(...)`
 
 These functions now interpret the current register as `int16_t` before
 applying the current-LSB scaling.
@@ -266,7 +266,7 @@ A good manual validation sequence is:
 
 1. enable one AFE block
 2. configure the block
-3. enable 5 V and 3.3 V power
+3. enable 5 V and CE power
 4. wait one or two monitoring cycles
 5. read status
 6. turn rails off and verify voltage/current/power behavior remains plausible
@@ -284,3 +284,8 @@ A good manual validation sequence is:
 - expose block-enabled state in the status payload if desired
 - add richer alert-state readback from the INA232 path
 - add a compact multi-block summary view in the visual panel
+
+
+## Rail naming
+
+The second HD-mezzanine rail is **CE**, not 3V3. The Python client displays CE and accepts `--power-ce`, `--rshunt-ce`, and `--max-current-ce-*` options. The legacy `*3v3` CLI options remain aliases while deployed protobuf fields retain their established names for wire compatibility.

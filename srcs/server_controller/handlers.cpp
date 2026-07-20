@@ -2183,7 +2183,7 @@ bool setHDMezzPowerStates(const cmd_setHDMezzPowerStates& request,
     response.set_power5v(power_5v);
     response.set_power3v3(power_3v3);
     response_str = "HD mezzanine block " + std::to_string(afeBlock) + " power states set to 5V: " + std::to_string(power_5v) +
-                   ", 3V3: " + std::to_string(power_3v3) + ".";
+                   ", CE: " + std::to_string(power_3v3) + ".";
     return true;
   } catch (const std::exception& e) {
     response_str = std::string("Error setting HD mezzanine block power states: ") + e.what();

@@ -30,11 +30,11 @@ from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
 
 
 DEFAULT_R_SHUNT_5V = 36e-3
-DEFAULT_R_SHUNT_3V3 = 0.3
+DEFAULT_R_SHUNT_CE = 0.3
 DEFAULT_MAX_CURRENT_5V_SCALE = 200e-3
-DEFAULT_MAX_CURRENT_3V3_SCALE = 200e-3
+DEFAULT_MAX_CURRENT_CE_SCALE = 200e-3
 DEFAULT_MAX_CURRENT_5V_SHUTDOWN = 120e-3
-DEFAULT_MAX_CURRENT_3V3_SHUTDOWN = 10e-3
+DEFAULT_MAX_CURRENT_CE_SHUTDOWN = 10e-3
 
 
 def next_ids() -> Tuple[int, int]:
@@ -108,7 +108,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_common_args(p)
     p.add_argument("--afe", type=int, required=True, choices=range(0, 5), help="AFE block [0..4]")
     p.add_argument("--rshunt-5v", type=float, default=DEFAULT_R_SHUNT_5V, help="5V shunt resistor value")
-    p.add_argument("--rshunt-3v3", type=float, default=DEFAULT_R_SHUNT_3V3, help="3V3 shunt resistor value")
+    p.add_argument("--rshunt-ce", "--rshunt-3v3", dest="rshunt_ce", type=float, default=DEFAULT_R_SHUNT_CE, help="CE shunt resistor value")
     p.add_argument(
         "--max-current-5v-scale",
         type=float,
@@ -116,10 +116,10 @@ def build_parser() -> argparse.ArgumentParser:
         help="5V full-scale current",
     )
     p.add_argument(
-        "--max-current-3v3-scale",
+        "--max-current-ce-scale", "--max-current-3v3-scale", dest="max_current_ce_scale",
         type=float,
-        default=DEFAULT_MAX_CURRENT_3V3_SCALE,
-        help="3V3 full-scale current",
+        default=DEFAULT_MAX_CURRENT_CE_SCALE,
+        help="CE full-scale current",
     )
     p.add_argument(
         "--max-current-5v-shutdown",
@@ -128,21 +128,21 @@ def build_parser() -> argparse.ArgumentParser:
         help="5V shutdown current",
     )
     p.add_argument(
-        "--max-current-3v3-shutdown",
+        "--max-current-ce-shutdown", "--max-current-3v3-shutdown", dest="max_current_ce_shutdown",
         type=float,
-        default=DEFAULT_MAX_CURRENT_3V3_SHUTDOWN,
-        help="3V3 shutdown current",
+        default=DEFAULT_MAX_CURRENT_CE_SHUTDOWN,
+        help="CE shutdown current",
     )
 
     p = sub.add_parser("read-block-config", help="Read one HD mezzanine block configuration")
     add_common_args(p)
     p.add_argument("--afe", type=int, required=True, choices=range(0, 5), help="AFE block [0..4]")
 
-    p = sub.add_parser("set-power-states", help="Set 5V and 3V3 power states for one block")
+    p = sub.add_parser("set-power-states", help="Set 5V and CE power states for one block")
     add_common_args(p)
     p.add_argument("--afe", type=int, required=True, choices=range(0, 5), help="AFE block [0..4]")
     p.add_argument("--power-5v", choices=["0", "1"], required=True, help="0=off, 1=on")
-    p.add_argument("--power-3v3", choices=["0", "1"], required=True, help="0=off, 1=on")
+    p.add_argument("--power-ce", "--power-3v3", dest="power_ce", choices=["0", "1"], required=True, help="0=off, 1=on")
 
     p = sub.add_parser("read-status", help="Read cached HD mezzanine monitoring status")
     add_common_args(p)
@@ -158,32 +158,32 @@ def build_parser() -> argparse.ArgumentParser:
 def print_config_response(resp) -> None:
     print(f"success={resp.success} afe={resp.afeBlock} message='{resp.message}'")
     print(f"r_shunt_5V={resp.r_shunt_5V} ohm")
-    print(f"r_shunt_3V3={resp.r_shunt_3V3} ohm")
+    print(f"r_shunt_CE={resp.r_shunt_3V3} ohm")
     print(f"max_current_5V_scale={resp.max_current_5V_scale} A")
-    print(f"max_current_3V3_scale={resp.max_current_3V3_scale} A")
+    print(f"max_current_CE_scale={resp.max_current_3V3_scale} A")
     print(f"max_current_5V_shutdown={resp.max_current_5V_shutdown} A")
-    print(f"max_current_3V3_shutdown={resp.max_current_3V3_shutdown} A")
+    print(f"max_current_CE_shutdown={resp.max_current_3V3_shutdown} A")
     if hasattr(resp, "max_power_5V"):
         print(f"max_power_5V={resp.max_power_5V} W")
-        print(f"max_power_3V3={resp.max_power_3V3} W")
+        print(f"max_power_CE={resp.max_power_3V3} W")
         print(f"current_lsb_5V={resp.current_lsb_5V} A/LSB")
-        print(f"current_lsb_3V3={resp.current_lsb_3V3} A/LSB")
+        print(f"current_lsb_CE={resp.current_lsb_3V3} A/LSB")
         print(f"shunt_cal_5V={resp.shunt_cal_5V}")
-        print(f"shunt_cal_3V3={resp.shunt_cal_3V3}")
+        print(f"shunt_cal_CE={resp.shunt_cal_3V3}")
 
 
 def print_status_response(resp) -> None:
     print(f"success={resp.success} afe={resp.afeBlock} message='{resp.message}'")
     print(f"power_5V={int(resp.power5V)}")
-    print(f"power_3V3={int(resp.power3V3)}")
+    print(f"power_CE={int(resp.power3V3)}")
     print(f"alert_5V={int(resp.alert_5V)}")
-    print(f"alert_3V3={int(resp.alert_3V3)}")
+    print(f"alert_CE={int(resp.alert_3V3)}")
     print(f"measured_voltage_5V={resp.measured_voltage5V:.6f} V")
-    print(f"measured_voltage_3V3={resp.measured_voltage3V3:.6f} V")
+    print(f"measured_voltage_CE={resp.measured_voltage3V3:.6f} V")
     print(f"measured_current_5V={resp.measured_current5V:.6f} mA")
-    print(f"measured_current_3V3={resp.measured_current3V3:.6f} mA")
+    print(f"measured_current_CE={resp.measured_current3V3:.6f} mA")
     print(f"measured_power_5V={resp.measured_power5V:.6f} mW")
-    print(f"measured_power_3V3={resp.measured_power3V3:.6f} mW")
+    print(f"measured_power_CE={resp.measured_power3V3:.6f} mW")
 
 
 class HDMezzClient:
@@ -671,7 +671,7 @@ def run_visual(args) -> int:
 
             self.enable_check = QtWidgets.QCheckBox("AFT BUS ENABLE")
             self.power_5v = QtWidgets.QCheckBox("5V RAIL")
-            self.power_3v3 = QtWidgets.QCheckBox("3V3 RAIL")
+            self.power_3v3 = QtWidgets.QCheckBox("CE RAIL")
             left.addWidget(self.enable_check)
             left.addWidget(self.power_5v)
             left.addWidget(self.power_3v3)
@@ -680,9 +680,9 @@ def run_visual(args) -> int:
             lamp_grid.setHorizontalSpacing(8)
             lamp_grid.setVerticalSpacing(8)
             self.power_5v_lamp = StatusLamp("5V POWER", on_color="#39f07f", off_color="#153324")
-            self.power_3v3_lamp = StatusLamp("3V3 POWER", on_color="#39f07f", off_color="#153324")
+            self.power_3v3_lamp = StatusLamp("CE POWER", on_color="#39f07f", off_color="#153324")
             self.alert_5v_lamp = StatusLamp("5V ALERT", on_color="#ff4d4d", off_color="#34161b")
-            self.alert_3v3_lamp = StatusLamp("3V3 ALERT", on_color="#ff4d4d", off_color="#34161b")
+            self.alert_3v3_lamp = StatusLamp("CE ALERT", on_color="#ff4d4d", off_color="#34161b")
             lamp_grid.addWidget(self.power_5v_lamp, 0, 0)
             lamp_grid.addWidget(self.power_3v3_lamp, 0, 1)
             lamp_grid.addWidget(self.alert_5v_lamp, 1, 0)
@@ -720,11 +720,11 @@ def run_visual(args) -> int:
             knobs_grid.setHorizontalSpacing(8)
             knobs_grid.setVerticalSpacing(8)
             self.r_shunt_5v = KnobSpin("R SHUNT 5V", DEFAULT_R_SHUNT_5V, 0.0, 1.0, 6, 0.001)
-            self.r_shunt_3v3 = KnobSpin("R SHUNT 3V3", DEFAULT_R_SHUNT_3V3, 0.0, 1.0, 6, 0.001)
+            self.r_shunt_3v3 = KnobSpin("R SHUNT CE", DEFAULT_R_SHUNT_CE, 0.0, 1.0, 6, 0.001)
             self.max_current_5v_scale = KnobSpin("I SCALE 5V", DEFAULT_MAX_CURRENT_5V_SCALE, 0.0, 1.0, 6, 0.001)
-            self.max_current_3v3_scale = KnobSpin("I SCALE 3V3", DEFAULT_MAX_CURRENT_3V3_SCALE, 0.0, 1.0, 6, 0.001)
+            self.max_current_3v3_scale = KnobSpin("I SCALE CE", DEFAULT_MAX_CURRENT_CE_SCALE, 0.0, 1.0, 6, 0.001)
             self.max_current_5v_shutdown = KnobSpin("I CUT 5V", DEFAULT_MAX_CURRENT_5V_SHUTDOWN, 0.0, 1.0, 6, 0.001)
-            self.max_current_3v3_shutdown = KnobSpin("I CUT 3V3", DEFAULT_MAX_CURRENT_3V3_SHUTDOWN, 0.0, 1.0, 6, 0.001)
+            self.max_current_3v3_shutdown = KnobSpin("I CUT CE", DEFAULT_MAX_CURRENT_CE_SHUTDOWN, 0.0, 1.0, 6, 0.001)
             knob_widgets = [
                 self.r_shunt_5v,
                 self.r_shunt_3v3,
@@ -751,11 +751,11 @@ def run_visual(args) -> int:
             telemetry_grid.setHorizontalSpacing(10)
             telemetry_grid.setVerticalSpacing(10)
             self.v5_display = TelemetryDisplay("BUS 5V", "V")
-            self.v3_display = TelemetryDisplay("BUS 3V3", "V")
+            self.v3_display = TelemetryDisplay("BUS CE", "V")
             self.i5_display = TelemetryDisplay("LOAD 5V", "mA")
-            self.i3_display = TelemetryDisplay("LOAD 3V3", "mA")
+            self.i3_display = TelemetryDisplay("LOAD CE", "mA")
             self.p5_display = TelemetryDisplay("POWER 5V", "mW")
-            self.p3_display = TelemetryDisplay("POWER 3V3", "mW")
+            self.p3_display = TelemetryDisplay("POWER CE", "mW")
             displays = [
                 self.v5_display,
                 self.v3_display,
@@ -774,17 +774,17 @@ def run_visual(args) -> int:
             self.voltage_graph = TrendGraph(
                 "VOLTAGE TREND",
                 "V",
-                [("v5", "5V", "#8ff0ff"), ("v3", "3V3", "#f9c66f")],
+                [("v5", "5V", "#8ff0ff"), ("v3", "CE", "#f9c66f")],
             )
             self.current_graph = TrendGraph(
                 "CURRENT TREND",
                 "mA",
-                [("i5", "5V", "#39f07f"), ("i3", "3V3", "#ffb347")],
+                [("i5", "5V", "#39f07f"), ("i3", "CE", "#ffb347")],
             )
             self.power_graph = TrendGraph(
                 "POWER TREND",
                 "mW",
-                [("p5", "5V", "#ff7b72"), ("p3", "3V3", "#c792ea")],
+                [("p5", "5V", "#ff7b72"), ("p3", "CE", "#c792ea")],
             )
             graph_stack.addWidget(self.voltage_graph)
             graph_stack.addWidget(self.current_graph)
@@ -1038,11 +1038,11 @@ def main() -> int:
             resp = client.configure_block(
                 args.afe,
                 r_shunt_5v=args.rshunt_5v,
-                r_shunt_3v3=args.rshunt_3v3,
+                r_shunt_3v3=args.rshunt_ce,
                 max_current_5v_scale=args.max_current_5v_scale,
-                max_current_3v3_scale=args.max_current_3v3_scale,
+                max_current_3v3_scale=args.max_current_ce_scale,
                 max_current_5v_shutdown=args.max_current_5v_shutdown,
-                max_current_3v3_shutdown=args.max_current_3v3_shutdown,
+                max_current_3v3_shutdown=args.max_current_ce_shutdown,
             )
             print_config_response(resp)
             return 0 if resp.success else 2
@@ -1053,10 +1053,10 @@ def main() -> int:
             return 0 if resp.success else 2
 
         if args.command == "set-power-states":
-            resp = client.set_power_states(args.afe, power_5v=bool(int(args.power_5v)), power_3v3=bool(int(args.power_3v3)))
+            resp = client.set_power_states(args.afe, power_5v=bool(int(args.power_5v)), power_3v3=bool(int(args.power_ce)))
             print(
                 f"success={resp.success} afe={resp.afeBlock} power5V={int(resp.power5V)} "
-                f"power3V3={int(resp.power3V3)} message='{resp.message}'"
+                f"powerCE={int(resp.power3V3)} message='{resp.message}'"
             )
             return 0 if resp.success else 2
 
