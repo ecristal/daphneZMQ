@@ -47,7 +47,9 @@ namespace I2CMezzDrivers{
         double getCurrentLsb(uint8_t afeBlock, const std::string &rail) const;
         uint16_t getShuntCal(uint8_t afeBlock, const std::string &rail) const;
 
+        struct BlockConfiguration { double rShunt5V, rShunt3V3, maxCurrentScale5V, maxCurrentScale3V3, maxCurrentShutdown5V, maxCurrentShutdown3V3; };
         void configureHdMezzAfeBlock(uint8_t afeBlock);
+        void configureHdMezzAfeBlock(uint8_t afeBlock, const BlockConfiguration& configuration);
         void setPowerRequests(uint8_t afeBlock, bool power5V, bool power3V3);
         PowerRequests readPowerRequests(uint8_t afeBlock);
         void powerOn_HDMezzAfeBlock(uint8_t afeBlock, bool powerOn, const std::string &rail);

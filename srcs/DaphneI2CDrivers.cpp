@@ -388,6 +388,13 @@ void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(uint8_t afeBlock){
     configured_afeBlocks[afeBlock] = true;
 }
 
+void I2CMezzDrivers::HDMezzDriver::configureHdMezzAfeBlock(uint8_t afeBlock, const BlockConfiguration& c) {
+    setRShunt(afeBlock, c.rShunt5V, "5V"); setRShunt(afeBlock, c.rShunt3V3, "3V3");
+    setMaxCurrentScale(afeBlock, c.maxCurrentScale5V, "5V"); setMaxCurrentScale(afeBlock, c.maxCurrentScale3V3, "3V3");
+    setMaxCurrentShutdown(afeBlock, c.maxCurrentShutdown5V, "5V"); setMaxCurrentShutdown(afeBlock, c.maxCurrentShutdown3V3, "3V3");
+    configureHdMezzAfeBlock(afeBlock);
+}
+
 void I2CMezzDrivers::HDMezzDriver::setPowerRequests(
     uint8_t afeBlock, bool power5V, bool power3V3) {
     std::lock_guard<std::mutex> lock(mutex_);
