@@ -1862,6 +1862,7 @@ bool alignAFE(const cmd_alignAFEs&,
               cmd_alignAFEs_response& response,
               Daphne& daphne,
               std::string& response_str) {
+  bool delay_vtc_disabled = false;
   try {
     constexpr uint32_t kExpectedFclkWord = 0x00FF00FFu;
     constexpr uint32_t kVerificationReads = 4;
@@ -1872,6 +1873,7 @@ bool alignAFE(const cmd_alignAFEs&,
     daphne.getFrontEnd()->resetDelayCtrlValues();
     daphne.getFrontEnd()->doResetDelayCtrl();
     daphne.getFrontEnd()->doResetSerDesCtrl();
+    delay_vtc_disabled = true;
     daphne.getFrontEnd()->setEnableDelayVtc(0);
 
     if (!daphne.getFrontEnd()->waitForDelayCtrlReady()) {
@@ -1906,10 +1908,9 @@ bool alignAFE(const cmd_alignAFEs&,
       }
       report += "\n";
 
-      // setBestBitslip() returns an immediate spy-buffer read after the trigger.
-      // It has no snapshot-latch wait, so it is diagnostic only. Alignment
-      // acceptance is based on finding the target in the scan and on the
-      // settled verification reads above.
+      // The post-selection read is diagnostic only. Alignment acceptance is
+      // based on finding the target in the scan and on the settled
+      // verification reads above.
       if (!matched || !verification_ok) {
         failures.push_back(
             "AFE_" + std::to_string(afe_block) +
@@ -1929,6 +1930,7 @@ bool alignAFE(const cmd_alignAFEs&,
     }
 
     daphne.getFrontEnd()->setEnableDelayVtc(1);
+    delay_vtc_disabled = false;
     if (!failures.empty()) {
       response_str = "AFE alignment failed.\n";
       for (const auto& failure : failures) {
@@ -1941,6 +1943,13 @@ bool alignAFE(const cmd_alignAFEs&,
     response_str = "AFEs aligned.\n" + report;
     return true;
   } catch (const std::exception& e) {
+    if (delay_vtc_disabled) {
+      try {
+        daphne.getFrontEnd()->setEnableDelayVtc(1);
+      } catch (...) {
+        // Preserve the original alignment error if best-effort cleanup fails.
+      }
+    }
     response_str = std::string("Error aligning AFE: ") + e.what();
     return false;
   }
