@@ -1885,7 +1885,7 @@ bool alignAFE(const cmd_alignAFEs&,
       std::string bitslip_dbg;
       bool matched = false;
       daphne.setBestDelay(afe_block, 512, &delay_dbg);
-      const uint32_t aligned_word = daphne.setBestBitslip(afe_block, 16, &bitslip_dbg, &matched);
+      daphne.setBestBitslip(afe_block, 16, &bitslip_dbg, &matched);
       report += delay_dbg + bitslip_dbg;
 
       bool verification_ok = matched;
@@ -1906,7 +1906,11 @@ bool alignAFE(const cmd_alignAFEs&,
       }
       report += "\n";
 
-      if (!matched || aligned_word != kExpectedFclkWord || !verification_ok) {
+      // setBestBitslip() returns an immediate spy-buffer read after the trigger.
+      // It has no snapshot-latch wait, so it is diagnostic only. Alignment
+      // acceptance is based on finding the target in the scan and on the
+      // settled verification reads above.
+      if (!matched || !verification_ok) {
         failures.push_back(
             "AFE_" + std::to_string(afe_block) +
             " did not converge to stable 0x00FF00FF alignment.");
