@@ -243,6 +243,8 @@ uint32_t Daphne::setBestBitslip(const uint32_t& afe, const size_t& bitslipTaps, 
 
 	this->frontend->setBitslip(afe, finalBitslip);
 	this->frontend->doTrigger();
+\t// Match the scan and verification cadence before this diagnostic read.
+\tstd::this_thread::sleep_for(std::chrono::milliseconds(1));
 	uint32_t value = this->spyBuffer->getFrameClock(afe, 0);
     if (matched_out) {
         *matched_out = matched;
