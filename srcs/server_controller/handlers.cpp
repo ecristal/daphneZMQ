@@ -1887,10 +1887,13 @@ bool alignAFE(const cmd_alignAFEs&,
       std::string bitslip_dbg;
       bool matched = false;
       daphne.setBestDelay(afe_block, 512, &delay_dbg);
-      daphne.setBestBitslip(afe_block, 16, &bitslip_dbg, &matched);
+      const uint32_t post_selection_word =
+          daphne.setBestBitslip(afe_block, 16, &bitslip_dbg, &matched);
+      const bool post_selection_matches = post_selection_word == kExpectedFclkWord;
       report += delay_dbg + bitslip_dbg;
 
-      bool verification_ok = matched;
+      bool verification_ok = true;
+      std::vector<uint32_t> failed_verification_samples;
       report += "  VERIFY_SCAN:";
       for (uint32_t i = 0; i < kVerificationReads; ++i) {
         daphne.getFrontEnd()->doTrigger();
@@ -1904,6 +1907,7 @@ bool alignAFE(const cmd_alignAFEs&,
                   }();
         if (verify_word != kExpectedFclkWord) {
           verification_ok = false;
+          failed_verification_samples.push_back(i);
         }
       }
       report += "\n";
@@ -1911,10 +1915,40 @@ bool alignAFE(const cmd_alignAFEs&,
       // The post-selection read is diagnostic only. Alignment acceptance is
       // based on finding the target in the scan and on the settled
       // verification reads above.
+      std::ostringstream status;
+      status << "  ALIGNMENT_STATUS: bitslip_scan=" << (matched ? "MATCH" : "MISS")
+             << ", post_selection=0x" << std::hex << std::uppercase << post_selection_word
+             << std::dec << (post_selection_matches ? " (MATCH, diagnostic only)"
+                                                    : " (MISMATCH, diagnostic only)")
+             << ", verify=" << (verification_ok ? "PASS" : "FAIL");
+      if (!failed_verification_samples.empty()) {
+        status << " (failed samples:";
+        for (const uint32_t sample : failed_verification_samples) {
+          status << " " << sample;
+        }
+        status << ")";
+      }
+      status << "\n";
+      report += status.str();
+
       if (!matched || !verification_ok) {
-        failures.push_back(
-            "AFE_" + std::to_string(afe_block) +
-            " did not converge to stable 0x00FF00FF alignment.");
+        std::ostringstream failure;
+        failure << "AFE_" << afe_block << " alignment failed:";
+        if (!matched) {
+          failure << " BITSLIP_SCAN did not observe 0x00FF00FF.";
+        }
+        if (!verification_ok) {
+          failure << " VERIFY_SCAN mismatch at sample";
+          if (failed_verification_samples.size() > 1) {
+            failure << "s";
+          }
+          failure << ":";
+          for (const uint32_t sample : failed_verification_samples) {
+            failure << " " << sample;
+          }
+          failure << ".";
+        }
+        failures.push_back(failure.str());
       }
     }
 
