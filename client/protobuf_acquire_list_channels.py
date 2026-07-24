@@ -65,7 +65,7 @@ def v2_request(socket: zmq.Socket, mtype_req, payload_bytes: bytes, route: str):
     return env, rep
 
 
-def stream_envelope(socket: zmq.Socket, envelope: pb_high.ControlEnvelope, timeout_ms: int):
+def stream_envelope(socket: zmq.Socket, envelope, timeout_ms: int, v2: bool = False):
     socket.send(envelope.SerializeToString())
     while True:
         try:
@@ -78,9 +78,16 @@ def stream_envelope(socket: zmq.Socket, envelope: pb_high.ControlEnvelope, timeo
             except zmq.Again:
                 raise TimeoutError("Timed out receiving multipart chunk from server")
         payload = frames[-1]
-        env = pb_high.ControlEnvelope()
-        env.ParseFromString(payload)
-        yield env
+        reply = pb_high.ControlEnvelopeV2() if v2 else pb_high.ControlEnvelope()
+        reply.ParseFromString(payload)
+        if v2:
+            if reply.dir != pb_high.DIR_RESPONSE:
+                raise RuntimeError(f"Unexpected V2 direction: {reply.dir}")
+            if reply.correl_id != envelope.msg_id:
+                raise RuntimeError(
+                    f"Correlation mismatch (correl_id={reply.correl_id}, expected {envelope.msg_id})"
+                )
+        yield reply
 
 # ---------------------------- HWM / credit -----------------------------
 
@@ -304,7 +311,12 @@ files: Dict[int, any] = {ch: open(os.path.join(foldername, f"channel_{ch}.dat"),
 wf_written = 0
 try:
     with tqdm(total=args.N, unit='wf') as pbar:
-        for resp_env in stream_envelope(socket, env, args.timeout_ms):
+        for resp_env in stream_envelope(
+            socket,
+            env,
+            args.timeout_ms,
+            v2=(args.v2 and not args.legacy),
+        ):
             if args.v2 and not args.legacy:
                 if resp_env.type != pb_high.MT2_DUMP_SPYBUFFER_CHUNK_RESP:
                     continue
