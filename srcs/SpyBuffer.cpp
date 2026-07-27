@@ -1,7 +1,5 @@
 #include "SpyBuffer.hpp"
 
-#include <algorithm>
-#include <atomic>
 #include <cstdlib>
 
 namespace {
@@ -291,24 +289,6 @@ bool SpyBuffer::waitExpired(
            std::chrono::steady_clock::now() >= deadline;
 }
 
-SpyBuffer::TimestampKey SpyBuffer::readStableTimestamp(
-    const std::chrono::steady_clock::time_point& deadline) const {
-    TimestampKey previous = this->getTimestampKey();
-
-    while (true) {
-        std::this_thread::sleep_for(timestamp_poll_interval);
-        const TimestampKey current = this->getTimestampKey();
-        if (current == previous) {
-            return current;
-        }
-        if (this->waitExpired(deadline)) {
-            throw std::runtime_error(
-                "Timed out while waiting for a stable spybuffer timestamp");
-        }
-        previous = current;
-    }
-}
-
 SpyBuffer::TimestampKey SpyBuffer::acquireFreshMappedData(
     uint32_t* dst,
     uint32_t nSamples,
@@ -334,57 +314,34 @@ SpyBuffer::TimestampKey SpyBuffer::acquireFreshMappedData(
         ? std::chrono::steady_clock::time_point::max()
         : std::chrono::steady_clock::now() + trigger_wait_timeout;
 
-    const TimestampKey current = this->readStableTimestamp(deadline);
-    TimestampKey baseline{};
+    TimestampKey current = this->getTimestampKey();
+    std::optional<TimestampKey> baseline;
 
     if (issue_trigger) {
-        // A software-triggered acquisition must not consume a snapshot that was
-        // already present before the trigger command.
-        last_delivered_timestamp = current;
+        // A software-triggered acquisition waits until the command advances the
+        // timestamp beyond the snapshot that existed before the command.
         baseline = current;
         issue_trigger();
-    } else {
-        // On the first hardware-triggered acquisition, establish a cursor from
-        // the current snapshot and wait for the next captured trigger.
-        if (!last_delivered_timestamp.has_value()) {
-            last_delivered_timestamp = current;
-        }
-        baseline = *last_delivered_timestamp;
+    } else if (last_delivered_timestamp.has_value()) {
+        baseline = last_delivered_timestamp;
     }
 
-    const size_t words =
-        static_cast<size_t>(nSamples) * channel_indices.size();
-    std::vector<uint32_t> staging(words, 0);
-
-    while (true) {
-        const TimestampKey before = this->readStableTimestamp(deadline);
-        if (before == baseline) {
-            if (this->waitExpired(deadline)) {
-                throw std::runtime_error(
-                    "Timed out waiting for a new spybuffer trigger");
-            }
-            std::this_thread::sleep_for(timestamp_poll_interval);
-            continue;
+    while (baseline.has_value() && current == *baseline) {
+        if (this->waitExpired(deadline)) {
+            throw std::runtime_error(
+                "Timed out waiting for a new spybuffer trigger");
         }
-
-        std::atomic_thread_fence(std::memory_order_seq_cst);
-        for (size_t i = 0; i < channel_indices.size(); ++i) {
-            this->extractMappedDataBulkSIMD(
-                staging.data() + static_cast<size_t>(nSamples) * i,
-                nSamples,
-                channel_indices[i]);
-        }
-        std::atomic_thread_fence(std::memory_order_seq_cst);
-
-        const TimestampKey after = this->readStableTimestamp(deadline);
-        if (before != after) {
-            // A trigger arrived while channel memories were being copied.
-            // Discard staging and retry against the newest complete snapshot.
-            continue;
-        }
-
-        std::copy(staging.begin(), staging.end(), dst);
-        last_delivered_timestamp = after;
-        return after;
+        std::this_thread::sleep_for(timestamp_poll_interval);
+        current = this->getTimestampKey();
     }
+
+    for (size_t i = 0; i < channel_indices.size(); ++i) {
+        this->extractMappedDataBulkSIMD(
+            dst + static_cast<size_t>(nSamples) * i,
+            nSamples,
+            channel_indices[i]);
+    }
+
+    last_delivered_timestamp = current;
+    return current;
 }

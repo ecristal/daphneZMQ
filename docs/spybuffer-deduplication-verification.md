@@ -23,11 +23,21 @@ Each waveform returned by `DumpSpyBuffersResponse` or
 `timestamps` field. Existing Protobuf clients remain compatible because the
 field numbers are new and optional.
 
-The first hardware-triggered acquisition establishes the current FPGA
-timestamp as its baseline and waits for the next trigger. Later requests share
+The first hardware-triggered acquisition returns the current snapshot and saves
+its FPGA timestamp. Later requests wait only while the current timestamp equals
 the last delivered timestamp, so one-waveform oscilloscope requests cannot
 consume the same snapshot twice. A software-triggered acquisition reads its
-baseline before issuing `0xBABA`.
+baseline before issuing `0xBABA` and waits for that timestamp to advance.
+
+The timestamp is a deduplication cursor, not a freeze condition. The server does
+not require it to remain stable before or during the spybuffer copy. This keeps
+the original maximum-throughput behavior: when triggers are faster than
+extraction, every delivered snapshot has a newer timestamp but intermediate
+triggers may be skipped. The delivered rate is therefore bounded by:
+
+```text
+min(trigger rate, server extraction and transport capacity)
+```
 
 ## Build and deploy
 
@@ -46,6 +56,10 @@ export DAPHNE_SPYBUFFER_TIMESTAMP_POLL_US=100
 `DAPHNE_SPYBUFFER_TRIGGER_TIMEOUT_MS=0` disables the server timeout. Use it only
 for a dedicated acquisition test because the current ROUTER handles requests
 synchronously.
+
+`DAPHNE_SPYBUFFER_TIMESTAMP_POLL_US` is used only while the timestamp is equal
+to the last delivered value. A continuously advancing timestamp does not incur
+the polling sleep.
 
 ## Continuous generator test
 
@@ -100,10 +114,15 @@ Accept a run when:
 
 1. `dup_ts=0` and `nonmono=0` for the complete run;
 2. `timeouts=0` and `errors=0` after startup;
-3. the rolling FPGA rate stays within the selected tolerance after the window
-   fills;
+3. when the trigger rate is below extraction capacity, the rolling FPGA rate
+   stays within the selected tolerance after the window fills;
 4. each response contains exactly one timestamp per waveform;
-5. multichannel waveforms are returned as one coherent event timestamp.
+5. each multichannel response has one deduplication timestamp.
+
+Above the extraction capacity, `fpga` reports the delivered snapshot rate, not
+the source trigger rate. A lower rate and skipped timestamp intervals are
+expected; duplicates, non-monotonic timestamps, timeouts, and request errors are
+still failures.
 
 If the FPGA rate differs from the generator by a constant scale factor, verify
 `--timestamp-clock-hz` before diagnosing trigger loss.

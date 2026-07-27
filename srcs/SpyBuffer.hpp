@@ -66,8 +66,6 @@ private:
 
     void mapToArraySpyBufferRegisters();
     void mapTimestampRegisters();
-    TimestampKey readStableTimestamp(
-        const std::chrono::steady_clock::time_point& deadline) const;
     bool waitExpired(const std::chrono::steady_clock::time_point& deadline) const;
 };
 

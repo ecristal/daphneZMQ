@@ -85,7 +85,7 @@ Safety knobs:
 - `DAPHNE_MAX_SPYBUFFER_BYTES` caps the non-chunked spybuffer dump response size (default 64 MiB).
 - `DAPHNE_MAX_SPYBUFFER_CHUNK_BYTES` caps per-chunk size for chunked dumps (default 64 MiB).
 - `DAPHNE_SPYBUFFER_TRIGGER_TIMEOUT_MS` sets the per-waveform wait for a new FPGA timestamp (default 30000 ms; `0` waits indefinitely).
-- `DAPHNE_SPYBUFFER_TIMESTAMP_POLL_US` sets the timestamp polling interval (default 100 us).
+- `DAPHNE_SPYBUFFER_TIMESTAMP_POLL_US` sets the polling interval used only while the timestamp still equals the last delivered value (default 100 us).
 
 Continuous hardware-trigger deduplication and rate validation is documented in
 [`docs/spybuffer-deduplication-verification.md`](docs/spybuffer-deduplication-verification.md).
