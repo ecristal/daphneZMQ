@@ -13,10 +13,15 @@
 #include <chrono>
 #include <thread>
 #include <array>
+#include <functional>
+#include <mutex>
+#include <optional>
 #include "FpgaReg.hpp"
 
 class SpyBuffer {
 public:
+    using TimestampKey = std::array<uint16_t, 4>;
+
     // Constructor
     SpyBuffer();
 
@@ -41,13 +46,29 @@ public:
     void extractMappedDataBulk(uint32_t* output, uint32_t numberOfSamples) const;
     void extractMappedDataBulkSIMD(uint32_t* dst, uint32_t nSamples);
     void extractMappedDataBulkSIMD(uint32_t* dst, uint32_t nSamples, uint32_t channel_index);
+    TimestampKey getTimestampKey(const uint32_t& sample = 0) const;
+    TimestampKey acquireFreshMappedData(
+        uint32_t* dst,
+        uint32_t nSamples,
+        const std::vector<uint32_t>& channel_indices,
+        const std::function<void()>& issue_trigger = {});
+    static uint64_t packTimestamp(const TimestampKey& timestamp);
 
 private:
     std::unique_ptr<FpgaReg> fpgaReg;
     std::array<const uint32_t*, 40> channel_ptrs;
+    std::array<const volatile uint32_t*, 4> timestamp_ptrs;
     uint32_t current_channel_index;
+    std::mutex acquisition_mutex;
+    std::optional<TimestampKey> last_delivered_timestamp;
+    std::chrono::milliseconds trigger_wait_timeout;
+    std::chrono::microseconds timestamp_poll_interval;
 
     void mapToArraySpyBufferRegisters();
+    void mapTimestampRegisters();
+    TimestampKey readStableTimestamp(
+        const std::chrono::steady_clock::time_point& deadline) const;
+    bool waitExpired(const std::chrono::steady_clock::time_point& deadline) const;
 };
 
 #endif // SPYBUFFER_HPP

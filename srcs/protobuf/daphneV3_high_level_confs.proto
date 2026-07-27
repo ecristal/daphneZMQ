@@ -76,6 +76,7 @@ message DumpSpyBuffersResponse {
   bool            softwareTrigger   = 5;
   repeated uint32 data              = 6 [packed = true];
   string          message           = 7;
+  repeated uint64 timestamps        = 8 [packed = true];
 }
 
 // Chunked variant (for large transfers)
@@ -99,6 +100,7 @@ message DumpSpyBuffersChunkResponse {
   repeated uint32 channelList         = 9;
   repeated uint32 data                = 10;
   string          message             = 11;
+  repeated uint64 timestamps          = 12 [packed = true];
 }
 
 // ----------------- Info -----------------

@@ -1,9 +1,10 @@
 #include "server_controller/spybuffer_chunker.hpp"
 
 #include <algorithm>
-#include <atomic>
 #include <cstdlib>
 #include <cstdint>
+#include <exception>
+#include <functional>
 #include <stdexcept>
 #include <string>
 #include <thread>
@@ -63,13 +64,17 @@ void for_each_spybuffer_chunk(
     uint32_t wf_start = 0;
     uint32_t wf_count = 0;
     std::vector<uint32_t> data;
+    std::vector<uint64_t> timestamps;
   };
 
   BoundedQueue<ChunkPacket> queue(2);
-  std::atomic<bool> had_error(false);
+  std::exception_ptr producer_error;
 
   auto* spy_buffer = daphne.getSpyBuffer();
   auto* frontend = daphne.getFrontEnd();
+  const std::function<void()> issue_trigger = software_trigger
+      ? std::function<void()>([frontend] { frontend->doTrigger(); })
+      : std::function<void()>{};
 
   const size_t bytes_per_chunk =
       static_cast<size_t>(chunk_size) * number_of_samples * mapped_channels.size() * sizeof(uint32_t);
@@ -89,22 +94,24 @@ void for_each_spybuffer_chunk(
         packet.data.resize(static_cast<size_t>(wf_count) * number_of_samples *
                                mapped_channels.size(),
                            0);
+        packet.timestamps.reserve(wf_count);
 
         for (uint32_t i = 0; i < wf_count; ++i) {
-          if (software_trigger) frontend->doTrigger();
-          for (size_t j = 0; j < mapped_channels.size(); ++j) {
-            const uint32_t chan = mapped_channels[j];
-            uint32_t* dst = packet.data.data() +
-                            (static_cast<size_t>(i) * mapped_channels.size() + j) *
-                                number_of_samples;
-            spy_buffer->extractMappedDataBulkSIMD(dst, number_of_samples, chan);
-          }
+          uint32_t* dst = packet.data.data() +
+                          static_cast<size_t>(i) * mapped_channels.size() *
+                              number_of_samples;
+          const auto timestamp = spy_buffer->acquireFreshMappedData(
+              dst,
+              number_of_samples,
+              mapped_channels,
+              issue_trigger);
+          packet.timestamps.push_back(SpyBuffer::packTimestamp(timestamp));
         }
 
         queue.push(std::move(packet));
       }
     } catch (...) {
-      had_error.store(true);
+      producer_error = std::current_exception();
     }
     queue.close();
   });
@@ -112,7 +119,7 @@ void for_each_spybuffer_chunk(
   ChunkPacket packet;
   while (queue.pop(packet)) {
     daphne::DumpSpyBuffersChunkResponse resp;
-    resp.set_success(!had_error.load());
+    resp.set_success(true);
     resp.set_requestid(request_id);
     resp.set_chunkseq(packet.seq);
     resp.set_isfinal((packet.wf_start + packet.wf_count) >= number_of_waveforms);
@@ -128,11 +135,18 @@ void for_each_spybuffer_chunk(
 
     auto* out_data = resp.mutable_data();
     out_data->Add(packet.data.data(), packet.data.data() + packet.data.size());
+    auto* out_timestamps = resp.mutable_timestamps();
+    out_timestamps->Add(
+        packet.timestamps.data(),
+        packet.timestamps.data() + packet.timestamps.size());
 
     on_chunk(resp);
   }
 
   if (producer.joinable()) producer.join();
+  if (producer_error) {
+    std::rethrow_exception(producer_error);
+  }
 }
 
 }  // namespace daphne_sc

@@ -10,6 +10,7 @@
 #include <cstring>
 #include <exception>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -1814,32 +1815,28 @@ bool dumpSpybuffer(const DumpSpyBuffersRequest& request,
     auto* data_field = response.mutable_data();
     uint32_t* data_ptr = data_field->mutable_data();
 
-    if (channel_list.size() == 1) {
-      uint32_t ch = channel_list[0];
+    std::vector<uint32_t> mapped_channels;
+    mapped_channels.reserve(static_cast<size_t>(channel_list.size()));
+    for (const auto ch : channel_list) {
       const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(ch / 8);
       const uint32_t afe_channel = ch % 8;
-      const uint32_t mapped_channel = afe_block * 8 + afe_channel;
-      for (uint32_t j = 0; j < number_of_waveforms; ++j) {
-        if (software_trigger) front_end->doTrigger();
-        uint32_t* waveform_start = data_ptr + number_of_samples * j;
-        spy_buffer->extractMappedDataBulkSIMD(waveform_start, number_of_samples, mapped_channel);
-      }
-    } else {
-      std::vector<uint32_t> mapped_channels;
-      mapped_channels.reserve(static_cast<size_t>(channel_list.size()));
-      for (const auto ch : channel_list) {
-        const uint32_t afe_block = afe_definitions::AFE_board2PL_map.at(ch / 8);
-        const uint32_t afe_channel = ch % 8;
-        mapped_channels.push_back(afe_block * 8 + afe_channel);
-      }
-      for (uint32_t j = 0; j < number_of_waveforms; ++j) {
-        if (software_trigger) front_end->doTrigger();
-        for (size_t i = 0; i < mapped_channels.size(); ++i) {
-          const uint32_t mapped_channel = mapped_channels[i];
-          uint32_t* waveform_start = data_ptr + number_of_samples * (j * mapped_channels.size() + i);
-          spy_buffer->extractMappedDataBulkSIMD(waveform_start, number_of_samples, mapped_channel);
-        }
-      }
+      mapped_channels.push_back(afe_block * 8 + afe_channel);
+    }
+
+    const std::function<void()> issue_trigger = software_trigger
+        ? std::function<void()>([front_end] { front_end->doTrigger(); })
+        : std::function<void()>{};
+
+    for (uint32_t j = 0; j < number_of_waveforms; ++j) {
+      uint32_t* waveform_start =
+          data_ptr + static_cast<size_t>(number_of_samples) * j *
+                         mapped_channels.size();
+      const auto timestamp = spy_buffer->acquireFreshMappedData(
+          waveform_start,
+          number_of_samples,
+          mapped_channels,
+          issue_trigger);
+      response.add_timestamps(SpyBuffer::packTimestamp(timestamp));
     }
 
     auto* resp_channel_list = response.mutable_channellist();

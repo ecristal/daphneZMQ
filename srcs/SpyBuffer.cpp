@@ -1,9 +1,45 @@
 #include "SpyBuffer.hpp"
 
+#include <algorithm>
+#include <atomic>
+#include <cstdlib>
+
+namespace {
+
+uint64_t readDurationEnvironment(const char* name, uint64_t default_value) {
+    const char* raw = std::getenv(name);
+    if (raw == nullptr || *raw == '\0') {
+        return default_value;
+    }
+
+    try {
+        size_t consumed = 0;
+        const unsigned long long value = std::stoull(raw, &consumed, 10);
+        if (consumed != std::string(raw).size()) {
+            throw std::invalid_argument("trailing characters");
+        }
+        return static_cast<uint64_t>(value);
+    } catch (const std::exception&) {
+        throw std::invalid_argument(
+            std::string("Invalid unsigned integer in environment variable ") +
+            name + ": " + raw);
+    }
+}
+
+}  // namespace
+
 SpyBuffer::SpyBuffer()
-	: fpgaReg(std::make_unique<FpgaReg>()){
-		this->mapToArraySpyBufferRegisters();
-	}
+    : fpgaReg(std::make_unique<FpgaReg>()),
+      channel_ptrs{},
+      timestamp_ptrs{},
+      current_channel_index(0),
+      trigger_wait_timeout(
+          readDurationEnvironment("DAPHNE_SPYBUFFER_TRIGGER_TIMEOUT_MS", 30000)),
+      timestamp_poll_interval(
+          readDurationEnvironment("DAPHNE_SPYBUFFER_TIMESTAMP_POLL_US", 100)) {
+        this->mapToArraySpyBufferRegisters();
+        this->mapTimestampRegisters();
+    }
 
 SpyBuffer::~SpyBuffer(){}
 
@@ -63,6 +99,18 @@ void SpyBuffer::mapToArraySpyBufferRegisters(){
 			this->channel_ptrs[channel_index] = this->fpgaReg->getRegisterPointer("spyBuffer_" + std::to_string(afe) + "_" + std::to_string(ch),"DATAL",0);
 		}
 	}
+}
+
+void SpyBuffer::mapTimestampRegisters(){
+    for (size_t i = 0; i < timestamp_ptrs.size(); ++i) {
+        const uint32_t* ptr = this->fpgaReg->getRegisterPointer(
+            "timestamp" + std::to_string(i), "VALUE", 0);
+        if (ptr == nullptr) {
+            throw std::runtime_error(
+                "Could not map timestamp" + std::to_string(i));
+        }
+        timestamp_ptrs[i] = ptr;
+    }
 }
 
 void SpyBuffer::setCurrentMappedChannelIndex(uint32_t index){
@@ -219,5 +267,124 @@ void SpyBuffer::extractMappedDataBulkSIMD(uint32_t* dst, uint32_t nSamples, uint
     if (nSamples % 2) {
         uint32_t word = src[wordCount];
         dst[idx++] = (word >> 2) & 0x3FFF;    // DATAL
+    }
+}
+
+SpyBuffer::TimestampKey SpyBuffer::getTimestampKey(const uint32_t& sample) const {
+    TimestampKey timestamp{};
+    for (size_t i = 0; i < timestamp_ptrs.size(); ++i) {
+        timestamp[i] = static_cast<uint16_t>(timestamp_ptrs[i][sample] & 0xFFFFu);
+    }
+    return timestamp;
+}
+
+uint64_t SpyBuffer::packTimestamp(const TimestampKey& timestamp) {
+    return static_cast<uint64_t>(timestamp[0]) |
+           (static_cast<uint64_t>(timestamp[1]) << 16) |
+           (static_cast<uint64_t>(timestamp[2]) << 32) |
+           (static_cast<uint64_t>(timestamp[3]) << 48);
+}
+
+bool SpyBuffer::waitExpired(
+    const std::chrono::steady_clock::time_point& deadline) const {
+    return deadline != std::chrono::steady_clock::time_point::max() &&
+           std::chrono::steady_clock::now() >= deadline;
+}
+
+SpyBuffer::TimestampKey SpyBuffer::readStableTimestamp(
+    const std::chrono::steady_clock::time_point& deadline) const {
+    TimestampKey previous = this->getTimestampKey();
+
+    while (true) {
+        std::this_thread::sleep_for(timestamp_poll_interval);
+        const TimestampKey current = this->getTimestampKey();
+        if (current == previous) {
+            return current;
+        }
+        if (this->waitExpired(deadline)) {
+            throw std::runtime_error(
+                "Timed out while waiting for a stable spybuffer timestamp");
+        }
+        previous = current;
+    }
+}
+
+SpyBuffer::TimestampKey SpyBuffer::acquireFreshMappedData(
+    uint32_t* dst,
+    uint32_t nSamples,
+    const std::vector<uint32_t>& channel_indices,
+    const std::function<void()>& issue_trigger) {
+    if (dst == nullptr) {
+        throw std::invalid_argument("Spybuffer destination pointer is null");
+    }
+    if (nSamples == 0 || nSamples > 2048) {
+        throw std::invalid_argument("Spybuffer sample count is out of range");
+    }
+    if (channel_indices.empty()) {
+        throw std::invalid_argument("Spybuffer channel list is empty");
+    }
+    for (const uint32_t channel : channel_indices) {
+        if (channel >= channel_ptrs.size()) {
+            throw std::invalid_argument("Mapped spybuffer channel is out of range");
+        }
+    }
+
+    std::unique_lock<std::mutex> lock(acquisition_mutex);
+    const auto deadline = trigger_wait_timeout.count() == 0
+        ? std::chrono::steady_clock::time_point::max()
+        : std::chrono::steady_clock::now() + trigger_wait_timeout;
+
+    const TimestampKey current = this->readStableTimestamp(deadline);
+    TimestampKey baseline{};
+
+    if (issue_trigger) {
+        // A software-triggered acquisition must not consume a snapshot that was
+        // already present before the trigger command.
+        last_delivered_timestamp = current;
+        baseline = current;
+        issue_trigger();
+    } else {
+        // On the first hardware-triggered acquisition, establish a cursor from
+        // the current snapshot and wait for the next captured trigger.
+        if (!last_delivered_timestamp.has_value()) {
+            last_delivered_timestamp = current;
+        }
+        baseline = *last_delivered_timestamp;
+    }
+
+    const size_t words =
+        static_cast<size_t>(nSamples) * channel_indices.size();
+    std::vector<uint32_t> staging(words, 0);
+
+    while (true) {
+        const TimestampKey before = this->readStableTimestamp(deadline);
+        if (before == baseline) {
+            if (this->waitExpired(deadline)) {
+                throw std::runtime_error(
+                    "Timed out waiting for a new spybuffer trigger");
+            }
+            std::this_thread::sleep_for(timestamp_poll_interval);
+            continue;
+        }
+
+        std::atomic_thread_fence(std::memory_order_seq_cst);
+        for (size_t i = 0; i < channel_indices.size(); ++i) {
+            this->extractMappedDataBulkSIMD(
+                staging.data() + static_cast<size_t>(nSamples) * i,
+                nSamples,
+                channel_indices[i]);
+        }
+        std::atomic_thread_fence(std::memory_order_seq_cst);
+
+        const TimestampKey after = this->readStableTimestamp(deadline);
+        if (before != after) {
+            // A trigger arrived while channel memories were being copied.
+            // Discard staging and retry against the newest complete snapshot.
+            continue;
+        }
+
+        std::copy(staging.begin(), staging.end(), dst);
+        last_delivered_timestamp = after;
+        return after;
     }
 }
