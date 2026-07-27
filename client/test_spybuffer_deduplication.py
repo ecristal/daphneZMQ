@@ -38,19 +38,43 @@ def load_protobuf_module():
     candidates.append(REPO_ROOT / "srcs" / "protobuf")
 
     stale_binding_found = False
+    visited: set[Path] = set()
+    selected_candidate: Path | None = None
     for candidate in candidates:
-        if not (candidate / "daphneV3_high_level_confs_pb2.py").is_file():
+        candidate = candidate.resolve()
+        if candidate in visited:
             continue
-        sys.path.insert(0, str(candidate))
+        visited.add(candidate)
+
+        high_level_binding = candidate / "daphneV3_high_level_confs_pb2.py"
+        low_level_binding = candidate / "daphneV3_low_level_confs_pb2.py"
+        if not high_level_binding.is_file() or not low_level_binding.is_file():
+            continue
+
+        # Importing a generated module registers its serialized descriptor in
+        # Protobuf's process-global pool. Inspect the file first so an obsolete
+        # candidate never contaminates that pool before the compatible binding
+        # is imported.
+        if b"timestamps" not in high_level_binding.read_bytes():
+            stale_binding_found = True
+            continue
+
+        selected_candidate = candidate
+        break
+
+    if selected_candidate is not None:
+        sys.path.insert(0, str(selected_candidate))
         try:
             module = importlib.import_module("daphneV3_high_level_confs_pb2")
-            if "timestamps" in module.DumpSpyBuffersResponse.DESCRIPTOR.fields_by_name:
-                return module
-            stale_binding_found = True
         finally:
             sys.path.pop(0)
-        sys.modules.pop("daphneV3_high_level_confs_pb2", None)
-        sys.modules.pop("daphneV3_low_level_confs_pb2", None)
+
+        if "timestamps" not in module.DumpSpyBuffersResponse.DESCRIPTOR.fields_by_name:
+            raise RuntimeError(
+                "Selected Python protobuf binding does not expose spybuffer "
+                "timestamps; rebuild the bindings in a fresh Python process."
+            )
+        return module
 
     detail = "found only stale bindings" if stale_binding_found else "found no bindings"
     raise RuntimeError(
@@ -206,8 +230,8 @@ def main() -> int:
             "FPGA timestamp at the configured hardware-trigger rate."
         )
     )
-    parser.add_argument("--ip", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=9876)
+    parser.add_argument("-ip", "--ip", default="127.0.0.1")
+    parser.add_argument("-port", "--port", type=int, default=9876)
     parser.add_argument("--route", default="mezz/0")
     parser.add_argument("--channels", default="0", help="Example: 0,1,8-15")
     parser.add_argument("--samples", type=int, default=128)
@@ -225,6 +249,7 @@ def main() -> int:
     )
     parser.add_argument(
         "--tolerance-percent",
+        "--tolereance-percent",
         type=float,
         default=10.0,
         help="Allowed rolling rate error relative to the generator (default: 10%%).",
