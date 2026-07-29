@@ -10,6 +10,21 @@ endif()
 add_test(NAME hdmezz_driver_unit COMMAND hdmezz_driver_tests)
 set_tests_properties(hdmezz_driver_unit PROPERTIES LABELS unit)
 
+add_executable(fpga_reg_dict_tests
+  fpga_reg_dict_tests.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/../srcs/FpgaRegDict.cpp
+)
+target_include_directories(fpga_reg_dict_tests PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../srcs
+)
+if(MSVC)
+  target_compile_options(fpga_reg_dict_tests PRIVATE /W4)
+else()
+  target_compile_options(fpga_reg_dict_tests PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+add_test(NAME fpga_reg_dict_unit COMMAND fpga_reg_dict_tests)
+set_tests_properties(fpga_reg_dict_unit PROPERTIES LABELS unit)
+
 if(DAPHNE_ENABLE_HARDWARE_TESTS AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_executable(i2c_hdmezz_smoke
     i2c_hdmezz_smoke.cpp

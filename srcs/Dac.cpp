@@ -57,8 +57,10 @@ bool Dac::waitNotBusy(const double& timeout){
 
 uint32_t Dac::triggerWrite(){
 
-	this->spi->getFpgaReg()->setBits("dacGainBiasControl", "GO", 1);
-	return this->spi->getFpgaReg()->setBits("dacGainBiasControl", "GO", 0);
+	// The DAC controller starts one transaction on any write to CTRLSTAT.
+	// The written value is ignored by the RTL; 0xBABA is the documented
+	// software command value.
+	return this->spi->getFpgaReg()->writeRegister("dacGainBiasControl", 0xBABA);
 }
 
 uint32_t Dac::setDacGeneral(const std::string& chip, const uint32_t& channel, const bool& gain, const bool& buffer, const uint32_t& value){
@@ -196,4 +198,3 @@ uint32_t Dac::updateCurrentRegister(const std::string& reg_name, const uint32_t&
 
 	return this->spi->setData(reg_name, dataToWrite);
 }
-

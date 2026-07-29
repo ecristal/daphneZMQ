@@ -31,8 +31,7 @@ FpgaRegDict::FpgaRegDict(){
     }
 
     BitField dacGainBiasControl_bits = {
-            {"BUSY", {0, 0}},
-            {"GO", {1, 1}}
+            {"BUSY", {0, 0}}
         };
     BitField dacGainBias_bits = {
         {"DATA", {0, 11}},
@@ -70,8 +69,11 @@ FpgaRegDict::FpgaRegDict(){
     this->fpgaRegDict["timestamp3"] = {0x10030000, timestamp_bits};
 
     BitField endpointClockControl_bits = {
-    	{"SOFT_RESET",{0,0}},
-    	{"MMCM_RESET", {1, 1}},
+        {"MMCM0_RESET", {0, 0}},
+        {"MMCM1_RESET", {1, 1}},
+        // Compatibility aliases used by Endpoint and existing clients.
+        {"SOFT_RESET", {0, 0}},
+        {"MMCM_RESET", {1, 1}},
         {"CLOCK_SOURCE", {2, 2}}
     };
 
@@ -128,7 +130,7 @@ FpgaRegDict::FpgaRegDict(){
     }
 
     BitField tenGigabitSender_bits = {
-        {"DATA", {0, 3}}
+        {"DATA", {0, 31}}
     };
 
     this->fpgaRegDict["tenGigabitSender"] = {0x18000000, tenGigabitSender_bits};
@@ -186,52 +188,75 @@ FpgaRegDict::FpgaRegDict(){
     this->fpgaRegDict["triggerEnableLow"] = {0x14000020, triggerEnableLow_bits};
     this->fpgaRegDict["triggerEnableHigh"] = {0x14000024, triggerEnableHigh_bits};
 
-    BitField idLink_bits = {
-        {"ID", {0, 5}}
-    };
-
-    BitField idSlot_bits = {
-        {"ID", {0, 3}}
-    };
-
-    BitField idCrate_bits = {
-        {"ID", {0, 9}}
-    };
-
-    BitField idDetector_bits = {
-        {"ID", {0, 5}}
-    };
-
-    BitField idVersion_bits = {
-        {"ID", {0, 5}}
-    };
-
-    this->fpgaRegDict["idLink"] = {0x14000028, idLink_bits};
-    this->fpgaRegDict["idSlot"] = {0x1400002C, idSlot_bits};
-    this->fpgaRegDict["idCrate"] = {0x14000030, idCrate_bits};
-    this->fpgaRegDict["idDetector"] = {0x14000034, idDetector_bits};
-    this->fpgaRegDict["idVersion"] = {0x14000038, idVersion_bits};
-
     BitField adHocTriggerCommand_bits = {
         {"VALUE", {0, 7}}
     };
 
-    this->fpgaRegDict["adHocTriggerCommand"] = {0x1400003C, adHocTriggerCommand_bits};
+    this->fpgaRegDict["adHocTriggerCommand"] = {0x14000028, adHocTriggerCommand_bits};
 
-    BitField selfTriggerFullConfig_bits = {
-        {"VALUE", {0, 31}}
+    BitField selfTriggerConfig_bits = {
+        {"VALUE", {0, 13}},
+        {"MAIN_DETECTION_MODE", {4, 4}},
+        {"ALLOW_TRIGGER_BETWEEN_FRAMES", {5, 5}},
+        {"SLOPE_CALCULATION_THREE_SAMPLES", {6, 6}},
+        {"SLOPE_THRESHOLD", {7, 13}}
     };
 
-    this->fpgaRegDict["selfTriggerFullConfigLow"] = {0x14000040, selfTriggerFullConfig_bits};
-    this->fpgaRegDict["selfTriggerFullConfigHIGH"] = {0x14000044, selfTriggerFullConfig_bits};
-
-    BitField matchingTriggerTemplate_bits = {
-        {"VALUE", {0, 27}}
+    BitField selfTriggerSignalDelay_bits = {
+        {"DELAY", {0, 4}}
     };
 
-    for (int i = 0; i < 16; ++i) {
-        uint32_t offset = i * 0x4;
-        this->fpgaRegDict["matchingTriggerTemplate_" + std::to_string(i)] = {0x14000048 + offset, matchingTriggerTemplate_bits};
+    BitField selfTriggerFilterOutputSelector_bits = {
+        {"SELECTOR", {0, 1}}
+    };
+
+    BitField selfTriggerCounterReset_bits = {
+        {"RESET", {0, 0}}
+    };
+
+    this->fpgaRegDict["selfTriggerConfig"] = {0x1400002C, selfTriggerConfig_bits};
+    this->fpgaRegDict["selfTriggerSignalDelay"] = {0x14000030, selfTriggerSignalDelay_bits};
+    this->fpgaRegDict["selfTriggerFilterOutputSelector"] = {0x14000034, selfTriggerFilterOutputSelector_bits};
+    this->fpgaRegDict["selfTriggerCounterReset"] = {0x14000038, selfTriggerCounterReset_bits};
+    this->fpgaRegDict["selfTriggerCompensatorEnableLow"] = {0x1400003C, triggerEnableLow_bits};
+    this->fpgaRegDict["selfTriggerCompensatorEnableHigh"] = {0x14000040, triggerEnableHigh_bits};
+    this->fpgaRegDict["selfTriggerInvertEnableLow"] = {0x14000044, triggerEnableLow_bits};
+    this->fpgaRegDict["selfTriggerInvertEnableHigh"] = {0x14000048, triggerEnableHigh_bits};
+
+    BitField outputSpyBufferStatus_bits = {
+        {"STREAM_SELECT", {0, 2}},
+        {"FSM_STATUS", {28, 31}}
+    };
+
+    BitField registerData_bits = {
+        {"DATA", {0, 31}}
+    };
+
+    this->fpgaRegDict["outputSpyBufferStatus"] = {0x20000000, outputSpyBufferStatus_bits};
+    this->fpgaRegDict["outputSpyBufferData"] = {0x20000004, registerData_bits};
+
+    BitField selfTriggerThreshold_bits = {
+        {"THRESHOLD", {0, 27}}
+    };
+
+    for (int channel = 0; channel < 40; ++channel) {
+        const uint32_t offset = static_cast<uint32_t>(channel) * 0x20;
+        const std::string suffix = "_" + std::to_string(channel);
+
+        this->fpgaRegDict["selfTriggerThreshold" + suffix] =
+            {0x20010000 + offset, selfTriggerThreshold_bits};
+        this->fpgaRegDict["selfTriggerRecordCountLow" + suffix] =
+            {0x20010004 + offset, registerData_bits};
+        this->fpgaRegDict["selfTriggerRecordCountHigh" + suffix] =
+            {0x20010008 + offset, registerData_bits};
+        this->fpgaRegDict["selfTriggerBusyCountLow" + suffix] =
+            {0x2001000C + offset, registerData_bits};
+        this->fpgaRegDict["selfTriggerBusyCountHigh" + suffix] =
+            {0x20010010 + offset, registerData_bits};
+        this->fpgaRegDict["selfTriggerFullCountLow" + suffix] =
+            {0x20010014 + offset, registerData_bits};
+        this->fpgaRegDict["selfTriggerFullCountHigh" + suffix] =
+            {0x20010018 + offset, registerData_bits};
     }
 }
 
