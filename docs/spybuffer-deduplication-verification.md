@@ -23,11 +23,12 @@ Each waveform returned by `DumpSpyBuffersResponse` or
 `timestamps` field. Existing Protobuf clients remain compatible because the
 field numbers are new and optional.
 
-The first hardware-triggered acquisition returns the current snapshot and saves
-its FPGA timestamp. Later requests wait only while the current timestamp equals
-the last delivered timestamp, so one-waveform oscilloscope requests cannot
-consume the same snapshot twice. A software-triggered acquisition reads its
-baseline before issuing `0xBABA` and waits for that timestamp to advance.
+The first hardware-triggered acquisition uses the current FPGA timestamp as its
+baseline and waits for a newer trigger, so it cannot return stale pre-request
+data. Later requests wait only while the current timestamp equals the last
+delivered timestamp; an already-newer snapshot can be consumed immediately. A
+software-triggered acquisition reads its baseline before issuing `0xBABA` and
+waits for that timestamp to advance.
 
 The timestamp is a deduplication cursor, not a freeze condition. The server does
 not require it to remain stable before or during the spybuffer copy. This keeps

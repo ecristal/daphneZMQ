@@ -1,5 +1,7 @@
+#include "SpyBufferFreshness.hpp"
 #include "SpyBufferReadoutInhibitGuard.hpp"
 
+#include <array>
 #include <cstdint>
 #include <iostream>
 #include <stdexcept>
@@ -122,6 +124,33 @@ void testFailedReleaseIsRetriedByDestructor() {
         "Destructor must retry a failed inhibit clear");
 }
 
+void testFirstHardwareRequestWaitsPastCurrentTimestamp() {
+    using Timestamp = std::array<uint16_t, 4>;
+    const Timestamp current = {1, 2, 3, 4};
+
+    const Timestamp baseline = selectExternalTriggerBaseline(
+        current,
+        std::optional<Timestamp>{});
+
+    require(
+        baseline == current,
+        "First hardware request must use current timestamp as its baseline");
+}
+
+void testHardwareRequestAcceptsAlreadyNewerTimestamp() {
+    using Timestamp = std::array<uint16_t, 4>;
+    const Timestamp delivered = {1, 2, 3, 4};
+    const Timestamp current = {2, 2, 3, 4};
+
+    const Timestamp baseline = selectExternalTriggerBaseline(
+        current,
+        std::optional<Timestamp>{delivered});
+
+    require(
+        baseline == delivered && current != baseline,
+        "Hardware request must retain the last delivery as baseline");
+}
+
 }  // namespace
 
 int main() {
@@ -131,6 +160,8 @@ int main() {
         testExceptionClearsInhibit();
         testThrowingAssertionStillAttemptsClear();
         testFailedReleaseIsRetriedByDestructor();
+        testFirstHardwareRequestWaitsPastCurrentTimestamp();
+        testHardwareRequestAcceptsAlreadyNewerTimestamp();
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

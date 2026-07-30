@@ -1,4 +1,5 @@
 #include "SpyBuffer.hpp"
+#include "SpyBufferFreshness.hpp"
 #include "SpyBufferReadoutInhibitGuard.hpp"
 
 #include <cstdlib>
@@ -327,8 +328,14 @@ SpyBuffer::TimestampKey SpyBuffer::waitForFreshTimestamp(
         // The software trigger must be emitted while readout inhibit is low.
         baseline = current;
         issue_trigger();
-    } else if (last_delivered_timestamp.has_value()) {
-        baseline = last_delivered_timestamp;
+    } else {
+        // On the first hardware-trigger request there is no delivery history.
+        // Treat the content present at request entry as the baseline so stale
+        // pre-request data is never returned as the first waveform. Once a
+        // delivery exists, an already-newer timestamp may be accepted.
+        baseline = selectExternalTriggerBaseline(
+            current,
+            last_delivered_timestamp);
     }
 
     while (baseline.has_value() && current == *baseline) {
