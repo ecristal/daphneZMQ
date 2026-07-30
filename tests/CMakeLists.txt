@@ -47,6 +47,20 @@ set_tests_properties(
   PROPERTIES LABELS unit
 )
 
+find_package(PythonInterp QUIET)
+if(PYTHONINTERP_FOUND)
+  add_test(
+    NAME spybuffer_ramp_validation_unit
+    COMMAND
+      ${PYTHON_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/test_spybuffer_ramp_validation.py
+  )
+  set_tests_properties(
+    spybuffer_ramp_validation_unit
+    PROPERTIES LABELS unit
+  )
+endif()
+
 if(DAPHNE_ENABLE_HARDWARE_TESTS AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_executable(i2c_hdmezz_smoke
     i2c_hdmezz_smoke.cpp
