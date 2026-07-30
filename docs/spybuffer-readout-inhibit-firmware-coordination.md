@@ -283,9 +283,11 @@ The server must never wait for the next trigger while inhibit is high. Such a
 sequence would deadlock because firmware is required to reject all new
 spybuffer triggers during the inhibit interval.
 
-The first hardware-triggered waveform retains the existing deduplication
-behavior and may use the snapshot already present when the request starts.
-Deduplication is applied between subsequent waveforms.
+On the first hardware-triggered request, the server records the timestamp
+present at request entry as its baseline and waits for that timestamp to
+advance before asserting inhibit. It must not return a pre-request snapshot.
+On later requests, a current timestamp that already differs from the last
+delivered timestamp may be accepted immediately.
 
 The inhibit scope is one global waveform, including all requested channels. It
 must not remain asserted while waiting for the next timestamp, while a
@@ -405,6 +407,70 @@ that coincidence could hide an overwrite boundary.
 The test must restore `TEST_PATTERN_MODES=0` and `SYNC_PATTERN=0` in cleanup
 code even after a timeout or client exception.
 
+The automated smoke test is available at
+`client/test_spybuffer_readout_inhibit.py`. Its default configuration exercises
+four software-triggered waveforms through both normal and chunked APIs, using
+all 40 channels and 2048 samples. It requires the Python `pyzmq` and
+`protobuf` packages plus bindings generated from the same schema as the
+server:
+
+Before running it, configure and align the frontend normally. In particular,
+the server unpacker and firmware expect the AFE5808A 16x serialized,
+14-bit, LSB-first interface (`SERIALIZED_DATA_RATE=1`,
+`ADC_RESOLUTION_RESET=0`, and `LSB_MSB_FIRST=0`). The smoke test changes only
+the test-pattern fields; it does not replace frontend initialization or AFE
+alignment.
+
+```bash
+DAPHNE_BUILD_DIR=build-petalinux \
+python3 client/test_spybuffer_readout_inhibit.py \
+  --ip 10.73.137.161 \
+  --port 40001 \
+  --route mezz/0
+```
+
+Use `--hardware-trigger` for the external trigger-rate campaign. The script
+enables and validates the AFE ramp and restores normal AFE output in a
+`finally` cleanup path. `--keep-ramp-enabled` is available only for an
+intentional diagnostic session.
+
+An initial reduced hardware run with one software-triggered waveform and 256
+samples passed 37 of 40 channels and reported:
+
+- channel 3: 129 failures dominated by deltas `+3` and `-1`, consistent with
+  an alternating bit-1 error;
+- channel 25: all 255 transitions failed, dominated by deltas `+257` and
+  `-255`, consistent with a bit-8 error plus less frequent additional errors;
+- channel 39: two failures with deltas `+33` and `-31`, consistent with a
+  bit-5 error;
+- zero duplicate or non-monotonic timestamp failures.
+
+These deterministic, channel-local bit errors are a frontend
+deserialization/alignment baseline failure, not evidence of an overwrite
+during inhibited readout. Full 40-channel acceptance is blocked until this
+baseline is clean. Readout-inhibit behavior may be investigated provisionally
+with channels `0-2,4-24,26-38`, while keeping the full-channel test pending.
+
+A subsequent provisional run over those 37 clean channels passed both normal
+and chunked APIs with four software-triggered 2048-sample waveforms per API:
+`605912` adjacent ramp transitions were checked with zero ramp or timestamp
+failures. This establishes a clean low-contention server/readout baseline. It
+does not yet validate inhibit behavior under concurrent triggers because the
+server controls the software-trigger cadence.
+
+The first external-trigger campaign requested 32 waveforms through each API.
+The normal API returned stale pre-ramp data as its first waveform and reported
+`67711` discontinuities distributed across all 37 requested channels; its
+later data was consistent with the ramp. All `2423648` chunked transitions
+then passed. The snapshot was new relative to the server's previous delivery
+cursor but had been captured before the client enabled the ramp. The smoke
+client now primes the hardware-trigger cursor by acquiring and discarding one
+snapshot after changing the AFE test-pattern configuration. Independently, the
+server now uses the request-entry timestamp as its baseline when no previous
+delivery cursor exists, so a true first hardware request cannot return an
+unknown boot-time snapshot. A repeat hardware run with both corrections
+remains pending.
+
 The synchronized ramp is intentionally identical across the eight channels of
 one AFE. It can prove temporal continuity, but it cannot by itself detect a
 segment copied from the wrong channel.
@@ -496,8 +562,10 @@ Accept the joint implementation when:
 
 ### Hardware verification
 
-- [ ] Extend or replace the deduplication client with the AFE ramp continuity
-      validator.
+- [x] Add an AFE ramp continuity smoke test for normal and chunked APIs.
+- [x] Run the AFE ramp smoke test on matching firmware/server hardware;
+      37-channel provisional baseline passes and full 40-channel acceptance is
+      blocked by three frontend lanes.
 - [ ] Exercise both normal and chunked readout with one and 40 channels.
 - [ ] Run the complete trigger-rate matrix with the 35 microsecond guard.
 - [ ] Verify static physical-to-server channel mapping.
