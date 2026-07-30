@@ -223,6 +223,12 @@ FpgaRegDict::FpgaRegDict(){
     this->fpgaRegDict["selfTriggerInvertEnableLow"] = {0x14000044, triggerEnableLow_bits};
     this->fpgaRegDict["selfTriggerInvertEnableHigh"] = {0x14000048, triggerEnableHigh_bits};
 
+    BitField spyReadoutInhibit_bits = {
+        {"INHIBIT", {0, 0}}
+    };
+
+    this->fpgaRegDict["spyReadoutInhibit"] = {0x1400004C, spyReadoutInhibit_bits};
+
     BitField outputSpyBufferStatus_bits = {
         {"STREAM_SELECT", {0, 2}},
         {"FSM_STATUS", {28, 31}}

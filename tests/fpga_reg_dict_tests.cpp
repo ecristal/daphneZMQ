@@ -50,7 +50,7 @@ int main() {
         const FpgaRegDict dictionary;
         const auto& registers = dictionary.getRegisterMap();
 
-        if (registers.size() != 388) {
+        if (registers.size() != 389) {
             throw std::runtime_error(
                 "Unexpected number of DAPHNE firmware registers");
         }
@@ -88,6 +88,9 @@ int main() {
             registers, "selfTriggerInvertEnableLow", 0x14000044);
         requireRegister(
             registers, "selfTriggerInvertEnableHigh", 0x14000048);
+        const auto& spy_readout_inhibit =
+            requireRegister(registers, "spyReadoutInhibit", 0x1400004C);
+        requireField(spy_readout_inhibit, "INHIBIT", 0, 0);
 
         requireMissing(registers, "idLink");
         requireMissing(registers, "idSlot");

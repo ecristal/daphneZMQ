@@ -26,7 +26,7 @@ public:
     SpyBuffer();
 
     // Destructor
-    ~SpyBuffer();
+    ~SpyBuffer() noexcept;
 
     uint32_t getFrameClock(const uint32_t& afe, const uint32_t& sample = 0);
     uint32_t getData(const uint32_t& sample = 0) const;
@@ -63,9 +63,19 @@ private:
     std::optional<TimestampKey> last_delivered_timestamp;
     std::chrono::milliseconds trigger_wait_timeout;
     std::chrono::microseconds timestamp_poll_interval;
+    std::chrono::microseconds readout_inhibit_guard_interval;
 
     void mapToArraySpyBufferRegisters();
     void mapTimestampRegisters();
+    TimestampKey waitForFreshTimestamp(
+        const std::function<void()>& issue_trigger,
+        const std::chrono::steady_clock::time_point& deadline);
+    void copyMappedChannels(
+        uint32_t* dst,
+        uint32_t nSamples,
+        const std::vector<uint32_t>& channel_indices);
+    uint32_t writeReadoutInhibit(uint32_t value);
+    void clearReadoutInhibitNoThrow() noexcept;
     bool waitExpired(const std::chrono::steady_clock::time_point& deadline) const;
 };
 

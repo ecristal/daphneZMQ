@@ -2,17 +2,19 @@
 
 ## Status
 
-This document defines the proposed contract between `daphneZMQ` and
+This document defines the implemented contract between `daphneZMQ` and
 `daphne-firmware` for protecting spybuffer data while the server copies a
 captured waveform.
 
-The contract is not implemented in the current firmware. The server register
-map was synchronized with the existing firmware in `daphneZMQ` commit
-`99ee1a1`, and currently ends the STUFF register block at physical address
-`0x94000048`.
+The firmware implementation first appears in commit `f0d48d6` on branch
+`ecristal/feature/spybuffer_self_triggering_guards`. Register and module
+documentation were added in commits `ee7a9c6` and `14b8012`. The STUFF register
+block now ends at physical address `0x9400004C`.
 
-Do not deploy server-side inhibit writes until the firmware implementation and
-the memory map described here are available in the loaded bitstream.
+The server implements the matching register and protected-copy sequence in
+`FpgaRegDict.cpp` and `SpyBuffer::acquireFreshMappedData`. A loaded bitstream
+without working readback at `0x9400004C` is rejected when the server attempts
+to assert the inhibit.
 
 This work complements
 [Spybuffer Deduplication Verification](spybuffer-deduplication-verification.md).
@@ -165,6 +167,18 @@ The server guard must therefore be slightly greater than 32.768 microseconds
 after accounting for the synchronizer, FSM latency, and implementation margin.
 It must be calculated from the minimum supported acquisition-clock frequency;
 `100 microseconds` is not part of the contract.
+
+The current server uses a 35 microsecond guard:
+
+```text
+ceil(2048 * 1 second / 62.5 MHz) + 2 microseconds margin
+= 33 microseconds + 2 microseconds
+= 35 microseconds
+```
+
+`DAPHNE_SPYBUFFER_INHIBIT_GUARD_US` may increase this interval for a particular
+deployment. Values below 35 are rejected because the firmware does not yet
+provide a completion status that would make a shorter wait safe.
 
 The preferred optimization is a global status indicating that the synchronized
 inhibit is active and/or that the capture FSM is busy. The server could then
@@ -391,25 +405,30 @@ Accept the joint implementation when:
 
 ### Firmware repository
 
-- [ ] Implement `spy_readout_inhibit_reg` at `0x9400004C`.
-- [ ] Add the CDC synchronizer and combined-trigger gate.
-- [ ] Preserve completion of an in-progress capture.
-- [ ] Update `Memory_Map.md`.
-- [ ] Extend STUFF, trigger-plane, and capture integration tests.
-- [ ] Record the first firmware version/commit that implements the contract.
+- [x] Implement `spy_readout_inhibit_reg` at `0x9400004C`.
+- [x] Add the CDC synchronizer and combined-trigger gate.
+- [x] Preserve completion of an in-progress capture by gating trigger
+      admission rather than the BRAM write enable.
+- [x] Update `Memory_Map.md` and `docs/modules/spy-buffer.md`.
+- [x] Extend the STUFF and trigger-plane smoke tests.
+- [ ] Add the capture integration test that observes BRAM/timestamp stability.
+- [x] Record the first firmware implementation commit: `f0d48d6`.
 
 ### Server repository
 
-- [ ] Add `spyReadoutInhibit` at relative address `0x1400004C`.
-- [ ] Increase the register-dictionary test count from 388 to 389.
-- [ ] Add readback-based incompatible-firmware detection.
-- [ ] Refactor timestamp waiting and protected copying in
+- [x] Add `spyReadoutInhibit` at relative address `0x1400004C`.
+- [x] Increase the register-dictionary test count from 388 to 389.
+- [x] Add readback-based incompatible-firmware detection.
+- [x] Refactor timestamp waiting and protected copying in
       `SpyBuffer::acquireFreshMappedData`.
-- [ ] Assert inhibit, wait for capture completion, and read the frozen timestamp.
-- [ ] Copy all requested channels under one global inhibit interval.
-- [ ] Release inhibit before waiting for the next deduplicated timestamp.
-- [ ] Guarantee release with RAII on every exit path.
-- [ ] Verify both normal and chunked dump APIs.
+- [x] Assert inhibit, wait 35 microseconds, and read the frozen timestamp.
+- [x] Copy all requested channels under one global inhibit interval.
+- [x] Compare timestamps before and after the protected copy.
+- [x] Release inhibit before waiting for the next deduplicated timestamp.
+- [x] Guarantee release with RAII on every exit path.
+- [x] Use the same protected method from both normal and chunked dump APIs.
+- [x] Add unit tests for register metadata, incompatible firmware, normal
+      release, exception cleanup, and failed-release retry.
 
 ### Deployment
 

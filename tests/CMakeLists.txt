@@ -25,6 +25,28 @@ endif()
 add_test(NAME fpga_reg_dict_unit COMMAND fpga_reg_dict_tests)
 set_tests_properties(fpga_reg_dict_unit PROPERTIES LABELS unit)
 
+add_executable(spybuffer_readout_inhibit_guard_tests
+  spybuffer_readout_inhibit_guard_tests.cpp
+)
+target_include_directories(spybuffer_readout_inhibit_guard_tests PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../srcs
+)
+if(MSVC)
+  target_compile_options(spybuffer_readout_inhibit_guard_tests PRIVATE /W4)
+else()
+  target_compile_options(spybuffer_readout_inhibit_guard_tests PRIVATE
+    -Wall -Wextra -Wpedantic
+  )
+endif()
+add_test(
+  NAME spybuffer_readout_inhibit_guard_unit
+  COMMAND spybuffer_readout_inhibit_guard_tests
+)
+set_tests_properties(
+  spybuffer_readout_inhibit_guard_unit
+  PROPERTIES LABELS unit
+)
+
 if(DAPHNE_ENABLE_HARDWARE_TESTS AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
   add_executable(i2c_hdmezz_smoke
     i2c_hdmezz_smoke.cpp

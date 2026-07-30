@@ -1,8 +1,21 @@
 #include "SpyBuffer.hpp"
+#include "SpyBufferReadoutInhibitGuard.hpp"
 
 #include <cstdlib>
 
 namespace {
+
+constexpr const char* kSpyReadoutInhibitRegister = "spyReadoutInhibit";
+constexpr uint64_t kSpyBufferCaptureDepth = 2048;
+constexpr uint64_t kAcquisitionClockHz = 62500000;
+constexpr uint64_t kCaptureDurationCeilingUs =
+    (kSpyBufferCaptureDepth * 1000000 + kAcquisitionClockHz - 1) /
+    kAcquisitionClockHz;
+constexpr uint64_t kCdcFsmAndSchedulingMarginUs = 2;
+constexpr uint64_t kMinimumReadoutInhibitGuardUs =
+    kCaptureDurationCeilingUs + kCdcFsmAndSchedulingMarginUs;
+constexpr uint64_t kDefaultReadoutInhibitGuardUs =
+    kMinimumReadoutInhibitGuardUs;
 
 uint64_t readDurationEnvironment(const char* name, uint64_t default_value) {
     const char* raw = std::getenv(name);
@@ -34,12 +47,27 @@ SpyBuffer::SpyBuffer()
       trigger_wait_timeout(
           readDurationEnvironment("DAPHNE_SPYBUFFER_TRIGGER_TIMEOUT_MS", 30000)),
       timestamp_poll_interval(
-          readDurationEnvironment("DAPHNE_SPYBUFFER_TIMESTAMP_POLL_US", 100)) {
+          readDurationEnvironment("DAPHNE_SPYBUFFER_TIMESTAMP_POLL_US", 100)),
+      readout_inhibit_guard_interval(
+          readDurationEnvironment(
+              "DAPHNE_SPYBUFFER_INHIBIT_GUARD_US",
+              kDefaultReadoutInhibitGuardUs)) {
+        if (readout_inhibit_guard_interval.count() <
+            static_cast<int64_t>(kMinimumReadoutInhibitGuardUs)) {
+            throw std::invalid_argument(
+                "DAPHNE_SPYBUFFER_INHIBIT_GUARD_US must be at least 35");
+        }
+        if (this->writeReadoutInhibit(0) != 0) {
+            throw std::runtime_error(
+                "Spybuffer readout inhibit did not clear during startup");
+        }
         this->mapToArraySpyBufferRegisters();
         this->mapTimestampRegisters();
     }
 
-SpyBuffer::~SpyBuffer(){}
+SpyBuffer::~SpyBuffer() noexcept {
+    this->clearReadoutInhibitNoThrow();
+}
 
 uint32_t SpyBuffer::getFrameClock(const uint32_t& afe, const uint32_t& sample){
 
@@ -289,6 +317,55 @@ bool SpyBuffer::waitExpired(
            std::chrono::steady_clock::now() >= deadline;
 }
 
+SpyBuffer::TimestampKey SpyBuffer::waitForFreshTimestamp(
+    const std::function<void()>& issue_trigger,
+    const std::chrono::steady_clock::time_point& deadline) {
+    TimestampKey current = this->getTimestampKey();
+    std::optional<TimestampKey> baseline;
+
+    if (issue_trigger) {
+        // The software trigger must be emitted while readout inhibit is low.
+        baseline = current;
+        issue_trigger();
+    } else if (last_delivered_timestamp.has_value()) {
+        baseline = last_delivered_timestamp;
+    }
+
+    while (baseline.has_value() && current == *baseline) {
+        if (this->waitExpired(deadline)) {
+            throw std::runtime_error(
+                "Timed out waiting for a new spybuffer trigger");
+        }
+        std::this_thread::sleep_for(timestamp_poll_interval);
+        current = this->getTimestampKey();
+    }
+
+    return current;
+}
+
+void SpyBuffer::copyMappedChannels(
+    uint32_t* dst,
+    uint32_t nSamples,
+    const std::vector<uint32_t>& channel_indices) {
+    for (size_t i = 0; i < channel_indices.size(); ++i) {
+        this->extractMappedDataBulkSIMD(
+            dst + static_cast<size_t>(nSamples) * i,
+            nSamples,
+            channel_indices[i]);
+    }
+}
+
+uint32_t SpyBuffer::writeReadoutInhibit(uint32_t value) {
+    return fpgaReg->writeRegister(kSpyReadoutInhibitRegister, value);
+}
+
+void SpyBuffer::clearReadoutInhibitNoThrow() noexcept {
+    try {
+        this->writeReadoutInhibit(0);
+    } catch (...) {
+    }
+}
+
 SpyBuffer::TimestampKey SpyBuffer::acquireFreshMappedData(
     uint32_t* dst,
     uint32_t nSamples,
@@ -314,34 +391,28 @@ SpyBuffer::TimestampKey SpyBuffer::acquireFreshMappedData(
         ? std::chrono::steady_clock::time_point::max()
         : std::chrono::steady_clock::now() + trigger_wait_timeout;
 
-    TimestampKey current = this->getTimestampKey();
-    std::optional<TimestampKey> baseline;
+    // Deduplication and software-trigger waiting always happen with inhibit low.
+    this->waitForFreshTimestamp(issue_trigger, deadline);
 
-    if (issue_trigger) {
-        // A software-triggered acquisition waits until the command advances the
-        // timestamp beyond the snapshot that existed before the command.
-        baseline = current;
-        issue_trigger();
-    } else if (last_delivered_timestamp.has_value()) {
-        baseline = last_delivered_timestamp;
+    SpyBufferReadoutInhibitGuard inhibit(
+        [this](uint32_t value) {
+            return this->writeReadoutInhibit(value);
+        });
+    inhibit.engage();
+
+    // Firmware has no capture-busy status. The fixed guard covers its two-flop
+    // CDC plus a worst-case 2048-sample capture at 62.5 MHz and FSM margin.
+    std::this_thread::sleep_for(readout_inhibit_guard_interval);
+
+    const TimestampKey frozen_timestamp = this->getTimestampKey();
+    this->copyMappedChannels(dst, nSamples, channel_indices);
+
+    if (this->getTimestampKey() != frozen_timestamp) {
+        throw std::runtime_error(
+            "Spybuffer timestamp changed during inhibited readout");
     }
 
-    while (baseline.has_value() && current == *baseline) {
-        if (this->waitExpired(deadline)) {
-            throw std::runtime_error(
-                "Timed out waiting for a new spybuffer trigger");
-        }
-        std::this_thread::sleep_for(timestamp_poll_interval);
-        current = this->getTimestampKey();
-    }
-
-    for (size_t i = 0; i < channel_indices.size(); ++i) {
-        this->extractMappedDataBulkSIMD(
-            dst + static_cast<size_t>(nSamples) * i,
-            nSamples,
-            channel_indices[i]);
-    }
-
-    last_delivered_timestamp = current;
-    return current;
+    inhibit.release();
+    last_delivered_timestamp = frozen_timestamp;
+    return frozen_timestamp;
 }
