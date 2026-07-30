@@ -468,8 +468,40 @@ client now primes the hardware-trigger cursor by acquiring and discarding one
 snapshot after changing the AFE test-pattern configuration. Independently, the
 server now uses the request-entry timestamp as its baseline when no previous
 delivery cursor exists, so a true first hardware request cannot return an
-unknown boot-time snapshot. A repeat hardware run with both corrections
-remains pending.
+unknown boot-time snapshot.
+
+The corrected external-trigger repeat used 32 waveforms per API, 2048 samples,
+and the 37 channels with a clean frontend baseline. The post-configuration
+prime discarded one hardware snapshot before validation. Both APIs passed:
+
+- normal: `2423648` adjacent ramp transitions, zero ramp failures;
+- chunked: `2423648` adjacent ramp transitions, zero ramp failures;
+- combined: `4847296` valid transitions across 64 waveforms, with zero
+  duplicate or non-monotonic timestamp failures.
+
+This validates protected normal and chunked readout at the external-trigger
+rate used for the run. The exact rate was controlled externally and is not
+encoded in the client log, so this result does not replace the complete
+trigger-rate matrix.
+
+A subsequent full 40-channel run used the same 32-waveform, 2048-sample
+configuration. It checked `2620160` transitions per API and reported zero
+timestamp failures. All ramp failures remained confined to the three frontend
+lanes already identified:
+
+| Channel | Normal failures | Chunked failures | Dominant signature |
+| ---: | ---: | ---: | --- |
+| 3 | `32878` | `32879` | Alternating bit-1 error (`+3`, `-1`) |
+| 25 | `65392` | `65424` | Persistent bit-8 error (`+257`, `-255`) |
+| 39 | `1259` | `2224` | Intermittent bit-5 error (`+33`, `-31`) |
+
+The other 37 channels again completed all `4847296` combined transitions
+without a ramp discontinuity. Because the errors remain channel-local across
+all waveforms and both APIs, they are consistent with frontend
+deserialization/alignment faults rather than a global overwrite boundary.
+Readout-inhibit verification therefore passes provisionally for the 37 aligned
+channels. Full 40-channel acceptance remains blocked until channels 3, 25, and
+39 have a clean frontend baseline.
 
 The synchronized ramp is intentionally identical across the eight channels of
 one AFE. It can prove temporal continuity, but it cannot by itself detect a
@@ -564,8 +596,10 @@ Accept the joint implementation when:
 
 - [x] Add an AFE ramp continuity smoke test for normal and chunked APIs.
 - [x] Run the AFE ramp smoke test on matching firmware/server hardware;
-      37-channel provisional baseline passes and full 40-channel acceptance is
-      blocked by three frontend lanes.
+      32 external-triggered waveforms per API pass on the 37 aligned channels.
+- [x] Repeat the same campaign with all 40 channels and confirm that every
+      failure remains confined to frontend lanes 3, 25, and 39, with zero
+      timestamp failures.
 - [ ] Exercise both normal and chunked readout with one and 40 channels.
 - [ ] Run the complete trigger-rate matrix with the 35 microsecond guard.
 - [ ] Verify static physical-to-server channel mapping.
