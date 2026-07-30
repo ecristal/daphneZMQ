@@ -369,9 +369,70 @@ An integration test around `spybuffers` must demonstrate:
 
 ## Joint hardware acceptance
 
-Run the existing deduplication client together with a waveform suited to
-detecting discontinuities, such as a ramp, counter pattern, or phase-locked
-sine wave.
+The hardware campaign must verify three independent properties:
+
+1. freshness: a captured timestamp is not delivered twice;
+2. temporal coherence: one waveform does not contain samples from two
+   different captures;
+3. channel identity: every sample returned as channel `c` belongs to channel
+   `c`, without complete swaps or temporary channel mixing.
+
+The existing deduplication client covers the first property. The following two
+campaigns remain pending for temporal coherence and channel identity.
+
+### Pending AFE ramp continuity campaign
+
+Use the AFE5808A internal ramp as the deterministic waveform:
+
+- set `SYNC_PATTERN` (`register 10[8]`) to `1` on all five AFEs;
+- set `TEST_PATTERN_MODES` (`register 2[15:13]`) to `7` on all five AFEs;
+- acquire all requested samples as unsigned 14-bit values;
+- require every adjacent pair in every channel to satisfy:
+
+```text
+(sample[n + 1] - sample[n]) modulo 16384 = 1
+```
+
+This relation includes the valid `0x3FFF -> 0x0000` ramp wrap. Any other
+transition is a temporal discontinuity and must report the channel, waveform,
+and first failing sample.
+
+Run this check through both normal and chunked APIs for one channel and all 40
+channels using the trigger-rate matrix below. Choose trigger periods that do
+not advance the free-running ramp by an integer multiple of 16384 samples, as
+that coincidence could hide an overwrite boundary.
+
+The test must restore `TEST_PATTERN_MODES=0` and `SYNC_PATTERN=0` in cleanup
+code even after a timeout or client exception.
+
+The synchronized ramp is intentionally identical across the eight channels of
+one AFE. It can prove temporal continuity, but it cannot by itself detect a
+segment copied from the wrong channel.
+
+### Pending channel-identity campaign
+
+Channel identity must therefore be tested separately in normal ADC mode:
+
+1. Establish the static physical-to-server mapping by stimulating one physical
+   input at a time and requiring activity only on the expected server channel.
+2. Feed a common waveform, or a common DC level, to the channels under test.
+3. Enable `CHANNEL_OFFSET_SUBSTRACTION_ENABLE` and configure a sufficiently
+   separated `OFFSET_CHx` value for every channel to create a unique channel
+   tag. Save and restore all original register values.
+4. Build a low-rate reference for each channel and classify the source of each
+   sample window during the high-rate acquisition.
+5. Report separately:
+   - a complete channel permutation;
+   - a temporary interval attributed to another channel;
+   - samples that match no known channel signature.
+
+The tag spacing and classification tolerance must be derived from measured
+noise. Classification should use short windows as well as whole-waveform
+statistics so that a temporary mix is not hidden by the waveform average.
+
+Do not assume that `INVERT_CHANNELS` or per-channel offset/gain processing
+modifies the AFE test ramp. The channel-tag campaign uses the normal ADC data
+path and remains separate from the internal-ramp campaign.
 
 The recommended matrix is:
 
@@ -399,7 +460,10 @@ Accept the joint implementation when:
 7. old firmware without the register is detected and rejected when protected
    readout is required;
 8. skipped triggers at rates above server capacity are reported as intentional
-   readout dead time, not as corruption.
+   readout dead time, not as corruption;
+9. the ramp validator reports no temporal discontinuities;
+10. the channel-identity validator reports no complete swaps, temporary mixes,
+    or unknown channel intervals.
 
 ## Coordinated delivery checklist
 
@@ -429,6 +493,20 @@ Accept the joint implementation when:
 - [x] Use the same protected method from both normal and chunked dump APIs.
 - [x] Add unit tests for register metadata, incompatible firmware, normal
       release, exception cleanup, and failed-release retry.
+
+### Hardware verification
+
+- [ ] Extend or replace the deduplication client with the AFE ramp continuity
+      validator.
+- [ ] Exercise both normal and chunked readout with one and 40 channels.
+- [ ] Run the complete trigger-rate matrix with the 35 microsecond guard.
+- [ ] Verify static physical-to-server channel mapping.
+- [ ] Implement the normal-mode per-channel tag campaign.
+- [ ] Verify zero complete channel swaps and zero temporary channel-mix
+      intervals.
+- [ ] Verify inhibit returns low after successful requests, client errors, and
+      orderly server shutdown.
+- [ ] Verify server startup clears inhibit after an ungraceful previous exit.
 
 ### Deployment
 
