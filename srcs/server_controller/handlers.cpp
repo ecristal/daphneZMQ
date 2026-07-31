@@ -32,6 +32,7 @@
 #include "defines.hpp"
 #include "daphneV3_low_level_confs.pb.h"
 #include "reg.hpp"
+#include "server_controller/afe_delay_sweep.hpp"
 
 namespace daphne_sc {
 namespace {
@@ -2868,6 +2869,24 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers() {
 
     std::string msg;
     const bool ok = alignAFE(req, resp, d, msg);
+    resp.set_success(ok);
+    resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_AFE_DELAY_SWEEP_REQ] =
+      [](const std::string& in, std::string& out, Daphne& d) {
+    daphne::AfeDelaySweepRequest req;
+    daphne::AfeDelaySweepResponse resp;
+    if (!req.ParseFromString(in)) {
+      resp.set_success(false);
+      resp.set_message("Bad AfeDelaySweepRequest payload");
+      out = serialize_or_empty(resp);
+      return;
+    }
+
+    std::string msg;
+    const bool ok = run_afe_delay_sweep(req, resp, d, msg);
     resp.set_success(ok);
     resp.set_message(msg);
     out = serialize_or_empty(resp);

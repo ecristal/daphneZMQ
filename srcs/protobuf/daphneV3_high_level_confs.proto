@@ -103,6 +103,44 @@ message DumpSpyBuffersChunkResponse {
   repeated uint64 timestamps          = 12 [packed = true];
 }
 
+// ----------------- AFE input-delay diagnostic -----------------
+
+// Sweeps the common IDELAY tap used by the frame clock and eight data lanes
+// of each requested AFE. The server temporarily enables the synchronized AFE
+// count-up ramp, acquires software-triggered spybuffer waveforms, and restores
+// the original AFE output mode, delay taps, and VTC state before replying.
+message AfeDelaySweepRequest {
+  repeated uint32 afes       = 1;  // board numbering, 0..4; empty = all
+  uint32 firstTap            = 2;  // inclusive, 0..511
+  uint32 lastTap             = 3;  // inclusive, 0..511
+  uint32 tapStep             = 4;  // greater than zero
+  uint32 numberOfSamples     = 5;  // 2..2048
+  uint32 numberOfWaveforms   = 6;  // greater than zero
+  uint32 settleTimeUs        = 7;  // delay-to-trigger settling time
+}
+
+message AfeDelaySweepPoint {
+  uint32 tap                     = 1;
+  uint64 transitionsPerChannel   = 2;
+  // Exactly eight entries in board-channel order. A failure is a transition
+  // whose 14-bit modular delta differs from the expected ramp delta of +1.
+  repeated uint64 channelFailures = 3 [packed = true];
+}
+
+message AfeDelaySweepAfeResult {
+  uint32 afe             = 1;  // board numbering, 0..4
+  uint32 originalDelay   = 2;
+  uint32 bitslip         = 3;
+  repeated AfeDelaySweepPoint points = 4;
+}
+
+message AfeDelaySweepResponse {
+  bool success = 1;
+  string message = 2;
+  uint32 originalVtcEnable = 3;
+  repeated AfeDelaySweepAfeResult afes = 4;
+}
+
 // ----------------- Info -----------------
 
 message InfoRequest { uint32 level = 1; }
@@ -279,6 +317,9 @@ enum MessageTypeV2 {
 
   // System / monitoring
   MT2_READ_GENERAL_INFO_REQ          = 322; MT2_READ_GENERAL_INFO_RESP          = 323;
+
+  // Front-end timing diagnostics
+  MT2_AFE_DELAY_SWEEP_REQ            = 324; MT2_AFE_DELAY_SWEEP_RESP            = 325;
   
   // HD Mezzanine-specific commands
   MT2_SET_HDMEZZ_BLOCK_ENABLE_REQ   = 400;   MT2_SET_HDMEZZ_BLOCK_ENABLE_RESP = 401;
