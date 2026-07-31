@@ -26,6 +26,7 @@ class RampValidationResult:
     transitions: int
     failure_count: int
     failures: tuple[RampFailure, ...]
+    channel_failures: tuple[RampFailure, ...]
     waveform_failure_counts: tuple[tuple[int, int], ...]
     channel_failure_counts: tuple[tuple[int, int], ...]
     delta_failure_counts: tuple[tuple[int, int], ...]
@@ -42,6 +43,7 @@ def validate_ramp_data(
     samples_per_waveform: int,
     *,
     max_reported_failures: int = 20,
+    max_failures_per_channel: int = 0,
 ) -> RampValidationResult:
     """Validate flattened [waveform][channel][sample] AFE ramp data."""
 
@@ -53,6 +55,8 @@ def validate_ramp_data(
         raise ValueError("samples_per_waveform must be at least two")
     if max_reported_failures < 0:
         raise ValueError("max_reported_failures cannot be negative")
+    if max_failures_per_channel < 0:
+        raise ValueError("max_failures_per_channel cannot be negative")
 
     expected_words = waveform_count * len(channels) * samples_per_waveform
     if len(data) != expected_words:
@@ -63,6 +67,8 @@ def validate_ramp_data(
     transitions = waveform_count * len(channels) * (samples_per_waveform - 1)
     failure_count = 0
     reported: list[RampFailure] = []
+    channel_examples: list[RampFailure] = []
+    channel_example_counts: Counter[int] = Counter()
     waveform_failure_counts: Counter[int] = Counter()
     channel_failure_counts: Counter[int] = Counter()
     delta_failure_counts: Counter[int] = Counter()
@@ -78,27 +84,33 @@ def validate_ramp_data(
                 current = int(data[base + sample]) & RAMP_MASK
                 delta = (current - previous) & RAMP_MASK
                 if delta != 1:
+                    failure = RampFailure(
+                        waveform=waveform,
+                        channel=int(channel),
+                        sample=sample,
+                        previous=previous,
+                        current=current,
+                        delta=delta,
+                    )
                     failure_count += 1
                     waveform_failure_counts[waveform] += 1
                     channel_failure_counts[int(channel)] += 1
                     delta_failure_counts[delta] += 1
                     if len(reported) < max_reported_failures:
-                        reported.append(
-                            RampFailure(
-                                waveform=waveform,
-                                channel=int(channel),
-                                sample=sample,
-                                previous=previous,
-                                current=current,
-                                delta=delta,
-                            )
-                        )
+                        reported.append(failure)
+                    if (
+                        channel_example_counts[int(channel)]
+                        < max_failures_per_channel
+                    ):
+                        channel_examples.append(failure)
+                        channel_example_counts[int(channel)] += 1
                 previous = current
 
     return RampValidationResult(
         transitions=transitions,
         failure_count=failure_count,
         failures=tuple(reported),
+        channel_failures=tuple(channel_examples),
         waveform_failure_counts=tuple(
             sorted(waveform_failure_counts.items())
         ),

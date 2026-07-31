@@ -531,8 +531,10 @@ code even after a timeout or client exception.
 
 The automated smoke test is available at
 `client/test_spybuffer_readout_inhibit.py`. Its default configuration exercises
-four software-triggered waveforms through both normal and chunked APIs, using
-all 40 channels and 2048 samples. It requires the Python `pyzmq` and
+32 software-triggered waveforms through each of the normal and chunked APIs,
+for 64 validated waveforms in total, using all 40 channels and 2048 samples.
+PASS requires zero ramp discontinuities and zero duplicate or non-monotonic
+timestamps across the complete campaign. It requires the Python `pyzmq` and
 `protobuf` packages plus bindings generated from the same schema as the
 server:
 
@@ -555,6 +557,31 @@ Use `--hardware-trigger` for the external trigger-rate campaign. The script
 enables and validates the AFE ramp and restores normal AFE output in a
 `finally` cleanup path. `--keep-ramp-enabled` is available only for an
 intentional diagnostic session.
+
+No diagnostic directory is created for a passing run. On failure, the client
+creates a timestamped directory below `spybuffer_readout_inhibit_failures/`
+containing:
+
+- `summary.json`, with the complete campaign result and truncation counters;
+- `ramp_failures.csv`, with the exact API, waveform, channel, transition,
+  expected value, actual value, and modular delta;
+- `timestamp_failures.csv` when timestamp checks fail;
+- `plots/*.png`, with a full-waveform view and a local detail view marking the
+  precise `sample - 1 -> sample` transition in red and the expected ramp value
+  in green.
+
+To avoid repetitive output, plots are sampled per failing channel. The default
+is at most three representative plots for each channel across the complete
+campaign, configured with `--plots-per-failing-channel`. The global safety
+limit is controlled by `--max-failure-plots`. Detailed CSV records are bounded
+by `--max-artifact-failures`; the total untruncated failure count remains
+recorded in `summary.json`. Use `--failure-output-dir` to place artifacts
+outside the working tree.
+
+Console output intentionally remains concise: it lists the failing channels
+with their discontinuity counts and separately reports the compact ranges of
+channels that passed. Exact waveforms, samples, deltas and expected values are
+left to the diagnostic directory.
 
 An initial reduced hardware run with one software-triggered waveform and 256
 samples passed 37 of 40 channels and reported:

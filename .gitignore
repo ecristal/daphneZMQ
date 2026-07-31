@@ -27,4 +27,5 @@ srcs/protobuf/__pycache__/
 client/__pycache__/waveparse.cpython-313.pyc
 runs.zip
 runs/
+spybuffer_readout_inhibit_failures/
 .DS_Store

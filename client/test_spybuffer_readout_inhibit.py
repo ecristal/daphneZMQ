@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 from dataclasses import dataclass
 import importlib
 import os
@@ -15,7 +16,8 @@ import uuid
 
 import zmq
 
-from spybuffer_ramp_validation import RampValidationResult, validate_ramp_data
+from spybuffer_failure_artifacts import FailureArtifactWriter
+from spybuffer_ramp_validation import validate_ramp_data
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -267,51 +269,21 @@ def require_response_metadata(
         )
 
 
-def report_ramp_result(
-    label: str,
-    result: RampValidationResult,
-    *,
-    waveform_offset: int = 0,
-) -> None:
-    if result.failure_count:
-        waveforms = ", ".join(
-            f"wf{waveform_offset + waveform}={count}"
-            for waveform, count in result.waveform_failure_counts
-        )
-        channels = ", ".join(
-            f"ch{channel}={count}"
-            for channel, count in result.channel_failure_counts
-        )
-        deltas = ", ".join(
-            f"{delta}({delta - (1 << 14):+d})={count}"
-            if delta > (1 << 13)
-            else f"{delta}={count}"
-            for delta, count in result.delta_failure_counts
-        )
-        print(f"[FAIL] {label} failures by waveform: {waveforms}")
-        print(f"[FAIL] {label} failures by channel: {channels}")
-        print(f"[FAIL] {label} unexpected delta histogram: {deltas}")
-
-    for failure in result.failures:
-        print(
-            f"[FAIL] {label} waveform={waveform_offset + failure.waveform} "
-            f"channel={failure.channel} sample={failure.sample} "
-            f"previous=0x{failure.previous:04X} "
-            f"current=0x{failure.current:04X} delta={failure.delta}"
-        )
-    if result.failure_count > len(result.failures):
-        print(
-            f"[FAIL] {label}: "
-            f"{result.failure_count - len(result.failures)} additional "
-            "ramp discontinuities were not printed"
-        )
-
-
 @dataclass
 class AcquisitionStats:
     timestamps: list[int]
     transitions: int
     ramp_failures: int
+    channel_failure_counts: tuple[tuple[int, int], ...]
+
+
+@dataclass(frozen=True)
+class TimestampFailure:
+    waveform: int
+    kind: str
+    previous: int
+    current: int
+    delta: int
 
 
 def acquire_normal(
@@ -321,7 +293,9 @@ def acquire_normal(
     samples: int,
     waveforms: int,
     software_trigger: bool,
-    max_reported_failures: int,
+    max_stored_failures: int,
+    plots_per_channel: int,
+    artifacts: FailureArtifactWriter,
 ) -> AcquisitionStats:
     request = pb_high.DumpSpyBuffersRequest()
     request.channelList.extend(channels)
@@ -355,13 +329,22 @@ def acquire_normal(
         waveforms,
         channels,
         samples,
-        max_reported_failures=max_reported_failures,
+        max_reported_failures=max_stored_failures,
+        max_failures_per_channel=plots_per_channel,
     )
-    report_ramp_result("normal", result)
+    artifacts.record_ramp_result(
+        "normal",
+        response.data,
+        waveforms,
+        channels,
+        samples,
+        result,
+    )
     return AcquisitionStats(
         timestamps=[int(value) for value in response.timestamps],
         transitions=result.transitions,
         ramp_failures=result.failure_count,
+        channel_failure_counts=result.channel_failure_counts,
     )
 
 
@@ -406,7 +389,9 @@ def acquire_chunked(
     waveforms: int,
     chunk_size: int,
     software_trigger: bool,
-    max_reported_failures: int,
+    max_stored_failures: int,
+    plots_per_channel: int,
+    artifacts: FailureArtifactWriter,
 ) -> AcquisitionStats:
     request = pb_high.DumpSpyBuffersChunkRequest()
     request.channelList.extend(channels)
@@ -428,7 +413,7 @@ def acquire_chunked(
     timestamps: list[int] = []
     transitions = 0
     ramp_failures = 0
-    reported_failures = 0
+    channel_failure_counts: Counter[int] = Counter()
 
     while True:
         reply = receive_envelope(socket, envelope)
@@ -467,25 +452,25 @@ def acquire_chunked(
             samples,
             chunk_waveforms,
         )
-        remaining_reports = max(0, max_reported_failures - reported_failures)
         result = validate_ramp_data(
             chunk.data,
             chunk_waveforms,
             channels,
             samples,
-            max_reported_failures=remaining_reports,
+            max_reported_failures=max_stored_failures,
+            max_failures_per_channel=plots_per_channel,
         )
-        chunk_label = (
-            f"chunked[{chunk.waveformStart}:"
-            f"{chunk.waveformStart + chunk_waveforms}]"
-        )
-        report_ramp_result(
-            chunk_label,
+        artifacts.record_ramp_result(
+            "chunked",
+            chunk.data,
+            chunk_waveforms,
+            channels,
+            samples,
             result,
             waveform_offset=int(chunk.waveformStart),
         )
-        reported_failures += len(result.failures)
         ramp_failures += result.failure_count
+        channel_failure_counts.update(dict(result.channel_failure_counts))
         transitions += result.transitions
         timestamps.extend(int(value) for value in chunk.timestamps)
 
@@ -503,26 +488,90 @@ def acquire_chunked(
         timestamps=timestamps,
         transitions=transitions,
         ramp_failures=ramp_failures,
+        channel_failure_counts=tuple(sorted(channel_failure_counts.items())),
     )
 
 
-def timestamp_failures(timestamps: list[int]) -> list[str]:
-    failures: list[str] = []
+def timestamp_failures(timestamps: list[int]) -> list[TimestampFailure]:
+    failures: list[TimestampFailure] = []
     for index in range(1, len(timestamps)):
         previous = timestamps[index - 1]
         current = timestamps[index]
         delta = (current - previous) & UINT64_MASK
         if delta == 0:
             failures.append(
-                f"duplicate timestamp at waveform {index}: "
-                f"0x{current:016X}"
+                TimestampFailure(
+                    waveform=index,
+                    kind="duplicate",
+                    previous=previous,
+                    current=current,
+                    delta=delta,
+                )
             )
         elif delta >= UINT64_HALF_RANGE:
             failures.append(
-                f"non-monotonic timestamp at waveform {index}: "
-                f"0x{previous:016X} -> 0x{current:016X}"
+                TimestampFailure(
+                    waveform=index,
+                    kind="non-monotonic",
+                    previous=previous,
+                    current=current,
+                    delta=delta,
+                )
             )
     return failures
+
+
+def format_channel_ranges(channels: list[int]) -> str:
+    if not channels:
+        return "none"
+
+    ranges: list[str] = []
+    first = previous = channels[0]
+    for channel in channels[1:]:
+        if channel == previous + 1:
+            previous = channel
+            continue
+        ranges.append(str(first) if first == previous else f"{first}-{previous}")
+        first = previous = channel
+    ranges.append(str(first) if first == previous else f"{first}-{previous}")
+    return ",".join(ranges)
+
+
+def report_channel_status(
+    label: str,
+    stats: AcquisitionStats,
+    requested_channels: list[int],
+) -> None:
+    failure_counts = dict(stats.channel_failure_counts)
+    failed_channels = [
+        channel for channel in requested_channels if channel in failure_counts
+    ]
+    passed_channels = [
+        channel for channel in requested_channels if channel not in failure_counts
+    ]
+
+    if not failed_channels:
+        print(
+            f"[PASS] {label} ramp: all {len(requested_channels)} channels passed; "
+            f"transitions={stats.transitions}"
+        )
+        return
+
+    failed_summary = ", ".join(
+        f"ch{channel} ({failure_counts[channel]} failures)"
+        for channel in failed_channels
+    )
+    print(
+        f"[FAIL] {label} ramp: "
+        f"{len(failed_channels)}/{len(requested_channels)} "
+        f"channels failed; ramp_failures={stats.ramp_failures}"
+    )
+    print(f"       failed channels: {failed_summary}")
+    print(
+        f"[PASS] {label} ramp: "
+        f"{len(passed_channels)}/{len(requested_channels)} "
+        f"channels passed: {format_channel_ranges(passed_channels)}"
+    )
 
 
 def main() -> int:
@@ -537,16 +586,54 @@ def main() -> int:
     parser.add_argument("--route", default="mezz/0")
     parser.add_argument("--channels", default="0-39")
     parser.add_argument("--samples", type=int, default=2048)
-    parser.add_argument("--waveforms", type=int, default=4)
+    parser.add_argument("--waveforms", type=int, default=32)
     parser.add_argument(
         "--api",
         choices=("normal", "chunked", "both"),
         default="both",
     )
-    parser.add_argument("--chunk-size", type=int, default=2)
-    parser.add_argument("--timeout-ms", type=int, default=30000)
+    parser.add_argument("--chunk-size", type=int, default=4)
+    parser.add_argument("--timeout-ms", type=int, default=60000)
     parser.add_argument("--settle-ms", type=int, default=10)
-    parser.add_argument("--max-reported-failures", type=int, default=20)
+    parser.add_argument(
+        "--max-reported-failures",
+        type=int,
+        default=None,
+        help=argparse.SUPPRESS,
+    )
+    parser.add_argument(
+        "--failure-output-dir",
+        type=Path,
+        default=Path("spybuffer_readout_inhibit_failures"),
+        help=(
+            "Base directory for timestamped failure artifacts. It is not "
+            "created when the campaign passes."
+        ),
+    )
+    parser.add_argument(
+        "--max-artifact-failures",
+        type=int,
+        default=10000,
+        help="Maximum detailed ramp failures written to CSV and available for plots.",
+    )
+    parser.add_argument(
+        "--max-failure-plots",
+        type=int,
+        default=120,
+        help="Global safety limit for annotated ramp-failure PNG files.",
+    )
+    parser.add_argument(
+        "--plots-per-failing-channel",
+        type=int,
+        default=3,
+        help="Maximum representative ramp-failure plots for each failing channel.",
+    )
+    parser.add_argument(
+        "--plot-context-samples",
+        type=int,
+        default=16,
+        help="Samples shown on each side of a failed transition in the detail panel.",
+    )
     trigger_group = parser.add_mutually_exclusive_group()
     trigger_group.add_argument(
         "--software-trigger",
@@ -590,8 +677,19 @@ def main() -> int:
         parser.error("--timeout-ms must be greater than zero")
     if args.settle_ms < 0:
         parser.error("--settle-ms cannot be negative")
-    if args.max_reported_failures < 0:
+    if (
+        args.max_reported_failures is not None
+        and args.max_reported_failures < 0
+    ):
         parser.error("--max-reported-failures cannot be negative")
+    if args.max_artifact_failures < 0:
+        parser.error("--max-artifact-failures cannot be negative")
+    if args.max_failure_plots < 0:
+        parser.error("--max-failure-plots cannot be negative")
+    if args.plots_per_failing_channel < 0:
+        parser.error("--plots-per-failing-channel cannot be negative")
+    if args.plot_context_samples < 1:
+        parser.error("--plot-context-samples must be greater than zero")
     if args.skip_ramp_configuration and args.keep_ramp_enabled:
         parser.error(
             "--keep-ramp-enabled cannot be used with "
@@ -605,6 +703,7 @@ def main() -> int:
     print(f"  channels         : {channels}")
     print(f"  samples          : {args.samples}")
     print(f"  waveforms / API  : {args.waveforms} / {args.api}")
+    print(f"  failure artifacts: {args.failure_output_dir} (created only on FAIL)")
     print(
         "  trigger          : "
         + ("software" if args.software_trigger else "hardware")
@@ -624,10 +723,30 @@ def main() -> int:
         "spy-ramp-acquisition",
     )
 
+    artifacts = FailureArtifactWriter(
+        args.failure_output_dir,
+        max_failure_records=args.max_artifact_failures,
+        max_plots=args.max_failure_plots,
+        plots_per_channel=args.plots_per_failing_channel,
+        context_samples=args.plot_context_samples,
+    )
+    # Preserve the old hidden option for existing invocations while making
+    # the artifact-specific limit the documented control.
+    max_stored_failures = (
+        args.max_artifact_failures
+        if args.max_reported_failures is None
+        else args.max_reported_failures
+    )
+
     exit_code = 1
     ramp_configuration_attempted = False
     ramp_configuration_succeeded = False
     restore_errors: list[str] = []
+    total_transitions = 0
+    total_ramp_failures = 0
+    total_timestamp_failures = 0
+    tested_waveforms = 0
+    overall_channel_failure_counts: Counter[int] = Counter()
     try:
         if not args.skip_ramp_configuration:
             ramp_configuration_attempted = True
@@ -653,7 +772,9 @@ def main() -> int:
                         args.samples,
                         args.waveforms,
                         args.software_trigger,
-                        args.max_reported_failures,
+                        max_stored_failures,
+                        args.plots_per_failing_channel,
+                        artifacts,
                     ),
                 )
             )
@@ -669,44 +790,85 @@ def main() -> int:
                         args.waveforms,
                         args.chunk_size,
                         args.software_trigger,
-                        args.max_reported_failures,
+                        max_stored_failures,
+                        args.plots_per_failing_channel,
+                        artifacts,
                     ),
                 )
             )
 
-        all_timestamps: list[int] = []
-        total_transitions = 0
-        total_ramp_failures = 0
         for label, api_stats in stats:
-            all_timestamps.extend(api_stats.timestamps)
+            tested_waveforms += len(api_stats.timestamps)
             total_transitions += api_stats.transitions
             total_ramp_failures += api_stats.ramp_failures
-            print(
-                f"[{'PASS' if api_stats.ramp_failures == 0 else 'FAIL'}] "
-                f"{label}: transitions={api_stats.transitions} "
-                f"ramp_failures={api_stats.ramp_failures}"
+            overall_channel_failure_counts.update(
+                dict(api_stats.channel_failure_counts)
             )
+            report_channel_status(label, api_stats, channels)
 
-        ts_failures = timestamp_failures(all_timestamps)
-        for failure in ts_failures:
-            print(f"[FAIL] {failure}")
+            api_timestamp_failures = timestamp_failures(api_stats.timestamps)
+            total_timestamp_failures += len(api_timestamp_failures)
+            artifacts.record_timestamp_failures(
+                label,
+                api_stats.timestamps,
+                api_timestamp_failures,
+            )
+            if api_timestamp_failures:
+                timestamp_kinds = Counter(
+                    failure.kind for failure in api_timestamp_failures
+                )
+                kind_summary = ", ".join(
+                    f"{kind}={count}"
+                    for kind, count in sorted(timestamp_kinds.items())
+                )
+                print(
+                    f"[FAIL] {label} timestamps: "
+                    f"{len(api_timestamp_failures)} failures "
+                    f"({kind_summary})"
+                )
 
-        if total_ramp_failures == 0 and not ts_failures:
+        if total_ramp_failures == 0 and total_timestamp_failures == 0:
             print(
                 f"[PASS] ramp smoke test: transitions={total_transitions}, "
-                f"waveforms={len(all_timestamps)}"
+                f"waveforms={tested_waveforms}"
             )
             exit_code = 0
         else:
+            failed_channels = [
+                channel
+                for channel in channels
+                if channel in overall_channel_failure_counts
+            ]
+            passed_channels = [
+                channel
+                for channel in channels
+                if channel not in overall_channel_failure_counts
+            ]
             print(
                 f"[FAIL] ramp smoke test: "
                 f"ramp_failures={total_ramp_failures}, "
-                f"timestamp_failures={len(ts_failures)}"
+                f"timestamp_failures={total_timestamp_failures}"
+            )
+            if failed_channels:
+                print(
+                    "[FAIL] campaign failed channels: "
+                    + ", ".join(f"ch{channel}" for channel in failed_channels)
+                )
+                print(
+                    f"[PASS] campaign clean channels "
+                    f"({len(passed_channels)}/{len(channels)}): "
+                    f"{format_channel_ranges(passed_channels)}"
+                )
+            print(
+                "[INFO] Exact samples, deltas and representative plots are "
+                "stored in the diagnostic artifact directory."
             )
     except KeyboardInterrupt:
         print("[FAIL] interrupted by user")
+        artifacts.record_error("interrupted by user")
     except Exception as error:
         print(f"[FAIL] {error}")
+        artifacts.record_error(str(error))
     finally:
         should_restore = ramp_configuration_attempted and (
             not args.keep_ramp_enabled or not ramp_configuration_succeeded
@@ -716,6 +878,7 @@ def main() -> int:
             restore_errors = disable_ramp(control_socket, args.route)
             for error in restore_errors:
                 print(f"[FAIL] ramp cleanup: {error}")
+                artifacts.record_error(f"ramp cleanup: {error}")
             if restore_errors:
                 exit_code = 1
         elif ramp_configuration_succeeded:
@@ -724,6 +887,41 @@ def main() -> int:
         acquisition_socket.close(0)
         control_socket.close(0)
         context.term()
+
+        if exit_code != 0:
+            artifact_dir = artifacts.finalize(
+                {
+                    "result": "FAIL",
+                    "endpoint": endpoint,
+                    "route": args.route,
+                    "channels": channels,
+                    "samples": args.samples,
+                    "requested_waveforms_per_api": args.waveforms,
+                    "tested_waveforms": tested_waveforms,
+                    "api": args.api,
+                    "trigger": (
+                        "software" if args.software_trigger else "hardware"
+                    ),
+                    "transitions": total_transitions,
+                    "ramp_failures": total_ramp_failures,
+                    "timestamp_failures": total_timestamp_failures,
+                    "channel_failure_counts": dict(
+                        sorted(overall_channel_failure_counts.items())
+                    ),
+                    "failed_channels": [
+                        channel
+                        for channel in channels
+                        if channel in overall_channel_failure_counts
+                    ],
+                    "passed_channels": [
+                        channel
+                        for channel in channels
+                        if channel not in overall_channel_failure_counts
+                    ],
+                }
+            )
+            if artifact_dir is not None:
+                print(f"[INFO] detailed diagnostics: {artifact_dir}")
 
     return exit_code
 
