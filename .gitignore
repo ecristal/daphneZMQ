@@ -28,4 +28,5 @@ client/__pycache__/waveparse.cpython-313.pyc
 runs.zip
 runs/
 spybuffer_readout_inhibit_failures/
+afe_delay_sweep_results/
 .DS_Store
