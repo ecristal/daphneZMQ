@@ -768,6 +768,14 @@ Accept the joint implementation when:
 - [x] Repeat the same campaign with all 40 channels and confirm that every
       failure remains confined to frontend lanes 3, 25, and 39, with zero
       timestamp failures.
+- [x] Add the fixed, walking-bit, and toggle AFE diagnostic documented in
+      `docs/afe-test-pattern-diagnostics.md`.
+- [x] Run the AFE pattern matrix on channels 3 and 25. Both channels exhibit
+      static walking-pattern substitutions and temporal hybrid words; see
+      `docs/afe-test-pattern-diagnostics.md` for the measured D1/D9 and
+      D4/D12/D8/D0 relationships and the proposed firmware response.
+- [ ] Instrument or redesign the `clk125` to word-clock boundary in `febit3`
+      and repeat the complete pattern matrix after the firmware change.
 - [ ] Exercise both normal and chunked readout with one and 40 channels.
 - [ ] Run the complete trigger-rate matrix with the 35 microsecond guard.
 - [ ] Verify static physical-to-server channel mapping.

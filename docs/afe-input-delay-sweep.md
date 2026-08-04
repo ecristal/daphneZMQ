@@ -127,3 +127,8 @@ python3 client/scan_afe_delay_eye.py \
 
 The measured common midpoint is diagnostic only. This tool always restores the
 original delay and does not apply a new production alignment value.
+
+For a channel that has no clean tap while neighboring lanes have broad eyes,
+continue with `docs/afe-test-pattern-diagnostics.md`. Its custom walking-bit
+patterns distinguish static bit placement from corruption that appears only
+when consecutive serialized words differ.

@@ -59,6 +59,17 @@ if(PYTHONINTERP_FOUND)
     spybuffer_ramp_validation_unit
     PROPERTIES LABELS unit
   )
+
+  add_test(
+    NAME afe_pattern_validation_unit
+    COMMAND
+      ${PYTHON_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/test_afe_pattern_validation.py
+  )
+  set_tests_properties(
+    afe_pattern_validation_unit
+    PROPERTIES LABELS unit
+  )
 endif()
 
 if(DAPHNE_ENABLE_HARDWARE_TESTS AND CMAKE_SYSTEM_NAME STREQUAL "Linux")

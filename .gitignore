@@ -29,4 +29,5 @@ runs.zip
 runs/
 spybuffer_readout_inhibit_failures/
 afe_delay_sweep_results/
+afe_pattern_test_results/
 .DS_Store
