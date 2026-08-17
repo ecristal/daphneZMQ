@@ -9,6 +9,9 @@
 #include <thread>
 #include <vector>
 
+#include "server_controller/v8_telemetry.hpp"
+#include "server_controller/v8_telemetry_runtime.hpp"
+
 namespace daphne_sc::emulator {
 namespace {
 
@@ -182,6 +185,8 @@ daphne::ConfigureResponse EmulatedDaphneBackend::configure(const daphne::Configu
     generation = ++state_.configuration_generation;
   }
 
+  daphne_sc::telemetry::record_active_configuration(request);
+
   const auto nominal_ms =
       std::chrono::duration_cast<std::chrono::milliseconds>(nominal_configure_duration(request)).count();
   daphne::ConfigureResponse response;
@@ -240,6 +245,81 @@ daphne::GeneralInfo EmulatedDaphneBackend::read_general_info(const daphne::InfoR
   response.set_power_ce(state_.telemetry.power_ce);
   response.set_temperature(state_.telemetry.temperature);
   return response;
+}
+
+daphne::telemetry::v8::ReadTelemetrySnapshotResponse
+EmulatedDaphneBackend::read_telemetry_snapshot(
+    const daphne::telemetry::v8::ReadTelemetrySnapshotRequest& request) const {
+  daphne_sc::telemetry::SnapshotBuilder builder(request,
+                                                 daphne_sc::telemetry::detect_board_id());
+  builder.collect_platform();
+  daphne_sc::telemetry::collect_runtime(builder);
+  const BoardSnapshot state = snapshot();
+  const std::string base = "DAPHNE.Boards." + builder.board_id() + ".";
+
+  builder.set_boolean(base + "Firmware.Loaded", state.phase != BoardPhase::kPoweredOff &&
+                                                   state.phase != BoardPhase::kBooting);
+  builder.set_string(base + "Firmware.FpgaManagerState", "emulated");
+  builder.set_string(base + "Firmware.BuildId", "daphne-emulator");
+  builder.set_boolean(base + "Firmware.ConfigurationReady",
+                      state.configuration_generation != 0);
+  builder.set_boolean(base + "AFE.Global.PowerState",
+                      std::any_of(state.afes.begin(), state.afes.end(),
+                                  [](const AfeState& afe) { return afe.powered; }));
+  builder.set_boolean(base + "AFE.Global.ResetAsserted",
+                      state.phase == BoardPhase::kResettingAfes);
+  builder.set_boolean(base + "AFE.Global.BusyAfe0", false);
+  builder.set_boolean(base + "AFE.Global.BusyAfe12", false);
+  builder.set_boolean(base + "AFE.Global.BusyAfe34", false);
+  builder.set_boolean(base + "AFE.Global.BiasEnable", state.bias_control != 0);
+  builder.set_integer(base + "AFE.Global.BiasControlCode",
+                      static_cast<int32_t>(state.bias_control));
+
+  for (uint32_t afe = 0; afe < state.afes.size(); ++afe) {
+    const std::string afe_base = base + "AFE.Blocks." + std::to_string(afe) + ".";
+    builder.set_integer(afe_base + "Attenuation",
+                        static_cast<int32_t>(state.afes[afe].attenuation));
+    builder.set_integer(afe_base + "VGain", static_cast<int32_t>(state.afes[afe].attenuation));
+    builder.set_integer(afe_base + "BiasSetCode", static_cast<int32_t>(state.afes[afe].bias));
+    builder.set_double(afe_base + "BiasVoltage", state.telemetry.bias_voltage[afe]);
+    builder.set_integer(afe_base + "AlignmentDelay", static_cast<int32_t>(state.afes[afe].delay));
+    builder.set_integer(afe_base + "AlignmentBitslip",
+                        static_cast<int32_t>(state.afes[afe].bitslip));
+    builder.set_boolean(afe_base + "Aligned", state.afes[afe].aligned);
+  }
+  for (uint32_t channel = 0; channel < state.channels.size(); ++channel) {
+    const auto& source = state.channels[channel];
+    const std::string channel_base = base + "Channels." + std::to_string(channel) + ".";
+    builder.set_integer(channel_base + "Trim", static_cast<int32_t>(source.trim));
+    builder.set_integer(channel_base + "Offset", static_cast<int32_t>(source.offset));
+    builder.set_integer(channel_base + "Gain", static_cast<int32_t>(source.gain));
+    const bool enabled = channel < 32 ? (state.trigger_mask_low & (1u << channel)) != 0
+                                      : (state.trigger_mask_high & (1u << (channel - 32))) != 0;
+    builder.set_boolean(channel_base + "TriggerEnabled", enabled);
+    builder.set_integer(channel_base + "TriggerThreshold",
+                        static_cast<int32_t>(source.threshold));
+    builder.set_long(channel_base + "TriggerRecordCount",
+                     static_cast<int64_t>(source.record_count));
+    builder.set_long(channel_base + "TriggerBusyCount",
+                     static_cast<int64_t>(source.busy_count));
+    builder.set_long(channel_base + "TriggerFullCount",
+                     static_cast<int64_t>(source.full_count));
+  }
+  builder.set_double(base + "Power.BoardRails.Minus5VA.Voltage", state.telemetry.power_minus5v);
+  builder.set_double(base + "Power.BoardRails.3V3PDS.Voltage", state.telemetry.power_plus2p5v);
+  builder.set_double(base + "Power.BoardRails.1V8A.Voltage", state.telemetry.power_ce);
+  builder.set_string(base + "Power.BoardRails.Minus5VA.Status", "Emulated");
+  builder.set_string(base + "Power.BoardRails.3V3PDS.Status", "Emulated");
+  builder.set_string(base + "Power.BoardRails.1V8A.Status", "Emulated");
+  builder.set_double(base + "Thermal.Sensors.soc.Celsius", state.telemetry.temperature);
+  builder.set_string(base + "Thermal.Sensors.soc.Status", "Emulated");
+  builder.set_datetime(base + "Thermal.Sensors.soc.LastUpdate",
+                       static_cast<int64_t>(daphne_sc::telemetry::unix_time_ns()));
+  builder.set_boolean(base + "Timing.Mmcm0Locked", state.phase == BoardPhase::kReady);
+  builder.set_boolean(base + "Timing.Mmcm1Locked", state.phase == BoardPhase::kReady);
+  builder.set_boolean(base + "Timing.TimestampValid", state.phase == BoardPhase::kReady);
+  builder.set_boolean(base + "Timing.TimingUsable", state.phase == BoardPhase::kReady);
+  return builder.finish();
 }
 
 BoardSnapshot EmulatedDaphneBackend::snapshot() const {

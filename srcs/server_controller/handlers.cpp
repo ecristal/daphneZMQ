@@ -31,6 +31,8 @@
 #include "defines.hpp"
 #include "daphneV3_low_level_confs.pb.h"
 #include "reg.hpp"
+#include "server_controller/v8_hardware_telemetry.hpp"
+#include "server_controller/v8_telemetry_runtime.hpp"
 
 namespace daphne_sc {
 namespace {
@@ -2331,6 +2333,8 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers(Daphne& da
       msg += "\n\n[ALIGN_AFE] skipped (DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE set)";
     }
 
+    if (ok) telemetry::record_active_configuration(req);
+
     resp.set_success(ok);
     resp.set_message(msg);
     out = serialize_or_empty(resp);
@@ -3043,6 +3047,19 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers(Daphne& da
     out = serialize_or_empty(resp);
   };
 
+  handlers[daphne::MT2_READ_TELEMETRY_SNAPSHOT_REQ] =
+      [](const std::string& in, std::string& out, Daphne& d) {
+        daphne::telemetry::v8::ReadTelemetrySnapshotRequest req;
+        if (!req.ParseFromString(in)) {
+          daphne::telemetry::v8::ReadTelemetrySnapshotResponse resp;
+          resp.set_success(false);
+          resp.set_message("Bad ReadTelemetrySnapshotRequest payload");
+          out = serialize_or_empty(resp);
+          return;
+        }
+        out = serialize_or_empty(telemetry::collect_hardware_snapshot(req, d));
+      };
+
   std::unordered_map<MessageTypeV2, V2Handler> bound_handlers;
   bound_handlers.reserve(handlers.size());
   for (auto& [type, handler] : handlers) {
@@ -3053,6 +3070,25 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers(Daphne& da
                            });
   }
   return bound_handlers;
+}
+
+std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v8_telemetry_handlers(
+    Daphne& daphne) {
+  std::unordered_map<daphne::MessageTypeV2, V2Handler> handlers;
+  handlers.emplace(
+      daphne::MT2_READ_TELEMETRY_SNAPSHOT_REQ,
+      [&daphne](const std::string& in, std::string& out) {
+        daphne::telemetry::v8::ReadTelemetrySnapshotRequest req;
+        if (!req.ParseFromString(in)) {
+          daphne::telemetry::v8::ReadTelemetrySnapshotResponse resp;
+          resp.set_success(false);
+          resp.set_message("Bad ReadTelemetrySnapshotRequest payload");
+          out = serialize_or_empty(resp);
+          return;
+        }
+        out = serialize_or_empty(telemetry::collect_hardware_snapshot(req, daphne));
+      });
+  return handlers;
 }
 
 }  // namespace daphne_sc

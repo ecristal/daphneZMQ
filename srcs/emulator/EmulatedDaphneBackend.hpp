@@ -98,6 +98,8 @@ class EmulatedDaphneBackend final : public SlowControlBackend {
       const daphne::ReadTriggerCountersRequest& request) const override;
   daphne::TestRegResponse read_test_register() const override;
   daphne::GeneralInfo read_general_info(const daphne::InfoRequest& request) const override;
+  daphne::telemetry::v8::ReadTelemetrySnapshotResponse read_telemetry_snapshot(
+      const daphne::telemetry::v8::ReadTelemetrySnapshotRequest& request) const override;
 
   BoardSnapshot snapshot() const;
   void set_telemetry(const TelemetryState& telemetry);

@@ -3,13 +3,22 @@
 #include <thread>
 #include <chrono>
 
-Daphne::Daphne()
+Daphne::Daphne(bool initialize_peripherals)
 	: afe(std::make_unique<Afe>()),
 	  dac(std::make_unique<Dac>()),
 	  frontend(std::make_unique<FrontEnd>()),
-	  spyBuffer(std::make_unique<SpyBuffer>())
+	  spyBuffer(std::make_unique<SpyBuffer>()),
+	  peripherals_initialized_(initialize_peripherals)
 	{
 		this->initRegDictHistory();
+
+		if (!initialize_peripherals) {
+			this->isI2C_1_device_configuring.store(false);
+			this->isI2C_2_device_configuring.store(false);
+			this->user_vbias_voltage_request.store(false);
+			this->is_vbias_voltage_monitor_reading.store(false);
+			return;
+		}
 
 		try {
 			hdmezzdriver = std::make_unique<I2CMezzDrivers::HDMezzDriver>();
@@ -105,6 +114,10 @@ I2CADCsDrivers::ADS7138_Driver* Daphne::getADS7138_Driver_addr_0x17(){
 
 CurrentMonitorDrivers::CurrentMonitor* Daphne::getCurrentMonitorDriver(){
 	return this->current_monitor.get();
+}
+
+bool Daphne::peripheralsInitialized() const noexcept {
+	return this->peripherals_initialized_;
 }
 
 std::optional<std::pair<uint32_t, uint32_t>> Daphne::longestIdenticalSubsequenceIndices(const std::vector<uint32_t>& nums){

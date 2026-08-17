@@ -93,7 +93,7 @@ void SpyBuffer::extractMappedDataBulk(uint32_t* output, uint32_t numberOfSamples
 }
 
 void SpyBuffer::extractMappedDataBulkSIMD(uint32_t* dst, uint32_t nSamples) {
-    
+#if defined(__ARM_NEON) || defined(__ARM_NEON__)
 	uint32_t wordCount = nSamples / 2;
     uint32_t idx = 0;
     uint32_t i = 0;
@@ -133,6 +133,9 @@ void SpyBuffer::extractMappedDataBulkSIMD(uint32_t* dst, uint32_t nSamples) {
         uint32_t word = src[wordCount];
         dst[idx++] = (word >> 2) & 0x3FFF;    // DATAL
     }
+#else
+    extractMappedDataBulk(dst, nSamples);
+#endif
 }
 
 // void SpyBuffer::extractMappedDataBulkSIMD(uint32_t* dst, uint32_t nSamples, uint32_t channel_index) {
@@ -178,6 +181,7 @@ void SpyBuffer::extractMappedDataBulkSIMD(uint32_t* dst, uint32_t nSamples) {
 // }
 
 void SpyBuffer::extractMappedDataBulkSIMD(uint32_t* dst, uint32_t nSamples, uint32_t channel_index) {
+#if defined(__ARM_NEON) || defined(__ARM_NEON__)
     uint32_t wordCount = nSamples / 2;
     const uint32_t* src = channel_ptrs[channel_index];
 
@@ -220,4 +224,17 @@ void SpyBuffer::extractMappedDataBulkSIMD(uint32_t* dst, uint32_t nSamples, uint
         uint32_t word = src[wordCount];
         dst[idx++] = (word >> 2) & 0x3FFF;    // DATAL
     }
+#else
+    const uint32_t* src = channel_ptrs[channel_index];
+    const uint32_t word_count = nSamples / 2;
+    uint32_t output_index = 0;
+    for (uint32_t index = 0; index < word_count; ++index) {
+        const uint32_t word = src[index];
+        dst[output_index++] = (word >> 2) & 0x3FFF;
+        dst[output_index++] = (word >> 18) & 0x3FFF;
+    }
+    if ((nSamples & 1u) != 0) {
+        dst[output_index] = (src[word_count] >> 2) & 0x3FFF;
+    }
+#endif
 }

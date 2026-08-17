@@ -43,12 +43,6 @@ endif()
 # ---------------- Hardware I2C layer ----
 find_package(Threads REQUIRED)
 if(DAPHNE_BUILD_HARDWARE_SERVER)
-  find_library(I2C_LIB NAMES i2c HINTS /usr/lib /usr/local/lib)
-
-  if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT I2C_LIB)
-    message(FATAL_ERROR "libi2c is required by I2CDevice SMBus operations")
-  endif()
-
   add_library(daphne_i2c_hw
     srcs/I2CDevice.cpp
     srcs/DaphneI2CDrivers.cpp
@@ -57,9 +51,6 @@ if(DAPHNE_BUILD_HARDWARE_SERVER)
     ${CMAKE_CURRENT_SOURCE_DIR}/srcs
   )
   target_link_libraries(daphne_i2c_hw PUBLIC Threads::Threads)
-  if(I2C_LIB)
-    target_link_libraries(daphne_i2c_hw PUBLIC ${I2C_LIB})
-  endif()
 
   if(BUILD_TESTING)
     add_subdirectory(tests)
@@ -86,7 +77,19 @@ set(PROTO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/srcs/protobuf)
 set(PROTO_FILES
   ${PROTO_DIR}/daphneV3_high_level_confs.proto
   ${PROTO_DIR}/daphneV3_low_level_confs.proto
+  ${PROTO_DIR}/daphne_v8_telemetry.proto
 )
+file(SHA256 "${PROTO_DIR}/daphne_v8_telemetry.proto" DAPHNE_TELEMETRY_SCHEMA_SHA256)
+execute_process(
+  COMMAND git describe --always --dirty
+  WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+  OUTPUT_VARIABLE DAPHNE_SERVER_VERSION
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  ERROR_QUIET
+)
+if(NOT DAPHNE_SERVER_VERSION)
+  set(DAPHNE_SERVER_VERSION "unknown")
+endif()
 
 # Generate into build tree, mirroring source paths, so headers are at:
 #   ${CMAKE_CURRENT_BINARY_DIR}/srcs/protobuf/*.pb.h
@@ -109,17 +112,20 @@ if(DAPHNE_BUILD_PY_PROTO)
     OUTPUT
       ${PY_PROTO_OUT}/daphneV3_high_level_confs_pb2.py
       ${PY_PROTO_OUT}/daphneV3_low_level_confs_pb2.py
+      ${PY_PROTO_OUT}/daphne_v8_telemetry_pb2.py
     COMMAND ${Protobuf_PROTOC_EXECUTABLE}
       --python_out=${PY_PROTO_OUT}
       -I ${PROTO_DIR}
       ${PROTO_DIR}/daphneV3_high_level_confs.proto
       ${PROTO_DIR}/daphneV3_low_level_confs.proto
+      ${PROTO_DIR}/daphne_v8_telemetry.proto
     DEPENDS ${PROTO_FILES}
     COMMENT "Generating Python protobuf stubs"
   )
   add_custom_target(daphne_proto_py ALL DEPENDS
     ${PY_PROTO_OUT}/daphneV3_high_level_confs_pb2.py
     ${PY_PROTO_OUT}/daphneV3_low_level_confs_pb2.py
+    ${PY_PROTO_OUT}/daphne_v8_telemetry_pb2.py
   )
 endif()
 
@@ -206,6 +212,9 @@ set(SOURCES
   srcs/emulator/emulated_handlers.cpp
   srcs/server_controller/handlers.cpp
   srcs/server_controller/monitoring.cpp
+  srcs/server_controller/v8_telemetry.cpp
+  srcs/server_controller/v8_telemetry_runtime.cpp
+  srcs/server_controller/v8_hardware_telemetry.cpp
   srcs/server_controller/spybuffer_chunker.cpp
   srcs/server_controller/router_server.cpp
   srcs/server_controller/main.cpp
@@ -241,6 +250,10 @@ target_link_libraries(daphneServer PRIVATE
   CLI11::CLI11
   Threads::Threads
 )
+target_compile_definitions(daphneServer PRIVATE
+  DAPHNE_TELEMETRY_SCHEMA_SHA256="${DAPHNE_TELEMETRY_SCHEMA_SHA256}"
+  DAPHNE_SERVER_VERSION="${DAPHNE_SERVER_VERSION}"
+)
 if(OpenMP_CXX_FOUND)
   target_link_libraries(daphneServer PRIVATE OpenMP::OpenMP_CXX)
 endif()
@@ -251,6 +264,12 @@ add_executable(daphneEmulator
   srcs/emulator/EmulatedDaphneBackend.cpp
   srcs/emulator/emulated_handlers.cpp
   srcs/server_controller/router_server.cpp
+  srcs/server_controller/v8_telemetry.cpp
+  srcs/server_controller/v8_telemetry_runtime.cpp
+)
+target_compile_definitions(daphneEmulator PRIVATE
+  DAPHNE_TELEMETRY_SCHEMA_SHA256="${DAPHNE_TELEMETRY_SCHEMA_SHA256}"
+  DAPHNE_SERVER_VERSION="${DAPHNE_SERVER_VERSION}"
 )
 target_include_directories(daphneEmulator PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -273,6 +292,8 @@ if(BUILD_TESTING)
     tests/emulated_daphne_backend_test.cpp
     srcs/emulator/EmulatedDaphneBackend.cpp
     srcs/emulator/emulated_handlers.cpp
+    srcs/server_controller/v8_telemetry.cpp
+    srcs/server_controller/v8_telemetry_runtime.cpp
   )
   target_include_directories(emulated_daphne_backend_test PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/srcs
@@ -282,6 +303,10 @@ if(BUILD_TESTING)
     ${PROTO_DIR}
   )
   target_link_libraries(emulated_daphne_backend_test PRIVATE daphne_proto Threads::Threads)
+  target_compile_definitions(emulated_daphne_backend_test PRIVATE
+    DAPHNE_TELEMETRY_SCHEMA_SHA256="${DAPHNE_TELEMETRY_SCHEMA_SHA256}"
+    DAPHNE_SERVER_VERSION="${DAPHNE_SERVER_VERSION}"
+  )
   add_test(NAME emulated_daphne_backend COMMAND emulated_daphne_backend_test)
 endif()
 add_executable(daphne_zmq_server
@@ -301,6 +326,6 @@ message(STATUS "ZMQ lib: ${ZMQ_LIB}")
 message(STATUS "ZMQ target: ${DAPHNE_ZMQ_TARGET} (bundled=${DAPHNE_BUNDLE_ZEROMQ})")
 message(STATUS "cppzmq target: " $<TARGET_EXISTS:cppzmq>)
 message(STATUS "CLI11 target: " $<TARGET_EXISTS:CLI11::CLI11>)
-message(STATUS "I2C lib: ${I2C_LIB}")
+message(STATUS "I2C SMBus transport: Linux ioctl (in-tree)")
 
 endif()

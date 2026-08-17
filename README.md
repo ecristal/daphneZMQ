@@ -5,7 +5,9 @@ The project contains:
 
 - low-level memory access helpers (`DevMem`) used to peek/poke AXI registers from the PS side;
 - a ZeroMQ-based register server (`srcs/srv.cpp`) that exposes simple `read`/`write` commands;
-- the main `daphneServer` application (v2-only), which orchestrates AFE, SPI, I²C and trigger primitives and uses Protocol Buffers for configuration exchanges.
+- the main `daphneServer` application, which orchestrates AFE, SPI, I²C and
+  trigger primitives and uses Protocol Buffers for configuration and v8
+  telemetry exchanges.
 
 ## Repository layout
 
@@ -20,14 +22,13 @@ The project contains:
 - [ZeroMQ](https://zeromq.org/) runtime (`libzmq`) and the `cppzmq` headers.
 - [Protocol Buffers](https://protobuf.dev/) compiler and library.
 - [CLI11](https://github.com/CLIUtils/CLI11) headers (vendored under `third_party/CLI11/include`).
-- `libi2c` (optional; needed when using the I²C features of `daphneServer`).
 - OpenMP (optional; enabled automatically if available).
 
 On Ubuntu-like systems the following packages cover the essentials:
 
 ```bash
 sudo apt install build-essential cmake libzmq3-dev libprotobuf-dev protobuf-compiler \
-                 libi2c-dev
+                 cppzmq-dev
 ```
 
 ## Building
@@ -54,7 +55,8 @@ Minimal source set for building `daphneServer`:
 
 The build produces three main executables:
 
-- `build/daphneServer` – the high-level slow-control application (ControlEnvelopeV2 only).
+- `build/daphneServer` – the high-level slow-control application
+  (`ControlEnvelopeV2`, including the proposed-v8 telemetry snapshot).
 - `build/daphneEmulator` – a hardware-free implementation of the same DAPHNE
   slow-control contract on the production port (`40001` by default).
 - `build/daphne_zmq_server` – a lightweight register access server.
@@ -95,7 +97,37 @@ Run one production-port endpoint:
 this executable is the higher-fidelity sidecar for a small number of selected
 boards.
 
-## daphneServer (v2-only)
+## Proposed-v8 telemetry path
+
+OPC-UA does not decode the DAPHNE ZeroMQ stream directly. The supported path is:
+
+```text
+DAPHNE collectors -> daphne.telemetry.v8 protobuf -> ControlEnvelopeV2/ZMQ
+  -> daphne-sc bridge -> typed OPC-UA nodes
+```
+
+The additive request/response message types are `1002`/`1003`; the canonical
+schema is `srcs/protobuf/daphne_v8_telemetry.proto`. A full HD snapshot contains
+1,370 board-owned points. Values owned by DAQ run control, SC/DPS authority,
+HWDB/network authority, or the OPC-UA gateway are deliberately not fabricated
+by the board service.
+
+For a non-invasive commissioning sidecar, use a spare port:
+
+```bash
+sudo env DAPHNE_TELEMETRY_BOARD_ID=015 \
+  ./build/daphneServer --bind tcp://0.0.0.0:40002 --telemetry-only
+```
+
+`--telemetry-only` exposes only message `1002`, disables background monitoring,
+and skips the constructors that configure I²C/SPI peripherals. It still maps
+FPGA memory and performs read-only MMIO reads, so it requires target privileges
+and is a commissioning mode rather than a security boundary. Unknown or unsafe
+readbacks remain explicitly unavailable. See
+`docs/v8-telemetry-contract.md` for ownership, quality, generation, and register
+map details.
+
+## daphneServer (ControlEnvelopeV2)
 
 `daphneServer` is a ROUTER-based server that accepts `ControlEnvelopeV2` only. Legacy `ControlEnvelope`
 messages are deprecated and ignored.
@@ -114,6 +146,8 @@ Transport behavior:
 Optional flags:
 
 - `--disable-monitoring` disables the background I²C monitoring threads.
+- `--telemetry-only` exposes only the read-only proposed-v8 snapshot and skips
+  I²C/SPI peripheral initialization.
 - `--monitor-period-ms 200` controls monitoring cadence.
 
 Safety knobs:

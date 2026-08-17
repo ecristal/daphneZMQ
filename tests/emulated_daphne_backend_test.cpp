@@ -1,11 +1,13 @@
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
+#include <set>
 #include <string>
 #include <vector>
 
 #include "emulator/EmulatedDaphneBackend.hpp"
 #include "emulator/emulated_handlers.hpp"
+#include "server_controller/v8_telemetry.hpp"
 
 namespace {
 
@@ -110,6 +112,53 @@ int main() {
           "protocol handler delegates to backend");
   require(backend.snapshot().configuration_generation == 2,
           "handler configuration mutates the same instance");
+
+  setenv("DAPHNE_TELEMETRY_BOARD_ID", "015", 1);
+  daphne::telemetry::v8::ReadTelemetrySnapshotRequest telemetry_request;
+  telemetry_request.set_detail(daphne::telemetry::v8::TELEMETRY_DETAIL_DIAGNOSTIC);
+  telemetry_request.set_request_sequence(77);
+  telemetry_request.set_include_unavailable(true);
+  const auto telemetry = backend.read_telemetry_snapshot(telemetry_request);
+  require(telemetry.success(), "v8 telemetry snapshot succeeds");
+  require(telemetry.schema_major() == 1 && telemetry.schema_minor() == 0,
+          "v8 telemetry schema is identified");
+  require(telemetry.schema_source_sha256().size() == 64,
+          "v8 telemetry reports the canonical schema source hash");
+  require(telemetry.board_id() == "015", "v8 telemetry uses the configured board id");
+  require(telemetry.request_sequence() == 77, "v8 telemetry preserves request correlation");
+  require(static_cast<size_t>(telemetry.points_size()) ==
+              daphne_sc::telemetry::catalog_size(),
+          "include_unavailable returns the complete board-owned catalog");
+  require(daphne_sc::telemetry::catalog_size() == 1370,
+          "compiled catalog matches the proposed-v8 HD expansion");
+  std::set<std::string> telemetry_ids;
+  for (const auto& point : telemetry.points()) {
+    require(telemetry_ids.insert(point.node_id()).second,
+            "v8 telemetry contains no duplicate NodeIds");
+    require(point.node_id().find("{BoardId}") == std::string::npos,
+            "v8 telemetry substitutes BoardId in every NodeId");
+    require(point.quality() != daphne::telemetry::v8::TELEMETRY_QUALITY_UNSPECIFIED,
+            "every v8 telemetry point has explicit quality");
+    require(point.sample_time_unix_ns() != 0 && point.sample_monotonic_ns() != 0,
+            "every v8 telemetry point carries source timestamps");
+    if (point.quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_UNAVAILABLE ||
+        point.quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_NOT_APPLICABLE) {
+      require(point.value_case() == daphne::telemetry::v8::TelemetryPoint::VALUE_NOT_SET,
+              "unavailable v8 telemetry does not fabricate a value");
+    }
+  }
+  require(telemetry_ids.count("DAPHNE.Boards.015.Channels.39.TriggerRecordCount") == 1,
+          "expanded channel telemetry is present");
+  require(telemetry_ids.count("DAPHNE.Boards.015.HDMezz.4.Voltage5V") == 1,
+          "expanded HD mezzanine telemetry is present");
+
+  std::string telemetry_output;
+  handlers.at(daphne::MT2_READ_TELEMETRY_SNAPSHOT_REQ)(
+      telemetry_request.SerializeAsString(), telemetry_output);
+  daphne::telemetry::v8::ReadTelemetrySnapshotResponse telemetry_from_handler;
+  require(telemetry_from_handler.ParseFromString(telemetry_output) &&
+              telemetry_from_handler.success(),
+          "v8 telemetry protocol handler serializes the complete response");
 
   daphne::ConfigureRequest invalid_request;
   invalid_request.add_channels()->set_id(40);

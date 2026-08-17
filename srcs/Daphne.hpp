@@ -32,7 +32,7 @@ class Daphne {
 public:
     // Constructor
 
-    Daphne();
+    explicit Daphne(bool initialize_peripherals = true);
 
     // Destructor
     ~Daphne();
@@ -46,6 +46,7 @@ public:
     I2CADCsDrivers::ADS7138_Driver* getADS7138_Driver_addr_0x10();
     I2CADCsDrivers::ADS7138_Driver* getADS7138_Driver_addr_0x17();
     CurrentMonitorDrivers::CurrentMonitor* getCurrentMonitorDriver();
+    bool peripheralsInitialized() const noexcept;
 
     std::optional<std::pair<uint32_t, uint32_t>> longestIdenticalSubsequenceIndices(const std::vector<uint32_t>& nums);
     std::vector<uint32_t> scanGeneric(const uint32_t& afe,const std::string& what,const uint32_t& taps, std::function<uint32_t(const uint32_t&, const uint32_t&)> setFunc);
@@ -84,18 +85,24 @@ public:
     std::array<std::atomic<double>, 5> HDMezz_3V3_power{0.0, 0.0, 0.0, 0.0, 0.0};
     std::array<std::atomic<bool>, 5>   HDMezz_5V_alert{false, false, false, false, false};
     std::array<std::atomic<bool>, 5>   HDMezz_3V3_alert{false, false, false, false, false};
+    std::array<std::atomic<bool>, 5>   HDMezz_monitor_valid{false, false, false, false, false};
+    std::array<std::atomic<uint64_t>, 5> HDMezz_last_success_unix_ns{0, 0, 0, 0, 0};
+    std::array<std::atomic<uint64_t>, 5> HDMezz_last_success_monotonic_ns{0, 0, 0, 0, 0};
 
-    std::atomic<double> _1V8A_voltage;
-    std::atomic<double> _3V3A_voltage;
-    std::atomic<double> _n5VA_voltage;
+    std::atomic<double> _1V8A_voltage{0.0};
+    std::atomic<double> _3V3A_voltage{0.0};
+    std::atomic<double> _n5VA_voltage{0.0};
 
-    std::atomic<double> _3V3PDS_voltage;
-    std::atomic<double> _1V8PDS_voltage;
-    std::atomic<double> _VBIAS_0_voltage;
-    std::atomic<double> _VBIAS_1_voltage;
-    std::atomic<double> _VBIAS_2_voltage;
-    std::atomic<double> _VBIAS_3_voltage;
-    std::atomic<double> _VBIAS_4_voltage;
+    std::atomic<double> _3V3PDS_voltage{0.0};
+    std::atomic<double> _1V8PDS_voltage{0.0};
+    std::atomic<double> _VBIAS_0_voltage{0.0};
+    std::atomic<double> _VBIAS_1_voltage{0.0};
+    std::atomic<double> _VBIAS_2_voltage{0.0};
+    std::atomic<double> _VBIAS_3_voltage{0.0};
+    std::atomic<double> _VBIAS_4_voltage{0.0};
+    std::atomic<bool> board_rail_monitor_valid{false};
+    std::atomic<uint64_t> board_rail_last_success_unix_ns{0};
+    std::atomic<uint64_t> board_rail_last_success_monotonic_ns{0};
 
 private:
     std::unique_ptr<Afe> afe;
@@ -107,6 +114,7 @@ private:
     std::unique_ptr<I2CADCsDrivers::ADS7138_Driver> ads7138driver_addr_0x10;
     std::unique_ptr<I2CADCsDrivers::ADS7138_Driver> ads7138driver_addr_0x17;
     std::unique_ptr<CurrentMonitorDrivers::CurrentMonitor> current_monitor;
+    bool peripherals_initialized_ = true;
 
     std::unordered_map<std::string, std::vector<double>> AFE_GAIN_LUT = {
         {"VCNTL",{0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5}},

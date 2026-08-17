@@ -10,6 +10,18 @@
 namespace daphne_sc {
 namespace {
 
+uint64_t unix_time_ns() {
+  return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                   std::chrono::system_clock::now().time_since_epoch())
+                                   .count());
+}
+
+uint64_t monotonic_time_ns() {
+  return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                   std::chrono::steady_clock::now().time_since_epoch())
+                                   .count());
+}
+
 void i2c_2_monitor_thread(Daphne& daphne, std::chrono::milliseconds period) {
   while (true) {
     try {
@@ -52,6 +64,9 @@ void i2c_2_monitor_thread(Daphne& daphne, std::chrono::milliseconds period) {
                         << (daphne.HDMezz_3V3_alert[i].load() ? "CE alert" : "")
                         << std::endl;
             }
+            daphne.HDMezz_last_success_unix_ns[i].store(unix_time_ns());
+            daphne.HDMezz_last_success_monotonic_ns[i].store(monotonic_time_ns());
+            daphne.HDMezz_monitor_valid[i].store(true);
           } catch (const std::exception& e) {
             std::cerr << "I2C_2 monitor AFE " << i << " error: "
                       << e.what() << std::endl;
@@ -107,6 +122,11 @@ void i2c_1_monitor_thread(Daphne& daphne, std::chrono::milliseconds period) {
           daphne._3V3A_voltage.store(adc_values_0x17[1] * 2.0);
           daphne._n5VA_voltage.store(adc_values_0x17[2] * (-2.0));
         }
+        if (adc_values_0x10.size() >= 7 && adc_values_0x17.size() >= 3) {
+          daphne.board_rail_last_success_unix_ns.store(unix_time_ns());
+          daphne.board_rail_last_success_monotonic_ns.store(monotonic_time_ns());
+          daphne.board_rail_monitor_valid.store(true);
+        }
       }
     } catch (const std::exception& e) {
       daphne.is_vbias_voltage_monitor_reading.store(false);
@@ -127,4 +147,3 @@ std::vector<std::thread> start_monitoring(Daphne& daphne, const MonitoringOption
 }
 
 }  // namespace daphne_sc
-

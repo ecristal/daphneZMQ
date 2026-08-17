@@ -7,6 +7,7 @@
 
 #include "daphneV3_high_level_confs.pb.h"
 #include "server_controller/v2_envelope.hpp"
+#include "server_controller/v8_telemetry_runtime.hpp"
 
 namespace daphne_sc {
 namespace {
@@ -72,6 +73,8 @@ void run_router_server(zmq::context_t& ctx,
       continue;
     }
 
+    telemetry::begin_command(req, client_id);
+
     const auto streaming_it = streaming_handlers.find(req.type());
     if (streaming_it != streaming_handlers.end()) {
       try {
@@ -81,6 +84,7 @@ void run_router_server(zmq::context_t& ctx,
         });
       } catch (const std::exception& e) {
         std::cerr << "Streaming handler threw exception: " << e.what() << std::endl;
+        telemetry::complete_command(req.msg_id(), false, e.what());
         const auto env = v2::make_response(req, v2::response_type(req.type()), std::string{});
         send_to(router, client_id, env.SerializeAsString());
       }
@@ -90,6 +94,7 @@ void run_router_server(zmq::context_t& ctx,
     const auto it = handlers.find(req.type());
     if (it == handlers.end()) {
       std::cerr << "No handler for MessageTypeV2=" << static_cast<int>(req.type()) << std::endl;
+      telemetry::complete_command(req.msg_id(), false, "No handler registered");
       const auto env = v2::make_response(req, v2::response_type(req.type()), std::string{});
       send_to(router, client_id, env.SerializeAsString());
       continue;
@@ -100,10 +105,13 @@ void run_router_server(zmq::context_t& ctx,
       it->second(req.payload(), resp_payload);
     } catch (const std::exception& e) {
       std::cerr << "Handler threw exception: " << e.what() << std::endl;
+      telemetry::complete_command(req.msg_id(), false, e.what());
       const auto env = v2::make_response(req, v2::response_type(req.type()), std::string{});
       send_to(router, client_id, env.SerializeAsString());
       continue;
     }
+
+    telemetry::complete_command(req.msg_id(), true, "Handler completed");
 
     const auto env = v2::make_response(req, v2::response_type(req.type()), std::move(resp_payload));
     send_to(router, client_id, env.SerializeAsString());

@@ -1,9 +1,6 @@
 #include "I2CDevice.hpp"
 
 #ifdef __linux__
-extern "C" {
-#include <i2c/smbus.h>
-}
 #include <algorithm>
 #include <cerrno>
 #include <cstring>
@@ -19,6 +16,36 @@ extern "C" {
 #include <linux/i2c-dev.h>
 
 namespace {
+
+int smbus_access(int file_descriptor, char read_write, uint8_t command,
+                 int transaction_size, union i2c_smbus_data* data) {
+    i2c_smbus_ioctl_data transaction{};
+    transaction.read_write = read_write;
+    transaction.command = command;
+    transaction.size = transaction_size;
+    transaction.data = data;
+    int result;
+    do {
+        result = ioctl(file_descriptor, I2C_SMBUS, &transaction);
+    } while (result < 0 && errno == EINTR);
+    return result;
+}
+
+int32_t read_smbus_word_data(int file_descriptor, uint8_t command) {
+    union i2c_smbus_data data{};
+    if (smbus_access(file_descriptor, I2C_SMBUS_READ, command,
+                     I2C_SMBUS_WORD_DATA, &data) < 0) {
+        return -1;
+    }
+    return static_cast<int32_t>(data.word & 0xFFFFu);
+}
+
+int write_smbus_word_data(int file_descriptor, uint8_t command, uint16_t value) {
+    union i2c_smbus_data data{};
+    data.word = value;
+    return smbus_access(file_descriptor, I2C_SMBUS_WRITE, command,
+                        I2C_SMBUS_WORD_DATA, &data);
+}
 
 std::string i2c_context(const std::string& action,
                         const std::string& device_path,
@@ -265,7 +292,7 @@ void I2CDevice::readFrame(std::vector<uint8_t> &data, std::size_t numBytes){
 }
 
 uint16_t I2CDevice::readWordSMBus(uint8_t command) {
-    auto res = i2c_smbus_read_word_data(fileDescriptor, command);
+    const auto res = read_smbus_word_data(fileDescriptor, command);
     if (res < 0) {
         const int error_number = errno;
         throw i2c_error("Reading SMBus word", devicePath, deviceAddress,
@@ -275,7 +302,7 @@ uint16_t I2CDevice::readWordSMBus(uint8_t command) {
 }
 
 void I2CDevice::writeWordSMBus(uint8_t command, uint16_t value) {
-    if (i2c_smbus_write_word_data(fileDescriptor, command, value) < 0) {
+    if (write_smbus_word_data(fileDescriptor, command, value) < 0) {
         const int error_number = errno;
         throw i2c_error("Writing SMBus word", devicePath, deviceAddress,
                         error_number, command);

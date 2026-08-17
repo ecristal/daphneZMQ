@@ -16,5 +16,7 @@ using V2StreamingHandler =
     std::function<void(const std::string& req_payload, const V2ResponseSink& send_response)>;
 
 std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers(Daphne& daphne);
+std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v8_telemetry_handlers(
+    Daphne& daphne);
 
 }  // namespace daphne_sc

@@ -24,6 +24,7 @@ int main(int argc, char* argv[]) {
   std::string bind_endpoint = "tcp://*:9876";
   std::string backend_name = "hardware";
   bool disable_monitoring = false;
+  bool telemetry_only = false;
   int monitor_period_ms = 200;
   double emulation_time_scale = 1.0;
   int emulation_startup_delay_ms = 0;
@@ -36,6 +37,9 @@ int main(int argc, char* argv[]) {
   app.add_option("--backend", backend_name, "Slow-control backend: hardware or emulator")
       ->default_val(backend_name);
   app.add_flag("--disable-monitoring", disable_monitoring, "Disable background I2C monitoring threads");
+  app.add_flag(
+      "--telemetry-only", telemetry_only,
+      "Read-only commissioning mode: expose only the v8 snapshot and skip I2C/SPI initialization");
   app.add_option("--monitor-period-ms", monitor_period_ms, "Monitoring period in milliseconds")
       ->default_val(monitor_period_ms);
   app.add_option("--emulation-time-scale", emulation_time_scale,
@@ -67,6 +71,10 @@ int main(int argc, char* argv[]) {
     std::cerr << "Invalid --backend '" << backend_name << "' (expected hardware or emulator)\n";
     return 2;
   }
+  if (telemetry_only && backend_name != "hardware") {
+    std::cerr << "--telemetry-only requires --backend hardware\n";
+    return 2;
+  }
   if (!std::isfinite(emulation_time_scale) || emulation_time_scale < 0.0 ||
       emulation_startup_delay_ms < 0 ||
       emulation_channel_write_us < 0 || emulation_afe_write_us < 0) {
@@ -81,9 +89,15 @@ int main(int argc, char* argv[]) {
   std::unordered_map<daphne::MessageTypeV2, daphne_sc::V2StreamingHandler> streaming_handlers;
 
   if (backend_name == "hardware") {
-    hardware = std::make_unique<Daphne>();
-    handlers = daphne_sc::make_v2_handlers(*hardware);
-    streaming_handlers[daphne::MT2_DUMP_SPYBUFFER_CHUNK_REQ] =
+    hardware = std::make_unique<Daphne>(!telemetry_only);
+    if (telemetry_only) {
+      handlers = daphne_sc::make_v8_telemetry_handlers(*hardware);
+      disable_monitoring = true;
+    } else {
+      handlers = daphne_sc::make_v2_handlers(*hardware);
+    }
+    if (!telemetry_only) {
+      streaming_handlers[daphne::MT2_DUMP_SPYBUFFER_CHUNK_REQ] =
         [&hardware](const std::string& input, const daphne_sc::V2ResponseSink& send_response) {
           daphne::DumpSpyBuffersChunkRequest request;
           if (!request.ParseFromString(input)) {
@@ -108,6 +122,7 @@ int main(int argc, char* argv[]) {
             send_response(response.SerializeAsString());
           }
         };
+    }
   } else {
     daphne_sc::emulator::TimingProfile timing;
     timing.time_scale = emulation_time_scale;
@@ -130,6 +145,7 @@ int main(int argc, char* argv[]) {
   std::cout << "Starting daphneServer\n";
   std::cout << "Bind: " << bind_endpoint << "\n";
   std::cout << "Backend: " << backend_name << "\n";
+  std::cout << "Command surface: " << (telemetry_only ? "v8 telemetry only" : "full") << "\n";
   if (disable_monitoring) {
     std::cout << "Monitoring: disabled\n";
   } else {

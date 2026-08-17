@@ -1,6 +1,7 @@
 #pragma once
 
 #include "daphneV3_high_level_confs.pb.h"
+#include "daphne_v8_telemetry.pb.h"
 
 namespace daphne_sc {
 
@@ -19,6 +20,8 @@ class SlowControlBackend {
       const daphne::ReadTriggerCountersRequest& request) const = 0;
   virtual daphne::TestRegResponse read_test_register() const = 0;
   virtual daphne::GeneralInfo read_general_info(const daphne::InfoRequest& request) const = 0;
+  virtual daphne::telemetry::v8::ReadTelemetrySnapshotResponse read_telemetry_snapshot(
+      const daphne::telemetry::v8::ReadTelemetrySnapshotRequest& request) const = 0;
 };
 
 }  // namespace daphne_sc

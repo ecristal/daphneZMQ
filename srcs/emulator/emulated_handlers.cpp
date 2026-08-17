@@ -68,6 +68,19 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_emulated_v2_handlers(
     output = serialize(backend.read_general_info(request));
   };
 
+  handlers[daphne::MT2_READ_TELEMETRY_SNAPSHOT_REQ] =
+      [&backend](const std::string& input, std::string& output) {
+        daphne::telemetry::v8::ReadTelemetrySnapshotRequest request;
+        if (!request.ParseFromString(input)) {
+          daphne::telemetry::v8::ReadTelemetrySnapshotResponse response;
+          response.set_success(false);
+          response.set_message("Bad ReadTelemetrySnapshotRequest payload");
+          output = serialize(response);
+          return;
+        }
+        output = serialize(backend.read_telemetry_snapshot(request));
+      };
+
   return handlers;
 }
 
