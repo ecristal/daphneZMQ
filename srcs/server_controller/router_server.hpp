@@ -8,8 +8,6 @@
 
 #include "server_controller/handlers.hpp"
 
-class Daphne;
-
 namespace daphne_sc {
 
 struct RouterServerOptions {
@@ -22,9 +20,9 @@ struct RouterServerOptions {
 
 void run_router_server(zmq::context_t& ctx,
                        const std::string& bind_endpoint,
-                       Daphne& daphne,
                        const std::unordered_map<daphne::MessageTypeV2, V2Handler>& handlers,
-                       const RouterServerOptions& options);
+                       const RouterServerOptions& options,
+                       const std::unordered_map<daphne::MessageTypeV2, V2StreamingHandler>&
+                           streaming_handlers = {});
 
 }  // namespace daphne_sc
-

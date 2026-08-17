@@ -2301,10 +2301,12 @@ std::string serialize_error_with_success_field(Msg& msg, const std::string& err)
 
 }  // namespace
 
-std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers() {
+std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers(Daphne& daphne) {
   using daphne::MessageTypeV2;
+  using HardwareV2Handler =
+      std::function<void(const std::string& req_payload, std::string& resp_payload, Daphne& daphne)>;
 
-  std::unordered_map<MessageTypeV2, V2Handler> handlers;
+  std::unordered_map<MessageTypeV2, HardwareV2Handler> handlers;
 
   handlers[daphne::MT2_CONFIGURE_FE_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
     ConfigureRequest req;
@@ -3041,7 +3043,16 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers() {
     out = serialize_or_empty(resp);
   };
 
-  return handlers;
+  std::unordered_map<MessageTypeV2, V2Handler> bound_handlers;
+  bound_handlers.reserve(handlers.size());
+  for (auto& [type, handler] : handlers) {
+    bound_handlers.emplace(type,
+                           [&daphne, handler = std::move(handler)](const std::string& in,
+                                                                   std::string& out) mutable {
+                             handler(in, out, daphne);
+                           });
+  }
+  return bound_handlers;
 }
 
 }  // namespace daphne_sc

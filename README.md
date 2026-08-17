@@ -52,10 +52,48 @@ Minimal source set for building `daphneServer`:
 - `third_party/CLI11/include`
 - `third_party/cppzmq` (optional; used when `zmq.hpp` is not installed system-wide)
 
-The build produces two main executables:
+The build produces three main executables:
 
 - `build/daphneServer` – the high-level slow-control application (ControlEnvelopeV2 only).
+- `build/daphneEmulator` – a hardware-free implementation of the same DAPHNE
+  slow-control contract on the production port (`40001` by default).
 - `build/daphne_zmq_server` – a lightweight register access server.
+
+## Hardware-free slow-control emulator
+
+The emulator exercises the same ROUTER envelope and protobuf messages used by
+`DaphneV3ControllerModule`: connection validation through the test register,
+frontend configuration, trigger-counter monitoring, and general monitoring.
+Each instance keeps independent channel, AFE, counter, and telemetry state.
+Configuration waits model the AFE reset and rail settling sequence, the two
+serialized DAC writes per channel, per-AFE programming, delay-control/SERDES
+resets, and the alignment scan.
+
+Build it on a workstation without the FPGA, I2C headers, or ARM NEON support:
+
+```bash
+cmake -S . -B build-emulator \
+  -DDAPHNE_BUILD_HARDWARE_SERVER=OFF \
+  -DBUILD_TESTING=ON
+cmake --build build-emulator --parallel
+ctest --test-dir build-emulator --output-on-failure
+```
+
+Run one production-port endpoint:
+
+```bash
+./build-emulator/daphneEmulator \
+  --bind tcp://127.20.0.1:40001 \
+  --startup-delay-ms 23000 \
+  --channel-write-us 50 \
+  --afe-write-us 200
+```
+
+`--time-scale 0` retains the state transitions while removing waits for CI.
+`--skip-alignment` omits the alignment delay. For a fleet, the
+`detector-control-emulator` package runs many equivalent models in one process;
+this executable is the higher-fidelity sidecar for a small number of selected
+boards.
 
 ## daphneServer (v2-only)
 

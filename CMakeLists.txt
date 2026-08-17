@@ -30,6 +30,7 @@ endif()
 option(DAPHNE_BUILD_PY_PROTO "Generate python *_pb2.py into build tree" ON)
 option(DAPHNE_BUNDLE_ZEROMQ "Build bundled libzmq from third_party" OFF)
 option(DAPHNE_BUILD_SERVER "Build the full ZMQ server" ON)
+option(DAPHNE_BUILD_HARDWARE_SERVER "Build the FPGA/I2C-backed daphneServer" ON)
 option(DAPHNE_ENABLE_HARDWARE_TESTS "Enable tests that access real DAPHNE hardware" OFF)
 set(DAPHNE_DEPS_TARBALL_DIR "" CACHE PATH "Directory containing the pinned dependency tarball (see deps/deps.lock.cmake)")
 include(CTest)
@@ -41,26 +42,28 @@ endif()
 
 # ---------------- Hardware I2C layer ----
 find_package(Threads REQUIRED)
-find_library(I2C_LIB NAMES i2c HINTS /usr/lib /usr/local/lib)
+if(DAPHNE_BUILD_HARDWARE_SERVER)
+  find_library(I2C_LIB NAMES i2c HINTS /usr/lib /usr/local/lib)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT I2C_LIB)
-  message(FATAL_ERROR "libi2c is required by I2CDevice SMBus operations")
-endif()
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND NOT I2C_LIB)
+    message(FATAL_ERROR "libi2c is required by I2CDevice SMBus operations")
+  endif()
 
-add_library(daphne_i2c_hw
-  srcs/I2CDevice.cpp
-  srcs/DaphneI2CDrivers.cpp
-)
-target_include_directories(daphne_i2c_hw PUBLIC
-  ${CMAKE_CURRENT_SOURCE_DIR}/srcs
-)
-target_link_libraries(daphne_i2c_hw PUBLIC Threads::Threads)
-if(I2C_LIB)
-  target_link_libraries(daphne_i2c_hw PUBLIC ${I2C_LIB})
-endif()
+  add_library(daphne_i2c_hw
+    srcs/I2CDevice.cpp
+    srcs/DaphneI2CDrivers.cpp
+  )
+  target_include_directories(daphne_i2c_hw PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/srcs
+  )
+  target_link_libraries(daphne_i2c_hw PUBLIC Threads::Threads)
+  if(I2C_LIB)
+    target_link_libraries(daphne_i2c_hw PUBLIC ${I2C_LIB})
+  endif()
 
-if(BUILD_TESTING)
-  add_subdirectory(tests)
+  if(BUILD_TESTING)
+    add_subdirectory(tests)
+  endif()
 endif()
 
 # Everything below this point belongs to the full server and its dependencies.
@@ -199,6 +202,8 @@ set(SOURCES
   srcs/Endpoint.cpp
   srcs/Dac.cpp
   srcs/Daphne.cpp
+  srcs/emulator/EmulatedDaphneBackend.cpp
+  srcs/emulator/emulated_handlers.cpp
   srcs/server_controller/handlers.cpp
   srcs/server_controller/monitoring.cpp
   srcs/server_controller/spybuffer_chunker.cpp
@@ -218,6 +223,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
   )
 endif()
 
+if(DAPHNE_BUILD_HARDWARE_SERVER)
 add_executable(daphneServer ${SOURCES})
 target_include_directories(daphneServer PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -237,6 +243,46 @@ target_link_libraries(daphneServer PRIVATE
 )
 if(OpenMP_CXX_FOUND)
   target_link_libraries(daphneServer PRIVATE OpenMP::OpenMP_CXX)
+endif()
+endif()
+
+add_executable(daphneEmulator
+  srcs/emulator/main.cpp
+  srcs/emulator/EmulatedDaphneBackend.cpp
+  srcs/emulator/emulated_handlers.cpp
+  srcs/server_controller/router_server.cpp
+)
+target_include_directories(daphneEmulator PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/srcs
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}/srcs
+  ${CMAKE_CURRENT_BINARY_DIR}/srcs/protobuf
+  ${PROTO_DIR}
+)
+target_link_libraries(daphneEmulator PRIVATE
+  daphne_proto
+  cppzmq
+  ${DAPHNE_ZMQ_TARGET}
+  CLI11::CLI11
+  Threads::Threads
+)
+
+if(BUILD_TESTING)
+  add_executable(emulated_daphne_backend_test
+    tests/emulated_daphne_backend_test.cpp
+    srcs/emulator/EmulatedDaphneBackend.cpp
+    srcs/emulator/emulated_handlers.cpp
+  )
+  target_include_directories(emulated_daphne_backend_test PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/srcs
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/srcs
+    ${CMAKE_CURRENT_BINARY_DIR}/srcs/protobuf
+    ${PROTO_DIR}
+  )
+  target_link_libraries(emulated_daphne_backend_test PRIVATE daphne_proto Threads::Threads)
+  add_test(NAME emulated_daphne_backend COMMAND emulated_daphne_backend_test)
 endif()
 add_executable(daphne_zmq_server
   srcs/srv.cpp

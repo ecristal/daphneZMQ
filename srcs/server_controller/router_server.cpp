@@ -5,9 +5,7 @@
 #include <utility>
 #include <vector>
 
-#include "Daphne.hpp"
 #include "daphneV3_high_level_confs.pb.h"
-#include "server_controller/spybuffer_chunker.hpp"
 #include "server_controller/v2_envelope.hpp"
 
 namespace daphne_sc {
@@ -34,9 +32,10 @@ void send_to(zmq::socket_t& router, const std::string& client_id, const std::str
 
 void run_router_server(zmq::context_t& ctx,
                        const std::string& bind_endpoint,
-                       Daphne& daphne,
                        const std::unordered_map<daphne::MessageTypeV2, V2Handler>& handlers,
-                       const RouterServerOptions& options) {
+                       const RouterServerOptions& options,
+                       const std::unordered_map<daphne::MessageTypeV2, V2StreamingHandler>&
+                           streaming_handlers) {
   zmq::socket_t router(ctx, ZMQ_ROUTER);
   router.set(zmq::sockopt::linger, 0);
   router.set(zmq::sockopt::sndhwm, options.sndhwm);
@@ -73,32 +72,18 @@ void run_router_server(zmq::context_t& ctx,
       continue;
     }
 
-    if (req.type() == daphne::MT2_DUMP_SPYBUFFER_CHUNK_REQ) {
-      daphne::DumpSpyBuffersChunkRequest chunk_req;
-      if (!chunk_req.ParseFromString(req.payload())) {
-        daphne::DumpSpyBuffersChunkResponse chunk_resp;
-        chunk_resp.set_success(false);
-        chunk_resp.set_message("Bad DumpSpyBuffersChunkRequest payload");
-        chunk_resp.set_isfinal(true);
-        const auto env = v2::make_response(req, daphne::MT2_DUMP_SPYBUFFER_CHUNK_RESP, chunk_resp.SerializeAsString());
-        send_to(router, client_id, env.SerializeAsString());
-        continue;
-      }
-
+    const auto streaming_it = streaming_handlers.find(req.type());
+    if (streaming_it != streaming_handlers.end()) {
       try {
-        for_each_spybuffer_chunk(chunk_req, daphne, [&](const daphne::DumpSpyBuffersChunkResponse& resp) {
-          const auto env = v2::make_response(req, daphne::MT2_DUMP_SPYBUFFER_CHUNK_RESP, resp.SerializeAsString());
+        streaming_it->second(req.payload(), [&](const std::string& response_payload) {
+          const auto env = v2::make_response(req, v2::response_type(req.type()), response_payload);
           send_to(router, client_id, env.SerializeAsString());
         });
       } catch (const std::exception& e) {
-        daphne::DumpSpyBuffersChunkResponse chunk_resp;
-        chunk_resp.set_success(false);
-        chunk_resp.set_message(std::string("Chunked dump failed: ") + e.what());
-        chunk_resp.set_isfinal(true);
-        const auto env = v2::make_response(req, daphne::MT2_DUMP_SPYBUFFER_CHUNK_RESP, chunk_resp.SerializeAsString());
+        std::cerr << "Streaming handler threw exception: " << e.what() << std::endl;
+        const auto env = v2::make_response(req, v2::response_type(req.type()), std::string{});
         send_to(router, client_id, env.SerializeAsString());
       }
-
       continue;
     }
 
@@ -112,7 +97,7 @@ void run_router_server(zmq::context_t& ctx,
 
     std::string resp_payload;
     try {
-      it->second(req.payload(), resp_payload, daphne);
+      it->second(req.payload(), resp_payload);
     } catch (const std::exception& e) {
       std::cerr << "Handler threw exception: " << e.what() << std::endl;
       const auto env = v2::make_response(req, v2::response_type(req.type()), std::string{});
