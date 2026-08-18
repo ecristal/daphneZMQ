@@ -1,8 +1,10 @@
 # V8 telemetry code path: start here
 
-This is the shortest route through the implementation. The transport contract
-and all 1,370 board-owned points are unchanged; the code is split only at real
-boundaries so the request can be followed without reading the legacy handlers.
+This is the shortest route through the implementation. Schema 2.0 declares
+all 316 board-variable patterns as named Protobuf fields. Repeated hardware
+families carry explicit instance keys, producing 1,370 samples for one HD
+board. The code is split only at real boundaries so the request can be
+followed without reading the legacy handlers.
 
 ```text
 request 1002
@@ -16,7 +18,7 @@ request 1002
 
 | Step | File and symbol | Responsibility |
 |---|---|---|
-| 1 | `srcs/protobuf/daphne_v8_telemetry.proto` | Canonical wire schema. |
+| 1 | `srcs/protobuf/daphne_v8_telemetry.proto` | Canonical wire schema: request, response, all 316 board-variable fields, value types, quality, timestamps, ownership, source, unit, and OPC-UA pattern. |
 | 2 | `srcs/server_controller/v8_telemetry_service.cpp`: `MakeSnapshotHandler` | Parse the request and serialize the response. This is the only protobuf-facing handler. |
 | 3 | `srcs/server_controller/v8_hardware_telemetry.cpp`: `CollectHardwareSnapshot` | Orchestrate host, runtime, cached-monitor, and MMIO collection. |
 | 4 | `srcs/server_controller/v8_telemetry.cpp`: `SnapshotBuilder` | Enforce catalog types, quality/value rules, timestamps, filtering, and unavailable values. `CollectPlatformTelemetry` visibly sequences the Linux/platform collectors. |
@@ -43,9 +45,18 @@ generated catalog.
 
 ## Files not to read first
 
-`v8_telemetry_catalog.inc` is generated data, not hand-written logic. It is the
-expanded list of NodeIds and declared types. Regenerate it from the Interface2
-CSV with:
+`daphne_v8_telemetry.proto` and `v8_telemetry_catalog.inc` are generated data,
+not hand-written logic. Generate both from the reviewed Interface2 CSV. The
+trace CSV is the append-only Protobuf field-number ledger:
+
+```sh
+scripts/generate_v8_explicit_proto.py \
+  ../Interface2/interface-data/daphne/exports/tag_list.csv \
+  srcs/protobuf/daphne_v8_telemetry.proto \
+  --trace ../Interface2/interface-data/daphne/exports/protobuf_field_trace.csv
+```
+
+The expanded catalog is the server collector's NodeId lookup:
 
 ```sh
 scripts/generate_v8_telemetry_catalog.py \
@@ -60,13 +71,21 @@ only associates message type `1002` with `MakeHardwareSnapshotHandler()`.
 ## Adding or changing one variable
 
 1. Change the canonical Interface2 workbook and regenerate `tag_list.csv`.
-2. Regenerate `v8_telemetry_catalog.inc`.
-3. Add the real readback to `CollectHardwareSnapshot`, `CollectRuntimeTelemetry`, or
-   the platform collector in `v8_telemetry.cpp`.
-4. Change the `.proto` only when the wire model itself changes. Adding a normal
-   variable does not require a new protobuf field because values are carried as
-   typed `TelemetryPoint` records.
-5. Rebuild and run `ctest`.
+2. Regenerate `daphne_v8_telemetry.proto`, its field trace, and
+   `v8_telemetry_catalog.inc`.
+3. Review the new named field, field number, type, instance keys, NodeId
+   pattern, unit, source, and owner in the `.proto` and trace CSV.
+4. Add the real readback to `CollectHardwareSnapshot`,
+   `CollectRuntimeTelemetry`, or the platform collector in `v8_telemetry.cpp`.
+5. Copy the reviewed `.proto` byte-for-byte to
+   `daphne-sc/proto/upstream`, then rebuild and run both repositories' tests.
+
+Never reuse or renumber a released Protobuf field number. A variable is not in
+the v8 wire contract until its named field is present in the `.proto`.
 
 Do not add DAQ-owned settings as SC commands. The telemetry path may report
 active DAQ configuration as readback; DAQ remains the configuration authority.
+This snapshot request/response does not define configuration writes. Existing
+DAQ command messages remain in `daphneV3_high_level_confs.proto`; any new DAQ
+write must be declared there (and in `daphnemodules`), not invented by the
+OPC-UA bridge.

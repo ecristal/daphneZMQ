@@ -1,6 +1,7 @@
 #include "server_controller/v8_telemetry.hpp"
 
 #include <arpa/inet.h>
+#include <google/protobuf/descriptor.h>
 #include <ifaddrs.h>
 #include <net/if.h>
 #include <netinet/in.h>
@@ -12,7 +13,6 @@
 #include <algorithm>
 #include <array>
 #include <atomic>
-#include <cctype>
 #include <cerrno>
 #include <chrono>
 #include <cmath>
@@ -31,13 +31,14 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
 
 #ifndef DAPHNE_TELEMETRY_SCHEMA_SHA256
-#define DAPHNE_TELEMETRY_SCHEMA_SHA256 "unknown"
+#error "DAPHNE_TELEMETRY_SCHEMA_SHA256 must identify the compiled telemetry schema"
 #endif
 
 #ifndef DAPHNE_SERVER_VERSION
@@ -54,7 +55,6 @@ using daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD;
 using daphne::telemetry::v8::TELEMETRY_QUALITY_INVALID;
 using daphne::telemetry::v8::TELEMETRY_QUALITY_NOT_APPLICABLE;
 using daphne::telemetry::v8::TELEMETRY_QUALITY_UNAVAILABLE;
-using daphne::telemetry::v8::TelemetryPoint;
 using daphne::telemetry::v8::TelemetryQuality;
 
 bool QualityHasValue(TelemetryQuality quality) {
@@ -115,6 +115,56 @@ std::string ReplaceBoardId(std::string value, const std::string& board_id) {
 
 std::string BoardPrefix(const std::string& board_id) {
   return std::string(kNodePrefix) + board_id + ".";
+}
+
+std::vector<std::string> ExtractPlaceholders(const std::string& pattern) {
+  std::vector<std::string> result;
+  const std::regex placeholder(R"(\{([^{}]+)\})");
+  for (auto match = std::sregex_iterator(pattern.begin(), pattern.end(), placeholder);
+       match != std::sregex_iterator(); ++match) {
+    result.push_back((*match)[1].str());
+  }
+  return result;
+}
+
+std::regex NodePatternRegex(const std::string& pattern) {
+  constexpr std::string_view kRegexSpecial = R"(\.^$|()[]*+?)";
+  std::string expression = "^";
+  for (size_t index = 0; index < pattern.size();) {
+    if (pattern[index] == '{') {
+      const size_t close = pattern.find('}', index + 1);
+      if (close == std::string::npos) {
+        throw std::runtime_error("unterminated telemetry placeholder in " + pattern);
+      }
+      const std::string placeholder = pattern.substr(index + 1, close - index - 1);
+      expression += placeholder == "Service" || placeholder == "Device" ? "(.+)" : "([^.]+)";
+      index = close + 1;
+      continue;
+    }
+    if (kRegexSpecial.find(pattern[index]) != std::string_view::npos) expression.push_back('\\');
+    expression.push_back(pattern[index]);
+    ++index;
+  }
+  expression += '$';
+  return std::regex(expression);
+}
+
+const google::protobuf::Descriptor* SampleDescriptor(CatalogValueType type) {
+  switch (type) {
+    case CatalogValueType::Boolean:
+      return daphne::telemetry::v8::BooleanSample::descriptor();
+    case CatalogValueType::Integer:
+      return daphne::telemetry::v8::IntegerSample::descriptor();
+    case CatalogValueType::Long:
+      return daphne::telemetry::v8::LongSample::descriptor();
+    case CatalogValueType::Double:
+      return daphne::telemetry::v8::DoubleSample::descriptor();
+    case CatalogValueType::String:
+      return daphne::telemetry::v8::StringSample::descriptor();
+    case CatalogValueType::DateTime:
+      return daphne::telemetry::v8::DateTimeSample::descriptor();
+  }
+  throw std::runtime_error("unknown catalog value type");
 }
 
 std::optional<int64_t> ParseProcValueKib(const std::string& key) {
@@ -321,16 +371,15 @@ std::string DetectBoardId() {
 }
 
 SnapshotBuilder::SnapshotBuilder(const ReadTelemetrySnapshotRequest& request, std::string board_id)
-    : request_(request),
-      board_id_(std::move(board_id)),
+    : board_id_(std::move(board_id)),
       snapshot_time_ns_(UnixTimeNs()),
       snapshot_monotonic_ns_(MonotonicTimeNs()) {
   response_.set_success(true);
-  response_.set_message("DAPHNE proposed-v8 telemetry snapshot");
-  response_.set_schema_major(1);
+  response_.set_message("DAPHNE proposed-v8 explicit telemetry snapshot");
+  response_.set_schema_major(2);
   response_.set_schema_minor(0);
   response_.set_schema_source_sha256(DAPHNE_TELEMETRY_SCHEMA_SHA256);
-  response_.set_contract_revision("PDS-DAQ-ICD-proposed-v8-2026-08-18");
+  response_.set_contract_revision("PDS-DAQ-ICD-proposed-v8-explicit-2026-08-18");
   response_.set_board_id(board_id_);
   response_.set_request_sequence(request.request_sequence());
   response_.set_snapshot_sequence(++g_snapshot_sequence);
@@ -342,31 +391,11 @@ SnapshotBuilder::SnapshotBuilder(const ReadTelemetrySnapshotRequest& request, st
   response_.set_wall_clock_synchronized(clock_result >= 0 &&
                                         (clock_state.status & STA_UNSYNC) == 0);
 
-  for (const std::string& requested_node_id : request.node_ids()) {
-    requested_node_ids_.insert(requested_node_id);
-  }
   for (const CatalogEntry& entry : kCatalog) {
     const std::string node_id = ReplaceBoardId(entry.node_id, board_id_);
     catalog_by_node_id_.emplace(node_id, &entry);
   }
-  for (const std::string& requested_node_id : requested_node_ids_) {
-    if (catalog_by_node_id_.find(requested_node_id) == catalog_by_node_id_.end()) {
-      AddDiagnostic(
-          DIAGNOSTIC_SEVERITY_WARNING, "request-filter", 1,
-          "Requested NodeId is not board-owned or is not in this contract: " + requested_node_id);
-    }
-  }
-
-  if (!request.include_unavailable()) return;
-  for (const CatalogEntry& entry : kCatalog) {
-    const std::string node_id = ReplaceBoardId(entry.node_id, board_id_);
-    if (!IsSelected(node_id)) continue;
-    TelemetryPoint* point = response_.add_points();
-    InitializePoint(*point, node_id, entry);
-    point->set_quality(TELEMETRY_QUALITY_UNAVAILABLE);
-    point->set_detail("No value supplied by this collector/firmware");
-    point_index_by_node_id_[node_id] = response_.points_size() - 1;
-  }
+  InitializeWireContract();
 }
 
 const std::string& SnapshotBuilder::board_id() const { return board_id_; }
@@ -375,26 +404,132 @@ std::string SnapshotBuilder::NodeId(const std::string& suffix) const {
   return BoardPrefix(board_id_) + suffix;
 }
 
-bool SnapshotBuilder::IsSelected(const std::string& node_id) const {
-  return requested_node_ids_.empty() ||
-         requested_node_ids_.find(node_id) != requested_node_ids_.end();
+void SnapshotBuilder::InitializeWireContract() {
+  using google::protobuf::FieldDescriptor;
+  using google::protobuf::Message;
+
+  auto* telemetry = response_.mutable_telemetry();
+  const auto* descriptor = telemetry->GetDescriptor();
+  const auto* reflection = telemetry->GetReflection();
+  for (int field_index = 0; field_index < descriptor->field_count(); ++field_index) {
+    const FieldDescriptor* field = descriptor->field(field_index);
+    const auto& options = field->options();
+    if (!options.HasExtension(daphne::telemetry::v8::opcua_node_pattern)) {
+      throw std::runtime_error("BoardTelemetry field has no OPC-UA contract annotation: " +
+                               field->full_name());
+    }
+
+    const std::string pattern =
+        ReplaceBoardId(options.GetExtension(daphne::telemetry::v8::opcua_node_pattern), board_id_);
+    const std::string unit = options.GetExtension(daphne::telemetry::v8::engineering_unit);
+    const std::string source = options.GetExtension(daphne::telemetry::v8::data_source);
+    const std::vector<std::string> placeholders = ExtractPlaceholders(pattern);
+
+    if (!field->is_repeated()) {
+      if (!placeholders.empty()) {
+        throw std::runtime_error("non-repeated wire field contains an instance placeholder: " +
+                                 field->full_name());
+      }
+      const auto catalog = catalog_by_node_id_.find(pattern);
+      if (catalog == catalog_by_node_id_.end()) {
+        throw std::runtime_error("wire field is absent from board catalog: " + pattern);
+      }
+      if (unit != catalog->second->engineering_unit || source != catalog->second->source) {
+        throw std::runtime_error("wire annotation differs from board catalog: " + pattern);
+      }
+      RegisterSample(pattern, *catalog->second, reflection->MutableMessage(telemetry, field));
+      continue;
+    }
+
+    if (placeholders.empty()) {
+      throw std::runtime_error("repeated wire field has no instance placeholder: " +
+                               field->full_name());
+    }
+    const std::regex matcher = NodePatternRegex(pattern);
+    size_t matched_entries = 0;
+    for (const auto& [node_id, catalog] : catalog_by_node_id_) {
+      std::smatch match;
+      if (!std::regex_match(node_id, match, matcher)) continue;
+      if (match.size() != placeholders.size() + 1) {
+        throw std::runtime_error("wire instance match has wrong capture count: " + node_id);
+      }
+      if (unit != catalog->engineering_unit || source != catalog->source) {
+        throw std::runtime_error("wire annotation differs from board catalog: " + node_id);
+      }
+
+      Message* entry = reflection->AddMessage(telemetry, field);
+      const auto* entry_descriptor = entry->GetDescriptor();
+      const auto* entry_reflection = entry->GetReflection();
+      const FieldDescriptor* sample_field = entry_descriptor->FindFieldByName("sample");
+      if (sample_field == nullptr || sample_field->cpp_type() != FieldDescriptor::CPPTYPE_MESSAGE ||
+          entry_descriptor->field_count() != static_cast<int>(placeholders.size()) + 1) {
+        throw std::runtime_error("wire instance wrapper has an invalid declared shape: " +
+                                 entry_descriptor->full_name());
+      }
+      for (size_t placeholder = 0; placeholder < placeholders.size(); ++placeholder) {
+        const FieldDescriptor* key_field = entry_descriptor->field(static_cast<int>(placeholder));
+        if (key_field == sample_field || key_field->cpp_type() != FieldDescriptor::CPPTYPE_STRING) {
+          throw std::runtime_error("wire instance wrapper key is not a declared string for {" +
+                                   placeholders[placeholder] +
+                                   "}: " + entry_descriptor->full_name());
+        }
+        entry_reflection->SetString(entry, key_field, match[placeholder + 1].str());
+      }
+      RegisterSample(node_id, *catalog, entry_reflection->MutableMessage(entry, sample_field));
+      ++matched_entries;
+    }
+    if (matched_entries == 0) {
+      throw std::runtime_error("wire field matches no board instances: " + field->full_name());
+    }
+  }
+
+  if (samples_by_node_id_.size() != catalog_by_node_id_.size()) {
+    throw std::runtime_error("explicit wire contract covers " +
+                             std::to_string(samples_by_node_id_.size()) + " of " +
+                             std::to_string(catalog_by_node_id_.size()) + " board variables");
+  }
 }
 
-void SnapshotBuilder::InitializePoint(TelemetryPoint& point, const std::string& node_id,
-                                      const CatalogEntry& entry) const {
-  point.set_node_id(node_id);
-  point.set_engineering_unit(entry.engineering_unit);
-  point.set_source(entry.source);
-  point.set_sample_time_unix_ns(snapshot_time_ns_);
-  point.set_sample_monotonic_ns(snapshot_monotonic_ns_);
+void SnapshotBuilder::RegisterSample(const std::string& node_id, const CatalogEntry& entry,
+                                     google::protobuf::Message* sample) {
+  using google::protobuf::FieldDescriptor;
+  if (sample == nullptr || sample->GetDescriptor() != SampleDescriptor(entry.value_type)) {
+    throw std::runtime_error("wire sample type mismatch for " + node_id);
+  }
+  const FieldDescriptor* value_field = sample->GetDescriptor()->FindFieldByName("value");
+  const FieldDescriptor* metadata_field = sample->GetDescriptor()->FindFieldByName("metadata");
+  if (value_field == nullptr || metadata_field == nullptr ||
+      metadata_field->cpp_type() != FieldDescriptor::CPPTYPE_MESSAGE) {
+    throw std::runtime_error("wire sample lacks value or metadata for " + node_id);
+  }
+  const auto [unused, inserted] =
+      samples_by_node_id_.emplace(node_id, SampleBinding{sample, value_field, entry.value_type});
+  if (!inserted) throw std::runtime_error("duplicate explicit wire binding for " + node_id);
+  InitializeSampleMetadata(sample);
 }
 
-TelemetryPoint* SnapshotBuilder::FindOrCreatePoint(const std::string& node_id,
-                                                   CatalogValueType expected_type,
-                                                   TelemetryQuality quality,
-                                                   const std::string& detail) {
-  if (!IsSelected(node_id)) return nullptr;
+daphne::telemetry::v8::SampleMetadata* SnapshotBuilder::MutableMetadata(
+    google::protobuf::Message* sample) {
+  const auto* metadata_field = sample->GetDescriptor()->FindFieldByName("metadata");
+  auto* metadata_message = sample->GetReflection()->MutableMessage(sample, metadata_field);
+  auto* metadata = dynamic_cast<daphne::telemetry::v8::SampleMetadata*>(metadata_message);
+  if (metadata == nullptr) throw std::runtime_error("wire sample has wrong metadata type");
+  return metadata;
+}
 
+void SnapshotBuilder::InitializeSampleMetadata(google::protobuf::Message* sample) const {
+  auto* metadata = MutableMetadata(sample);
+  metadata->set_quality(TELEMETRY_QUALITY_UNAVAILABLE);
+  metadata->set_sample_time_unix_ns(snapshot_time_ns_);
+  metadata->set_sample_monotonic_ns(snapshot_monotonic_ns_);
+  metadata->set_error_code(0);
+  metadata->set_detail("No value supplied by this collector/firmware");
+}
+
+SnapshotBuilder::SampleBinding* SnapshotBuilder::FindSample(const std::string& node_id,
+                                                            CatalogValueType expected_type,
+                                                            TelemetryQuality quality,
+                                                            const std::string& detail) {
   const auto catalog_entry = catalog_by_node_id_.find(node_id);
   if (catalog_entry == catalog_by_node_id_.end()) {
     AddDiagnostic(DIAGNOSTIC_SEVERITY_WARNING, "collector", 2,
@@ -407,105 +542,97 @@ TelemetryPoint* SnapshotBuilder::FindOrCreatePoint(const std::string& node_id,
     return nullptr;
   }
 
-  TelemetryPoint* point = nullptr;
-  const auto existing_point = point_index_by_node_id_.find(node_id);
-  if (existing_point == point_index_by_node_id_.end()) {
-    point = response_.add_points();
-    InitializePoint(*point, node_id, *catalog_entry->second);
-    point_index_by_node_id_[node_id] = response_.points_size() - 1;
-  } else {
-    point = response_.mutable_points(existing_point->second);
+  const auto binding = samples_by_node_id_.find(node_id);
+  if (binding == samples_by_node_id_.end() || binding->second.value_type != expected_type) {
+    AddDiagnostic(DIAGNOSTIC_SEVERITY_WARNING, "wire-contract", 4,
+                  "No typed Protobuf field is bound to NodeId: " + node_id);
+    return nullptr;
   }
-  point->set_quality(quality);
-  point->set_detail(detail);
-  point->set_error_code(0);
-  return point;
+  auto* metadata = MutableMetadata(binding->second.sample);
+  metadata->set_quality(quality);
+  metadata->set_detail(detail);
+  metadata->set_error_code(0);
+  if (!QualityHasValue(quality)) {
+    binding->second.sample->GetReflection()->ClearField(binding->second.sample,
+                                                        binding->second.value_field);
+  }
+  return &binding->second;
 }
 
 bool SnapshotBuilder::SetBoolean(const std::string& id, bool value, TelemetryQuality quality,
                                  const std::string& detail) {
-  auto* point = FindOrCreatePoint(id, CatalogValueType::Boolean, quality, detail);
-  if (!point) return false;
-  if (!QualityHasValue(quality)) {
-    point->clear_value();
-    return true;
+  auto* binding = FindSample(id, CatalogValueType::Boolean, quality, detail);
+  if (binding == nullptr) return false;
+  if (QualityHasValue(quality)) {
+    binding->sample->GetReflection()->SetBool(binding->sample, binding->value_field, value);
   }
-  point->set_boolean_value(value);
   return true;
 }
 
 bool SnapshotBuilder::SetInteger(const std::string& id, int32_t value, TelemetryQuality quality,
                                  const std::string& detail) {
-  auto* point = FindOrCreatePoint(id, CatalogValueType::Integer, quality, detail);
-  if (!point) return false;
-  if (!QualityHasValue(quality)) {
-    point->clear_value();
-    return true;
+  auto* binding = FindSample(id, CatalogValueType::Integer, quality, detail);
+  if (binding == nullptr) return false;
+  if (QualityHasValue(quality)) {
+    binding->sample->GetReflection()->SetInt32(binding->sample, binding->value_field, value);
   }
-  point->set_integer_value(value);
   return true;
 }
 
 bool SnapshotBuilder::SetLong(const std::string& id, int64_t value, TelemetryQuality quality,
                               const std::string& detail) {
-  auto* point = FindOrCreatePoint(id, CatalogValueType::Long, quality, detail);
-  if (!point) return false;
-  if (!QualityHasValue(quality)) {
-    point->clear_value();
-    return true;
+  auto* binding = FindSample(id, CatalogValueType::Long, quality, detail);
+  if (binding == nullptr) return false;
+  if (QualityHasValue(quality)) {
+    binding->sample->GetReflection()->SetInt64(binding->sample, binding->value_field, value);
   }
-  point->set_long_value(value);
   return true;
 }
 
 bool SnapshotBuilder::SetDouble(const std::string& id, double value, TelemetryQuality quality,
                                 const std::string& detail) {
-  auto* point = FindOrCreatePoint(id, CatalogValueType::Double, quality, detail);
-  if (!point) return false;
-  if (!QualityHasValue(quality)) {
-    point->clear_value();
-    return true;
-  }
+  auto* binding = FindSample(id, CatalogValueType::Double, quality, detail);
+  if (binding == nullptr) return false;
   if (!std::isfinite(value)) {
-    point->set_quality(TELEMETRY_QUALITY_INVALID);
-    point->set_detail("Collector returned a non-finite number");
+    auto* metadata = MutableMetadata(binding->sample);
+    metadata->set_quality(TELEMETRY_QUALITY_INVALID);
+    metadata->set_detail("Collector returned a non-finite number");
+    binding->sample->GetReflection()->ClearField(binding->sample, binding->value_field);
     return false;
   }
-  point->set_double_value(value);
+  if (QualityHasValue(quality)) {
+    binding->sample->GetReflection()->SetDouble(binding->sample, binding->value_field, value);
+  }
   return true;
 }
 
 bool SnapshotBuilder::SetString(const std::string& id, const std::string& value,
                                 TelemetryQuality quality, const std::string& detail) {
-  auto* point = FindOrCreatePoint(id, CatalogValueType::String, quality, detail);
-  if (!point) return false;
-  if (!QualityHasValue(quality)) {
-    point->clear_value();
-    return true;
+  auto* binding = FindSample(id, CatalogValueType::String, quality, detail);
+  if (binding == nullptr) return false;
+  if (QualityHasValue(quality)) {
+    binding->sample->GetReflection()->SetString(binding->sample, binding->value_field, value);
   }
-  point->set_string_value(value);
   return true;
 }
 
 bool SnapshotBuilder::SetDateTime(const std::string& id, int64_t value, TelemetryQuality quality,
                                   const std::string& detail) {
-  auto* point = FindOrCreatePoint(id, CatalogValueType::DateTime, quality, detail);
-  if (!point) return false;
-  if (!QualityHasValue(quality)) {
-    point->clear_value();
-    return true;
+  auto* binding = FindSample(id, CatalogValueType::DateTime, quality, detail);
+  if (binding == nullptr) return false;
+  if (QualityHasValue(quality)) {
+    binding->sample->GetReflection()->SetInt64(binding->sample, binding->value_field, value);
   }
-  point->set_datetime_unix_ns(value);
   return true;
 }
 
 bool SnapshotBuilder::SetSampleTimes(const std::string& id, uint64_t unix_ns,
                                      uint64_t monotonic_ns) {
-  const auto existing_point = point_index_by_node_id_.find(id);
-  if (existing_point == point_index_by_node_id_.end()) return false;
-  TelemetryPoint* point = response_.mutable_points(existing_point->second);
-  point->set_sample_time_unix_ns(unix_ns);
-  point->set_sample_monotonic_ns(monotonic_ns);
+  const auto binding = samples_by_node_id_.find(id);
+  if (binding == samples_by_node_id_.end()) return false;
+  auto* metadata = MutableMetadata(binding->second.sample);
+  metadata->set_sample_time_unix_ns(unix_ns);
+  metadata->set_sample_monotonic_ns(monotonic_ns);
   return true;
 }
 
@@ -669,7 +796,7 @@ void SnapshotBuilder::CollectFirmwareAndDevices() {
                  std::filesystem::exists("/dev/spidev3.0"));
   SetBoolean(base + "Firmware.FirmwarePathAvailable", std::filesystem::exists("/lib/firmware"));
   SetString(base + "Firmware.ServerVersion", DAPHNE_SERVER_VERSION);
-  SetString(base + "Firmware.ProtobufSchemaVersion", "daphne.telemetry.v8/1.0");
+  SetString(base + "Firmware.ProtobufSchemaVersion", "daphne.telemetry.v8/2.0");
   if (const auto value = GetEnvironment("DAPHNE_FIRMWARE_BUILD_ID"))
     SetString(base + "Firmware.BuildId", *value);
   auto firmware_app = board_config.find("FIRMWARE_APP");
@@ -819,14 +946,6 @@ void SnapshotBuilder::CollectRpu() {
              rpu_available ? TELEMETRY_QUALITY_GOOD : TELEMETRY_QUALITY_UNAVAILABLE);
 }
 
-ReadTelemetrySnapshotResponse SnapshotBuilder::Finish() {
-  if (!request_.include_unavailable()) {
-    std::sort(response_.mutable_points()->begin(), response_.mutable_points()->end(),
-              [](const TelemetryPoint& left, const TelemetryPoint& right) {
-                return left.node_id() < right.node_id();
-              });
-  }
-  return std::move(response_);
-}
+ReadTelemetrySnapshotResponse SnapshotBuilder::Finish() { return std::move(response_); }
 
 }  // namespace daphne_sc::telemetry

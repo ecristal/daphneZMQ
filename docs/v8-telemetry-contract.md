@@ -29,17 +29,36 @@ does not turn an SC consumer into the authority for DAQ configuration.
 - Request: `MT2_READ_TELEMETRY_SNAPSHOT_REQ` (`1002`)
 - Response: `MT2_READ_TELEMETRY_SNAPSHOT_RESP` (`1003`)
 - Envelope: existing `ControlEnvelopeV2`
-- Schema version: `1.0`
-- Registry revision: proposed PDS/DAQ ICD v8 draft dated 2026-08-17
+- Schema version: `2.0`
+- Registry revision: proposed PDS/DAQ ICD v8 explicit-field draft dated
+  2026-08-18
 
 The response repeats the request sequence, identifies the board and schema,
-and carries per-point type, engineering unit, source, quality, source timestamp,
-and optional diagnostic detail. Enum and field numbers are append-only after a
-release. The schema SHA-256 is the hash of the canonical `.proto` source used
-for the build.
+and contains `BoardTelemetry`. Its 316 named fields declare every board-owned
+variable pattern individually. A scalar variable has a typed sample directly;
+an indexed family has a typed repeated wrapper with explicit hardware keys
+such as `afe`, `channel`, `bus`, or `address`. Field annotations declare its
+OPC-UA NodeId pattern, engineering unit, source, and control owner. Each sample
+carries quality, source timestamp, and optional diagnostic detail. Enum and
+field numbers are append-only after a release. The schema SHA-256 is the hash
+of the canonical `.proto` source used for the build.
 
-The board-owned catalog is generated from Interface2's exported
-`interface-data/daphne/exports/tag_list.csv`:
+The bridge reads those compiled declarations mechanically. It does not own a
+parallel variable-name/type table and cannot create an undeclared DAPHNE
+telemetry field. The reviewable one-row-per-field ledger is
+`Interface2/interface-data/daphne/exports/protobuf_field_trace.csv`. Retired
+ledger entries remain reserved in Protobuf, preventing accidental reuse of a
+released field number or name.
+
+The explicit schema and board-owned catalog are generated from Interface2's
+exported `interface-data/daphne/exports/tag_list.csv`:
+
+```bash
+scripts/generate_v8_explicit_proto.py \
+  ../Interface2/interface-data/daphne/exports/tag_list.csv \
+  srcs/protobuf/daphne_v8_telemetry.proto \
+  --trace ../Interface2/interface-data/daphne/exports/protobuf_field_trace.csv
+```
 
 ```bash
 scripts/generate_v8_telemetry_catalog.py \
@@ -48,10 +67,17 @@ scripts/generate_v8_telemetry_catalog.py \
   --expected 1370
 ```
 
-Do not edit the generated include manually. The generator excludes the
+Do not edit either generated contract manually. The generators exclude the
 `Authority`, `Endpoint Status`, and `OPC-UA Bridge` subsystems because their
 normal producers are outside DAPHNE. The current HD inventory expands 316
-board-owned patterns into 1,370 points.
+board-owned fields into 1,370 keyed samples.
+
+The snapshot protocol is deliberately read-only: request `1002` identifies the
+request sequence and response `1003` returns the complete explicit telemetry
+message. DAQ configuration commands remain in the DAQ-owned high-level
+configuration protobuf and `daphnemodules`. Adding a write path requires a
+reviewed request and response contract; the bridge must not infer one from an
+OPC-UA node.
 
 ## Quality rules
 
@@ -105,7 +131,8 @@ readbacks.
 ## Consumer validation
 
 The bridge must reject a snapshot if its schema major, board ID, request
-sequence, point prefix, or NodeId uniqueness is wrong. A complete HD bridge
+sequence, declared field annotations, rendered NodeId, instance keys, or NodeId
+uniqueness is wrong. A complete HD bridge
 instance exposes 1,416 typed read nodes and 21 non-executable policy methods;
 the remaining 46 read nodes are supplied by the gateway or external authority
 services rather than this 1,370-point board snapshot.

@@ -1,7 +1,6 @@
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -37,6 +36,55 @@ daphne::ConfigureRequest MakeRequest() {
     afe->set_v_bias(100 + afe_id);
   }
   return request;
+}
+
+size_t ValidateExplicitSamples(const daphne::telemetry::v8::BoardTelemetry& telemetry) {
+  using google::protobuf::FieldDescriptor;
+  using google::protobuf::Message;
+
+  size_t sample_count = 0;
+  const auto* descriptor = telemetry.GetDescriptor();
+  const auto* reflection = telemetry.GetReflection();
+  Require(descriptor->field_count() == 316, "wire contract declares all 316 variable patterns");
+  for (int field_index = 0; field_index < descriptor->field_count(); ++field_index) {
+    const FieldDescriptor* field = descriptor->field(field_index);
+    Require(field->options().HasExtension(daphne::telemetry::v8::opcua_node_pattern),
+            "every wire field declares its OPC-UA mapping");
+    const int entry_count = field->is_repeated() ? reflection->FieldSize(telemetry, field) : 1;
+    Require(entry_count > 0, "every explicit wire field has at least one instance");
+    for (int entry_index = 0; entry_index < entry_count; ++entry_index) {
+      const Message* sample = nullptr;
+      if (field->is_repeated()) {
+        const Message& entry = reflection->GetRepeatedMessage(telemetry, field, entry_index);
+        const FieldDescriptor* sample_field = entry.GetDescriptor()->FindFieldByName("sample");
+        Require(sample_field != nullptr, "indexed wire entry carries a typed sample");
+        sample = &entry.GetReflection()->GetMessage(entry, sample_field);
+      } else {
+        Require(reflection->HasField(telemetry, field), "scalar wire field is present");
+        sample = &reflection->GetMessage(telemetry, field);
+      }
+
+      const auto* metadata_field = sample->GetDescriptor()->FindFieldByName("metadata");
+      const auto* value_field = sample->GetDescriptor()->FindFieldByName("value");
+      Require(metadata_field != nullptr && value_field != nullptr,
+              "typed sample declares metadata and value");
+      const auto& metadata_message = sample->GetReflection()->GetMessage(*sample, metadata_field);
+      const auto* metadata =
+          dynamic_cast<const daphne::telemetry::v8::SampleMetadata*>(&metadata_message);
+      Require(metadata != nullptr, "typed sample uses SampleMetadata");
+      Require(metadata->quality() != daphne::telemetry::v8::TELEMETRY_QUALITY_UNSPECIFIED,
+              "every explicit sample has quality");
+      Require(metadata->sample_time_unix_ns() != 0 && metadata->sample_monotonic_ns() != 0,
+              "every explicit sample has source timestamps");
+      if (metadata->quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_UNAVAILABLE ||
+          metadata->quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_NOT_APPLICABLE) {
+        Require(!sample->GetReflection()->HasField(*sample, value_field),
+                "unavailable explicit sample does not fabricate a value");
+      }
+      ++sample_count;
+    }
+  }
+  return sample_count;
 }
 
 }  // namespace
@@ -113,57 +161,32 @@ int main() {
 
   setenv("DAPHNE_TELEMETRY_BOARD_ID", "015", 1);
   daphne::telemetry::v8::ReadTelemetrySnapshotRequest telemetry_request;
-  telemetry_request.set_detail(daphne::telemetry::v8::TELEMETRY_DETAIL_DIAGNOSTIC);
   telemetry_request.set_request_sequence(77);
-  telemetry_request.set_include_unavailable(true);
   const auto telemetry = backend.read_telemetry_snapshot(telemetry_request);
   Require(telemetry.success(), "v8 telemetry snapshot succeeds");
-  Require(telemetry.schema_major() == 1 && telemetry.schema_minor() == 0,
-          "v8 telemetry schema is identified");
-  Require(telemetry.schema_source_sha256().size() == 64,
+  Require(telemetry.schema_major() == 2 && telemetry.schema_minor() == 0,
+          "explicit v8 telemetry schema is identified");
+  Require(telemetry.schema_source_sha256() == DAPHNE_TELEMETRY_SCHEMA_SHA256,
           "v8 telemetry reports the canonical schema source hash");
   Require(telemetry.board_id() == "015", "v8 telemetry uses the configured board id");
   Require(telemetry.request_sequence() == 77, "v8 telemetry preserves request correlation");
-  Require(static_cast<size_t>(telemetry.points_size()) == daphne_sc::telemetry::CatalogSize(),
-          "include_unavailable returns the complete board-owned catalog");
+  Require(telemetry.has_telemetry(), "response carries the explicit BoardTelemetry message");
   Require(daphne_sc::telemetry::CatalogSize() == 1370,
           "compiled catalog matches the proposed-v8 HD expansion");
-  std::set<std::string> telemetry_ids;
-  bool selector_is_good = false;
-  bool inhibit_is_good = false;
-  for (const auto& point : telemetry.points()) {
-    Require(telemetry_ids.insert(point.node_id()).second,
-            "v8 telemetry contains no duplicate NodeIds");
-    Require(point.node_id().find("{BoardId}") == std::string::npos,
-            "v8 telemetry substitutes BoardId in every NodeId");
-    Require(point.quality() != daphne::telemetry::v8::TELEMETRY_QUALITY_UNSPECIFIED,
-            "every v8 telemetry point has explicit quality");
-    Require(point.sample_time_unix_ns() != 0 && point.sample_monotonic_ns() != 0,
-            "every v8 telemetry point carries source timestamps");
-    if (point.quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_UNAVAILABLE ||
-        point.quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_NOT_APPLICABLE) {
-      Require(point.value_case() == daphne::telemetry::v8::TelemetryPoint::VALUE_NOT_SET,
-              "unavailable v8 telemetry does not fabricate a value");
-    }
-    if (point.node_id() == "DAPHNE.Boards.015.Spy.Trigger.SourceSelector") {
-      selector_is_good =
-          point.quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD &&
-          point.value_case() == daphne::telemetry::v8::TelemetryPoint::kIntegerValue &&
-          point.integer_value() == 3;
-    }
-    if (point.node_id() == "DAPHNE.Boards.015.Spy.Trigger.Inhibit") {
-      inhibit_is_good =
-          point.quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD &&
-          point.value_case() == daphne::telemetry::v8::TelemetryPoint::kBooleanValue &&
-          !point.boolean_value();
-    }
-  }
-  Require(selector_is_good && inhibit_is_good,
-          "v8 telemetry exposes selector/inhibit instead of spy-buffer dead time");
-  Require(telemetry_ids.count("DAPHNE.Boards.015.Channels.39.TriggerRecordCount") == 1,
-          "expanded channel telemetry is present");
-  Require(telemetry_ids.count("DAPHNE.Boards.015.HDMezz.4.Voltage5V") == 1,
-          "expanded HD mezzanine telemetry is present");
+  Require(ValidateExplicitSamples(telemetry.telemetry()) == daphne_sc::telemetry::CatalogSize(),
+          "explicit fields expand to the complete board-owned catalog");
+  const auto& selector = telemetry.telemetry().spy_trigger_source_selector();
+  const auto& inhibit = telemetry.telemetry().spy_trigger_inhibit();
+  Require(selector.metadata().quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD &&
+              selector.has_value() && selector.value() == 3,
+          "explicit source_selector field carries the emulated firmware value");
+  Require(inhibit.metadata().quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD &&
+              inhibit.has_value() && !inhibit.value(),
+          "explicit inhibit field carries the emulated firmware value");
+  Require(telemetry.telemetry().channels_trigger_record_count_size() == 40,
+          "explicit channel field contains all 40 channel instances");
+  Require(telemetry.telemetry().hd_mezz_voltage5_v_size() == 5,
+          "explicit HD-mezzanine field contains all five AFE instances");
 
   std::string telemetry_output;
   handlers.at(daphne::MT2_READ_TELEMETRY_SNAPSHOT_REQ)(telemetry_request.SerializeAsString(),

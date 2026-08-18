@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 
 #include "daphne_v8_telemetry.pb.h"
 
@@ -89,21 +88,27 @@ class SnapshotBuilder {
   void CollectServices();
   void CollectRpu();
 
-  bool IsSelected(const std::string& node_id) const;
-  void InitializePoint(daphne::telemetry::v8::TelemetryPoint& point, const std::string& node_id,
-                       const CatalogEntry& entry) const;
-  daphne::telemetry::v8::TelemetryPoint* FindOrCreatePoint(
-      const std::string& node_id, CatalogValueType expected_type,
-      daphne::telemetry::v8::TelemetryQuality quality, const std::string& detail);
+  struct SampleBinding {
+    google::protobuf::Message* sample = nullptr;
+    const google::protobuf::FieldDescriptor* value_field = nullptr;
+    CatalogValueType value_type = CatalogValueType::Boolean;
+  };
 
-  daphne::telemetry::v8::ReadTelemetrySnapshotRequest request_;
+  void InitializeWireContract();
+  void RegisterSample(const std::string& node_id, const CatalogEntry& entry,
+                      google::protobuf::Message* sample);
+  SampleBinding* FindSample(const std::string& node_id, CatalogValueType expected_type,
+                            daphne::telemetry::v8::TelemetryQuality quality,
+                            const std::string& detail);
+  void InitializeSampleMetadata(google::protobuf::Message* sample) const;
+  static daphne::telemetry::v8::SampleMetadata* MutableMetadata(google::protobuf::Message* sample);
+
   std::string board_id_;
   uint64_t snapshot_time_ns_ = 0;
   uint64_t snapshot_monotonic_ns_ = 0;
   daphne::telemetry::v8::ReadTelemetrySnapshotResponse response_;
-  std::unordered_set<std::string> requested_node_ids_;
   std::unordered_map<std::string, const CatalogEntry*> catalog_by_node_id_;
-  std::unordered_map<std::string, int> point_index_by_node_id_;
+  std::unordered_map<std::string, SampleBinding> samples_by_node_id_;
 };
 
 }  // namespace daphne_sc::telemetry

@@ -107,10 +107,12 @@ DAPHNE collectors -> daphne.telemetry.v8 protobuf -> ControlEnvelopeV2/ZMQ
 ```
 
 The additive request/response message types are `1002`/`1003`; the canonical
-schema is `srcs/protobuf/daphne_v8_telemetry.proto`. A full HD snapshot contains
-1,370 board-owned points. Values owned by DAQ run control, SC/DPS authority,
-HWDB/network authority, or the OPC-UA gateway are deliberately not fabricated
-by the board service.
+schema is `srcs/protobuf/daphne_v8_telemetry.proto`. Schema 2.0 declares all
+316 board-variable patterns as named, typed fields with stable field numbers;
+explicit instance keys expand those fields to 1,370 samples on an HD board.
+The bridge derives names and wire types from those declarations. Values owned
+by DAQ run control, SC/DPS authority, HWDB/network authority, or the OPC-UA
+gateway are deliberately not fabricated by the board service.
 
 For a non-invasive commissioning sidecar, use a spare port:
 
