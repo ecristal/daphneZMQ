@@ -213,6 +213,7 @@ set(SOURCES
   srcs/server_controller/handlers.cpp
   srcs/server_controller/monitoring.cpp
   srcs/server_controller/v8_telemetry.cpp
+  srcs/server_controller/v8_telemetry_service.cpp
   srcs/server_controller/v8_telemetry_runtime.cpp
   srcs/server_controller/v8_hardware_telemetry.cpp
   srcs/server_controller/spybuffer_chunker.cpp
@@ -265,6 +266,7 @@ add_executable(daphneEmulator
   srcs/emulator/emulated_handlers.cpp
   srcs/server_controller/router_server.cpp
   srcs/server_controller/v8_telemetry.cpp
+  srcs/server_controller/v8_telemetry_service.cpp
   srcs/server_controller/v8_telemetry_runtime.cpp
 )
 target_compile_definitions(daphneEmulator PRIVATE
@@ -293,6 +295,7 @@ if(BUILD_TESTING)
     srcs/emulator/EmulatedDaphneBackend.cpp
     srcs/emulator/emulated_handlers.cpp
     srcs/server_controller/v8_telemetry.cpp
+    srcs/server_controller/v8_telemetry_service.cpp
     srcs/server_controller/v8_telemetry_runtime.cpp
   )
   target_include_directories(emulated_daphne_backend_test PRIVATE

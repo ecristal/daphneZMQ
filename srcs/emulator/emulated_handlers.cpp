@@ -3,6 +3,7 @@
 #include <string>
 
 #include "server_controller/slow_control_backend.hpp"
+#include "server_controller/v8_telemetry_service.hpp"
 
 namespace daphne_sc {
 namespace {
@@ -69,17 +70,10 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_emulated_v2_handlers(
   };
 
   handlers[daphne::MT2_READ_TELEMETRY_SNAPSHOT_REQ] =
-      [&backend](const std::string& input, std::string& output) {
-        daphne::telemetry::v8::ReadTelemetrySnapshotRequest request;
-        if (!request.ParseFromString(input)) {
-          daphne::telemetry::v8::ReadTelemetrySnapshotResponse response;
-          response.set_success(false);
-          response.set_message("Bad ReadTelemetrySnapshotRequest payload");
-          output = serialize(response);
-          return;
-        }
-        output = serialize(backend.read_telemetry_snapshot(request));
-      };
+      telemetry::MakeSnapshotHandler(
+          [&backend](const daphne::telemetry::v8::ReadTelemetrySnapshotRequest& request) {
+            return backend.read_telemetry_snapshot(request);
+          });
 
   return handlers;
 }

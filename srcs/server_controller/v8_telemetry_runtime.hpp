@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DAPHNE_SERVER_CONTROLLER_V8_TELEMETRY_RUNTIME_HPP_
+#define DAPHNE_SERVER_CONTROLLER_V8_TELEMETRY_RUNTIME_HPP_
 
 #include <cstdint>
 #include <string>
@@ -9,12 +10,11 @@ namespace daphne_sc::telemetry {
 
 class SnapshotBuilder;
 
-bool is_audited_command(daphne::MessageTypeV2 type);
-void begin_command(const daphne::ControlEnvelopeV2& envelope,
-                   const std::string& requester);
-void complete_command(uint64_t message_id, bool handler_succeeded,
-                      const std::string& result);
-void record_active_configuration(const daphne::ConfigureRequest& configuration);
-void collect_runtime(SnapshotBuilder& builder);
+void BeginCommand(const daphne::ControlEnvelopeV2& envelope, const std::string& requester);
+void CompleteCommand(uint64_t message_id, bool handler_succeeded, const std::string& result);
+void RecordActiveConfiguration(const daphne::ConfigureRequest& configuration);
+void CollectRuntimeTelemetry(SnapshotBuilder& builder);
 
 }  // namespace daphne_sc::telemetry
+
+#endif  // DAPHNE_SERVER_CONTROLLER_V8_TELEMETRY_RUNTIME_HPP_

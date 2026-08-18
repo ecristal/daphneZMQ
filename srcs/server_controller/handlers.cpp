@@ -2333,7 +2333,7 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers(Daphne& da
       msg += "\n\n[ALIGN_AFE] skipped (DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE set)";
     }
 
-    if (ok) telemetry::record_active_configuration(req);
+    if (ok) telemetry::RecordActiveConfiguration(req);
 
     resp.set_success(ok);
     resp.set_message(msg);
@@ -3047,19 +3047,6 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers(Daphne& da
     out = serialize_or_empty(resp);
   };
 
-  handlers[daphne::MT2_READ_TELEMETRY_SNAPSHOT_REQ] =
-      [](const std::string& in, std::string& out, Daphne& d) {
-        daphne::telemetry::v8::ReadTelemetrySnapshotRequest req;
-        if (!req.ParseFromString(in)) {
-          daphne::telemetry::v8::ReadTelemetrySnapshotResponse resp;
-          resp.set_success(false);
-          resp.set_message("Bad ReadTelemetrySnapshotRequest payload");
-          out = serialize_or_empty(resp);
-          return;
-        }
-        out = serialize_or_empty(telemetry::collect_hardware_snapshot(req, d));
-      };
-
   std::unordered_map<MessageTypeV2, V2Handler> bound_handlers;
   bound_handlers.reserve(handlers.size());
   for (auto& [type, handler] : handlers) {
@@ -3069,6 +3056,9 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers(Daphne& da
                              handler(in, out, daphne);
                            });
   }
+  bound_handlers.emplace(
+      daphne::MT2_READ_TELEMETRY_SNAPSHOT_REQ,
+      telemetry::MakeHardwareSnapshotHandler(daphne));
   return bound_handlers;
 }
 
@@ -3077,17 +3067,7 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v8_telemetry_handlers(
   std::unordered_map<daphne::MessageTypeV2, V2Handler> handlers;
   handlers.emplace(
       daphne::MT2_READ_TELEMETRY_SNAPSHOT_REQ,
-      [&daphne](const std::string& in, std::string& out) {
-        daphne::telemetry::v8::ReadTelemetrySnapshotRequest req;
-        if (!req.ParseFromString(in)) {
-          daphne::telemetry::v8::ReadTelemetrySnapshotResponse resp;
-          resp.set_success(false);
-          resp.set_message("Bad ReadTelemetrySnapshotRequest payload");
-          out = serialize_or_empty(resp);
-          return;
-        }
-        out = serialize_or_empty(telemetry::collect_hardware_snapshot(req, daphne));
-      });
+      telemetry::MakeHardwareSnapshotHandler(daphne));
   return handlers;
 }
 

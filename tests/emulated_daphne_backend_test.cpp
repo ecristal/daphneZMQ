@@ -11,14 +11,14 @@
 
 namespace {
 
-void require(bool condition, const std::string& message) {
+void Require(bool condition, const std::string& message) {
   if (!condition) {
     std::cerr << "FAILED: " << message << '\n';
     std::exit(1);
   }
 }
 
-daphne::ConfigureRequest make_request() {
+daphne::ConfigureRequest MakeRequest() {
   daphne::ConfigureRequest request;
   request.set_biasctrl(1300);
   request.set_self_trigger_threshold(17);
@@ -61,56 +61,54 @@ int main() {
   timing.bitslip_taps = 1;
   timing.verification_reads = 1;
 
-  EmulatedDaphneBackend backend(timing, [&](std::chrono::nanoseconds duration) {
-    sleeps.push_back(duration);
-  });
-  require(backend.snapshot().phase == BoardPhase::kPoweredOff, "board starts powered off");
+  EmulatedDaphneBackend backend(
+      timing, [&](std::chrono::nanoseconds duration) { sleeps.push_back(duration); });
+  Require(backend.snapshot().phase == BoardPhase::kPoweredOff, "board starts powered off");
   backend.boot();
-  require(backend.snapshot().phase == BoardPhase::kReady, "boot reaches ready");
-  require(sleeps.size() == 1 && sleeps.front() == 3ms, "boot delay is scheduled");
+  Require(backend.snapshot().phase == BoardPhase::kReady, "boot reaches ready");
+  Require(sleeps.size() == 1 && sleeps.front() == 3ms, "boot delay is scheduled");
 
-  const auto request = make_request();
+  const auto request = MakeRequest();
   const auto expected_duration = backend.nominal_configure_duration(request);
   const auto response = backend.configure(request);
-  require(response.success(), "valid configuration succeeds");
-  require(response.message().find("generation=1") != std::string::npos,
+  Require(response.success(), "valid configuration succeeds");
+  Require(response.message().find("generation=1") != std::string::npos,
           "response includes configuration generation");
 
   const auto snapshot = backend.snapshot();
-  require(snapshot.phase == BoardPhase::kReady, "configuration returns board to ready");
-  require(snapshot.configuration_generation == 1, "generation increments");
-  require(snapshot.channels[0].configured && snapshot.channels[39].configured,
+  Require(snapshot.phase == BoardPhase::kReady, "configuration returns board to ready");
+  Require(snapshot.configuration_generation == 1, "generation increments");
+  Require(snapshot.channels[0].configured && snapshot.channels[39].configured,
           "requested channels are configured");
-  require(snapshot.channels[0].threshold == 17, "threshold is retained");
-  require(snapshot.afes[0].configured && snapshot.afes[4].configured,
+  Require(snapshot.channels[0].threshold == 17, "threshold is retained");
+  Require(snapshot.afes[0].configured && snapshot.afes[4].configured,
           "requested AFEs are configured");
-  require(snapshot.afes[0].aligned && snapshot.afes[4].aligned,
-          "all AFEs complete alignment");
-  require(snapshot.trigger_mask_low == 1u, "low trigger mask is built");
-  require(snapshot.trigger_mask_high == (1u << 7), "high trigger mask is built");
+  Require(snapshot.afes[0].aligned && snapshot.afes[4].aligned, "all AFEs complete alignment");
+  Require(snapshot.trigger_mask_low == 1u, "low trigger mask is built");
+  Require(snapshot.trigger_mask_high == (1u << 7), "high trigger mask is built");
 
   std::chrono::nanoseconds observed_configure_duration{0};
   for (size_t index = 1; index < sleeps.size(); ++index) {
     observed_configure_duration += sleeps[index];
   }
-  require(observed_configure_duration == expected_duration,
+  Require(observed_configure_duration == expected_duration,
           "scheduled delays match nominal configure duration");
 
   backend.set_trigger_counters(39, 101, 7, 2);
   daphne::ReadTriggerCountersRequest counters_request;
   counters_request.add_channels(39);
   const auto counters = backend.read_trigger_counters(counters_request);
-  require(counters.success() && counters.snapshots_size() == 1, "counter read succeeds");
-  require(counters.snapshots(0).record_count() == 101, "counter state is returned");
-  require(backend.read_test_register().value() == 0xDEADBEEF, "test register is compatible");
+  Require(counters.success() && counters.snapshots_size() == 1, "counter read succeeds");
+  Require(counters.snapshots(0).record_count() == 101, "counter state is returned");
+  Require(backend.read_test_register().value() == 0xDEADBEEF, "test register is compatible");
 
   auto handlers = daphne_sc::make_emulated_v2_handlers(backend);
   std::string handler_output;
   handlers.at(daphne::MT2_CONFIGURE_FE_REQ)(request.SerializeAsString(), handler_output);
   daphne::ConfigureResponse handler_response;
-  require(handler_response.ParseFromString(handler_output) && handler_response.success(),
+  Require(handler_response.ParseFromString(handler_output) && handler_response.success(),
           "protocol handler delegates to backend");
-  require(backend.snapshot().configuration_generation == 2,
+  Require(backend.snapshot().configuration_generation == 2,
           "handler configuration mutates the same instance");
 
   setenv("DAPHNE_TELEMETRY_BOARD_ID", "015", 1);
@@ -119,52 +117,72 @@ int main() {
   telemetry_request.set_request_sequence(77);
   telemetry_request.set_include_unavailable(true);
   const auto telemetry = backend.read_telemetry_snapshot(telemetry_request);
-  require(telemetry.success(), "v8 telemetry snapshot succeeds");
-  require(telemetry.schema_major() == 1 && telemetry.schema_minor() == 0,
+  Require(telemetry.success(), "v8 telemetry snapshot succeeds");
+  Require(telemetry.schema_major() == 1 && telemetry.schema_minor() == 0,
           "v8 telemetry schema is identified");
-  require(telemetry.schema_source_sha256().size() == 64,
+  Require(telemetry.schema_source_sha256().size() == 64,
           "v8 telemetry reports the canonical schema source hash");
-  require(telemetry.board_id() == "015", "v8 telemetry uses the configured board id");
-  require(telemetry.request_sequence() == 77, "v8 telemetry preserves request correlation");
-  require(static_cast<size_t>(telemetry.points_size()) ==
-              daphne_sc::telemetry::catalog_size(),
+  Require(telemetry.board_id() == "015", "v8 telemetry uses the configured board id");
+  Require(telemetry.request_sequence() == 77, "v8 telemetry preserves request correlation");
+  Require(static_cast<size_t>(telemetry.points_size()) == daphne_sc::telemetry::CatalogSize(),
           "include_unavailable returns the complete board-owned catalog");
-  require(daphne_sc::telemetry::catalog_size() == 1370,
+  Require(daphne_sc::telemetry::CatalogSize() == 1370,
           "compiled catalog matches the proposed-v8 HD expansion");
   std::set<std::string> telemetry_ids;
+  bool selector_is_good = false;
+  bool inhibit_is_good = false;
   for (const auto& point : telemetry.points()) {
-    require(telemetry_ids.insert(point.node_id()).second,
+    Require(telemetry_ids.insert(point.node_id()).second,
             "v8 telemetry contains no duplicate NodeIds");
-    require(point.node_id().find("{BoardId}") == std::string::npos,
+    Require(point.node_id().find("{BoardId}") == std::string::npos,
             "v8 telemetry substitutes BoardId in every NodeId");
-    require(point.quality() != daphne::telemetry::v8::TELEMETRY_QUALITY_UNSPECIFIED,
+    Require(point.quality() != daphne::telemetry::v8::TELEMETRY_QUALITY_UNSPECIFIED,
             "every v8 telemetry point has explicit quality");
-    require(point.sample_time_unix_ns() != 0 && point.sample_monotonic_ns() != 0,
+    Require(point.sample_time_unix_ns() != 0 && point.sample_monotonic_ns() != 0,
             "every v8 telemetry point carries source timestamps");
     if (point.quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_UNAVAILABLE ||
         point.quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_NOT_APPLICABLE) {
-      require(point.value_case() == daphne::telemetry::v8::TelemetryPoint::VALUE_NOT_SET,
+      Require(point.value_case() == daphne::telemetry::v8::TelemetryPoint::VALUE_NOT_SET,
               "unavailable v8 telemetry does not fabricate a value");
     }
+    if (point.node_id() == "DAPHNE.Boards.015.Spy.Trigger.SourceSelector") {
+      selector_is_good =
+          point.quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD &&
+          point.value_case() == daphne::telemetry::v8::TelemetryPoint::kIntegerValue &&
+          point.integer_value() == 3;
+    }
+    if (point.node_id() == "DAPHNE.Boards.015.Spy.Trigger.Inhibit") {
+      inhibit_is_good =
+          point.quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD &&
+          point.value_case() == daphne::telemetry::v8::TelemetryPoint::kBooleanValue &&
+          !point.boolean_value();
+    }
   }
-  require(telemetry_ids.count("DAPHNE.Boards.015.Channels.39.TriggerRecordCount") == 1,
+  Require(selector_is_good && inhibit_is_good,
+          "v8 telemetry exposes selector/inhibit instead of spy-buffer dead time");
+  Require(telemetry_ids.count("DAPHNE.Boards.015.Channels.39.TriggerRecordCount") == 1,
           "expanded channel telemetry is present");
-  require(telemetry_ids.count("DAPHNE.Boards.015.HDMezz.4.Voltage5V") == 1,
+  Require(telemetry_ids.count("DAPHNE.Boards.015.HDMezz.4.Voltage5V") == 1,
           "expanded HD mezzanine telemetry is present");
 
   std::string telemetry_output;
-  handlers.at(daphne::MT2_READ_TELEMETRY_SNAPSHOT_REQ)(
-      telemetry_request.SerializeAsString(), telemetry_output);
+  handlers.at(daphne::MT2_READ_TELEMETRY_SNAPSHOT_REQ)(telemetry_request.SerializeAsString(),
+                                                       telemetry_output);
   daphne::telemetry::v8::ReadTelemetrySnapshotResponse telemetry_from_handler;
-  require(telemetry_from_handler.ParseFromString(telemetry_output) &&
-              telemetry_from_handler.success(),
-          "v8 telemetry protocol handler serializes the complete response");
+  Require(
+      telemetry_from_handler.ParseFromString(telemetry_output) && telemetry_from_handler.success(),
+      "v8 telemetry protocol handler serializes the complete response");
+
+  handlers.at(daphne::MT2_READ_TELEMETRY_SNAPSHOT_REQ)("not protobuf", telemetry_output);
+  Require(
+      telemetry_from_handler.ParseFromString(telemetry_output) && !telemetry_from_handler.success(),
+      "shared v8 handler rejects a malformed protobuf request");
 
   daphne::ConfigureRequest invalid_request;
   invalid_request.add_channels()->set_id(40);
   const auto invalid_response = backend.configure(invalid_request);
-  require(!invalid_response.success(), "invalid channel is rejected");
-  require(backend.snapshot().phase == BoardPhase::kFailed, "invalid configuration records failure");
+  Require(!invalid_response.success(), "invalid channel is rejected");
+  Require(backend.snapshot().phase == BoardPhase::kFailed, "invalid configuration records failure");
 
   std::cout << "emulated DAPHNE backend tests passed\n";
   return 0;

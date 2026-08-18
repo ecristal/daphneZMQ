@@ -1,9 +1,11 @@
-#pragma once
+#ifndef DAPHNE_SERVER_CONTROLLER_V8_TELEMETRY_HPP_
+#define DAPHNE_SERVER_CONTROLLER_V8_TELEMETRY_HPP_
 
 #include <cstddef>
 #include <cstdint>
-#include <memory>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 #include "daphne_v8_telemetry.pb.h"
 
@@ -25,65 +27,85 @@ struct CatalogEntry {
   const char* source;
 };
 
-const CatalogEntry* catalog_begin();
-const CatalogEntry* catalog_end();
-size_t catalog_size();
+const CatalogEntry* CatalogBegin();
+const CatalogEntry* CatalogEnd();
+size_t CatalogSize();
 
-std::string detect_board_id();
-uint64_t unix_time_ns();
-uint64_t monotonic_time_ns();
+std::string DetectBoardId();
+uint64_t UnixTimeNs();
+uint64_t MonotonicTimeNs();
 
 class SnapshotBuilder {
  public:
   SnapshotBuilder(const daphne::telemetry::v8::ReadTelemetrySnapshotRequest& request,
                   std::string board_id);
-  ~SnapshotBuilder();
+  ~SnapshotBuilder() = default;
 
   SnapshotBuilder(const SnapshotBuilder&) = delete;
   SnapshotBuilder& operator=(const SnapshotBuilder&) = delete;
-  SnapshotBuilder(SnapshotBuilder&&) noexcept;
-  SnapshotBuilder& operator=(SnapshotBuilder&&) noexcept;
+  SnapshotBuilder(SnapshotBuilder&&) noexcept = default;
+  SnapshotBuilder& operator=(SnapshotBuilder&&) noexcept = default;
 
   const std::string& board_id() const;
-  std::string node(const std::string& suffix) const;
+  std::string NodeId(const std::string& suffix) const;
 
-  bool set_boolean(const std::string& node_id, bool value,
-                   daphne::telemetry::v8::TelemetryQuality quality =
-                       daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD,
-                   const std::string& detail = "");
-  bool set_integer(const std::string& node_id, int32_t value,
-                   daphne::telemetry::v8::TelemetryQuality quality =
-                       daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD,
-                   const std::string& detail = "");
-  bool set_long(const std::string& node_id, int64_t value,
-                daphne::telemetry::v8::TelemetryQuality quality =
-                    daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD,
-                const std::string& detail = "");
-  bool set_double(const std::string& node_id, double value,
+  bool SetBoolean(const std::string& node_id, bool value,
                   daphne::telemetry::v8::TelemetryQuality quality =
                       daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD,
                   const std::string& detail = "");
-  bool set_string(const std::string& node_id, const std::string& value,
+  bool SetInteger(const std::string& node_id, int32_t value,
                   daphne::telemetry::v8::TelemetryQuality quality =
                       daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD,
                   const std::string& detail = "");
-  bool set_datetime(const std::string& node_id, int64_t unix_ns,
-                    daphne::telemetry::v8::TelemetryQuality quality =
-                        daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD,
-                    const std::string& detail = "");
-  bool set_sample_times(const std::string& node_id, uint64_t unix_ns,
-                        uint64_t monotonic_ns);
+  bool SetLong(const std::string& node_id, int64_t value,
+               daphne::telemetry::v8::TelemetryQuality quality =
+                   daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD,
+               const std::string& detail = "");
+  bool SetDouble(const std::string& node_id, double value,
+                 daphne::telemetry::v8::TelemetryQuality quality =
+                     daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD,
+                 const std::string& detail = "");
+  bool SetString(const std::string& node_id, const std::string& value,
+                 daphne::telemetry::v8::TelemetryQuality quality =
+                     daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD,
+                 const std::string& detail = "");
+  bool SetDateTime(const std::string& node_id, int64_t unix_ns,
+                   daphne::telemetry::v8::TelemetryQuality quality =
+                       daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD,
+                   const std::string& detail = "");
+  bool SetSampleTimes(const std::string& node_id, uint64_t unix_ns, uint64_t monotonic_ns);
 
-  void add_diagnostic(daphne::telemetry::v8::DiagnosticSeverity severity,
-                      const std::string& component, uint32_t code,
-                      const std::string& message);
+  void AddDiagnostic(daphne::telemetry::v8::DiagnosticSeverity severity,
+                     const std::string& component, uint32_t code, const std::string& message);
 
-  void collect_platform();
-  daphne::telemetry::v8::ReadTelemetrySnapshotResponse finish();
+  void CollectPlatformTelemetry();
+  daphne::telemetry::v8::ReadTelemetrySnapshotResponse Finish();
 
  private:
-  class Impl;
-  std::unique_ptr<Impl> impl_;
+  void CollectIdentity();
+  void CollectNetwork();
+  void CollectHost();
+  void CollectFirmwareAndDevices();
+  void CollectServices();
+  void CollectRpu();
+
+  bool IsSelected(const std::string& node_id) const;
+  void InitializePoint(daphne::telemetry::v8::TelemetryPoint& point, const std::string& node_id,
+                       const CatalogEntry& entry) const;
+  daphne::telemetry::v8::TelemetryPoint* FindOrCreatePoint(
+      const std::string& node_id, CatalogValueType expected_type,
+      daphne::telemetry::v8::TelemetryQuality quality, const std::string& detail);
+
+  daphne::telemetry::v8::ReadTelemetrySnapshotRequest request_;
+  std::string board_id_;
+  uint64_t snapshot_time_ns_ = 0;
+  uint64_t snapshot_monotonic_ns_ = 0;
+  daphne::telemetry::v8::ReadTelemetrySnapshotResponse response_;
+  std::unordered_set<std::string> requested_node_ids_;
+  std::unordered_map<std::string, const CatalogEntry*> catalog_by_node_id_;
+  std::unordered_map<std::string, int> point_index_by_node_id_;
 };
 
 }  // namespace daphne_sc::telemetry
+
+#endif  // DAPHNE_SERVER_CONTROLLER_V8_TELEMETRY_HPP_

@@ -14,6 +14,10 @@ DAPHNE inner logic and collectors
   -> OPC-UA clients (Ignition/DCS)
 ```
 
+For a source-level walkthrough, start with
+[`v8-code-path.md`](v8-code-path.md). The server branch-divergence decisions are
+recorded in [`server-branch-audit.md`](server-branch-audit.md).
+
 Configuration used for data taking remains DAQ-owned. Slow Controls owns the
 configuration and supervision needed to keep the endpoint powered, safe, and
 available. The board snapshot can report active configuration as readback, but

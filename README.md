@@ -125,7 +125,7 @@ FPGA memory and performs read-only MMIO reads, so it requires target privileges
 and is a commissioning mode rather than a security boundary. Unknown or unsafe
 readbacks remain explicitly unavailable. See
 `docs/v8-telemetry-contract.md` for ownership, quality, generation, and register
-map details.
+map details, and `docs/v8-code-path.md` for the shortest code walkthrough.
 
 ## daphneServer (ControlEnvelopeV2)
 
