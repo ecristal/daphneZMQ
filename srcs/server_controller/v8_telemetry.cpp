@@ -61,6 +61,11 @@ bool QualityHasValue(TelemetryQuality quality) {
   return quality != TELEMETRY_QUALITY_UNAVAILABLE && quality != TELEMETRY_QUALITY_NOT_APPLICABLE;
 }
 
+template <typename DescriptorType>
+std::string DescriptorName(const DescriptorType* descriptor) {
+  return std::string(descriptor->full_name());
+}
+
 constexpr const char* kNodePrefix = "DAPHNE.Boards.";
 constexpr const char* kBoardPlaceholder = "{BoardId}";
 
@@ -416,7 +421,7 @@ void SnapshotBuilder::InitializeWireContract() {
     const auto& options = field->options();
     if (!options.HasExtension(daphne::telemetry::v8::opcua_node_pattern)) {
       throw std::runtime_error("BoardTelemetry field has no OPC-UA contract annotation: " +
-                               field->full_name());
+                               DescriptorName(field));
     }
 
     const std::string pattern =
@@ -428,7 +433,7 @@ void SnapshotBuilder::InitializeWireContract() {
     if (!field->is_repeated()) {
       if (!placeholders.empty()) {
         throw std::runtime_error("non-repeated wire field contains an instance placeholder: " +
-                                 field->full_name());
+                                 DescriptorName(field));
       }
       const auto catalog = catalog_by_node_id_.find(pattern);
       if (catalog == catalog_by_node_id_.end()) {
@@ -443,7 +448,7 @@ void SnapshotBuilder::InitializeWireContract() {
 
     if (placeholders.empty()) {
       throw std::runtime_error("repeated wire field has no instance placeholder: " +
-                               field->full_name());
+                               DescriptorName(field));
     }
     const std::regex matcher = NodePatternRegex(pattern);
     size_t matched_entries = 0;
@@ -464,14 +469,14 @@ void SnapshotBuilder::InitializeWireContract() {
       if (sample_field == nullptr || sample_field->cpp_type() != FieldDescriptor::CPPTYPE_MESSAGE ||
           entry_descriptor->field_count() != static_cast<int>(placeholders.size()) + 1) {
         throw std::runtime_error("wire instance wrapper has an invalid declared shape: " +
-                                 entry_descriptor->full_name());
+                                 DescriptorName(entry_descriptor));
       }
       for (size_t placeholder = 0; placeholder < placeholders.size(); ++placeholder) {
         const FieldDescriptor* key_field = entry_descriptor->field(static_cast<int>(placeholder));
         if (key_field == sample_field || key_field->cpp_type() != FieldDescriptor::CPPTYPE_STRING) {
           throw std::runtime_error("wire instance wrapper key is not a declared string for {" +
                                    placeholders[placeholder] +
-                                   "}: " + entry_descriptor->full_name());
+                                   "}: " + DescriptorName(entry_descriptor));
         }
         entry_reflection->SetString(entry, key_field, match[placeholder + 1].str());
       }
@@ -479,7 +484,7 @@ void SnapshotBuilder::InitializeWireContract() {
       ++matched_entries;
     }
     if (matched_entries == 0) {
-      throw std::runtime_error("wire field matches no board instances: " + field->full_name());
+      throw std::runtime_error("wire field matches no board instances: " + DescriptorName(field));
     }
   }
 
