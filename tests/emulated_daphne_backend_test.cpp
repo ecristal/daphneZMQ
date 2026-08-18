@@ -178,10 +178,12 @@ int main() {
   const auto& selector = telemetry.telemetry().spy_trigger_source_selector();
   const auto& inhibit = telemetry.telemetry().spy_trigger_inhibit();
   Require(selector.metadata().quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD &&
-              selector.has_value() && selector.value() == 3,
+              selector.reading_case() == daphne::telemetry::v8::IntegerSample::kValue &&
+              selector.value() == 3,
           "explicit source_selector field carries the emulated firmware value");
   Require(inhibit.metadata().quality() == daphne::telemetry::v8::TELEMETRY_QUALITY_GOOD &&
-              inhibit.has_value() && !inhibit.value(),
+              inhibit.reading_case() == daphne::telemetry::v8::BooleanSample::kValue &&
+              !inhibit.value(),
           "explicit inhibit field carries the emulated firmware value");
   Require(telemetry.telemetry().channels_trigger_record_count_size() == 40,
           "explicit channel field contains all 40 channel instances");
