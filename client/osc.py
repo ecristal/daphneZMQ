@@ -23,13 +23,18 @@ except Exception:
 from PyQt6 import QtCore, QtGui, QtWidgets
 import pyqtgraph as pg
 
-# Protobuf imports from repository tree
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
-
 # Shared waveform parser (same directory)
 from led_charge import ChargeWindow, FixedWindowChargeMonitor, load_charge_windows
+from protobuf_loader import load_protobuf_modules
+from trigger_source import (
+    add_trigger_source_arguments,
+    configure_trigger_source,
+    resolve_trigger_source,
+)
 from waveparse import parse_dump_response
+
+
+pb_high, _pb_low = load_protobuf_modules(require_trigger_source=True)
 
 
 # ---------------------- Window functions ----------------------
@@ -545,6 +550,7 @@ class DaphneOscApp(QtWidgets.QWidget):
         self.endpoint = f"tcp://{args.ip}:{args.port}"
         self.channels = args.channels if args.channels else [args.channel]
         self.n_samples = args.L
+        self.trigger_source = args.trigger_source
         self.software_trigger = args.software_trigger
         self.timeout_ms = args.timeout_ms
         self.fs_hz = args.sampling_rate_hz
@@ -683,6 +689,7 @@ class DaphneOscApp(QtWidgets.QWidget):
             "route": self.route,
             "channels": self.channels,
             "samples_per_waveform": self.n_samples,
+            "trigger_source": self.trigger_source,
             "software_trigger": bool(self.software_trigger),
             "acq_period_ms": int(args.period_ms),
             "max_waveforms": int(args.max_waveforms),
@@ -1264,7 +1271,7 @@ class DaphneOscApp(QtWidgets.QWidget):
         ch_label = ",".join(str(c) for c in self.channels)
         status_text = (
             f"{self._latest_worker_msg} | ch=[{ch_label}] N={self.n_samples} "
-            f"trig={'SW' if self.software_trigger else 'EXT'} RTT={self._last_rtt_ms:.2f}ms "
+            f"trig={self.trigger_source.upper()} RTT={self._last_rtt_ms:.2f}ms "
             f"acq={self._telemetry.get('frames_acquired', 0)} "
             f"saved={writer_frames} saveQ={writer_queue} "
             f"dropPlot={self._plot_drops_ui} "
@@ -1383,7 +1390,7 @@ def main():
     parser.add_argument("--channels", type=str, default="", help="CSV/range of channels, e.g. '0,8,16' or '0-7'")
 
     parser.add_argument("-L", type=int, required=True, help="Samples per waveform (<= 2048)")
-    parser.add_argument("-software_trigger", action="store_true", help="Use software trigger")
+    add_trigger_source_arguments(parser)
 
     parser.add_argument("-enable_fft", "--enable_fft", action="store_true", help="Show statistically averaged FFT plot")
     parser.add_argument("-fft_avg_waves", type=int, default=2000, help="Averages for FFT")
@@ -1432,6 +1439,7 @@ def main():
     parser.add_argument("--flush_every_frames", type=int, default=128, help="Flush files every N frames")
 
     args = parser.parse_args()
+    resolve_trigger_source(parser, args)
 
     # Parse channels
     if args.channels:
@@ -1480,6 +1488,32 @@ def main():
         if (not args.charge_windows_json) and args.charge_stop <= args.charge_start:
             print("charge_stop must be greater than charge_start")
             return 2
+
+    config_link = V2Link(
+        f"tcp://{args.ip}:{args.port}",
+        (args.identity + "-trigger-config").encode(),
+        args.timeout_ms,
+    )
+    try:
+        def send_trigger_source_request(message_type, payload):
+            _, reply, _ = config_link.request(
+                message_type,
+                payload,
+                route=args.route,
+            )
+            return reply.type, reply.payload
+
+        configure_trigger_source(
+            pb_high,
+            send_trigger_source_request,
+            args.trigger_source,
+        )
+        print(f"Configured spybuffer trigger source: {args.trigger_source}")
+    except Exception as exc:
+        print(f"Could not configure trigger source: {exc}", file=sys.stderr)
+        return 2
+    finally:
+        config_link.close()
 
     app = QtWidgets.QApplication([])
     pg.setConfigOptions(antialias=False)

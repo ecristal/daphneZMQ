@@ -9,10 +9,16 @@ from tqdm import tqdm
 import argparse
 import numpy as np
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
-from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
+from protobuf_loader import load_protobuf_modules
+from trigger_source import (
+    add_trigger_source_arguments,
+    configure_trigger_source,
+    resolve_trigger_source,
+)
 from waveparse import parse_dump_response
+
+
+pb_high, pb_low = load_protobuf_modules(require_trigger_source=True)
 
 
 def next_ids():
@@ -107,7 +113,7 @@ parser.add_argument("-foldername", type=str, required=True, help="Folder locatio
 parser.add_argument("-channel_list", type=str, nargs='+', required=True, help="List of channels (0-39). Accepts space or comma separated. Example: 0 1 2 3   or   0,1,2,3")
 parser.add_argument("-N", type=int, required=True, help="Number of waveforms.")
 parser.add_argument("-L", type=int, required=True, help="Length of each waveform.")
-parser.add_argument("-software_trigger", action='store_true', help="Enable software trigger.")
+add_trigger_source_arguments(parser)
 parser.add_argument("-append_data", action='store_true', help="Append to existing per-channel files.")
 parser.add_argument("-debug", action='store_true', help="Debug printout.")
 parser.add_argument("--timeout_ms", type=int, default=30000, help="Socket timeout in ms for streaming/legacy replies (default 30000).")
@@ -124,6 +130,7 @@ parser.add_argument("-compression_format", type=str, choices=['7z', 'tar'], defa
 parser.add_argument("-compression_level", type=int, default=1, choices=range(1, 10), help="7z compression level (1-9). Default 1.")
 parser.set_defaults(v2=True)
 args = parser.parse_args()
+resolve_trigger_source(parser, args)
 
 # ----------------------------- Setup ----------------------------------
 
@@ -132,6 +139,22 @@ endpoint = f"tcp://{args.ip}:{args.port}"
 socket = make_dealer(context, endpoint, identity=b"client-compat")
 socket.setsockopt(zmq.RCVTIMEO, args.timeout_ms)
 socket.setsockopt(zmq.SNDTIMEO, args.timeout_ms)
+
+if not args.v2 or args.legacy_only:
+    parser.error("-trigger_source requires the EnvelopeV2 server API")
+
+
+def _send_trigger_source_request(message_type, payload):
+    _, reply = v2_request(socket, message_type, payload, args.route)
+    return reply.type, reply.payload
+
+
+configure_trigger_source(
+    pb_high,
+    _send_trigger_source_request,
+    args.trigger_source,
+)
+print(f"Configured spybuffer trigger source: {args.trigger_source}")
 
 n_channels = len(args.channel_list)
 def _parse_channels(tokens):
@@ -156,7 +179,7 @@ if not (args.legacy or args.legacy_only):
 
 if args.debug:
     print(f"Endpoint: {endpoint}")
-    print(f"Channels: {args.channel_list} (n={n_channels}), N={args.N}, L={args.L}, SW_TRG={args.software_trigger}, STREAM={not (args.legacy or args.legacy_only or args.osc_mode)}, chunk={args.chunk}, RCVHWM={compute_credit(args.L, min(args.chunk, args.N), n_channels, budget_mb=args.net_buffer_mb) if not (args.legacy or args.legacy_only or args.osc_mode) else 'n/a'} V2={args.v2} OSC_MODE={args.osc_mode}")
+    print(f"Channels: {args.channel_list} (n={n_channels}), N={args.N}, L={args.L}, TRIGGER_SOURCE={args.trigger_source}, STREAM={not (args.legacy or args.legacy_only or args.osc_mode)}, chunk={args.chunk}, RCVHWM={compute_credit(args.L, min(args.chunk, args.N), n_channels, budget_mb=args.net_buffer_mb) if not (args.legacy or args.legacy_only or args.osc_mode) else 'n/a'} V2={args.v2} OSC_MODE={args.osc_mode}")
     start_time = time.time()
 
 mode = 'ab' if args.append_data else 'wb'
@@ -177,7 +200,7 @@ if args.osc_mode:
     req.numberOfSamples = args.L
     req.softwareTrigger = bool(args.software_trigger)
 
-    print(f"Osc-mode: requesting {args.N} triggers (1 wf per channel per request), L={args.L}, channels={args.channel_list}, SW_TRG={args.software_trigger}, V2={args.v2}")
+    print(f"Osc-mode: requesting {args.N} triggers (1 wf per channel per request), L={args.L}, channels={args.channel_list}, TRIGGER_SOURCE={args.trigger_source}, V2={args.v2}")
     files: Dict[int, any] = {ch: open(os.path.join(foldername, f"channel_{ch}.dat"), mode) for ch in args.channel_list}
     try:
         with tqdm(total=args.N, unit='wf') as pbar:
@@ -244,7 +267,7 @@ if args.legacy or args.legacy_only:
         env.payload = req.SerializeToString()
         expect_type = pb_high.DUMP_SPYBUFFER
 
-    print(f"Requesting {args.N} waveforms (L={args.L}) on channels {args.channel_list}; SW_TRG={args.software_trigger} V2={args.v2 and not args.legacy_only}")
+    print(f"Requesting {args.N} waveforms (L={args.L}) on channels {args.channel_list}; TRIGGER_SOURCE={args.trigger_source} V2={args.v2 and not args.legacy_only}")
     resp_bytes = send_envelope_and_get_reply(socket, env)
 
     resp_env = pb_high.ControlEnvelopeV2() if (args.v2 and not args.legacy_only) else pb_high.ControlEnvelope()
@@ -304,7 +327,7 @@ else:
     env.type = pb_high.DUMP_SPYBUFFER_CHUNK
     env.payload = creq.SerializeToString()
 
-print(f"Streaming id={creq.requestID} N={args.N} L={args.L} chunk={creq.chunkSize} channels={args.channel_list} SW_TRG={args.software_trigger} V2={args.v2 and not args.legacy}")
+print(f"Streaming id={creq.requestID} N={args.N} L={args.L} chunk={creq.chunkSize} channels={args.channel_list} TRIGGER_SOURCE={args.trigger_source} V2={args.v2 and not args.legacy}")
 
 # Open all files once
 files: Dict[int, any] = {ch: open(os.path.join(foldername, f"channel_{ch}.dat"), mode) for ch in args.channel_list}

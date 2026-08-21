@@ -1,797 +1,204 @@
-# Spybuffer Readout Inhibit: Firmware Coordination Contract
+# Spybuffer Trigger Control and Readout Inhibit
 
-## Status
+## Status and scope
 
-This document defines the implemented contract between `daphneZMQ` and
-`daphne-firmware` for protecting spybuffer data while the server copies a
-captured waveform.
+This document is the server-side contract implemented for the firmware branch
+`codex/timing-endpoint-ring2k-hermes2-1024`, inspected at firmware commit
+`00398dc`. It supersedes the earlier proposal that used independent registers
+at `0x9400004C` and `0x94000050`.
 
-The readout-inhibit firmware implementation first appears in commit `f0d48d6`
-on branch `ecristal/feature/spybuffer_self_triggering_guards`. Register and
-module documentation were added in commits `ee7a9c6` and `14b8012`. The
-implemented STUFF register block currently ends at physical address
-`0x9400004C`. This contract additionally reserves `0x94000050` for independent
-spybuffer trigger-source selection; that extension is not considered
-implemented until the firmware and server checklist items below are complete.
+The firmware is not modified by this work. The server adapts to the combined
+trigger-control register already implemented by that firmware.
 
-The server implements the matching register and protected-copy sequence in
-`FpgaRegDict.cpp` and `SpyBuffer::acquireFreshMappedData`. A loaded bitstream
-without working readback at `0x9400004C` is rejected when the server attempts
-to assert the inhibit.
+Two protections remain complementary:
 
-This work complements
+- timestamp deduplication prevents delivering one captured event twice;
+- readout inhibit prevents a new event from overwriting spybuffer BRAM while
+  the server copies a waveform.
+
+See also
 [Spybuffer Deduplication Verification](spybuffer-deduplication-verification.md).
-Deduplication and readout inhibition solve different problems:
 
-- deduplication prevents delivery of the same captured event twice;
-- readout inhibition prevents a newer trigger from replacing spybuffer
-  contents while an event is being copied.
+## Combined register contract
 
-## Problem statement
+The trigger selector and global readout inhibit share one register.
 
-Each spybuffer captures 2048 16-bit samples after accepting a trigger. The
-current `spybuff` FSM progresses through `wait4trig`, `store`, and
-`wait4done`. A trigger is ignored while the FSM is storing, but a later trigger
-can start another complete capture as soon as the FSM returns to
-`wait4trig`.
-
-The server waits for a fresh timestamp and then copies every requested channel
-from the memory-mapped spybuffer. The server mutex prevents two server threads
-from reading concurrently, but it cannot stop the FPGA from accepting another
-trigger. At high trigger rates, a new capture can therefore overwrite part of
-the BRAM while the ARM is still copying it, producing a waveform assembled
-from different events.
-
-The timestamp used for deduplication is an event cursor. It is not currently a
-hardware freeze condition.
-
-## Register contract
-
-The first free aligned offset in the current STUFF register bank is `0x4C`.
-The previous experimental implementation used `0x2C`; that address must not be
-reused because the current firmware maps `st_config_reg` there.
-
-| Property | Required value |
+| Property | Value |
 | --- | --- |
-| Firmware register name | `spy_readout_inhibit_reg` |
-| STUFF offset | `0x4C` |
-| Physical address | `0x9400004C` |
-| `FpgaRegDict` relative address | `0x1400004C` |
-| Width | 1 bit |
-| Access | R/W |
-| Reset value | `0` |
-| Server dictionary key | `spyReadoutInhibit` |
-| Server field name | `INHIBIT` |
+| Firmware register | `spy_trigger_ctrl_reg` |
+| Physical address | `0x88000034` |
+| `FpgaRegDict` relative address | `0x08000034` |
+| Server key | `spyTriggerControl` |
+| Access | R/W with readback |
+| Reset value | `0x00000003` |
 
-Bit definition:
+| Bits | Server field | Meaning |
+| ---: | --- | --- |
+| `1:0` | `SOURCE` | Global trigger-source selector |
+| `2` | `INHIBIT` | Reject admission of new spybuffer captures while high |
+| `2:0` | `CONTROL` | Complete implemented register value |
+| `31:3` | — | Reserved |
 
-| Bits | Name | Access | Meaning |
-| ---: | --- | --- | --- |
-| `0` | `INHIBIT` | R/W | `0`: triggers may start a new spybuffer capture. `1`: no new spybuffer capture may start. |
-| `31:1` | Reserved | R/O as zero | Writes are ignored and reads return zero. |
+The source encoding is:
 
-The register is global to the complete 40-channel spybuffer bank. A request
-containing only a subset of channels still inhibits capture for all 40
-channels. There is no per-channel inhibit, because one trigger starts the
-capture for every channel.
+| Value | CLI name | Accepted source |
+| ---: | --- | --- |
+| `0` | `software` | FRONT_END software-trigger register |
+| `1` | `external` | Physical external trigger input |
+| `2` | `timing` | Timing endpoint event selected by `adhoc` |
+| `3` | `all` | Legacy OR of software, external, and timing sources |
 
-A successful full-word write of `1` followed by a read must return
-`0x00000001`. A successful write of `0` followed by a read must return
-`0x00000000`. This readback is required so the server can reject an
-incompatible firmware instead of silently running without protection.
+Both fields are global to all 40 channels. A trigger captures every channel,
+so neither source selection nor inhibit is configured per channel.
 
-The STUFF AXI implementation currently accepts register updates only when
-`WSTRB="1111"`. The new register must preserve that behavior.
+The server always performs field-preserving read-modify-write operations.
+Asserting or clearing `INHIBIT` must not alter `SOURCE`, and changing `SOURCE`
+must not accidentally clear an active inhibit.
 
-## Trigger-source selection register
+## Safe source transition
 
-The trigger sources accepted by the spybuffer trigger plane are controlled by
-a second STUFF register. This register is independent from the global readout
-inhibit register at offset `0x4C`.
+The source bits cross from the register clock domain to the acquisition clock
+domain. `SpyBuffer::configureTriggerSource` serializes configuration against
+acquisition with the global acquisition mutex and performs:
 
-| Property | Required value |
-| --- | --- |
-| Firmware register name | `spy_trigger_source_enable_reg` |
-| STUFF offset | `0x50` |
-| Physical address | `0x94000050` |
-| `FpgaRegDict` relative address | `0x14000050` |
-| Width | 3 bits |
-| Access | R/W |
-| Reset value | `0x00000001` |
-| Server dictionary key | `spyTriggerSourceEnable` |
+1. read and remember the current source;
+2. assert `INHIBIT`, preserving the current source;
+3. wait for control CDC settling;
+4. write the new `SOURCE`, keeping `INHIBIT` high;
+5. wait for control CDC settling;
+6. clear `INHIBIT`, preserving the new source;
+7. read back and return the configured source.
 
-Bit definition:
+Firmware requires at least five 62.5 MHz clocks, or 80 ns, around the source
+change. The server currently uses 1 microsecond for each control settling
+interval. If configuration fails, cleanup attempts to restore the previous
+source and clear inhibit.
 
-| Bits | Name | Access | Meaning |
-| ---: | --- | --- | --- |
-| `0` | `EXTERNAL_ENABLE` | R/W | Enable the physical external trigger input `trig_IN`. |
-| `1` | `SOFTWARE_ENABLE` | R/W | Enable software-trigger requests generated by a full-word write to the FRONT_END trigger register. |
-| `2` | `TIMING_ENABLE` | R/W | Enable timing-system triggers selected by the configured `adhoc` value. |
-| `31:3` | Reserved | R/O as zero | Writes are ignored and reads return zero. |
+Changing the source never creates a trigger. Events rejected while a source
+is disabled or inhibit is active are discarded, not queued for later replay.
 
-The source-enable mask has the following interpretation:
+## Protected acquisition sequence
 
-| Value | Enabled trigger sources |
-| ---: | --- |
-| `0b000` | None |
-| `0b001` | External |
-| `0b010` | Software |
-| `0b011` | External or software |
-| `0b100` | Timing |
-| `0b101` | Timing or external |
-| `0b110` | Timing or software |
-| `0b111` | Timing, software, or external |
-
-The reset value is `0b001`. The physical external input is therefore the only
-spybuffer trigger source enabled after reset. Software and timing triggers
-must be enabled explicitly. The `adhoc` value selects a timing-system event;
-it is not a fourth trigger source.
-
-Only full-word writes with `WSTRB="1111"` update the register. Partial writes
-leave it unchanged. Readback returns the three implemented bits in positions
-`2:0` and zero in bits `31:3`.
-
-Changing the mask must not generate a trigger. A trigger received while its
-source is disabled is discarded and must not be replayed if that source is
-enabled later.
-
-## Required firmware behavior
-
-`INHIBIT=1` controls admission of future captures. It must not reset the
-spybuffer FSM, clear memory, stop an in-progress `store`, or directly gate the
-BRAM write-enable signal.
-
-External and software trigger identity must remain separate until the
-spybuffer trigger plane. In particular, `fe_axi` must generate only the
-software-trigger request decoded from the FRONT_END trigger-register write;
-it must not OR `trig_IN` into that request. The physical external input and
-the software request must be routed independently to
-`k26c_board_spy_trigger_plane`.
-
-After source-specific pulse conditioning and clock-domain crossing, the
-required trigger equations in the acquisition clock domain are:
-
-```vhdl
-selected_trigger_s <=
-  (external_trigger_s and spy_trigger_source_enable_sync_s(0)) or
-  (software_trigger_s and spy_trigger_source_enable_sync_s(1)) or
-  (timing_trigger_s and spy_trigger_source_enable_sync_s(2));
-
-spy_trigger_o <= selected_trigger_s and not spy_readout_inhibit_sync_s;
-```
-
-All three trigger sources must be inhibited by the global inhibit:
-
-- the physical external trigger input;
-- the AXI software trigger;
-- the timing-system trigger selected by `adhoc_i`.
-
-Diagnostic signals that describe the raw timing trigger may remain
-uninhibited. Only the trigger delivered to `spybuffers` must be gated.
-
-The global inhibit dominates the source-enable mask. Triggers received while
-the inhibit is active, or while their source is disabled, are discarded. They
-are not queued and must not be replayed when the inhibit is released or the
-source is enabled. This intentional loss is the readout dead time.
-
-If a trigger was accepted immediately before the inhibit became active, that
-capture must finish normally. The buffer becomes safe to read after at most one
-complete 2048-sample capture plus clock-domain crossing latency.
-
-All spybuffer instances receive the same trigger and therefore share one
-logical capture interval. Any future `capture_busy` or `capture_done` status
-must also be global, not replicated per channel.
-
-## Clock-domain crossing
-
-The STUFF registers are written in the AXI clock domain; `stuff.vhd` documents
-`S_AXI_ACLK` as 100 MHz. The spy trigger and capture FSM operate in the
-acquisition clock domain, normally 62.5 MHz. The inhibit level and the
-three-bit source-enable level must therefore cross clock domains explicitly.
-
-The minimum implementation for each control level is a two-flop synchronizer
-in the acquisition clock domain:
+Both normal and chunked dump handlers use
+`SpyBuffer::acquireFreshMappedData`. For each waveform it performs:
 
 ```text
-ARM writes at 0x9400004C and 0x94000050
-        |
-        v
-STUFF AXI registers (100 MHz)
-        |
-        v
-two-flop level synchronizers for inhibit and source-enable mask
-        |
-        v
-source selection and global trigger gate (acquisition clock)
-        |
-        v
-spybuffers
+wait for a fresh timestamp with INHIBIT low
+assert INHIBIT while preserving SOURCE
+wait for a possible accepted capture to finish
+read the frozen timestamp
+copy every requested channel under the same global inhibit
+verify that the timestamp remained unchanged
+clear INHIBIT while preserving SOURCE
+repeat for the next waveform
 ```
 
-The inhibit synchronizer must reset to `0`. The source-enable synchronizer must
-reset to `0b001`, matching the register default. Synchronizer registers should
-carry the appropriate `ASYNC_REG` attributes. Combinational use of either
-asynchronous AXI-domain register in the trigger equation is not acceptable.
+The guard is once per global waveform, not once per channel. The FPGA capture
+depth is 2048 samples even if the client requests fewer. At 62.5 MHz the store
+takes 32.768 microseconds; the server applies a 35 microsecond minimum guard.
+`DAPHNE_SPYBUFFER_INHIBIT_GUARD_US` may increase it but values below 35 are
+rejected.
 
-The external and software trigger pulses must also cross into the acquisition
-domain independently. A CDC implementation must not merge them before source
-selection. Pulse stretching, toggle synchronization, or another reviewed
-pulse-transfer mechanism may be used, provided one accepted source event
-produces at least one acquisition-clock assertion and a disabled event is not
-replayed. Reconfiguring the source mask during acquisition should be performed
-with the global inhibit asserted so independently synchronized mask bits
-cannot create an operationally meaningful transient combination.
+The server must never wait for a new trigger while inhibit is high. RAII
+cleanup clears inhibit on success, timeout, extraction error, and exception.
 
-Without a firmware completion status, the server must allow for synchronizer
-latency plus a worst-case full capture before reading. The conservative minimum
-guard is:
+At startup, the server probes bit 2 by asserting it, checking readback, waiting
+for control settling, and clearing it. A bitstream without the combined
+register is rejected before unprotected acquisition can begin.
+
+## Protobuf API
+
+The EnvelopeV2 control API exposes source configuration independently from
+waveform acquisition:
+
+| Message type | ID | Payload |
+| --- | ---: | --- |
+| `MT2_WRITE_SPYBUFFER_TRIGGER_SOURCE_REQ` | `326` | `WriteSpyBufferTriggerSourceRequest` |
+| `MT2_WRITE_SPYBUFFER_TRIGGER_SOURCE_RESP` | `327` | `WriteSpyBufferTriggerSourceResponse` |
+| `MT2_READ_SPYBUFFER_TRIGGER_SOURCE_REQ` | `328` | `ReadSpyBufferTriggerSourceRequest` |
+| `MT2_READ_SPYBUFFER_TRIGGER_SOURCE_RESP` | `329` | `ReadSpyBufferTriggerSourceResponse` |
+
+The protobuf enum `SpyBufferTriggerSource` uses the firmware encoding exactly.
+The write response contains the verified hardware readback. The separate read
+RPC is available for diagnostics and client-side confirmation.
+
+`DumpSpyBuffersRequest.softwareTrigger` is retained. It does not configure the
+selector. It only tells the server whether to issue one software-trigger write
+for each requested waveform. Clients therefore set it true only when
+`SOURCE=software`.
+
+## Client behavior
+
+The supported acquisition and oscilloscope clients configure and verify the
+global selector before their first dump:
 
 ```text
-Tguard >= Tcdc,max + Ncapture * Tclock + Tfsm
+-trigger_source software
+-trigger_source external
+-trigger_source timing
+-trigger_source all
 ```
 
-`Ncapture` is the number of samples written by the FPGA, not the number
-requested by the client. With the current fixed depth, `Ncapture=2048` even
-when the client requests fewer samples.
-
-For a 62.5 MHz acquisition clock:
-
-```text
-Tclock   = 16 ns
-Tcapture = 2048 * 16 ns = 32.768 microseconds
-```
-
-The server guard must therefore be slightly greater than 32.768 microseconds
-after accounting for the synchronizer, FSM latency, and implementation margin.
-It must be calculated from the minimum supported acquisition-clock frequency;
-`100 microseconds` is not part of the contract.
-
-The current server uses a 35 microsecond guard:
-
-```text
-ceil(2048 * 1 second / 62.5 MHz) + 2 microseconds margin
-= 33 microseconds + 2 microseconds
-= 35 microseconds
-```
-
-`DAPHNE_SPYBUFFER_INHIBIT_GUARD_US` may increase this interval for a particular
-deployment. Values below 35 are rejected because the firmware does not yet
-provide a completion status that would make a shorter wait safe.
-
-The preferred optimization is a global status indicating that the synchronized
-inhibit is active and/or that the capture FSM is busy. The server could then
-wait only for the actual remaining write time instead of applying a complete
-fixed guard to every waveform. These status bits are not part of the mandatory
-first revision.
-
-## Throughput model
-
-At high trigger rates, the protected acquisition cycle is approximately:
-
-```text
-Tcycle = Tcapture_remaining + Tcopy + Tregister_control
-Rmax   = 1 / Tcycle
-```
-
-Waiting for an in-progress capture to finish is required for correctness and
-overlaps work the FPGA must perform anyway. A blind full-capture guard becomes
-additional overhead when the capture had already completed before inhibit was
-asserted. A global `capture_busy` or `capture_done` status is the intended way
-to remove that unnecessary delay.
-
-No delay is applied once per channel. The guard is evaluated once for the
-global event, followed by copying all requested channels under the same
-inhibit interval.
-
-## Expected RTL propagation
-
-The register value originates in STUFF but is consumed in the spy trigger
-plane. The firmware change is therefore expected to propagate a level through
-the following hierarchy:
-
-1. `rtl/isolated/subsystems/control/legacy_stuff_selftrigger_register_bank.vhd`
-   - add offset `0x4C` (`"1001100"`);
-   - add a one-bit register with reset value `0`;
-   - implement full-word write and zero-extended readback;
-   - expose `spy_readout_inhibit_o`.
-2. `ip_repo/daphne_ip/rtl/config/stuff.vhd`
-   - expose the new output from the STUFF AXI slave;
-   - connect the register-bank output.
-3. `rtl/isolated/subsystems/analog/k26c_board_analog_control_plane.vhd`
-   - propagate the STUFF output to the board shell.
-4. `rtl/isolated/tops/k26c_board_shell.vhd`
-   - declare and route the inhibit signal from the analog control plane to the
-     spy capture plane.
-5. `rtl/isolated/subsystems/spy/k26c_board_spy_capture_plane.vhd`
-   - pass the inhibit request to the trigger plane.
-6. `rtl/isolated/subsystems/spy/k26c_board_spy_trigger_plane.vhd`
-   - synchronize the level into `clock_i`;
-   - gate the combined frontend/timing trigger.
-
-The source-selection extension must additionally:
-
-1. add `spy_trigger_source_enable_reg` at offset `0x50` to
-   `legacy_stuff_selftrigger_register_bank.vhd`, with reset value `0b001`,
-   full-word writes, zero-extended readback, and a three-bit output;
-2. propagate that output through `stuff.vhd`, the analog control plane, the
-   board shell, and the spy capture plane;
-3. change `fe_axi.vhd` so its trigger output represents only the software
-   request and is no longer combined with the physical `trig_IN`;
-4. route the physical external input and software request independently
-   through the frontend and board hierarchy to the spy capture plane;
-5. accept external, software, and timing inputs independently in
-   `k26c_board_spy_trigger_plane.vhd`, perform their required CDC and pulse
-   conditioning without losing source identity, apply the synchronized source
-   mask, then apply the global inhibit;
-6. preserve legacy wrapper behavior through an explicit compatibility adapter
-   where a combined trigger interface must remain available. The production
-   K26C path must not recombine external and software triggers before the spy
-   trigger plane.
-
-The legacy compatibility path should remain behaviorally aligned:
-
-- `rtl/isolated/subsystems/spy/legacy_spy_capture_bridge.vhd`;
-- `rtl/isolated/subsystems/control/legacy_spy_trigger_bridge.vhd`.
-
-If those entities remain build or test targets, add the inhibit port and the
-same trigger-gating semantics rather than leaving two different contracts.
-
-The public firmware memory map must add the following STUFF row:
-
-| Offset | Address | Register | Size | Access | Default | Description |
-| ---: | ---: | --- | ---: | --- | ---: | --- |
-| `0x4C` | `0x9400004C` | `spy_readout_inhibit_reg` | 1b | R/W | `0x0` | Prevent new spybuffer captures while ARM readout is active. |
-| `0x50` | `0x94000050` | `spy_trigger_source_enable_reg` | 3b | R/W | `0x1` | Select external, software, and timing spybuffer trigger sources. |
-
-## Server integration sequence
-
-Both normal and chunked dump paths already call
-`SpyBuffer::acquireFreshMappedData`. The inhibit should be implemented there
-once so the two APIs cannot diverge.
-
-For each available waveform, the server must perform this protected-copy
-sequence:
-
-1. Write `INHIBIT=1`.
-2. Read the register back and require `INHIBIT=1`.
-3. Wait until an in-progress global capture is complete:
-   - preferably, wait for a future global `CAPTURE_BUSY=0`; or
-   - in the first revision, wait the calculated conservative guard interval.
-4. Read the timestamp. This is the frozen event identity returned to the
-   client.
-5. Copy every requested channel while keeping the global inhibit asserted.
-6. Write `INHIBIT=0` in cleanup code that runs on success and exception.
-7. Optionally read back zero.
-8. If another waveform is requested, wait with inhibit low until the existing
-   deduplication mechanism observes a timestamp different from the frozen
-   timestamp, then repeat from step 1.
-
-In compact form:
-
-```text
-INHIBIT high
-wait for the current write to finish
-read frozen timestamp
-copy all requested channels
-INHIBIT low
-wait for the next trigger through timestamp deduplication
-repeat
-```
-
-The server must never wait for the next trigger while inhibit is high. Such a
-sequence would deadlock because firmware is required to reject all new
-spybuffer triggers during the inhibit interval.
-
-On the first hardware-triggered request, the server records the timestamp
-present at request entry as its baseline and waits for that timestamp to
-advance before asserting inhibit. It must not return a pre-request snapshot.
-On later requests, a current timestamp that already differs from the last
-delivered timestamp may be accepted immediately.
-
-The inhibit scope is one global waveform, including all requested channels. It
-must not remain asserted while waiting for the next timestamp, while a
-completed chunk waits in the transport queue, or while the ROUTER sends data to
-the client.
-
-The cleanup path should use RAII or an equivalent scope guard. No timeout,
-allocation failure, extraction exception, or client disconnect may leave the
-hardware inhibited.
-
-On server startup, and before accepting the first spybuffer request, software
-should write `0` defensively. Firmware reset must independently guarantee the
-same default.
-
-## Source selection and software-trigger sequence
-
-On server startup, software should read and validate the source-selection
-register. Firmware reset independently guarantees `0b001`, external-only.
-Server operations that temporarily change the mask must save and restore the
-previous value.
-
-For an exclusively software-triggered request, the server must:
-
-1. assert global inhibit and verify its readback;
-2. wait for the existing capture guard so no earlier capture remains active;
-3. write source mask `0b010` and verify its readback;
-4. allow for source-mask CDC settling;
-5. release global inhibit;
-6. issue the FRONT_END software trigger write (`0xBABA` by current server
-   convention; firmware ignores the write data);
-7. wait for the timestamp to advance;
-8. assert inhibit, wait for capture completion, and copy the protected
-   waveform;
-9. while inhibited, restore the source mask that was active before the
-   operation;
-10. release inhibit in cleanup code.
-
-The mask and inhibit restoration must run on both success and exception.
-External and timing activity cannot replace the requested software event while
-mask `0b010` is active. This provides source attribution without requiring an
-atomic "allow one trigger, then inhibit" handshake.
-
-For hardware-triggered acquisition, the server may select any mask permitted
-by the request or deployment policy. If no explicit policy is provided, the
-contract default is `0b001`, physical external only.
-
-## Firmware verification
-
-### Register-bank tests
-
-Extend `tests/logic/stuff_axi_smoke_tb.vhd` to verify:
-
-1. inhibit reset produces register readback `0` and output `0`;
-2. source-selection reset produces register readback and output `0b001`;
-3. full-strobe writes exercise all source masks from `0b000` through `0b111`;
-4. source-selection bits `31:3` and inhibit bits `31:1` read as zero;
-5. partial-strobe writes do not modify either register;
-6. a write to `0x50` does not modify `0x4C`, and a write to `0x4C` does not
-   modify `0x50`;
-7. neighboring registers at offsets `0x48` and earlier retain their current
-   behavior.
-
-### Trigger-plane tests
-
-Extend the trigger-plane smoke tests to drive external, software, and timing
-independently. With inhibit low, all eight masks must match this truth table:
-
-| Mask | External accepted | Software accepted | Timing accepted |
-| ---: | ---: | ---: | ---: |
-| `000` | No | No | No |
-| `001` | Yes | No | No |
-| `010` | No | Yes | No |
-| `011` | Yes | Yes | No |
-| `100` | No | No | Yes |
-| `101` | Yes | No | Yes |
-| `110` | No | Yes | Yes |
-| `111` | Yes | Yes | Yes |
-
-Also verify:
-
-- the synchronized inhibit resets inactive;
-- the synchronized source mask resets to external-only;
-- inhibit blocks every source under every mask;
-- activation and release occur only on acquisition-clock edges;
-- external and software pulses remain independently observable at the trigger
-  plane before selection;
-- simultaneous external and software activity obeys the selected mask;
-- changing the mask with all sources low does not create a spurious pulse;
-- a pulse entirely contained in an inhibit or source-disabled interval is not
-  replayed;
-- releasing inhibit with all three trigger sources low does not create a
-  spurious pulse.
-
-### Capture integration test
-
-An integration test around `spybuffers` must demonstrate:
-
-1. a trigger accepted before inhibit activation completes its full 2048-sample
-   store;
-2. later triggers do not start another capture while inhibited;
-3. BRAM contents and timestamp remain unchanged throughout a simulated read
-   interval;
-4. clearing the inhibit permits a later trigger to start a new capture.
-
-## Joint hardware acceptance
-
-The hardware campaign must verify three independent properties:
-
-1. freshness: a captured timestamp is not delivered twice;
-2. temporal coherence: one waveform does not contain samples from two
-   different captures;
-3. channel identity: every sample returned as channel `c` belongs to channel
-   `c`, without complete swaps or temporary channel mixing.
-
-The existing deduplication client covers the first property. The following two
-campaigns remain pending for temporal coherence and channel identity.
-
-### Pending AFE ramp continuity campaign
-
-Use the AFE5808A internal ramp as the deterministic waveform:
-
-- set `SYNC_PATTERN` (`register 10[8]`) to `1` on all five AFEs;
-- set `TEST_PATTERN_MODES` (`register 2[15:13]`) to `7` on all five AFEs;
-- acquire all requested samples as unsigned 14-bit values;
-- require every adjacent pair in every channel to satisfy:
-
-```text
-(sample[n + 1] - sample[n]) modulo 16384 = 1
-```
-
-This relation includes the valid `0x3FFF -> 0x0000` ramp wrap. Any other
-transition is a temporal discontinuity and must report the channel, waveform,
-and first failing sample.
-
-Run this check through both normal and chunked APIs for one channel and all 40
-channels using the trigger-rate matrix below. Choose trigger periods that do
-not advance the free-running ramp by an integer multiple of 16384 samples, as
-that coincidence could hide an overwrite boundary.
-
-The test must restore `TEST_PATTERN_MODES=0` and `SYNC_PATTERN=0` in cleanup
-code even after a timeout or client exception.
-
-The automated smoke test is available at
-`client/test_spybuffer_readout_inhibit.py`. Its default configuration exercises
-32 software-triggered waveforms through each of the normal and chunked APIs,
-for 64 validated waveforms in total, using all 40 channels and 2048 samples.
-PASS requires zero ramp discontinuities and zero duplicate or non-monotonic
-timestamps across the complete campaign. It requires the Python `pyzmq` and
-`protobuf` packages plus bindings generated from the same schema as the
-server:
-
-Before running it, configure and align the frontend normally. In particular,
-the server unpacker and firmware expect the AFE5808A 16x serialized,
-14-bit, LSB-first interface (`SERIALIZED_DATA_RATE=1`,
-`ADC_RESOLUTION_RESET=0`, and `LSB_MSB_FIRST=0`). The smoke test changes only
-the test-pattern fields; it does not replace frontend initialization or AFE
-alignment.
+`external` is the client default. The spelling `--trigger-source` is also
+accepted. The old `-software_trigger`/`--software-trigger` flag remains as a
+deprecated alias for `-trigger_source software`; combining it with another
+source is rejected.
+
+Examples:
 
 ```bash
-DAPHNE_BUILD_DIR=build-petalinux \
-python3 client/test_spybuffer_readout_inhibit.py \
-  --ip 10.73.137.161 \
-  --port 40001 \
-  --route mezz/0
+python3 client/protobuf_acquire_list_channels.py \
+  -ip 193.206.157.36 -port 9876 \
+  -foldername output -channel_list 0,1,2 \
+  -N 32 -L 2048 -trigger_source external
+
+python3 client/osc.py \
+  -ip 193.206.157.36 -port 9876 \
+  --channels 0-7 -L 2048 -trigger_source timing
 ```
 
-Use `--hardware-trigger` for the external trigger-rate campaign. The script
-enables and validates the AFE ramp and restores normal AFE output in a
-`finally` cleanup path. `--keep-ramp-enabled` is available only for an
-intentional diagnostic session.
+For `software`, each dump issues software triggers through the existing
+mechanism. For `external`, `timing`, and `all`, dumps wait for accepted hardware
+events. Selecting `timing` does not configure the `adhoc` event value; that is
+an independent system configuration.
 
-No diagnostic directory is created for a passing run. On failure, the client
-creates a timestamped directory below `spybuffer_readout_inhibit_failures/`
-containing:
+The selector is persistent and global. Concurrent clients must not assume they
+can own different sources. Operationally, one acquisition owner should
+configure and use the spybuffer at a time.
 
-- `summary.json`, with the complete campaign result and truncation counters;
-- `ramp_failures.csv`, with the exact API, waveform, channel, transition,
-  expected value, actual value, and modular delta;
-- `timestamp_failures.csv` when timestamp checks fail;
-- `plots/*.png`, with a full-waveform view and a local detail view marking the
-  precise `sample - 1 -> sample` transition in red and the expected ramp value
-  in green.
+Clients require Python bindings generated from the same `.proto` as the
+server. A missing RPC produces an explicit instruction to rebuild the
+bindings rather than silently acquiring with an unknown source. The clients
+search the standard build directories and honor an explicit location:
 
-To avoid repetitive output, plots are sampled per failing channel. The default
-is at most three representative plots for each channel across the complete
-campaign, configured with `--plots-per-failing-channel`. The global safety
-limit is controlled by `--max-failure-plots`. Detailed CSV records are bounded
-by `--max-artifact-failures`; the total untruncated failure count remains
-recorded in `summary.json`. Use `--failure-output-dir` to place artifacts
-outside the working tree.
+```bash
+cmake --build build-petalinux --target daphne_proto_py
+export DAPHNE_PROTO_PYTHON_DIR="$PWD/build-petalinux/srcs/protobuf"
+```
 
-Console output intentionally remains concise: it lists the failing channels
-with their discontinuity counts and separately reports the compact ranges of
-channels that passed. Exact waveforms, samples, deltas and expected values are
-left to the diagnostic directory.
+## Verification
 
-An initial reduced hardware run with one software-triggered waveform and 256
-samples passed 37 of 40 channels and reported:
+Server-side checks required before hardware acceptance are:
 
-- channel 3: 129 failures dominated by deltas `+3` and `-1`, consistent with
-  an alternating bit-1 error;
-- channel 25: all 255 transitions failed, dominated by deltas `+257` and
-  `-255`, consistent with a bit-8 error plus less frequent additional errors;
-- channel 39: two failures with deltas `+33` and `-31`, consistent with a
-  bit-5 error;
-- zero duplicate or non-monotonic timestamp failures.
+1. register metadata reports address `0x08000034`, `SOURCE[1:0]`, and
+   `INHIBIT[2]`;
+2. inhibit operations preserve all source values;
+3. source changes preserve inhibit until the safe transition completes;
+4. invalid source values are rejected;
+5. both RPCs return the hardware readback and useful errors;
+6. both dump APIs preserve timestamp freshness and temporal coherence;
+7. cleanup never leaves inhibit asserted;
+8. client configuration is verified before acquisition starts.
 
-These deterministic, channel-local bit errors are a frontend
-deserialization/alignment baseline failure, not evidence of an overwrite
-during inhibited readout. Full 40-channel acceptance is blocked until this
-baseline is clean. Readout-inhibit behavior may be investigated provisionally
-with channels `0-2,4-24,26-38`, while keeping the full-channel test pending.
+The AFE ramp campaign in `client/test_spybuffer_readout_inhibit.py` remains the
+temporal-coherence test. Previous testing established a clean readout baseline
+on 37 channels through both normal and chunked APIs. Channels 3, 25, and 39
+showed deterministic frontend alignment signatures, documented separately in
+[AFE Test-pattern Diagnostics](afe-test-pattern-diagnostics.md); those
+channel-local faults are not readout-overwrite evidence.
 
-A subsequent provisional run over those 37 clean channels passed both normal
-and chunked APIs with four software-triggered 2048-sample waveforms per API:
-`605912` adjacent ramp transitions were checked with zero ramp or timestamp
-failures. This establishes a clean low-contention server/readout baseline. It
-does not yet validate inhibit behavior under concurrent triggers because the
-server controls the software-trigger cadence.
-
-The first external-trigger campaign requested 32 waveforms through each API.
-The normal API returned stale pre-ramp data as its first waveform and reported
-`67711` discontinuities distributed across all 37 requested channels; its
-later data was consistent with the ramp. All `2423648` chunked transitions
-then passed. The snapshot was new relative to the server's previous delivery
-cursor but had been captured before the client enabled the ramp. The smoke
-client now primes the hardware-trigger cursor by acquiring and discarding one
-snapshot after changing the AFE test-pattern configuration. Independently, the
-server now uses the request-entry timestamp as its baseline when no previous
-delivery cursor exists, so a true first hardware request cannot return an
-unknown boot-time snapshot.
-
-The corrected external-trigger repeat used 32 waveforms per API, 2048 samples,
-and the 37 channels with a clean frontend baseline. The post-configuration
-prime discarded one hardware snapshot before validation. Both APIs passed:
-
-- normal: `2423648` adjacent ramp transitions, zero ramp failures;
-- chunked: `2423648` adjacent ramp transitions, zero ramp failures;
-- combined: `4847296` valid transitions across 64 waveforms, with zero
-  duplicate or non-monotonic timestamp failures.
-
-This validates protected normal and chunked readout at the external-trigger
-rate used for the run. The exact rate was controlled externally and is not
-encoded in the client log, so this result does not replace the complete
-trigger-rate matrix.
-
-A subsequent full 40-channel run used the same 32-waveform, 2048-sample
-configuration. It checked `2620160` transitions per API and reported zero
-timestamp failures. All ramp failures remained confined to the three frontend
-lanes already identified:
-
-| Channel | Normal failures | Chunked failures | Dominant signature |
-| ---: | ---: | ---: | --- |
-| 3 | `32878` | `32879` | Alternating bit-1 error (`+3`, `-1`) |
-| 25 | `65392` | `65424` | Persistent bit-8 error (`+257`, `-255`) |
-| 39 | `1259` | `2224` | Intermittent bit-5 error (`+33`, `-31`) |
-
-The other 37 channels again completed all `4847296` combined transitions
-without a ramp discontinuity. Because the errors remain channel-local across
-all waveforms and both APIs, they are consistent with frontend
-deserialization/alignment faults rather than a global overwrite boundary.
-Readout-inhibit verification therefore passes provisionally for the 37 aligned
-channels. Full 40-channel acceptance remains blocked until channels 3, 25, and
-39 have a clean frontend baseline.
-
-The synchronized ramp is intentionally identical across the eight channels of
-one AFE. It can prove temporal continuity, but it cannot by itself detect a
-segment copied from the wrong channel.
-
-### Pending channel-identity campaign
-
-Channel identity must therefore be tested separately in normal ADC mode:
-
-1. Establish the static physical-to-server mapping by stimulating one physical
-   input at a time and requiring activity only on the expected server channel.
-2. Feed a common waveform, or a common DC level, to the channels under test.
-3. Enable `CHANNEL_OFFSET_SUBSTRACTION_ENABLE` and configure a sufficiently
-   separated `OFFSET_CHx` value for every channel to create a unique channel
-   tag. Save and restore all original register values.
-4. Build a low-rate reference for each channel and classify the source of each
-   sample window during the high-rate acquisition.
-5. Report separately:
-   - a complete channel permutation;
-   - a temporary interval attributed to another channel;
-   - samples that match no known channel signature.
-
-The tag spacing and classification tolerance must be derived from measured
-noise. Classification should use short windows as well as whole-waveform
-statistics so that a temporary mix is not hidden by the waveform average.
-
-Do not assume that `INVERT_CHANNELS` or per-channel offset/gain processing
-modifies the AFE test ramp. The channel-tag campaign uses the normal ADC data
-path and remains separate from the internal-ramp campaign.
-
-The recommended matrix is:
-
-| Trigger rate | Channels | Samples | Expected result |
-| ---: | --- | ---: | --- |
-| 0.2 Hz | 1 and 40 | 2048 | No duplicates or cut waveforms |
-| 10 Hz | 1 and 40 | 2048 | No duplicates or cut waveforms |
-| 100 Hz | 1 and 40 | 2048 | No duplicates or cut waveforms |
-| Above copy capacity | 40 | 2048 | Events may be skipped; returned waveforms remain coherent |
-
-For diagnostic builds, read the four timestamp banks immediately before and
-after the channel copy. With the inhibit active, the packed timestamps must be
-equal. This check should report an error rather than silently accepting a
-changed timestamp.
-
-Accept the joint implementation when:
-
-1. both register addresses, bit definitions, reset values, and readback match
-   this document;
-2. reset enables only the physical external trigger;
-3. all eight source masks accept exactly the documented sources;
-4. external and software triggers remain separate until the spy trigger plane;
-5. all three trigger sources are blocked while inhibited;
-6. an in-progress capture is never truncated;
-7. timestamps remain stable during every protected copy;
-8. all channels belonging to one waveform come from the same capture;
-9. inhibit and any temporary source mask are restored after successful and
-   failed requests;
-10. old firmware without either required register is detected and rejected
-    when protected source-selected readout is required;
-11. skipped triggers at rates above server capacity are reported as intentional
-    readout dead time, not as corruption;
-12. the ramp validator reports no temporal discontinuities;
-13. the channel-identity validator reports no complete swaps, temporary mixes,
-    or unknown channel intervals.
-
-## Coordinated delivery checklist
-
-### Firmware repository
-
-- [x] Implement `spy_readout_inhibit_reg` at `0x9400004C`.
-- [x] Add the CDC synchronizer and combined-trigger gate.
-- [x] Preserve completion of an in-progress capture by gating trigger
-      admission rather than the BRAM write enable.
-- [x] Update `Memory_Map.md` and `docs/modules/spy-buffer.md`.
-- [x] Extend the STUFF and trigger-plane smoke tests.
-- [ ] Add the capture integration test that observes BRAM/timestamp stability.
-- [x] Record the first firmware implementation commit: `f0d48d6`.
-- [ ] Implement `spy_trigger_source_enable_reg` at `0x94000050`, reset to
-      external-only (`0b001`).
-- [ ] Separate the physical external and AXI software trigger paths through
-      the production hierarchy.
-- [ ] Apply source selection only in the spy trigger plane, before the global
-      inhibit gate.
-- [ ] Extend STUFF and trigger-plane tests for all eight masks and three
-      independent sources.
-- [ ] Update `Memory_Map.md` and `docs/modules/spy-buffer.md` for `0x50`.
-
-### Server repository
-
-- [x] Add `spyReadoutInhibit` at relative address `0x1400004C`.
-- [x] Increase the register-dictionary test count from 388 to 389.
-- [x] Add readback-based incompatible-firmware detection.
-- [x] Refactor timestamp waiting and protected copying in
-      `SpyBuffer::acquireFreshMappedData`.
-- [x] Assert inhibit, wait 35 microseconds, and read the frozen timestamp.
-- [x] Copy all requested channels under one global inhibit interval.
-- [x] Compare timestamps before and after the protected copy.
-- [x] Release inhibit before waiting for the next deduplicated timestamp.
-- [x] Guarantee release with RAII on every exit path.
-- [x] Use the same protected method from both normal and chunked dump APIs.
-- [x] Add unit tests for register metadata, incompatible firmware, normal
-      release, exception cleanup, and failed-release retry.
-- [ ] Add `spyTriggerSourceEnable` at relative address `0x14000050`.
-- [ ] Increase the register-dictionary test count from 389 to 390.
-- [ ] Implement exclusive software-trigger sequencing with mask `0b010`.
-- [ ] Restore the previous source mask through RAII on every exit path.
-- [ ] Add tests for reset/default validation, mask readback, exclusive source
-      attribution, and exception cleanup.
-
-### Hardware verification
-
-- [x] Add an AFE ramp continuity smoke test for normal and chunked APIs.
-- [x] Run the AFE ramp smoke test on matching firmware/server hardware;
-      32 external-triggered waveforms per API pass on the 37 aligned channels.
-- [x] Repeat the same campaign with all 40 channels and confirm that every
-      failure remains confined to frontend lanes 3, 25, and 39, with zero
-      timestamp failures.
-- [x] Add the fixed, walking-bit, and toggle AFE diagnostic documented in
-      `docs/afe-test-pattern-diagnostics.md`.
-- [x] Run the AFE pattern matrix on channels 3 and 25. Both channels exhibit
-      static walking-pattern substitutions and temporal hybrid words; see
-      `docs/afe-test-pattern-diagnostics.md` for the measured D1/D9 and
-      D4/D12/D8/D0 relationships and the proposed firmware response.
-- [ ] Instrument or redesign the `clk125` to word-clock boundary in `febit3`
-      and repeat the complete pattern matrix after the firmware change.
-- [ ] Exercise both normal and chunked readout with one and 40 channels.
-- [ ] Run the complete trigger-rate matrix with the 35 microsecond guard.
-- [ ] Verify static physical-to-server channel mapping.
-- [ ] Implement the normal-mode per-channel tag campaign.
-- [ ] Verify zero complete channel swaps and zero temporary channel-mix
-      intervals.
-- [ ] Verify inhibit returns low after successful requests, client errors, and
-      orderly server shutdown.
-- [ ] Verify server startup clears inhibit after an ungraceful previous exit.
-- [ ] Verify reset accepts external triggers and rejects software and timing
-      triggers until their mask bits are enabled.
-- [ ] Verify temporary software-only selection restores the previous mask.
-
-### Deployment
-
-- [ ] Deploy a matching firmware/server pair.
-- [ ] Confirm reset and startup readback before enabling trigger input.
-- [ ] Run the joint hardware acceptance matrix.
-- [ ] Record measured protected-copy time and resulting trigger dead time.
+The trigger-source smoke test is intentionally kept in a separate fourth
+commit. It must save the initial source, exercise write/readback of all four
+values, test at least software-triggered acquisition, and restore the initial
+source in `finally`. External and timing event acceptance require the
+corresponding laboratory stimulus and should be optional test phases.
