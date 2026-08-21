@@ -88,9 +88,12 @@ int main() {
             registers, "selfTriggerInvertEnableLow", 0x14000044);
         requireRegister(
             registers, "selfTriggerInvertEnableHigh", 0x14000048);
-        const auto& spy_readout_inhibit =
-            requireRegister(registers, "spyReadoutInhibit", 0x1400004C);
-        requireField(spy_readout_inhibit, "INHIBIT", 0, 0);
+        const auto& spy_trigger_control =
+            requireRegister(registers, "spyTriggerControl", 0x08000034);
+        requireField(spy_trigger_control, "CONTROL", 0, 2);
+        requireField(spy_trigger_control, "SOURCE", 0, 1);
+        requireField(spy_trigger_control, "INHIBIT", 2, 2);
+        requireMissing(registers, "spyReadoutInhibit");
 
         requireMissing(registers, "idLink");
         requireMissing(registers, "idSlot");

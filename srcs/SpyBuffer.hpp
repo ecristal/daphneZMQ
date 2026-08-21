@@ -52,6 +52,8 @@ public:
         uint32_t nSamples,
         const std::vector<uint32_t>& channel_indices,
         const std::function<void()>& issue_trigger = {});
+    uint32_t getTriggerSource();
+    uint32_t configureTriggerSource(uint32_t source);
     static uint64_t packTimestamp(const TimestampKey& timestamp);
 
 private:
@@ -64,6 +66,7 @@ private:
     std::chrono::milliseconds trigger_wait_timeout;
     std::chrono::microseconds timestamp_poll_interval;
     std::chrono::microseconds readout_inhibit_guard_interval;
+    std::chrono::microseconds trigger_control_settle_interval;
 
     void mapToArraySpyBufferRegisters();
     void mapTimestampRegisters();
@@ -75,6 +78,8 @@ private:
         uint32_t nSamples,
         const std::vector<uint32_t>& channel_indices);
     uint32_t writeReadoutInhibit(uint32_t value);
+    uint32_t readTriggerSourceUnlocked();
+    uint32_t writeTriggerSourceUnlocked(uint32_t source);
     void clearReadoutInhibitNoThrow() noexcept;
     bool waitExpired(const std::chrono::steady_clock::time_point& deadline) const;
 };

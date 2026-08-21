@@ -6,7 +6,8 @@
 
 namespace {
 
-constexpr const char* kSpyReadoutInhibitRegister = "spyReadoutInhibit";
+constexpr const char* kSpyTriggerControlRegister = "spyTriggerControl";
+constexpr uint32_t kMaximumSpyTriggerSource = 3;
 constexpr uint64_t kSpyBufferCaptureDepth = 2048;
 constexpr uint64_t kAcquisitionClockHz = 62500000;
 constexpr uint64_t kCaptureDurationCeilingUs =
@@ -52,13 +53,24 @@ SpyBuffer::SpyBuffer()
       readout_inhibit_guard_interval(
           readDurationEnvironment(
               "DAPHNE_SPYBUFFER_INHIBIT_GUARD_US",
-              kDefaultReadoutInhibitGuardUs)) {
+              kDefaultReadoutInhibitGuardUs)),
+      trigger_control_settle_interval(1) {
         if (readout_inhibit_guard_interval.count() <
             static_cast<int64_t>(kMinimumReadoutInhibitGuardUs)) {
             throw std::invalid_argument(
                 "DAPHNE_SPYBUFFER_INHIBIT_GUARD_US must be at least 35");
         }
+        // Probe the combined SOURCE+INHIBIT register without changing SOURCE.
+        // Old firmware without FRONT_END + 0x34 reads back zero and is rejected
+        // before the server accepts an unprotected acquisition.
+        if (this->writeReadoutInhibit(1) != 1) {
+            this->clearReadoutInhibitNoThrow();
+            throw std::runtime_error(
+                "Spybuffer trigger control register is not supported by the loaded firmware");
+        }
+        std::this_thread::sleep_for(trigger_control_settle_interval);
         if (this->writeReadoutInhibit(0) != 0) {
+            this->clearReadoutInhibitNoThrow();
             throw std::runtime_error(
                 "Spybuffer readout inhibit did not clear during startup");
         }
@@ -363,7 +375,60 @@ void SpyBuffer::copyMappedChannels(
 }
 
 uint32_t SpyBuffer::writeReadoutInhibit(uint32_t value) {
-    return fpgaReg->writeRegister(kSpyReadoutInhibitRegister, value);
+    return fpgaReg->setBits(kSpyTriggerControlRegister, "INHIBIT", value);
+}
+
+uint32_t SpyBuffer::readTriggerSourceUnlocked() {
+    return fpgaReg->getBits(kSpyTriggerControlRegister, "SOURCE", 0);
+}
+
+uint32_t SpyBuffer::writeTriggerSourceUnlocked(uint32_t source) {
+    if (source > kMaximumSpyTriggerSource) {
+        throw std::invalid_argument("Spybuffer trigger source is out of range (0..3)");
+    }
+
+    const uint32_t readback =
+        fpgaReg->setBits(kSpyTriggerControlRegister, "SOURCE", source);
+    if (readback != source) {
+        throw std::runtime_error("Spybuffer trigger source readback mismatch");
+    }
+    return readback;
+}
+
+uint32_t SpyBuffer::getTriggerSource() {
+    std::lock_guard<std::mutex> lock(acquisition_mutex);
+    return this->readTriggerSourceUnlocked();
+}
+
+uint32_t SpyBuffer::configureTriggerSource(uint32_t source) {
+    if (source > kMaximumSpyTriggerSource) {
+        throw std::invalid_argument("Spybuffer trigger source is out of range (0..3)");
+    }
+
+    std::unique_lock<std::mutex> lock(acquisition_mutex);
+    const uint32_t previous_source = this->readTriggerSourceUnlocked();
+
+    SpyBufferReadoutInhibitGuard inhibit(
+        [this](uint32_t value) {
+            return this->writeReadoutInhibit(value);
+        });
+    inhibit.engage();
+    std::this_thread::sleep_for(trigger_control_settle_interval);
+
+    try {
+        this->writeTriggerSourceUnlocked(source);
+        std::this_thread::sleep_for(trigger_control_settle_interval);
+        inhibit.release();
+    } catch (...) {
+        try {
+            this->writeTriggerSourceUnlocked(previous_source);
+            std::this_thread::sleep_for(trigger_control_settle_interval);
+        } catch (...) {
+        }
+        throw;
+    }
+
+    return this->readTriggerSourceUnlocked();
 }
 
 void SpyBuffer::clearReadoutInhibitNoThrow() noexcept {
