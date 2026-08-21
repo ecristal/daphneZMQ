@@ -6,69 +6,29 @@ from __future__ import annotations
 import argparse
 from collections import Counter
 from dataclasses import dataclass
-import importlib
-import os
 from pathlib import Path
 import random
-import sys
 import time
 import uuid
 
 import zmq
 
+from protobuf_loader import load_protobuf_modules
 from spybuffer_failure_artifacts import FailureArtifactWriter
 from spybuffer_ramp_validation import validate_ramp_data
+from trigger_source import (
+    add_trigger_source_arguments,
+    configure_trigger_source,
+    read_trigger_source,
+    resolve_trigger_source,
+)
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
 UINT64_MASK = (1 << 64) - 1
 UINT64_HALF_RANGE = 1 << 63
 
 
-def load_protobuf_modules():
-    candidates: list[Path] = []
-    if os.environ.get("DAPHNE_PROTO_PYTHON_DIR"):
-        candidates.append(Path(os.environ["DAPHNE_PROTO_PYTHON_DIR"]))
-    if os.environ.get("DAPHNE_BUILD_DIR"):
-        candidates.append(
-            Path(os.environ["DAPHNE_BUILD_DIR"]) / "srcs" / "protobuf"
-        )
-    for build_name in ("build-petalinux", "build-client", "build-test", "build"):
-        candidates.append(REPO_ROOT / build_name / "srcs" / "protobuf")
-    candidates.append(REPO_ROOT / "srcs" / "protobuf")
-
-    visited: set[Path] = set()
-    for candidate in candidates:
-        candidate = candidate.resolve()
-        if candidate in visited:
-            continue
-        visited.add(candidate)
-
-        high_path = candidate / "daphneV3_high_level_confs_pb2.py"
-        low_path = candidate / "daphneV3_low_level_confs_pb2.py"
-        if not high_path.is_file() or not low_path.is_file():
-            continue
-        if b"timestamps" not in high_path.read_bytes():
-            continue
-
-        sys.path.insert(0, str(candidate))
-        try:
-            high = importlib.import_module("daphneV3_high_level_confs_pb2")
-            low = importlib.import_module("daphneV3_low_level_confs_pb2")
-        finally:
-            sys.path.pop(0)
-
-        if "timestamps" not in high.DumpSpyBuffersResponse.DESCRIPTOR.fields_by_name:
-            continue
-        return high, low
-
-    raise RuntimeError(
-        "Compatible Python protobuf bindings were not found. Rebuild the "
-        "project or set DAPHNE_PROTO_PYTHON_DIR."
-    )
-
-
-pb_high, pb_low = load_protobuf_modules()
+pb_high, pb_low = load_protobuf_modules(require_trigger_source=True)
 
 
 def parse_channels(spec: str) -> list[int]:
@@ -634,20 +594,13 @@ def main() -> int:
         default=16,
         help="Samples shown on each side of a failed transition in the detail panel.",
     )
-    trigger_group = parser.add_mutually_exclusive_group()
-    trigger_group.add_argument(
-        "--software-trigger",
-        dest="software_trigger",
-        action="store_true",
-        help="Issue one software trigger per waveform (default).",
-    )
-    trigger_group.add_argument(
+    add_trigger_source_arguments(parser, default="software")
+    parser.add_argument(
         "--hardware-trigger",
-        dest="software_trigger",
-        action="store_false",
-        help="Wait for external hardware triggers.",
+        action="store_true",
+        dest="legacy_hardware_trigger",
+        help="Deprecated alias for -trigger_source external.",
     )
-    parser.set_defaults(software_trigger=True)
     parser.add_argument(
         "--skip-ramp-configuration",
         action="store_true",
@@ -659,6 +612,18 @@ def main() -> int:
         help="Do not restore TEST_PATTERN_MODES and SYNC_PATTERN after the test.",
     )
     args = parser.parse_args()
+    if args.legacy_hardware_trigger:
+        if args.trigger_source is not None and args.trigger_source != "external":
+            parser.error(
+                "--hardware-trigger conflicts with "
+                f"-trigger_source {args.trigger_source}"
+            )
+        args.trigger_source = "external"
+        print(
+            "warning: --hardware-trigger is deprecated; use "
+            "-trigger_source external"
+        )
+    resolve_trigger_source(parser, args)
 
     try:
         channels = parse_channels(args.channels)
@@ -704,10 +669,7 @@ def main() -> int:
     print(f"  samples          : {args.samples}")
     print(f"  waveforms / API  : {args.waveforms} / {args.api}")
     print(f"  failure artifacts: {args.failure_output_dir} (created only on FAIL)")
-    print(
-        "  trigger          : "
-        + ("software" if args.software_trigger else "hardware")
-    )
+    print(f"  trigger source   : {args.trigger_source}")
 
     context = zmq.Context()
     control_socket = make_socket(
@@ -747,7 +709,32 @@ def main() -> int:
     total_timestamp_failures = 0
     tested_waveforms = 0
     overall_channel_failure_counts: Counter[int] = Counter()
+    original_trigger_source = None
     try:
+        def send_trigger_source_request(message_type: int, payload: bytes):
+            reply = v2_request(
+                control_socket,
+                message_type,
+                message_type + 1,
+                payload,
+                args.route,
+            )
+            return reply.type, reply.payload
+
+        original_trigger_source = read_trigger_source(
+            pb_high,
+            send_trigger_source_request,
+        )
+        configure_trigger_source(
+            pb_high,
+            send_trigger_source_request,
+            args.trigger_source,
+        )
+        print(
+            f"[TRIGGER] configured {args.trigger_source} "
+            f"(initially {original_trigger_source})"
+        )
+
         if not args.skip_ramp_configuration:
             ramp_configuration_attempted = True
             configure_ramp(control_socket, args.route)
@@ -884,6 +871,21 @@ def main() -> int:
         elif ramp_configuration_succeeded:
             print("[WARN] AFE ramp left enabled by request")
 
+        if original_trigger_source is not None:
+            try:
+                configure_trigger_source(
+                    pb_high,
+                    send_trigger_source_request,
+                    original_trigger_source,
+                )
+                print(
+                    f"[RESTORE] trigger source: {original_trigger_source}"
+                )
+            except Exception as error:
+                print(f"[FAIL] trigger-source cleanup: {error}")
+                artifacts.record_error(f"trigger-source cleanup: {error}")
+                exit_code = 1
+
         acquisition_socket.close(0)
         control_socket.close(0)
         context.term()
@@ -899,9 +901,7 @@ def main() -> int:
                     "requested_waveforms_per_api": args.waveforms,
                     "tested_waveforms": tested_waveforms,
                     "api": args.api,
-                    "trigger": (
-                        "software" if args.software_trigger else "hardware"
-                    ),
+                    "trigger_source": args.trigger_source,
                     "transitions": total_transitions,
                     "ramp_failures": total_ramp_failures,
                     "timestamp_failures": total_timestamp_failures,

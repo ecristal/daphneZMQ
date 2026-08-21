@@ -197,8 +197,18 @@ showed deterministic frontend alignment signatures, documented separately in
 [AFE Test-pattern Diagnostics](afe-test-pattern-diagnostics.md); those
 channel-local faults are not readout-overwrite evidence.
 
-The trigger-source smoke test is intentionally kept in a separate fourth
-commit. It must save the initial source, exercise write/readback of all four
-values, test at least software-triggered acquisition, and restore the initial
-source in `finally`. External and timing event acceptance require the
-corresponding laboratory stimulus and should be optional test phases.
+The trigger-source smoke test is `client/test_spybuffer_trigger_source.py`.
+It saves the initial source, exercises write/readback of all four values,
+acquires through the normal and chunked APIs with software triggers, and
+restores the initial source in `finally`:
+
+```bash
+DAPHNE_PROTO_PYTHON_DIR="$PWD/build-petalinux/srcs/protobuf" \
+python3 client/test_spybuffer_trigger_source.py \
+  --ip 193.206.157.36 --port 9876 --route mezz/0 \
+  --channels 0-39 --samples 2048 --waveforms 8 --chunk-size 2
+```
+
+Use `--selector-only` to test only register configuration. External and timing
+event acceptance require the corresponding laboratory stimulus and can be
+added with `--hardware-source external`, `timing`, or `all`.

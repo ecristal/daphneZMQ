@@ -14,6 +14,9 @@ def load_protobuf_modules(require_trigger_source=False):
     configured = os.environ.get("DAPHNE_PROTO_PYTHON_DIR")
     if configured:
         candidates.append(Path(configured))
+    configured_build = os.environ.get("DAPHNE_BUILD_DIR")
+    if configured_build:
+        candidates.append(Path(configured_build) / "srcs" / "protobuf")
     for build_name in ("build-petalinux", "build-client", "build-test", "build"):
         candidates.append(REPO_ROOT / build_name / "srcs" / "protobuf")
     candidates.append(REPO_ROOT / "srcs" / "protobuf")

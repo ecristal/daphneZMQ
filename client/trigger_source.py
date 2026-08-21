@@ -109,6 +109,31 @@ def configure_trigger_source(pb, send_v2_request, source):
             f"expected {expected_source}, got {write_response.source}"
         )
 
+    verified_source = read_trigger_source(pb, send_v2_request)
+    if verified_source != source:
+        raise RuntimeError(
+            "Trigger-source verification mismatch: "
+            f"expected {source}, got {verified_source}"
+        )
+
+    return source
+
+
+def read_trigger_source(pb, send_v2_request):
+    required = (
+        "ReadSpyBufferTriggerSourceRequest",
+        "ReadSpyBufferTriggerSourceResponse",
+        "MT2_READ_SPYBUFFER_TRIGGER_SOURCE_REQ",
+        "MT2_READ_SPYBUFFER_TRIGGER_SOURCE_RESP",
+    )
+    missing = [name for name in required if not hasattr(pb, name)]
+    if missing:
+        raise RuntimeError(
+            "Python protobuf bindings do not contain the spybuffer trigger "
+            "source read RPC; rebuild the protobuf bindings. Missing: "
+            + ", ".join(missing)
+        )
+
     read_request = pb.ReadSpyBufferTriggerSourceRequest()
     response_type, response_payload = send_v2_request(
         pb.MT2_READ_SPYBUFFER_TRIGGER_SOURCE_REQ,
@@ -124,10 +149,9 @@ def configure_trigger_source(pb, send_v2_request, source):
         raise RuntimeError(
             "Could not read spybuffer trigger source: " + read_response.message
         )
-    if read_response.source != expected_source:
-        raise RuntimeError(
-            "Trigger-source verification mismatch: "
-            f"expected {expected_source}, got {read_response.source}"
-        )
-
-    return source
+    for source, enum_name in _SOURCE_ENUM_NAMES.items():
+        if read_response.source == getattr(pb, enum_name):
+            return source
+    raise RuntimeError(
+        f"Unknown spybuffer trigger-source readback {read_response.source}"
+    )
