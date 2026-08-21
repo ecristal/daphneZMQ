@@ -52,7 +52,11 @@ using daphne::GeneralInfo;
 using daphne::InfoRequest;
 using daphne::ReadTriggerCountersRequest;
 using daphne::ReadTriggerCountersResponse;
+using daphne::ReadSpyBufferTriggerSourceRequest;
+using daphne::ReadSpyBufferTriggerSourceResponse;
 using daphne::TestRegResponse;
+using daphne::WriteSpyBufferTriggerSourceRequest;
+using daphne::WriteSpyBufferTriggerSourceResponse;
 
 using daphne::cmd_alignAFEs;
 using daphne::cmd_alignAFEs_response;
@@ -2856,6 +2860,55 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers() {
     const bool ok = dumpSpybuffer(req, resp, d, msg);
     resp.set_success(ok);
     resp.set_message(msg);
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_WRITE_SPYBUFFER_TRIGGER_SOURCE_REQ] =
+      [](const std::string& in, std::string& out, Daphne& d) {
+    WriteSpyBufferTriggerSourceRequest req;
+    WriteSpyBufferTriggerSourceResponse resp;
+    if (!req.ParseFromString(in)) {
+      resp.set_success(false);
+      resp.set_message("Bad WriteSpyBufferTriggerSourceRequest payload");
+      out = serialize_or_empty(resp);
+      return;
+    }
+
+    try {
+      const auto source = static_cast<uint32_t>(req.source());
+      const uint32_t configured_source =
+          d.getSpyBuffer()->configureTriggerSource(source);
+      resp.set_success(true);
+      resp.set_message("OK");
+      resp.set_source(
+          static_cast<daphne::SpyBufferTriggerSource>(configured_source));
+    } catch (const std::exception& e) {
+      resp.set_success(false);
+      resp.set_message(e.what());
+    }
+    out = serialize_or_empty(resp);
+  };
+
+  handlers[daphne::MT2_READ_SPYBUFFER_TRIGGER_SOURCE_REQ] =
+      [](const std::string& in, std::string& out, Daphne& d) {
+    ReadSpyBufferTriggerSourceRequest req;
+    ReadSpyBufferTriggerSourceResponse resp;
+    if (!req.ParseFromString(in)) {
+      resp.set_success(false);
+      resp.set_message("Bad ReadSpyBufferTriggerSourceRequest payload");
+      out = serialize_or_empty(resp);
+      return;
+    }
+
+    try {
+      resp.set_source(static_cast<daphne::SpyBufferTriggerSource>(
+          d.getSpyBuffer()->getTriggerSource()));
+      resp.set_success(true);
+      resp.set_message("OK");
+    } catch (const std::exception& e) {
+      resp.set_success(false);
+      resp.set_message(e.what());
+    }
     out = serialize_or_empty(resp);
   };
 

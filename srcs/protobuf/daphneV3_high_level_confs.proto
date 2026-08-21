@@ -103,6 +103,31 @@ message DumpSpyBuffersChunkResponse {
   repeated uint64 timestamps          = 12 [packed = true];
 }
 
+// The selector and readout-inhibit flag share one firmware register. Clients
+// configure only the selector; the server owns the inhibit bit while reading.
+enum SpyBufferTriggerSource {
+  SPY_TRIGGER_SOURCE_SOFTWARE   = 0;
+  SPY_TRIGGER_SOURCE_EXTERNAL   = 1;
+  SPY_TRIGGER_SOURCE_TIMING     = 2;
+  SPY_TRIGGER_SOURCE_LEGACY_ALL = 3;
+}
+
+message WriteSpyBufferTriggerSourceRequest {
+  SpyBufferTriggerSource source = 1;
+}
+message WriteSpyBufferTriggerSourceResponse {
+  bool                   success = 1;
+  string                 message = 2;
+  SpyBufferTriggerSource source  = 3;
+}
+
+message ReadSpyBufferTriggerSourceRequest {}
+message ReadSpyBufferTriggerSourceResponse {
+  bool                   success = 1;
+  string                 message = 2;
+  SpyBufferTriggerSource source  = 3;
+}
+
 // ----------------- AFE input-delay diagnostic -----------------
 
 // Sweeps the common IDELAY tap used by the frame clock and eight data lanes
@@ -320,6 +345,10 @@ enum MessageTypeV2 {
 
   // Front-end timing diagnostics
   MT2_AFE_DELAY_SWEEP_REQ            = 324; MT2_AFE_DELAY_SWEEP_RESP            = 325;
+
+  // Global spybuffer trigger-source selector
+  MT2_WRITE_SPYBUFFER_TRIGGER_SOURCE_REQ = 326; MT2_WRITE_SPYBUFFER_TRIGGER_SOURCE_RESP = 327;
+  MT2_READ_SPYBUFFER_TRIGGER_SOURCE_REQ  = 328; MT2_READ_SPYBUFFER_TRIGGER_SOURCE_RESP  = 329;
   
   // HD Mezzanine-specific commands
   MT2_SET_HDMEZZ_BLOCK_ENABLE_REQ   = 400;   MT2_SET_HDMEZZ_BLOCK_ENABLE_RESP = 401;
