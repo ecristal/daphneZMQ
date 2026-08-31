@@ -168,6 +168,10 @@ std::vector<RegisterWrite> make_mode_register_plan(
     }
     return {};
   }
+  if (full_stream_channels.empty()) {
+    throw std::invalid_argument(
+        "full_stream_channels must contain at least one channel in full-stream gateware mode");
+  }
   return make_full_stream_mux_plan(full_stream_channels);
 }
 

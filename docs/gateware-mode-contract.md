@@ -39,9 +39,10 @@ service profiles must always supply the release manifest's build ID.
   Trigger-counter RPCs return unsupported.
 
 For full-stream, `full_stream_channels` is ordered: list element 0 feeds output
-0, list element 1 feeds output 1, and so on. The list may contain at most 32
-unique board channels in the range 0 through 39. Board channel `n` is encoded
-as `((n / 8) << 4) | (n % 8)`; gateware applies the physical PL AFE
+0, list element 1 feeds output 1, and so on. The list must contain 1 through 32
+unique board channels in the range 0 through 39. An empty list is rejected
+before any hardware access. Board channel `n` is encoded as
+`((n / 8) << 4) | (n % 8)`; gateware applies the physical PL AFE
 permutation only when selecting sample data so packet channel IDs remain in
 board order. Every unused output is written as `0xFF`.
 
@@ -58,8 +59,7 @@ to `0xFF`.
 
 ## Client integration status
 
-The protobuf schema already contains `full_stream_channels`, and direct v2
-clients can populate it. The current daphnemodules V3 configuration path does
-not serialize that field, so it cannot yet select full-stream outputs. That is
-an external integration blocker: update daphnemodules and its configuration
-schema before declaring the full-stream release path automatic end to end.
+The protobuf schema contains `full_stream_channels`. `daphnemodules` 3.0.4
+serializes and validates the ordered list for full-stream operation; its empty
+list remains the explicit self-trigger selection. Earlier `daphnemodules`
+versions do not support full-stream selection.

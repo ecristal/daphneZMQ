@@ -171,6 +171,12 @@ void TestFullStreamValidation() {
   RequireThrows(
       [] { (void)make_mode_register_plan(GatewareMode::kSelfTrigger, {1}); },
       "must be empty", "self-trigger rejects full-stream channels before programming");
+  RequireThrows(
+      [] { (void)make_mode_register_plan(GatewareMode::kFullStream, {}); },
+      "at least one", "full-stream rejects an empty channel selection");
+  Require(make_mode_register_plan(GatewareMode::kFullStream, {0}).size() ==
+              kFullStreamMuxOutputCount,
+          "full-stream accepts a nonempty channel selection");
 }
 
 void TestFullStreamProgramming() {
