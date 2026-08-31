@@ -70,13 +70,20 @@ Transport behavior:
 ### Usage
 
 ```bash
-./build/daphneServer --bind tcp://*:9876
+./build/daphneServer --bind tcp://*:9876 \
+  --gateware-mode self-trigger \
+  --expected-gateware-build-id 0x01234567
 ```
 
 Optional flags:
 
 - `--disable-monitoring` disables the background I²C monitoring threads.
 - `--monitor-period-ms 200` controls monitoring cadence.
+
+`--gateware-mode self-trigger|full-stream` is required. Production services
+should also pin the release build with `--expected-gateware-build-id`; see
+`docs/gateware-mode-contract.md` for the admission checks, register ownership,
+and full-stream channel-order contract.
 
 Safety knobs:
 
@@ -158,7 +165,8 @@ The “one-shot” client `client/configure_fe_min_v2.py` sends a CONFIGURE_FE (
 
 - CONFIGURE_FE handling (`MT2_CONFIGURE_FE_REQ` → `configureDaphne()`):
   - If `DAPHNE_SKIP_CONFIG_RESET` is unset: reset AFEs and power them on.
-  - Program trigger thresholds for the listed channels using `/dev/mem` at `0xA0010000` (stride 0x20) and set trigger enable masks (`0x94000020` low / `0x94000024` high).
+  - In self-trigger mode, program trigger thresholds for the listed channels using `/dev/mem` at `0xA0010000` (stride 0x20) and set trigger enable masks (`0x94000020` low / `0x94000024` high).
+  - In full-stream mode, first disable all 32 mux outputs at `0xA0020000`, keep them disabled through AFE setup/alignment, and activate the ordered requested channels only after every step succeeds.
   - Program per-channel TRIM/OFFSET DACs (40 channels).
   - Program per-AFE attenuation (VGAIN) and AFE functions (serialized data rate, ADC output format, LPF, PGA clamp/integrator disable, LNA clamp/gain/integrator disable).
   - Reinforce AFE power on.

@@ -59,6 +59,13 @@ if(I2C_LIB)
   target_link_libraries(daphne_i2c_hw PUBLIC ${I2C_LIB})
 endif()
 
+add_library(daphne_gateware
+  srcs/server_controller/gateware.cpp
+)
+target_include_directories(daphne_gateware PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/srcs
+)
+
 if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
@@ -200,6 +207,7 @@ set(SOURCES
   srcs/Dac.cpp
   srcs/Daphne.cpp
   srcs/server_controller/handlers.cpp
+  srcs/server_controller/devmem_mmio.cpp
   srcs/server_controller/monitoring.cpp
   srcs/server_controller/spybuffer_chunker.cpp
   srcs/server_controller/router_server.cpp
@@ -229,6 +237,7 @@ target_include_directories(daphneServer PRIVATE
 )
 target_link_libraries(daphneServer PRIVATE
   daphne_i2c_hw
+  daphne_gateware
   daphne_proto
   cppzmq
   ${DAPHNE_ZMQ_TARGET}

@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <mutex>
 #include <numeric>
 #include <sstream>
@@ -31,6 +32,7 @@
 #include "defines.hpp"
 #include "daphneV3_low_level_confs.pb.h"
 #include "reg.hpp"
+#include "server_controller/gateware.hpp"
 
 namespace daphne_sc {
 namespace {
@@ -717,10 +719,37 @@ bool set_endpoint_addr_and_reset(uint16_t ep_addr,
   }
 }
 
-bool configureDaphne(const ConfigureRequest& requested_cfg, Daphne& daphne, std::string& response_str) {
+bool alignAFE(const cmd_alignAFEs& request,
+              cmd_alignAFEs_response& response,
+              Daphne& daphne,
+              std::string& response_str);
+
+bool configureDaphne(const ConfigureRequest& requested_cfg,
+                     Daphne& daphne,
+                     GatewareMode mode,
+                     Mmio32* full_stream_mmio,
+                     std::string& response_str) {
   try {
     std::ostringstream out;
     bool ok_all = true;
+
+    const std::vector<uint32_t> full_stream_channels(
+        requested_cfg.full_stream_channels().begin(),
+        requested_cfg.full_stream_channels().end());
+    // Validate the complete mode-specific request before resetting or writing
+    // any hardware. List order is the output-stream order.
+    const std::vector<RegisterWrite> mode_register_plan =
+        make_mode_register_plan(mode, full_stream_channels);
+    if (mode == GatewareMode::kFullStream) {
+      if (full_stream_mmio == nullptr) {
+        throw std::logic_error("Full-stream MMIO window is not configured");
+      }
+      // This is deliberately the first hardware operation in a full-stream
+      // configuration. Keep every stream quiescent until all analog setup and
+      // alignment below has succeeded.
+      disable_full_stream_outputs(*full_stream_mmio);
+      out << "[FULL_STREAM_MUX]\nVerified all 32 outputs disabled with 0xFF before configuration.\n";
+    }
 
     const bool requested_bias_for_any_afe =
         std::any_of(requested_cfg.afes().begin(),
@@ -735,18 +764,20 @@ bool configureDaphne(const ConfigureRequest& requested_cfg, Daphne& daphne, std:
       out << "Config reset/powercycle skipped (DAPHNE_SKIP_CONFIG_RESET set).\n";
     }
 
-    {
-      std::string thr_msg;
-      const bool thr_ok = write_trigger_thresholds(requested_cfg, thr_msg);
-      ok_all = ok_all && thr_ok;
-      out << "[TRIGGER_THRESHOLDS]\n" << thr_msg;
-    }
+    if (mode == GatewareMode::kSelfTrigger) {
+      {
+        std::string thr_msg;
+        const bool thr_ok = write_trigger_thresholds(requested_cfg, thr_msg);
+        ok_all = ok_all && thr_ok;
+        out << "[TRIGGER_THRESHOLDS]\n" << thr_msg;
+      }
 
-    {
-      std::string st_msg;
-      const bool st_ok = write_self_trigger_controls(requested_cfg, st_msg);
-      ok_all = ok_all && st_ok;
-      out << "[SELF_TRIGGER_CONTROL]\n" << st_msg;
+      {
+        std::string st_msg;
+        const bool st_ok = write_self_trigger_controls(requested_cfg, st_msg);
+        ok_all = ok_all && st_ok;
+        out << "[SELF_TRIGGER_CONTROL]\n" << st_msg;
+      }
     }
 
     for (const ChannelConfig& ch_config : requested_cfg.channels()) {
@@ -855,6 +886,28 @@ bool configureDaphne(const ConfigureRequest& requested_cfg, Daphne& daphne, std:
 
     if (config_resets_enabled()) {
       daphne.getAfe()->setPowerState(1);
+    }
+
+    if (ok_all && auto_align_enabled()) {
+      cmd_alignAFEs align_request;
+      cmd_alignAFEs_response align_response;
+      std::string align_msg;
+      const bool align_ok = alignAFE(align_request, align_response, daphne, align_msg);
+      out << "\n[ALIGN_AFE]\n" << align_msg;
+      ok_all = ok_all && align_ok;
+    } else if (!auto_align_enabled()) {
+      out << "\n[ALIGN_AFE] skipped (DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE set)";
+    }
+
+    if (mode == GatewareMode::kFullStream) {
+      if (ok_all) {
+        activate_full_stream_outputs(*full_stream_mmio, mode_register_plan);
+        out << "\n[FULL_STREAM_MUX]\nActivated " << full_stream_channels.size()
+            << " ordered channels at 0x" << std::hex << kFullStreamMuxBaseAddress
+            << std::dec << "; unused outputs remain disabled with 0xFF.\n";
+      } else {
+        out << "\n[FULL_STREAM_MUX]\nConfiguration failed; all outputs remain disabled with 0xFF.\n";
+      }
     }
 
     response_str = out.str();
@@ -2301,12 +2354,19 @@ std::string serialize_error_with_success_field(Msg& msg, const std::string& err)
 
 }  // namespace
 
-std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers() {
+std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers(
+    GatewareMode mode,
+    std::shared_ptr<Mmio32> full_stream_mmio) {
   using daphne::MessageTypeV2;
+
+  if (mode == GatewareMode::kFullStream && !full_stream_mmio) {
+    throw std::invalid_argument("Full-stream mode requires an A002 MMIO window");
+  }
 
   std::unordered_map<MessageTypeV2, V2Handler> handlers;
 
-  handlers[daphne::MT2_CONFIGURE_FE_REQ] = [](const std::string& in, std::string& out, Daphne& d) {
+  handlers[daphne::MT2_CONFIGURE_FE_REQ] =
+      [mode, full_stream_mmio](const std::string& in, std::string& out, Daphne& d) {
     ConfigureRequest req;
     ConfigureResponse resp;
     if (!req.ParseFromString(in)) {
@@ -2317,17 +2377,7 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers() {
     }
 
     std::string msg;
-    bool ok = configureDaphne(req, d, msg);
-    if (ok && auto_align_enabled()) {
-      cmd_alignAFEs a_req;
-      cmd_alignAFEs_response a_resp;
-      std::string align_msg;
-      const bool ok_align = alignAFE(a_req, a_resp, d, align_msg);
-      msg += "\n\n[ALIGN_AFE]\n" + align_msg;
-      ok = ok && ok_align;
-    } else if (!auto_align_enabled()) {
-      msg += "\n\n[ALIGN_AFE] skipped (DAPHNE_SKIP_ALIGN_AFTER_CONFIGURE set)";
-    }
+    const bool ok = configureDaphne(req, d, mode, full_stream_mmio.get(), msg);
 
     resp.set_success(ok);
     resp.set_message(msg);
@@ -2354,12 +2404,20 @@ std::unordered_map<daphne::MessageTypeV2, V2Handler> make_v2_handlers() {
     out = serialize_or_empty(resp);
   };
 
-  handlers[daphne::MT2_READ_TRIGGER_COUNTERS_REQ] = [](const std::string& in, std::string& out, Daphne&) {
+  handlers[daphne::MT2_READ_TRIGGER_COUNTERS_REQ] =
+      [mode](const std::string& in, std::string& out, Daphne&) {
     ReadTriggerCountersRequest req;
     ReadTriggerCountersResponse resp;
     if (!req.ParseFromString(in)) {
       resp.set_success(false);
       resp.set_message("Bad ReadTriggerCountersRequest payload");
+      out = serialize_or_empty(resp);
+      return;
+    }
+
+    if (!supports_trigger_counters(mode)) {
+      resp.set_success(false);
+      resp.set_message("Trigger counters are unsupported in full-stream gateware mode");
       out = serialize_or_empty(resp);
       return;
     }
