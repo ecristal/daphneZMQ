@@ -28,7 +28,16 @@ class FakeMmio final : public daphne_sc::Mmio32 {
 
   void write32(uint64_t address, uint32_t value) override {
     writes.emplace_back(address, value);
-    registers[address] = value;
+    if (address == daphne_sc::kFullStreamMuxControlAddress) {
+      const uint32_t request = value & daphne_sc::kFullStreamMuxEnableRequest;
+      registers[address] =
+          request |
+          ((auto_acknowledge_control && request != 0U)
+               ? daphne_sc::kFullStreamMuxActive
+               : 0U);
+    } else {
+      registers[address] = value;
+    }
   }
 
   std::map<uint64_t, uint32_t> registers;
@@ -36,6 +45,7 @@ class FakeMmio final : public daphne_sc::Mmio32 {
   std::vector<std::pair<uint64_t, uint32_t>> writes;
   std::optional<uint64_t> corrupt_read_address;
   size_t corrupt_reads_remaining = 0;
+  bool auto_acknowledge_control = true;
 };
 
 void Require(bool condition, const std::string& message) {
@@ -191,20 +201,31 @@ void TestFullStreamSafeActivationSequence() {
   const auto active_plan = make_full_stream_mux_plan({7, 8, 39});
 
   disable_full_stream_outputs(mmio);
-  Require(mmio.writes.size() == kFullStreamMuxOutputCount,
-          "safe sequence disables all outputs first");
-  for (size_t i = 0; i < kFullStreamMuxOutputCount; ++i) {
+  Require(mmio.writes.size() == kFullStreamMuxOutputCount + 1,
+          "safe sequence gates the stream and clears all shadows first");
+  Require(mmio.writes[0] ==
+              std::make_pair(kFullStreamMuxControlAddress, 0U),
+          "disable phase clears the activation control before selector writes");
+  for (size_t i = 1; i <= kFullStreamMuxOutputCount; ++i) {
     Require(mmio.writes[i].second == kFullStreamMuxDisabled,
-            "first programming phase writes only 0xFF");
+            "disabled shadow plan writes only 0xFF");
   }
 
   activate_full_stream_outputs(mmio, active_plan);
-  Require(mmio.writes.size() == 2 * kFullStreamMuxOutputCount,
-          "active plan is programmed only after the disable phase");
-  Require(mmio.writes[kFullStreamMuxOutputCount].second == 0x07U &&
-              mmio.writes[kFullStreamMuxOutputCount + 1].second == 0x10U &&
-              mmio.writes[kFullStreamMuxOutputCount + 2].second == 0x47U,
+  Require(mmio.writes.size() == 2 * (kFullStreamMuxOutputCount + 1),
+          "active plan is staged and committed only after the disable phase");
+  const size_t active_plan_start = kFullStreamMuxOutputCount + 1;
+  Require(mmio.writes[active_plan_start].second == 0x07U &&
+              mmio.writes[active_plan_start + 1].second == 0x10U &&
+              mmio.writes[active_plan_start + 2].second == 0x47U,
           "activation preserves requested output order");
+  Require(mmio.writes.back() ==
+              std::make_pair(kFullStreamMuxControlAddress,
+                             kFullStreamMuxEnableRequest),
+          "one control write atomically commits the verified selector bank");
+  Require(mmio.registers[kFullStreamMuxControlAddress] ==
+              (kFullStreamMuxEnableRequest | kFullStreamMuxActive),
+          "activation waits for the stream-domain acknowledgement");
 
   FakeMmio failing_mmio;
   disable_full_stream_outputs(failing_mmio);
@@ -213,13 +234,24 @@ void TestFullStreamSafeActivationSequence() {
   RequireThrows(
       [&] { activate_full_stream_outputs(failing_mmio, active_plan); },
       "restored to 0xFF", "failed activation reports a successful safe rollback");
-  Require(failing_mmio.writes.size() == 3 * kFullStreamMuxOutputCount,
-          "failed activation is followed by a complete disable plan");
-  const size_t rollback_start = 2 * kFullStreamMuxOutputCount;
+  Require(failing_mmio.registers[kFullStreamMuxControlAddress] == 0U,
+          "failed selector verification leaves the stream gate disabled");
+  const size_t rollback_start =
+      failing_mmio.writes.size() - kFullStreamMuxOutputCount;
   for (size_t i = rollback_start; i < failing_mmio.writes.size(); ++i) {
     Require(failing_mmio.writes[i].second == kFullStreamMuxDisabled,
             "rollback leaves every output disabled");
   }
+
+  FakeMmio no_ack_mmio;
+  disable_full_stream_outputs(no_ack_mmio);
+  no_ack_mmio.auto_acknowledge_control = false;
+  RequireThrows(
+      [&] { activate_full_stream_outputs(no_ack_mmio, active_plan); },
+      "restored to 0xFF",
+      "missing stream-domain activation acknowledgement triggers rollback");
+  Require(no_ack_mmio.registers[kFullStreamMuxControlAddress] == 0U,
+          "acknowledgement timeout clears the activation request");
 }
 
 void TestCounterCapability() {

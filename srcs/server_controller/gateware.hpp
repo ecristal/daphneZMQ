@@ -25,6 +25,12 @@ constexpr uint64_t kSelfTriggerBaseAddress = 0xA0010000ULL;
 constexpr uint64_t kFullStreamMuxBaseAddress = 0xA0020000ULL;
 constexpr size_t kFullStreamMuxOutputCount = 32;
 constexpr uint32_t kFullStreamMuxDisabled = 0xFFU;
+constexpr uint64_t kFullStreamMuxControlAddress =
+    kFullStreamMuxBaseAddress + kFullStreamMuxOutputCount * sizeof(uint32_t);
+constexpr uint32_t kFullStreamMuxEnableRequest = 0x1U;
+constexpr uint32_t kFullStreamMuxActive = 0x2U;
+constexpr size_t kFullStreamMuxWindowLength =
+    kFullStreamMuxControlAddress - kFullStreamMuxBaseAddress + sizeof(uint32_t);
 
 class Mmio32 {
  public:

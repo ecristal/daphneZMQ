@@ -1,10 +1,12 @@
 #include "server_controller/gateware.hpp"
 
 #include <array>
+#include <chrono>
 #include <iomanip>
 #include <limits>
 #include <sstream>
 #include <stdexcept>
+#include <thread>
 
 namespace daphne_sc {
 namespace {
@@ -13,6 +15,27 @@ std::string hex32(uint32_t value) {
   std::ostringstream out;
   out << "0x" << std::hex << std::uppercase << std::setw(8) << std::setfill('0') << value;
   return out.str();
+}
+
+void wait_for_full_stream_active(Mmio32& mmio, bool expected_active) {
+  constexpr size_t kAttempts = 100;
+  constexpr auto kPollInterval = std::chrono::milliseconds(1);
+  const uint32_t expected = expected_active
+                                ? kFullStreamMuxEnableRequest | kFullStreamMuxActive
+                                : 0U;
+
+  uint32_t observed = 0;
+  for (size_t attempt = 0; attempt < kAttempts; ++attempt) {
+    observed = mmio.read32(kFullStreamMuxControlAddress) &
+               (kFullStreamMuxEnableRequest | kFullStreamMuxActive);
+    if (observed == expected) return;
+    if (attempt + 1 != kAttempts) std::this_thread::sleep_for(kPollInterval);
+  }
+
+  throw std::runtime_error(
+      std::string("Full-stream mux did not acknowledge ") +
+      (expected_active ? "atomic activation" : "disabled state") +
+      ": control read " + hex32(observed) + ", expected " + hex32(expected));
 }
 
 }  // namespace
@@ -163,13 +186,22 @@ void apply_register_plan(Mmio32& mmio, const std::vector<RegisterWrite>& writes)
 }
 
 void disable_full_stream_outputs(Mmio32& mmio) {
+  // Gate the stream clock-domain outputs before touching any selector shadow
+  // register. The acknowledged disabled state makes later multiword writes
+  // invisible to the active datapath.
+  mmio.write32(kFullStreamMuxControlAddress, 0U);
+  wait_for_full_stream_active(mmio, false);
   apply_register_plan(mmio, make_full_stream_mux_plan({}));
 }
 
 void activate_full_stream_outputs(Mmio32& mmio,
                                   const std::vector<RegisterWrite>& active_plan) {
   try {
+    // The 32 selectors are shadow registers. A single control write commits
+    // the stable bank into the stream clock domain after every readback passes.
     apply_register_plan(mmio, active_plan);
+    mmio.write32(kFullStreamMuxControlAddress, kFullStreamMuxEnableRequest);
+    wait_for_full_stream_active(mmio, true);
   } catch (const std::exception& activation_error) {
     try {
       disable_full_stream_outputs(mmio);

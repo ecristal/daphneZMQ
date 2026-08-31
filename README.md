@@ -152,7 +152,9 @@ Offsets are interpreted as byte offsets within the mapped AXI window starting at
 ## Development notes
 
 - `DevMem` now validates offsets and length arguments and no longer leaks file
-  descriptors or mappings when remapping.
+  descriptors or mappings when remapping. Single-word control/status accesses
+  use volatile device loads/stores with ordering fences so acknowledgement
+  polling cannot be optimized into stale reads.
 - If you add new binaries, prefer reusing the existing CMake targets (e.g. by
   adding to `SOURCES` or creating dedicated executables alongside
   `daphne_zmq_server`).
@@ -166,7 +168,7 @@ The “one-shot” client `client/configure_fe_min_v2.py` sends a CONFIGURE_FE (
 - CONFIGURE_FE handling (`MT2_CONFIGURE_FE_REQ` → `configureDaphne()`):
   - If `DAPHNE_SKIP_CONFIG_RESET` is unset: reset AFEs and power them on.
   - In self-trigger mode, program trigger thresholds for the listed channels using `/dev/mem` at `0xA0010000` (stride 0x20) and set trigger enable masks (`0x94000020` low / `0x94000024` high).
-  - In full-stream mode, first disable all 32 mux outputs at `0xA0020000`, keep them disabled through AFE setup/alignment, and activate the ordered requested channels only after every step succeeds.
+  - In full-stream mode, quiesce the stream immediately at process startup, then disable all 32 mux outputs at `0xA0020000` again before configuration, keep them disabled through AFE setup/alignment, stage and verify the ordered requested channels, and atomically commit them through `0xA0020080` only after every step succeeds.
   - Program per-channel TRIM/OFFSET DACs (40 channels).
   - Program per-AFE attenuation (VGAIN) and AFE functions (serialized data rate, ADC output format, LPF, PGA clamp/integrator disable, LNA clamp/gain/integrator disable).
   - Reinforce AFE power on.

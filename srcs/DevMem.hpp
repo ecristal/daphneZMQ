@@ -54,6 +54,7 @@ private:
     // Helpers
     void require_mapped() const;
     uint32_t* word_ptr(size_t offset) const;
+    volatile uint32_t* volatile_word_ptr(size_t offset) const;
     void unmap_if_mapped();
 };
 

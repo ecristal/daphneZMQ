@@ -90,9 +90,13 @@ int main(int argc, char* argv[]) {
     try {
       full_stream_mmio = std::make_shared<daphne_sc::DevMemWindowMmio32>(
           daphne_sc::kFullStreamMuxBaseAddress,
-          daphne_sc::kFullStreamMuxOutputCount * sizeof(uint32_t));
+          daphne_sc::kFullStreamMuxWindowLength);
+      // Fail closed on every process start.  A previous server may have died
+      // while streaming, so do not construct Daphne (which can touch the
+      // front-end hardware) until the stream domain has acknowledged idle.
+      daphne_sc::disable_full_stream_outputs(*full_stream_mmio);
     } catch (const std::exception& e) {
-      std::cerr << "Failed to map the full-stream mux before hardware initialization: "
+      std::cerr << "Failed to map and quiesce the full-stream mux before hardware initialization: "
                 << e.what() << '\n';
       return kConfigurationErrorExit;
     }

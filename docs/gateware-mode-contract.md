@@ -33,19 +33,28 @@ service profiles must always supply the release manifest's build ID.
 - Self-trigger owns trigger thresholds and counters at `0xA0010000`, plus the
   self-trigger control fields in the common `0x94000000` block. A configure
   request in this mode must have an empty `full_stream_channels` field.
-- Full-stream owns 32 32-bit mux selector words at `0xA0020000` through
-  `0xA002007C`. It never accesses the `0xA0010000` block or the legacy
-  self-trigger control fields. Trigger-counter RPCs return unsupported.
+- Full-stream owns 32 32-bit mux selector shadow words at `0xA0020000` through
+  `0xA002007C` and an activation control word at `0xA0020080`. It never
+  accesses the `0xA0010000` block or the legacy self-trigger control fields.
+  Trigger-counter RPCs return unsupported.
 
 For full-stream, `full_stream_channels` is ordered: list element 0 feeds output
 0, list element 1 feeds output 1, and so on. The list may contain at most 32
 unique board channels in the range 0 through 39. Board channel `n` is encoded
-as `((n / 8) << 4) | (n % 8)`. Every unused output is written as `0xFF`.
+as `((n / 8) << 4) | (n % 8)`; gateware applies the physical PL AFE
+permutation only when selecting sample data so packet channel IDs remain in
+board order. Every unused output is written as `0xFF`.
 
-Full-stream configuration is fail-safe: the server first writes and verifies
-all 32 selectors as `0xFF`, performs reset, analog setup, and optional AFE
-alignment while outputs remain disabled, then writes and verifies the requested
-active plan. A failed activation is followed by a complete all-`0xFF` restore.
+Control bit 0 is the enable/commit request and read-only bit 1 acknowledges that
+the stream-clock domain is active. Full-stream configuration is fail-safe: the
+server process also clears bit 0 and waits for bit 1 to clear immediately after
+identity admission and before constructing any hardware drivers. Configuration
+again clears bit 0 and waits for bit 1 to clear, then writes and verifies all
+32 shadow selectors as `0xFF`, and performs reset, analog setup, and optional
+AFE alignment while outputs remain disabled. It then writes and verifies the
+requested shadow plan and commits all selectors atomically with one bit-0
+write. A failed activation clears the gate and restores every shadow selector
+to `0xFF`.
 
 ## Client integration status
 

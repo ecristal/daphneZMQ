@@ -1,5 +1,6 @@
 #include "DevMem.hpp"
 
+#include <atomic>
 #include <cerrno>
 #include <cstring>
 #include <fcntl.h>
@@ -10,12 +11,12 @@
 DevMem::DevMem(uint64_t base_addr, const std::string& filename)
     : page_size(sysconf(_SC_PAGESIZE)),
       word_size(sizeof(uint32_t)),
+      fd_(-1),
+      mem_(MAP_FAILED),
       base_addr_(base_addr & ~(page_size - 1)),
       offset_(base_addr - base_addr_),
       length_(0),
-      filename_(filename),
-      fd_(-1),
-      mem_(MAP_FAILED) {
+      filename_(filename) {
 
     // Open the file
     fd_ = open(filename_.c_str(), O_RDWR | O_SYNC);
@@ -76,7 +77,12 @@ std::vector<uint32_t> DevMem::read(size_t offset, size_t num_words) const {
 
 uint32_t DevMem::read_u32(size_t offset) const {
     validate_offset(offset, 1);
-    return *word_ptr(offset);
+    // Control/status MMIO must remain an actual device access on every call;
+    // the activation acknowledgement is polled repeatedly through this path.
+    std::atomic_thread_fence(std::memory_order_seq_cst);
+    const uint32_t value = *volatile_word_ptr(offset);
+    std::atomic_thread_fence(std::memory_order_seq_cst);
+    return value;
 }
 
 const uint32_t* DevMem::get_read_ptr(size_t offset, size_t num_words) const{
@@ -95,7 +101,9 @@ void DevMem::write(size_t offset, const std::vector<uint32_t>& data) {
 
 void DevMem::write_u32(size_t offset, uint32_t value) {
     validate_offset(offset, 1);
-    *word_ptr(offset) = value;
+    std::atomic_thread_fence(std::memory_order_seq_cst);
+    *volatile_word_ptr(offset) = value;
+    std::atomic_thread_fence(std::memory_order_seq_cst);
 }
 
 // Hexdump for debugging
@@ -140,6 +148,11 @@ void DevMem::require_mapped() const {
 
 uint32_t* DevMem::word_ptr(size_t offset) const {
     auto* mem_ptr = static_cast<uint32_t*>(mem_);
+    return mem_ptr + (offset_ + offset) / word_size;
+}
+
+volatile uint32_t* DevMem::volatile_word_ptr(size_t offset) const {
+    auto* mem_ptr = static_cast<volatile uint32_t*>(mem_);
     return mem_ptr + (offset_ + offset) / word_size;
 }
 
