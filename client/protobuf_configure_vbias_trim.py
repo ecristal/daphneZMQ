@@ -1,117 +1,149 @@
-import zmq
-import json
-import time
-import sys
-import os
+#!/usr/bin/env python3
+"""Configure VBIAS control, one AFE bias, and one channel trim over V2."""
+
 import argparse
+import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import zmq
 
-from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
-from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
+from protobuf_loader import load_protobuf_modules
+from v2_client import V2Client
 
-def send_envelope_and_get_reply(socket, envelope) -> bytes:
-    """
-    Sends a protobuf ControlEnvelope and returns the last frame of the reply.
-    Compatible with REP and ROUTER servers.
-    """
-    socket.send(envelope.SerializeToString())
 
-    frames = [socket.recv()]
-    while socket.getsockopt(zmq.RCVMORE):
-        frames.append(socket.recv())
+def bias_volts_to_dac(volts):
+    return int((26.1 / (26.1 + 1000.0)) * 1000.0 * volts)
 
-    return frames[-1]  # Payload is always in the last frame
 
-def biasVolts2DAC(volts):
-    dac_values = []
-    for i in range(len(volts)):
-        dac_values.append(int((26.1/(26.1+1000))*1000.0*volts[i]))
-    return dac_values
+def bias_control_volts_to_dac(volts):
+    return int((1.0 / 74.0) * volts * 1000.0)
 
-def biasControlVolts2DAC(volts):
-    return (1.0/74.0)*volts*1000.0
 
-parser = argparse.ArgumentParser(description="Channel bias and Trim configuration.")
-# Add also limiter range [0-39] to this line to -channel argument
-parser.add_argument("-ip", type=str, default="127.0.0.1", help="IP address of DAPHNE (default 127.0.0.1).")
-parser.add_argument("-port", type=int, required=False, default=9876, help="Port number of DAPHNE. Default 9876.")
-parser.add_argument("-channel", type=int, choices=range(0, 40), required=True, help="Channel number (0-39).")
-parser.add_argument("-bias", type=float, required=True, help="Bias voltage.")
-parser.add_argument("-bias_control", type=float, required=True, help="Bias control voltage. Sets the maximum bias voltage.")
-parser.add_argument("-trim", type=int, required=True, help="Channel trim voltage.")
-parser.add_argument("-set_as_DAC", action='store_true', help="Enable this flag to set bias as DAC value.")
+def checked_dac_code(value, name):
+    if not 0 <= value <= 4095:
+        raise ValueError(f"{name} DAC code {value} is outside 0..4095")
+    return value
 
-# Parse arguments
-args = parser.parse_args()
 
-channel = args.channel
-afeNumber = channel // 8
-biasAFE_Volts = [0.0, 0.0, 0.0, 0.0, 0.0]
-biasAFE_Volts[afeNumber] = args.bias
-biasControlVolts = args.bias_control
-trimValue = args.trim
+def direct_dac_code(value, name):
+    if not float(value).is_integer():
+        raise ValueError(f"{name} must be an integer when -set_as_DAC is used")
+    return checked_dac_code(int(value), name)
 
-if not args.set_as_DAC:
-    biasAFE_DAC = biasVolts2DAC(biasAFE_Volts)  
-    biasControlDAC = int(biasControlVolts2DAC(biasControlVolts))
 
-context = zmq.Context()
-socket = context.socket(zmq.DEALER)
-socket.setsockopt(zmq.IDENTITY, b"client-compat")
-ip_addr = "tcp://{}:{}".format(args.ip, args.port)
-socket.connect(ip_addr)
+def build_parser():
+    parser = argparse.ArgumentParser(
+        description="Configure channel bias and trim through EnvelopeV2."
+    )
+    parser.add_argument("-ip", "--ip", default="127.0.0.1")
+    parser.add_argument("-port", "--port", type=int, default=9876)
+    parser.add_argument(
+        "-channel", "--channel", type=int, choices=range(40), required=True
+    )
+    parser.add_argument("-bias", "--bias", type=float, required=True)
+    parser.add_argument(
+        "-bias_control", "--bias-control", type=float, required=True
+    )
+    parser.add_argument("-trim", "--trim", type=int, required=True)
+    parser.add_argument(
+        "-set_as_DAC",
+        "--set-as-dac",
+        dest="set_as_dac",
+        action="store_true",
+        help="Interpret bias and bias-control inputs as DAC codes.",
+    )
+    parser.add_argument("-route", "--route", "-r", default="mezz/0")
+    parser.add_argument(
+        "--timeout-ms", "--timeout_ms", type=int, default=5000
+    )
+    parser.add_argument("--identity", default="configure-vbias-trim-v2")
+    return parser
 
-request = pb_low.cmd_writeVbiasControl()
-request.vBiasControlValue = biasControlDAC
-request.enable = True
-envelope = pb_high.ControlEnvelope()
-envelope.type = pb_high.WRITE_VBIAS_CONTROL
-envelope.payload = request.SerializeToString()
 
-response_bytes = send_envelope_and_get_reply(socket, envelope)
-responseEnvelope = pb_high.ControlEnvelope()
-responseEnvelope.ParseFromString(response_bytes)
+def require_success(label, response):
+    state = "PASS" if response.success else "FAIL"
+    print(f"[{state}] {label}: {response.message}")
+    if not response.success:
+        raise RuntimeError(f"{label} failed: {response.message}")
 
-if responseEnvelope.type == pb_high.WRITE_VBIAS_CONTROL:
-    response = pb_low.cmd_writeVbiasControl_response()
-    response.ParseFromString(responseEnvelope.payload)
-    print("Success:", response.success)
-    print("Message:", response.message)
 
-request = pb_low.cmd_writeAFEBiasSet()
-request.afeBlock = afeNumber
-request.biasValue = biasAFE_DAC[afeNumber]
-envelope = pb_high.ControlEnvelope()
-envelope.type = pb_high.WRITE_AFE_BIAS_SET
-envelope.payload = request.SerializeToString()
+def main(argv=None):
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    try:
+        checked_dac_code(args.trim, "trim")
+        if args.set_as_dac:
+            bias_dac = direct_dac_code(args.bias, "bias")
+            bias_control_dac = direct_dac_code(
+                args.bias_control, "bias control"
+            )
+        else:
+            bias_dac = checked_dac_code(
+                bias_volts_to_dac(args.bias), "bias"
+            )
+            bias_control_dac = checked_dac_code(
+                bias_control_volts_to_dac(args.bias_control),
+                "bias control",
+            )
+    except ValueError as exc:
+        parser.error(str(exc))
 
-response_bytes = send_envelope_and_get_reply(socket, envelope)
-responseEnvelope = pb_high.ControlEnvelope()
-responseEnvelope.ParseFromString(response_bytes)
+    afe = args.channel // 8
 
-if responseEnvelope.type == pb_high.WRITE_AFE_BIAS_SET:
-    response = pb_low.cmd_writeAFEBiasSet_response()
-    response.ParseFromString(responseEnvelope.payload)
-    print("Success:", response.success)
-    print("Message:", response.message)
+    try:
+        pb_high, pb_low = load_protobuf_modules()
+        with V2Client(
+            pb_high,
+            args.ip,
+            args.port,
+            route=args.route,
+            timeout_ms=args.timeout_ms,
+            identity=args.identity,
+        ) as client:
+            response = client.rpc(
+                pb_high.MT2_WRITE_VBIAS_CONTROL_REQ,
+                pb_low.cmd_writeVbiasControl(
+                    vBiasControlValue=bias_control_dac,
+                    enable=True,
+                ),
+                pb_high.MT2_WRITE_VBIAS_CONTROL_RESP,
+                pb_low.cmd_writeVbiasControl_response,
+            )
+            require_success(
+                f"VBIAS control DAC={response.vBiasControlValue}", response
+            )
 
-request = pb_low.cmd_writeTrim_singleChannel()
-request.trimChannel = channel
-request.trimValue = trimValue
-request.trimGain = False
-envelope = pb_high.ControlEnvelope()
-envelope.type = pb_high.WRITE_TRIM_CH
-envelope.payload = request.SerializeToString()
+            response = client.rpc(
+                pb_high.MT2_WRITE_AFE_BIAS_SET_REQ,
+                pb_low.cmd_writeAFEBiasSet(
+                    afeBlock=afe,
+                    biasValue=bias_dac,
+                ),
+                pb_high.MT2_WRITE_AFE_BIAS_SET_RESP,
+                pb_low.cmd_writeAFEBiasSet_response,
+            )
+            require_success(
+                f"AFE {afe} bias DAC={response.biasValue}", response
+            )
 
-response_bytes = send_envelope_and_get_reply(socket, envelope)
-responseEnvelope = pb_high.ControlEnvelope()
-responseEnvelope.ParseFromString(response_bytes)
+            response = client.rpc(
+                pb_high.MT2_WRITE_TRIM_CH_REQ,
+                pb_low.cmd_writeTrim_singleChannel(
+                    trimChannel=args.channel,
+                    trimValue=args.trim,
+                    trimGain=False,
+                ),
+                pb_high.MT2_WRITE_TRIM_CH_RESP,
+                pb_low.cmd_writeTrim_singleChannel_response,
+            )
+            require_success(
+                f"channel {args.channel} trim DAC={response.trimValue}",
+                response,
+            )
+    except (RuntimeError, TimeoutError, zmq.ZMQError) as exc:
+        print(f"[ERROR] {exc}", file=sys.stderr)
+        return 2
+    return 0
 
-if responseEnvelope.type == pb_high.WRITE_TRIM_CH:
-    response = pb_low.cmd_writeTrim_singleChannel_response()
-    response.ParseFromString(responseEnvelope.payload)
-    print("Success:", response.success)
-    print("Message:", response.message)
 
-socket.close()
+if __name__ == "__main__":
+    sys.exit(main())

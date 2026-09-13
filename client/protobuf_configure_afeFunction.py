@@ -1,85 +1,98 @@
-import zmq
-import json
-import time
-import sys
-import os
+#!/usr/bin/env python3
+"""Configure one AFE5808A function through the V2 server API."""
+
 import argparse
+import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import zmq
 
-from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
-from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
-from client_dictionaries import *
+from client_dictionaries import available_afe_functions
+from protobuf_loader import load_protobuf_modules
+from v2_client import V2Client
 
-def send_envelope_and_get_reply(socket, envelope) -> bytes:
-    """
-    Sends a protobuf ControlEnvelope and returns the last frame of the reply.
-    Compatible with REP and ROUTER servers.
-    """
-    socket.send(envelope.SerializeToString())
 
-    frames = [socket.recv()]
-    while socket.getsockopt(zmq.RCVMORE):
-        frames.append(socket.recv())
+def validate_function_value(function, value):
+    valid_values = available_afe_functions[function]
+    if len(valid_values) == 2:
+        minimum, maximum = valid_values
+        if not minimum <= value <= maximum:
+            raise ValueError(
+                f"invalid value for {function}: {value}; "
+                f"expected {minimum}..{maximum}"
+            )
+    elif value not in valid_values:
+        raise ValueError(
+            f"invalid value for {function}: {value}; "
+            f"expected one of {valid_values}"
+        )
 
-    return frames[-1]  # Payload is always in the last frame
 
-parser = argparse.ArgumentParser(description="DAPHNE Configuration.")
-parser.add_argument("-ip", type=str, default="127.0.0.1", help="IP address of DAPHNE (default 127.0.0.1).")
-parser.add_argument("-port", type=int, required=False, default=9876, help="Port number of DAPHNE. Default 9876.")
-parser.add_argument("-afeFunction", type=str, required=True, choices=list(available_afe_functions.keys()), help="AFE function to configure.")
-parser.add_argument("-afeNumber", type=int, required=True, choices=range(0, 5), help="AFE number to configure.")
-parser.add_argument("-value", type=int, required=True, help="AFE number to configure.")
-# Parse arguments
-args = parser.parse_args()
-# Setup ZMQ context once
-context = zmq.Context()
-socket = context.socket(zmq.DEALER)
-socket.setsockopt(zmq.IDENTITY, b"client-compat")
-ip_addr = "tcp://{}:{}".format(args.ip, args.port)
-socket.connect(ip_addr)
+def build_parser():
+    parser = argparse.ArgumentParser(description="Configure an AFE function.")
+    parser.add_argument("-ip", "--ip", default="127.0.0.1")
+    parser.add_argument("-port", "--port", type=int, default=9876)
+    parser.add_argument(
+        "-afeFunction",
+        "--afe-function",
+        dest="afe_function",
+        required=True,
+        choices=sorted(available_afe_functions),
+    )
+    parser.add_argument(
+        "-afeNumber",
+        "--afe-number",
+        dest="afe_number",
+        type=int,
+        required=True,
+        choices=range(5),
+    )
+    parser.add_argument("-value", "--value", type=int, required=True)
+    parser.add_argument("-route", "--route", "-r", default="mezz/0")
+    parser.add_argument(
+        "--timeout-ms", "--timeout_ms", type=int, default=5000
+    )
+    parser.add_argument("--identity", default="configure-afe-function-v2")
+    return parser
 
-# parse the other arguments
-afe_function = args.afeFunction
-afe_number = args.afeNumber
-value = args.value
 
-#Let's validate the value according to the dictionary available_afe_functions
-valid_range = available_afe_functions[afe_function]
-# if the returned value is [0, 1] it means the possible values are True or False
-# if the returned value is [0, 0xFF] it means the possible values are 0-255, for example
-# if the returned value is a list or more than two elements, it means the possible values are only contained in the list
+def main(argv=None):
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    try:
+        validate_function_value(args.afe_function, args.value)
+    except ValueError as exc:
+        parser.error(str(exc))
 
-if len(valid_range) == 2:
-    if valid_range[0] == 0 and valid_range[1] == 1:
-        # Boolean value
-        if value not in [0, 1]:
-            raise ValueError(f"Invalid value for {afe_function}: {value}. Expected 0 or 1.")
-    else:
-        # Integer value between 0 and 255
-        if value <= valid_range[0] and value >= valid_range[1]:
-            raise ValueError(f"Invalid value for {afe_function}: {value}. Expected {valid_range[0]}-{valid_range[1]}.")
-else:
-    # List of valid values
-    if value not in valid_range:
-        raise ValueError(f"Invalid value for {afe_function}: {value}. Expected one of {valid_range}.")
+    try:
+        pb_high, pb_low = load_protobuf_modules()
+        with V2Client(
+            pb_high,
+            args.ip,
+            args.port,
+            route=args.route,
+            timeout_ms=args.timeout_ms,
+            identity=args.identity,
+        ) as client:
+            response = client.rpc(
+                pb_high.MT2_WRITE_AFE_FUNCTION_REQ,
+                pb_low.cmd_writeAFEFunction(
+                    afeBlock=args.afe_number,
+                    function=args.afe_function,
+                    configValue=args.value,
+                ),
+                pb_high.MT2_WRITE_AFE_FUNCTION_RESP,
+                pb_low.cmd_writeAFEFunction_response,
+            )
+            state = "PASS" if response.success else "FAIL"
+            print(
+                f"[{state}] AFE {args.afe_number} {args.afe_function}="
+                f"{response.configValue}: {response.message}"
+            )
+            return 0 if response.success else 1
+    except (RuntimeError, TimeoutError, zmq.ZMQError) as exc:
+        print(f"[ERROR] {exc}", file=sys.stderr)
+        return 2
 
-request = pb_low.cmd_writeAFEFunction()
-request.afeBlock = afe_number
-request.function = afe_function
-request.configValue = value
-envelope = pb_high.ControlEnvelope()
-envelope.type = pb_high.WRITE_AFE_FUNCTION
-envelope.payload = request.SerializeToString()
 
-response_bytes = send_envelope_and_get_reply(socket, envelope)
-responseEnvelope = pb_high.ControlEnvelope()
-responseEnvelope.ParseFromString(response_bytes)
-
-if responseEnvelope.type == pb_high.WRITE_AFE_FUNCTION:
-    response = pb_low.cmd_writeAFEFunction_response()
-    response.ParseFromString(responseEnvelope.payload)
-    print("Success:", response.success)
-    print("Message:", response.message)
-
-socket.close()
+if __name__ == "__main__":
+    sys.exit(main())

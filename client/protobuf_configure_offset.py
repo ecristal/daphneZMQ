@@ -1,64 +1,84 @@
-import zmq
-import json
-import time
-import sys
-import os
+#!/usr/bin/env python3
+"""Configure one or all channel offsets through the V2 server API."""
+
 import argparse
+import sys
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import zmq
 
-from srcs.protobuf import daphneV3_high_level_confs_pb2 as pb_high
-from srcs.protobuf import daphneV3_low_level_confs_pb2 as pb_low
+from protobuf_loader import load_protobuf_modules
+from v2_client import V2Client
 
-def send_envelope_and_get_reply(socket, envelope) -> bytes:
-    """
-    Sends a protobuf ControlEnvelope and returns the last frame of the reply.
-    Compatible with REP and ROUTER servers.
-    """
-    socket.send(envelope.SerializeToString())
 
-    frames = [socket.recv()]
-    while socket.getsockopt(zmq.RCVMORE):
-        frames.append(socket.recv())
+def dac_code(value):
+    parsed = int(value)
+    if not 0 <= parsed <= 4095:
+        raise argparse.ArgumentTypeError("expected an integer in 0..4095")
+    return parsed
 
-    return frames[-1]  # Payload is always in the last frame
 
-parser = argparse.ArgumentParser(description="DAPHNE Configuration.")
-parser.add_argument("-ip", type=str, default="127.0.0.1", help="IP address of DAPHNE (default 127.0.0.1).")
-parser.add_argument("-port", type=int, required=False, default=9876, help="Port number of DAPHNE. Default 9876.")
-parser.add_argument("-channel", type=int, required=True, choices=range(40), help="Offset Channel to set. Default 0.")
-parser.add_argument("-offset_value", type=int, required=True, help="Offset Value to set. Default 0.")
-parser.add_argument("-configure_all", action='store_true', help="Configure all Offset channels with the same Offset value.")
-# Parse arguments
-args = parser.parse_args()
+def build_parser():
+    parser = argparse.ArgumentParser(description="Configure DAPHNE channel offset.")
+    parser.add_argument("-ip", "--ip", default="127.0.0.1")
+    parser.add_argument("-port", "--port", type=int, default=9876)
+    parser.add_argument(
+        "-channel", "--channel", type=int, choices=range(40), default=0
+    )
+    parser.add_argument(
+        "-offset_value", "--offset-value", type=dac_code, required=True
+    )
+    parser.add_argument(
+        "-configure_all",
+        "--configure-all",
+        action="store_true",
+        help="Configure all 40 channels with the same offset.",
+    )
+    parser.add_argument("-route", "--route", "-r", default="mezz/0")
+    parser.add_argument(
+        "--timeout-ms", "--timeout_ms", type=int, default=5000
+    )
+    parser.add_argument("--identity", default="configure-offset-v2")
+    return parser
 
-context = zmq.Context()
-socket = context.socket(zmq.DEALER)
-socket.setsockopt(zmq.IDENTITY, b"client-compat")
-ip_addr = "tcp://{}:{}".format(args.ip, args.port)
-socket.connect(ip_addr)
 
-if args.configure_all:
-    channels = range(40)
-else:
-    channels = [args.channel]
+def main(argv=None):
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    failed = False
+    try:
+        pb_high, pb_low = load_protobuf_modules()
+        with V2Client(
+            pb_high,
+            args.ip,
+            args.port,
+            route=args.route,
+            timeout_ms=args.timeout_ms,
+            identity=args.identity,
+        ) as client:
+            channels = range(40) if args.configure_all else (args.channel,)
+            for channel in channels:
+                request = pb_low.cmd_writeOFFSET_singleChannel(
+                    offsetChannel=channel,
+                    offsetValue=args.offset_value,
+                    offsetGain=False,
+                )
+                response = client.rpc(
+                    pb_high.MT2_WRITE_OFFSET_CH_REQ,
+                    request,
+                    pb_high.MT2_WRITE_OFFSET_CH_RESP,
+                    pb_low.cmd_writeOFFSET_singleChannel_response,
+                )
+                state = "PASS" if response.success else "FAIL"
+                print(
+                    f"[{state}] channel {channel} offset="
+                    f"{response.offsetValue}: {response.message}"
+                )
+                failed = failed or not response.success
+    except (RuntimeError, TimeoutError, zmq.ZMQError) as exc:
+        print(f"[ERROR] {exc}", file=sys.stderr)
+        return 2
+    return 1 if failed else 0
 
-for channel in channels:
-    request = pb_low.cmd_writeOFFSET_singleChannel()
-    request.offsetChannel = channel
-    request.offsetValue = args.offset_value
-    request.offsetGain = False
-    envelope = pb_high.ControlEnvelope()
-    envelope.type = pb_high.WRITE_OFFSET_CH
-    envelope.payload = request.SerializeToString()
 
-    response_bytes = send_envelope_and_get_reply(socket, envelope)
-    responseEnvelope = pb_high.ControlEnvelope()
-    responseEnvelope.ParseFromString(response_bytes)
-
-    if responseEnvelope.type == pb_high.WRITE_OFFSET_CH:
-        response = pb_low.cmd_writeOFFSET_singleChannel_response()
-        response.ParseFromString(responseEnvelope.payload)
-        print("Success:", response.success)
-        print("Message:", response.message)
-socket.close()
+if __name__ == "__main__":
+    sys.exit(main())

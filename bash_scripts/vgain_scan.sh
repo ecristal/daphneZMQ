@@ -9,18 +9,25 @@
 function print_help() {
     echo "Usage: source vgain_scan.sh -output_folder <output_folder> -vgain_list <vgain_list> | -range \"[init, step, end]\""
     echo "                               -channel <ch0> [ch1 ch2 ...] -bias <bias> -trim <trim> -bias_control <bias_control>"
-    echo "                               -ip <ip_addr> -port <port> -L <L> -N <N> [-software_trigger] [-multi_channel]"
+    echo "                               -ip <ip_addr> -port <port> -L <L> -N <N>"
+    echo "                               [-trigger_source software|external|timing|all] [-route <route>] [-multi_channel]"
     echo
     echo "Examples:"
-    echo "  source vgain_scan.sh -output_folder /path/to/output -vgain_list [0, 500, 1000, 1500, 2000] -channel 1 -bias 31.5 -trim 2000 -bias_control 55.0"
-    echo "  source vgain_scan.sh -output_folder /path/to/output -range \"[3000, -100, 2800]\" -channel 16 17 18 19 -L 2048 -N 30000 -ip 127.0.0.1 -port 50001 -software_trigger -multi_channel"
+    echo "  source vgain_scan.sh -output_folder /path/to/output -vgain_list \"[0, 500, 1000, 1500, 2000]\" -channel 1 -bias 31.5 -trim 2000 -bias_control 55.0"
+    echo "  source vgain_scan.sh -output_folder /path/to/output -range \"[3000, -100, 2800]\" -channel 16 17 18 19 -L 2048 -N 30000 -ip 127.0.0.1 -port 50001 -trigger_source software -multi_channel"
 }
 
-SW_trigger=false
 multi_channel=false
 channel_list=()
+legacy_software_trigger=false
+trigger_source_arg=""
+route="mezz/0"
+timeout_ms=30000
+python_bin="${DAPHNE_PYTHON:-python3}"
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+client_dir="${script_dir}/../client"
 
-while [[ $# > 0 ]]; do
+while [[ $# -gt 0 ]]; do
     case $1 in
         -output_folder)
             output_folder="$2"
@@ -85,9 +92,21 @@ while [[ $# > 0 ]]; do
             range="$2"
             shift 2
             ;;
-        -software_trigger)
-            SW_trigger=true
+        -trigger_source|--trigger-source)
+            trigger_source_arg="$2"
+            shift 2
+            ;;
+        -software_trigger|--software-trigger)
+            legacy_software_trigger=true
             shift
+            ;;
+        -route|--route|-r)
+            route="$2"
+            shift 2
+            ;;
+        --timeout-ms|--timeout_ms)
+            timeout_ms="$2"
+            shift 2
             ;;
         -multi_channel)
             multi_channel=true
@@ -104,6 +123,25 @@ while [[ $# > 0 ]]; do
             ;;
     esac
 done
+
+if [[ "$legacy_software_trigger" == true ]]; then
+    if [[ -n "$trigger_source_arg" && "$trigger_source_arg" != "software" ]]; then
+        echo "ERROR: -software_trigger conflicts with -trigger_source ${trigger_source_arg}"
+        return 1
+    fi
+    echo "WARNING: -software_trigger is deprecated; use -trigger_source software"
+    trigger_source_arg="software"
+fi
+
+trigger_source="${trigger_source_arg:-external}"
+case "$trigger_source" in
+    software|external|timing|all)
+        ;;
+    *)
+        echo "ERROR: invalid trigger source '${trigger_source}' (expected software, external, timing, or all)"
+        return 1
+        ;;
+esac
 
 if [[ -z "$output_folder" || -z "$channel" || -z "$port" || -z "$ip_addr" || -z "$N" || -z "$L" ]]; then
     echo "Error: Missing required arguments. Use -h for help."
@@ -205,12 +243,6 @@ fi
 # AFE from reference channel
 AFE=$(( channel / 8 ))
 
-if [[ "$SW_trigger" == true ]]; then
-    software_trigger_flag="-software_trigger"
-else
-    software_trigger_flag=""
-fi
-
 # ----------------------------------------------------------
 # MAIN LOOP OVER VGAIN
 # ----------------------------------------------------------
@@ -232,48 +264,40 @@ for vgain in "${vgain_array[@]}"; do
 
     echo "Running scan with vgain: $vgain"
 
-    if [[ "$multi_channel" == false ]]; then
-        # Single-channel acquisition
-	# Configure vgain (AFE from first channel)
-   	 python ./../client/protobuf_configure_vgain.py \
+    vgain_args=(
+        -ip "${ip_addr}"
+        -port "$port"
+        -afe "$AFE"
+        -vgain_value "$vgain"
+        -route "$route"
+        --timeout-ms "$timeout_ms"
+    )
+    if [[ "$multi_channel" == true ]]; then
+        vgain_args+=( -configure_all )
+    fi
+    if ! "$python_bin" "$client_dir/protobuf_configure_vgain.py" \
+        "${vgain_args[@]}" >"$log_file" 2>&1; then
+        echo "ERROR: VGAIN configuration failed; see $log_file"
+        return 1
+    fi
+
+    # The V2 multi-channel client also covers the single-channel case. It
+    # configures and verifies the global trigger selector before acquisition.
+    if ! "$python_bin" "$client_dir/protobuf_acquire_list_channels.py" \
         -ip "${ip_addr}" \
         -port "$port" \
-        -afe "$AFE" \
-        -vgain_value "$vgain" &> "$log_file"
-
-
-        python ./../client/protobuf_acquire_channel.py \
-            -ip "${ip_addr}" \
-            -port "$port" \
-            -channel "$channel" \
-            -L "$L" \
-            -N "$N" \
-            -foldername "${output_file_folder}/" \
-            -chunk 10 \
-            -compression_format 7z \
-            -debug \
-            $software_trigger_flag
-    else
-        # Multi-channel acquisition: pass the full list
-        # Configure vgain (AFE from first channel)
-    	python ./../client/protobuf_configure_vgain.py \
-        -ip "${ip_addr}" \
-        -port "$port" \
-	-afe "$AFE" \
-        -configure_all \
-        -vgain_value "$vgain" &> "$log_file"
-
-
-	python ./../client/protobuf_acquire_list_channels.py \
-            -ip "${ip_addr}" \
-            -port "$port" \
-            -foldername "${output_file_folder}" \
-            -channel_list "${channel_list[@]}" \
-            -L "$L" \
-            -N "$N" \
-            -debug \
-            -compression_format 7z \
-            $software_trigger_flag
+        -route "$route" \
+        --timeout_ms "$timeout_ms" \
+        -foldername "${output_file_folder}" \
+        -channel_list "${channel_list[@]}" \
+        -L "$L" \
+        -N "$N" \
+        -chunk 10 \
+        -debug \
+        -compression_format 7z \
+        -trigger_source "$trigger_source"; then
+        echo "ERROR: acquisition failed for VGAIN $vgain"
+        return 1
     fi
 done
 
@@ -281,9 +305,15 @@ echo "Vgain scan completed. All output files are stored in: $output_folder"
 
 # restore vgain to default (example: 1800) for the reference AFE
 AFE=$(( channel / 8 ))
-python ./../client/protobuf_configure_vgain.py \
-    -ip "${ip_addr}" \
-    -port "$port" \
-    -afe "$AFE" \
+restore_args=(
+    -ip "${ip_addr}"
+    -port "$port"
+    -afe "$AFE"
     -vgain_value 1800
-
+    -route "$route"
+    --timeout-ms "$timeout_ms"
+)
+if [[ "$multi_channel" == true ]]; then
+    restore_args+=( -configure_all )
+fi
+"$python_bin" "$client_dir/protobuf_configure_vgain.py" "${restore_args[@]}"

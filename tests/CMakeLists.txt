@@ -81,6 +81,17 @@ if(PYTHONINTERP_FOUND)
     trigger_source_client_unit
     PROPERTIES LABELS unit
   )
+
+  add_test(
+    NAME v2_client_unit
+    COMMAND
+      ${PYTHON_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/test_v2_client.py
+  )
+  set_tests_properties(
+    v2_client_unit
+    PROPERTIES LABELS unit
+  )
 endif()
 
 if(DAPHNE_ENABLE_HARDWARE_TESTS AND CMAKE_SYSTEM_NAME STREQUAL "Linux")

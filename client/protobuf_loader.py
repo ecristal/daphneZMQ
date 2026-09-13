@@ -37,6 +37,25 @@ def load_protobuf_modules(require_trigger_source=False):
         ):
             continue
 
+        # Reject a stale generated module before importing it. Importing an
+        # incompatible candidate registers its proto filename in protobuf's
+        # process-wide descriptor pool, which prevents a later compatible
+        # candidate with the same filename from being loaded.
+        if require_trigger_source:
+            high_source = (
+                candidate / "daphneV3_high_level_confs_pb2.py"
+            ).read_text(encoding="utf-8", errors="ignore")
+            required_tokens = (
+                "SPY_TRIGGER_SOURCE_LEGACY_ALL",
+                "WriteSpyBufferTriggerSourceRequest",
+                "ReadSpyBufferTriggerSourceRequest",
+                "MT2_WRITE_SPYBUFFER_TRIGGER_SOURCE_REQ",
+                "MT2_READ_SPYBUFFER_TRIGGER_SOURCE_REQ",
+            )
+            if not all(token in high_source for token in required_tokens):
+                errors.append(f"{candidate}: trigger-source schema is out of date")
+                continue
+
         high_name = "daphneV3_high_level_confs_pb2"
         low_name = "daphneV3_low_level_confs_pb2"
         sys.modules.pop(high_name, None)
