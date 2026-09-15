@@ -3,6 +3,7 @@
 
 import argparse
 from dataclasses import dataclass, field
+import math
 import sys
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
@@ -20,7 +21,8 @@ from v2_client import V2Client
 
 CHANNEL_COUNT = 40
 ADC_MIN = 0
-ADC_MAX = (1 << 14) - 1
+ADC_CODE_COUNT = 1 << 14
+ADC_MAX = ADC_CODE_COUNT - 1
 OFFSET_MIN = 0
 OFFSET_MAX = (1 << 12) - 1
 INITIAL_OFFSET = 2275
@@ -73,6 +75,8 @@ class CalibrationResult:
     converged: bool
     iterations: int
     reason: str
+    tolerance: float = 0.0
+    sensitivity: Optional[float] = None
 
 
 def adc_code(value):
@@ -234,6 +238,53 @@ def _bracket(
     )
 
 
+def _rail_label(pedestal: float) -> str:
+    if pedestal <= ADC_MIN:
+        return " SATURATED_LOW"
+    if pedestal >= ADC_MAX:
+        return " SATURATED_HIGH"
+    return ""
+
+
+def _estimated_sensitivity(
+    state: ChannelState, fallback: Optional[float] = None
+) -> Optional[float]:
+    """Estimate the positive ADC-count change per OFFSET code."""
+    points = [
+        item
+        for item in state.observations.values()
+        if ADC_MIN < item.pedestal < ADC_MAX
+    ]
+    if len(points) >= 2:
+        mean_offset = sum(item.offset for item in points) / len(points)
+        mean_pedestal = sum(item.pedestal for item in points) / len(points)
+        variance = sum((item.offset - mean_offset) ** 2 for item in points)
+        if variance > 0:
+            covariance = sum(
+                (item.offset - mean_offset)
+                * (item.pedestal - mean_pedestal)
+                for item in points
+            )
+            slope = covariance / variance
+            if slope > 0:
+                return slope
+    return fallback
+
+
+def _accept_best(
+    state: ChannelState,
+    target: float,
+    tolerance: float,
+    reason: str,
+) -> bool:
+    best = state.best(target)
+    if abs(best.pedestal - target) <= tolerance:
+        state.converged = True
+        state.reason = reason
+        return True
+    return False
+
+
 def next_offset(
     state: ChannelState,
     target: float,
@@ -387,6 +438,290 @@ def calibrate_pedestals(
                 converged=state.converged,
                 iterations=state.iterations,
                 reason=state.reason,
+                tolerance=tolerance,
+            )
+        )
+    return results
+
+
+def _auto_next_offset(
+    state: ChannelState,
+    target: float,
+    method: str,
+    sensitivity: float,
+) -> Optional[int]:
+    bracket = _bracket(state, target)
+    if bracket is not None:
+        return next_offset(state, target, method, OFFSET_MAX)
+
+    current = state.observations[state.current_offset]
+    slope = _estimated_sensitivity(state, sensitivity)
+    if slope is None or slope <= 0:
+        return None
+    raw_candidate = current.offset + (target - current.pedestal) / slope
+    candidate = int(round(raw_candidate))
+    candidate = max(OFFSET_MIN, min(OFFSET_MAX, candidate))
+    if candidate == current.offset:
+        direction = 1 if current.pedestal < target else -1
+        candidate = max(
+            OFFSET_MIN, min(OFFSET_MAX, current.offset + direction)
+        )
+    if candidate not in state.observations:
+        return candidate
+
+    eligible = [
+        offset
+        for offset in range(OFFSET_MIN, OFFSET_MAX + 1)
+        if offset not in state.observations
+    ]
+    if not eligible:
+        return None
+    return min(eligible, key=lambda offset: abs(offset - raw_candidate))
+
+
+def calibrate_pedestals_auto(
+    channels: Sequence[int],
+    target: float,
+    method: str,
+    minimum_tolerance: float,
+    write_offset: Callable[[int, int], None],
+    measure_pedestals: Callable[[Sequence[int]], Dict[int, float]],
+    report: Optional[Callable[[str], None]] = print,
+) -> List[CalibrationResult]:
+    """Measure channel sensitivity, then tune with fully automatic bounds."""
+    if method not in ("bisection", "regula_falsi"):
+        raise ValueError(f"unsupported method {method!r}")
+    if minimum_tolerance <= 0:
+        raise ValueError("minimum tolerance must be positive")
+
+    states = {channel: ChannelState(channel) for channel in channels}
+    sensitivities: Dict[int, float] = {}
+    tolerances = {channel: minimum_tolerance for channel in channels}
+
+    def measure_offsets(selected, offsets, phase):
+        for channel in selected:
+            write_offset(channel, offsets[channel])
+        measured = measure_pedestals(selected)
+        if set(measured) != set(selected):
+            raise RuntimeError(
+                "pedestal acquisition returned a different channel set: "
+                f"expected {list(selected)}, got {sorted(measured)}"
+            )
+        for channel in selected:
+            pedestal = float(measured[channel])
+            if not math.isfinite(pedestal) or not ADC_MIN <= pedestal <= ADC_MAX:
+                raise RuntimeError(
+                    f"channel {channel} returned invalid 14-bit pedestal "
+                    f"{pedestal}"
+                )
+            state = states[channel]
+            state.current_offset = offsets[channel]
+            state.iterations += 1
+            state.observations[offsets[channel]] = Observation(
+                offsets[channel], pedestal
+            )
+            if report is not None:
+                report(
+                    f"phase={phase:<11} channel={channel:02d} "
+                    f"offset={offsets[channel]:04d} pedestal={pedestal:.3f} "
+                    f"error={pedestal - target:+.3f}{_rail_label(pedestal)}"
+                )
+
+    initial_offsets = {channel: INITIAL_OFFSET for channel in channels}
+    measure_offsets(channels, initial_offsets, "initial")
+
+    probe_origins = {
+        channel: states[channel].observations[INITIAL_OFFSET]
+        for channel in channels
+    }
+    probe_directions = {}
+    probe_spans = {channel: 1 for channel in channels}
+    probing = list(channels)
+    search_channels = []
+
+    for channel in channels:
+        pedestal = probe_origins[channel].pedestal
+        if pedestal <= ADC_MIN:
+            probe_directions[channel] = 1
+        elif pedestal >= ADC_MAX:
+            probe_directions[channel] = -1
+        else:
+            probe_directions[channel] = 1 if pedestal <= target else -1
+
+    while probing:
+        probe_offsets = {}
+        measurable = []
+        for channel in probing:
+            origin = probe_origins[channel]
+            direction = probe_directions[channel]
+            candidate = origin.offset + direction * probe_spans[channel]
+            candidate = max(OFFSET_MIN, min(OFFSET_MAX, candidate))
+            if candidate == origin.offset:
+                state = states[channel]
+                if not _accept_best(
+                    state,
+                    target,
+                    minimum_tolerance,
+                    "target reached at ADC rail; sensitivity unavailable",
+                ):
+                    state.reason = (
+                        "no OFFSET range available for sensitivity probe"
+                    )
+                continue
+            probe_offsets[channel] = candidate
+            measurable.append(channel)
+
+        if not measurable:
+            break
+        measure_offsets(measurable, probe_offsets, "sensitivity")
+
+        next_probing = []
+        for channel in measurable:
+            origin = probe_origins[channel]
+            observation = states[channel].observations[probe_offsets[channel]]
+            offset_delta = observation.offset - origin.offset
+            pedestal_delta = observation.pedestal - origin.pedestal
+            sensitivity = pedestal_delta / offset_delta
+            minimum_signal = max(1.0, 2.0 * minimum_tolerance)
+            if sensitivity > 0 and abs(pedestal_delta) >= minimum_signal:
+                sensitivities[channel] = sensitivity
+                tolerances[channel] = max(
+                    minimum_tolerance, abs(sensitivity) / 2.0
+                )
+                if report is not None:
+                    report(
+                        f"[AUTO] channel={channel:02d} "
+                        f"sensitivity={sensitivity:.3f} ADC/OFFSET "
+                        f"tolerance={tolerances[channel]:.3f}"
+                    )
+                if not _accept_best(
+                    states[channel],
+                    target,
+                    tolerances[channel],
+                    "within automatic quantization tolerance",
+                ):
+                    search_channels.append(channel)
+                continue
+
+            at_limit = observation.offset in (OFFSET_MIN, OFFSET_MAX)
+            if at_limit:
+                state = states[channel]
+                if not _accept_best(
+                    state,
+                    target,
+                    minimum_tolerance,
+                    "target reached at ADC rail; sensitivity unavailable",
+                ):
+                    state.reason = (
+                        "could not measure positive OFFSET sensitivity before "
+                        "reaching the DAC limit"
+                    )
+                continue
+            probe_spans[channel] *= 2
+            next_probing.append(channel)
+
+        probing = next_probing
+
+    search_round_limit = math.ceil(math.log2(OFFSET_MAX - OFFSET_MIN + 1)) + 3
+    active = search_channels
+    for _ in range(search_round_limit):
+        if not active:
+            break
+        offsets = {}
+        measurable = []
+        for channel in active:
+            state = states[channel]
+            bracket = _bracket(state, target)
+            if bracket is not None and bracket[1].offset - bracket[0].offset <= 1:
+                adjacent_sensitivity = abs(
+                    bracket[1].pedestal - bracket[0].pedestal
+                )
+                if adjacent_sensitivity > 0:
+                    sensitivities[channel] = adjacent_sensitivity
+                tolerances[channel] = max(
+                    minimum_tolerance, adjacent_sensitivity / 2.0
+                )
+                if _accept_best(
+                    state,
+                    target,
+                    tolerances[channel],
+                    "best achievable at adjacent OFFSET codes",
+                ):
+                    continue
+
+            sensitivity = _estimated_sensitivity(
+                state, sensitivities[channel]
+            )
+            if sensitivity is not None:
+                sensitivities[channel] = sensitivity
+                tolerances[channel] = max(
+                    minimum_tolerance, abs(sensitivity) / 2.0
+                )
+            candidate = _auto_next_offset(
+                state, target, method, sensitivities[channel]
+            )
+            if candidate is None:
+                if state.current_offset == OFFSET_MIN:
+                    state.reason = "lower OFFSET limit reached"
+                elif state.current_offset == OFFSET_MAX:
+                    state.reason = "upper OFFSET limit reached"
+                else:
+                    state.reason = "no unmeasured automatic step remains"
+                continue
+            offsets[channel] = candidate
+            measurable.append(channel)
+            if report is not None:
+                report(
+                    f"[AUTO] channel={channel:02d} next_offset={candidate:04d} "
+                    f"change={candidate - state.current_offset:+d}"
+                )
+
+        if not measurable:
+            active = []
+            break
+        measure_offsets(measurable, offsets, "search")
+
+        next_active = []
+        for channel in measurable:
+            state = states[channel]
+            sensitivity = _estimated_sensitivity(
+                state, sensitivities[channel]
+            )
+            if sensitivity is not None:
+                sensitivities[channel] = sensitivity
+                tolerances[channel] = max(
+                    minimum_tolerance, abs(sensitivity) / 2.0
+                )
+            if _accept_best(
+                state,
+                target,
+                tolerances[channel],
+                "within automatic quantization tolerance",
+            ):
+                continue
+            next_active.append(channel)
+        active = next_active
+
+    for channel in active:
+        states[channel].reason = "automatic search limit reached"
+
+    results = []
+    for channel in channels:
+        state = states[channel]
+        best = state.best(target)
+        if state.current_offset != best.offset:
+            write_offset(channel, best.offset)
+            state.current_offset = best.offset
+        results.append(
+            CalibrationResult(
+                channel=channel,
+                offset=best.offset,
+                pedestal=best.pedestal,
+                converged=state.converged,
+                iterations=state.iterations,
+                reason=state.reason,
+                tolerance=tolerances[channel],
+                sensitivity=sensitivities.get(channel),
             )
         )
     return results
@@ -508,19 +843,43 @@ def build_parser():
         default="regula_falsi",
     )
     parser.add_argument(
+        "--auto",
+        action="store_true",
+        help=(
+            "Measure OFFSET sensitivity per channel and automatically derive "
+            "the tolerance, iteration budget, and offset changes."
+        ),
+    )
+    parser.add_argument(
+        "-max_iterations",
+        "--max-iterations",
+        dest="max_iterations",
+        type=positive_int,
+        default=None,
+        help="Manual-mode iteration limit (default: 16).",
+    )
+    parser.add_argument(
+        "-max_offset_change",
+        "--max-offset-change",
+        dest="max_offset_change",
+        type=offset_step,
+        default=None,
+        help="Manual-mode OFFSET change limit (default: 512).",
+    )
+    parser.add_argument(
         "-max_iteration_steps",
         "--max-iteration-steps",
+        dest="max_iterations",
         type=positive_int,
-        default=16,
-        help="Maximum measurement/adjustment rounds (default: 16).",
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "-max_iteration_offset",
         "--max-iteration-offset",
         "--max-offset-step",
+        dest="max_offset_change",
         type=offset_step,
-        default=512,
-        help="Largest DAC-code increase or decrease in one iteration (default: 512).",
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "-L",
@@ -533,7 +892,10 @@ def build_parser():
         "--tolerance",
         type=positive_float,
         default=1.0,
-        help="Allowed pedestal error in ADC counts (default: 1).",
+        help=(
+            "Allowed error in manual mode, or minimum tolerance with --auto "
+            "(default: 1 ADC count)."
+        ),
     )
     parser.add_argument("-route", "--route", "-r", default="mezz/0")
     parser.add_argument(
@@ -550,6 +912,13 @@ def main(argv=None):
         channels = parse_channels(args.channel, args.configure_all)
     except ValueError as exc:
         parser.error(str(exc))
+    if args.auto and (
+        args.max_iterations is not None or args.max_offset_change is not None
+    ):
+        parser.error(
+            "--auto calculates iteration and OFFSET changes; do not combine it "
+            "with --max-iterations or --max-offset-change"
+        )
 
     try:
         pb_high, pb_low = load_protobuf_modules(require_trigger_source=True)
@@ -570,20 +939,36 @@ def main(argv=None):
             )
             print("Configured spybuffer trigger source: software")
 
-            results = calibrate_pedestals(
-                channels=channels,
-                target=args.target_pedestal,
-                method=args.method,
-                max_iterations=args.max_iteration_steps,
-                max_offset_step=args.max_iteration_offset,
-                tolerance=args.tolerance,
-                write_offset=lambda channel, offset: _write_offset(
+            def write_offset(channel, offset):
+                return _write_offset(
                     pb_high, pb_low, client, channel, offset
-                ),
-                measure_pedestals=lambda selected: _measure_pedestals(
+                )
+
+            def measure_pedestals(selected):
+                return _measure_pedestals(
                     pb_high, client, selected, args.samples
-                ),
-            )
+                )
+
+            if args.auto:
+                results = calibrate_pedestals_auto(
+                    channels=channels,
+                    target=args.target_pedestal,
+                    method=args.method,
+                    minimum_tolerance=args.tolerance,
+                    write_offset=write_offset,
+                    measure_pedestals=measure_pedestals,
+                )
+            else:
+                results = calibrate_pedestals(
+                    channels=channels,
+                    target=args.target_pedestal,
+                    method=args.method,
+                    max_iterations=args.max_iterations or 16,
+                    max_offset_step=args.max_offset_change or 512,
+                    tolerance=args.tolerance,
+                    write_offset=write_offset,
+                    measure_pedestals=measure_pedestals,
+                )
     except (RuntimeError, TimeoutError, ValueError, zmq.ZMQError) as exc:
         print(f"[ERROR] {exc}", file=sys.stderr)
         return 2
@@ -591,10 +976,20 @@ def main(argv=None):
     failed = False
     for result in results:
         status = "PASS" if result.converged else "FAIL"
+        auto_details = ""
+        if args.auto:
+            sensitivity = (
+                "unavailable"
+                if result.sensitivity is None
+                else f"{result.sensitivity:.3f} ADC/OFFSET"
+            )
+            auto_details = (
+                f" sensitivity={sensitivity} tolerance={result.tolerance:.3f}"
+            )
         print(
             f"[{status}] channel {result.channel:02d} offset={result.offset:04d} "
             f"pedestal={result.pedestal:.3f} target={args.target_pedestal} "
-            f"({result.reason})"
+            f"({result.reason}){auto_details}"
         )
         failed = failed or not result.converged
     return 1 if failed else 0

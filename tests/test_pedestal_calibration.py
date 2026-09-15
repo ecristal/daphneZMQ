@@ -30,11 +30,13 @@ CLIENT_DIR = Path(__file__).resolve().parents[1] / "client"
 sys.path.insert(0, str(CLIENT_DIR))
 
 from protobuf_configure_pedestal_level import (  # noqa: E402
+    ADC_MAX,
     INITIAL_OFFSET,
     PEDESTAL_WAVEFORMS,
     _measure_pedestals,
     build_parser,
     calibrate_pedestals,
+    calibrate_pedestals_auto,
     parse_channels,
     pedestal_levels,
 )
@@ -123,8 +125,35 @@ class PedestalCalibrationTests(unittest.TestCase):
         self.assertEqual(args.channel, ["2", "7"])
         self.assertEqual(args.target_pedestal, 6000)
         self.assertEqual(args.method, "regula_falsi")
-        self.assertEqual(args.max_iteration_steps, 20)
-        self.assertEqual(args.max_iteration_offset, 300)
+        self.assertEqual(args.max_iterations, 20)
+        self.assertEqual(args.max_offset_change, 300)
+
+    def test_cli_exposes_auto_and_clear_manual_option_names(self):
+        parser = build_parser()
+        auto_args = parser.parse_args(
+            ["--auto", "-target_pedestal", "8000", "-L", "1024"]
+        )
+        self.assertTrue(auto_args.auto)
+        self.assertIsNone(auto_args.max_iterations)
+        self.assertIsNone(auto_args.max_offset_change)
+
+        manual_args = build_parser().parse_args(
+            [
+                "-target_pedestal",
+                "8000",
+                "-L",
+                "1024",
+                "--max-iterations",
+                "12",
+                "--max-offset-change",
+                "50",
+            ]
+        )
+        self.assertEqual(manual_args.max_iterations, 12)
+        self.assertEqual(manual_args.max_offset_change, 50)
+        help_text = parser.format_help()
+        self.assertIn("--max-offset-change", help_text)
+        self.assertNotIn("max_iteration_offset", help_text)
 
     def test_parses_one_many_comma_separated_and_all_channels(self):
         self.assertEqual(parse_channels(None, False), [0])
@@ -198,6 +227,106 @@ class PedestalCalibrationTests(unittest.TestCase):
         self.assertEqual([result.channel for result in results], [2, 7])
         self.assertEqual([result.offset for result in results], [1500, 2000])
         self.assertTrue(all(result.converged for result in results))
+
+    def test_auto_mode_derives_sensitivity_tolerance_and_offset_change(self):
+        hardware = _SimulatedHardware(
+            {33: lambda offset: 20.0 * offset - 36509.0}
+        )
+
+        result = calibrate_pedestals_auto(
+            channels=[33],
+            target=8000,
+            method="regula_falsi",
+            minimum_tolerance=1.0,
+            write_offset=hardware.write_offset,
+            measure_pedestals=hardware.measure,
+            report=None,
+        )[0]
+
+        self.assertTrue(result.converged)
+        self.assertEqual(result.offset, 2225)
+        self.assertEqual(result.pedestal, 7991)
+        self.assertEqual(result.sensitivity, 20)
+        self.assertEqual(result.tolerance, 10)
+        self.assertEqual(hardware.writes[33][:2], [2275, 2274])
+        self.assertGreater(
+            abs(hardware.writes[33][2] - hardware.writes[33][1]), 1
+        )
+
+    def test_auto_mode_expands_probe_out_of_low_saturation(self):
+        hardware = _SimulatedHardware(
+            {0: lambda offset: max(0.0, 10.0 * (offset - 2300))}
+        )
+
+        result = calibrate_pedestals_auto(
+            channels=[0],
+            target=100,
+            method="regula_falsi",
+            minimum_tolerance=1.0,
+            write_offset=hardware.write_offset,
+            measure_pedestals=hardware.measure,
+            report=None,
+        )[0]
+
+        self.assertTrue(result.converged)
+        self.assertEqual(result.offset, 2310)
+        self.assertEqual(result.pedestal, 100)
+        self.assertIn(2307, hardware.writes[0])
+
+    def test_auto_mode_handles_both_14_bit_rails(self):
+        low_hardware = _SimulatedHardware(
+            {0: lambda offset: max(0.0, 10.0 * (offset - INITIAL_OFFSET))}
+        )
+        low_result = calibrate_pedestals_auto(
+            channels=[0],
+            target=0,
+            method="bisection",
+            minimum_tolerance=1.0,
+            write_offset=low_hardware.write_offset,
+            measure_pedestals=low_hardware.measure,
+            report=None,
+        )[0]
+
+        high_hardware = _SimulatedHardware(
+            {
+                0: lambda offset: min(
+                    float(ADC_MAX),
+                    ADC_MAX + 10.0 * (offset - INITIAL_OFFSET),
+                )
+            }
+        )
+        high_result = calibrate_pedestals_auto(
+            channels=[0],
+            target=ADC_MAX,
+            method="bisection",
+            minimum_tolerance=1.0,
+            write_offset=high_hardware.write_offset,
+            measure_pedestals=high_hardware.measure,
+            report=None,
+        )[0]
+
+        self.assertTrue(low_result.converged)
+        self.assertEqual(low_result.pedestal, 0)
+        self.assertTrue(high_result.converged)
+        self.assertEqual(high_result.pedestal, ADC_MAX)
+
+    def test_auto_mode_accepts_target_on_a_fully_saturated_rail(self):
+        hardware = _SimulatedHardware({0: lambda offset: 0.0})
+
+        result = calibrate_pedestals_auto(
+            channels=[0],
+            target=0,
+            method="regula_falsi",
+            minimum_tolerance=1.0,
+            write_offset=hardware.write_offset,
+            measure_pedestals=hardware.measure,
+            report=None,
+        )[0]
+
+        self.assertTrue(result.converged)
+        self.assertIsNone(result.sensitivity)
+        self.assertIn("ADC rail", result.reason)
+        self.assertEqual(hardware.offsets[0], INITIAL_OFFSET)
 
     def test_iteration_limit_does_not_write_an_unmeasured_candidate(self):
         hardware = _SimulatedHardware({0: lambda offset: 4.0 * offset})

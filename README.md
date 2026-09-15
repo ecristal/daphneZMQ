@@ -121,23 +121,30 @@ are automatically split into safe response sizes during acquisition.
 ```bash
 # One channel
 python3 client/protobuf_configure_pedestal_level.py \
-  -ip 192.168.1.10 -channel 3 -target_pedestal 6000 -L 1024
+  -ip 192.168.1.10 -channel 3 -target_pedestal 6000 -L 1024 --auto
 
 # A set of channels, with bisection and a 256-code per-step limit
 python3 client/protobuf_configure_pedestal_level.py \
   -ip 192.168.1.10 -channel 0 1 7 12 -target_pedestal 6000 -L 1024 \
-  -method bisection -max_iteration_steps 20 -max_iteration_offset 256
+  -method bisection --max-iterations 20 --max-offset-change 256
 
 # All 40 channels (regula falsi is the default)
 python3 client/protobuf_configure_pedestal_level.py \
-  -ip 192.168.1.10 -configure_all -target_pedestal 6000 -L 1024
+  -ip 192.168.1.10 -configure_all -target_pedestal 6000 -L 1024 --auto
 ```
 
 The client independently brackets the target for each channel, dynamically
 changes adjustment direction, and reports ADC saturation or an unreachable
-target at the OFFSET limits. `--tolerance` sets the accepted pedestal error
-(default one ADC count). If a channel cannot converge, its best measured offset
-is restored and the process exits with status 1.
+target at the OFFSET limits. With `--auto`, it first measures the local
+ADC-counts-per-OFFSET sensitivity (expanding the probe if the signal is at a
+rail), sets the minimum achievable tolerance to half the measured pedestal
+change of one OFFSET code, and derives the search changes and iteration budget.
+`--tolerance` is a lower bound for the automatic tolerance (default one ADC
+count). The 14-bit rails are 0 and 16383 (`2**14` distinct codes). If a channel
+cannot converge, its best measured offset is restored and the process exits
+with status 1. The older
+`-max_iteration_steps` and `-max_iteration_offset` spellings remain accepted as
+hidden compatibility aliases for manual mode.
 
 ## ZeroMQ register server
 
