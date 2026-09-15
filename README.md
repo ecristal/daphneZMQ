@@ -110,6 +110,35 @@ Recommended bring-up order on target:
 3. configure the timing endpoint and wait for ready
 4. start Hermes and the slow-control server
 
+### Pedestal calibration client
+
+`client/protobuf_configure_pedestal_level.py` tunes each selected channel's
+OFFSET DAC without changing VGAIN. It starts at DAC code 2275, acquires 500
+software-triggered waveforms per measurement, averages the waveforms, and uses
+the mode of the resulting mean-waveform samples as the pedestal. Channel groups
+are automatically split into safe response sizes during acquisition.
+
+```bash
+# One channel
+python3 client/protobuf_configure_pedestal_level.py \
+  -ip 192.168.1.10 -channel 3 -target_pedestal 6000 -L 1024
+
+# A set of channels, with bisection and a 256-code per-step limit
+python3 client/protobuf_configure_pedestal_level.py \
+  -ip 192.168.1.10 -channel 0 1 7 12 -target_pedestal 6000 -L 1024 \
+  -method bisection -max_iteration_steps 20 -max_iteration_offset 256
+
+# All 40 channels (regula falsi is the default)
+python3 client/protobuf_configure_pedestal_level.py \
+  -ip 192.168.1.10 -configure_all -target_pedestal 6000 -L 1024
+```
+
+The client independently brackets the target for each channel, dynamically
+changes adjustment direction, and reports ADC saturation or an unreachable
+target at the OFFSET limits. `--tolerance` sets the accepted pedestal error
+(default one ADC count). If a channel cannot converge, its best measured offset
+is restored and the process exits with status 1.
+
 ## ZeroMQ register server
 
 The server provides blocking request/reply access to AXI registers. It accepts the
