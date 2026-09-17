@@ -6,9 +6,11 @@
 print_help() {
     cat <<'EOF'
 Usage:
-  source vgain_scan.sh -output_folder DIR -channel CH [CH ...] -ip IP -port PORT -L SAMPLES -N WAVEFORMS \
+  source vgain_scan.sh -folder DIR -channel CH [CH ...] -ip IP -port PORT -L SAMPLES -N WAVEFORMS \
       (-vgain_list LIST | -vgain_range RANGE | -range RANGE | -vgain VALUE) \
       (-bias_list LIST | -bias_range RANGE | -bias VALUE) [options]
+
+  source vgain_scan.sh -folder DIR --resume
 
 At least one dimension must be a sweep (a list or range). If only one
 dimension is swept, the other one is held fixed. Fixed defaults are bias=0.0
@@ -42,6 +44,12 @@ Acquisition options:
 
 On any hardware-stage failure, AFE bias and selected-channel TRIMs are reset
 to 0 and read back; bias-control is left at the requested value.
+
+Resume options:
+  --resume                 Load the scan plan from DIR/scan_metadata.txt,
+                           remove the last incomplete/potentially corrupt
+                           point, and continue. If complete, no data is removed.
+  -y, --yes                Accept the configuration summary without prompting.
 
 Examples:
   # VGAIN-only scan at a fixed bias
@@ -195,6 +203,197 @@ run_logged() {
     fi
 }
 
+join_by_comma() {
+    local IFS=,
+    echo "$*"
+}
+
+write_scan_metadata() {
+    local metadata_tmp="${metadata_file}.tmp.$$"
+    local channel_csv bias_csv vgain_csv
+    channel_csv=$(join_by_comma "${channel_list[@]}")
+    bias_csv=$(join_by_comma "${bias_array[@]}")
+    vgain_csv=$(join_by_comma "${vgain_array[@]}")
+    {
+        echo "format_version=1"
+        echo "status=$scan_status_text"
+        echo "created_utc=$scan_created_utc"
+        echo "updated_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        echo "channels=$channel_csv"
+        echo "afe=$afe"
+        echo "bias_values=$bias_csv"
+        echo "bias_mode=$bias_mode"
+        echo "vgain_values=$vgain_csv"
+        echo "vgain_mode=$vgain_mode"
+        echo "set_as_dac=$set_as_dac"
+        echo "bias_control=$bias_control"
+        echo "trim=$trim"
+        echo "pedestal=$pedestal"
+        echo "ip_addr=$ip_addr"
+        echo "port=$port"
+        echo "waveform_count=$N"
+        echo "waveform_length=$L"
+        echo "trigger_source=$trigger_source"
+        echo "route=$route"
+        echo "timeout_ms=$timeout_ms"
+        echo "completed_points=$completed_points"
+        echo "total_points=$total_points"
+    } > "$metadata_tmp" || return 1
+    mv -f -- "$metadata_tmp" "$metadata_file"
+}
+
+load_scan_metadata() {
+    local key value format_version="" channel_csv="" bias_csv="" vgain_csv=""
+    local saved_afe=""
+    [[ -f "$metadata_file" ]] || {
+        fail "resume metadata not found: $metadata_file"
+        return 1
+    }
+    while IFS='=' read -r key value; do
+        case "$key" in
+            format_version) format_version="$value" ;;
+            status) scan_status_text="$value" ;;
+            created_utc) scan_created_utc="$value" ;;
+            channels) channel_csv="$value" ;;
+            afe) saved_afe="$value" ;;
+            bias_values) bias_csv="$value" ;;
+            bias_mode) bias_mode="$value" ;;
+            vgain_values) vgain_csv="$value" ;;
+            vgain_mode) vgain_mode="$value" ;;
+            set_as_dac) set_as_dac="$value" ;;
+            bias_control) bias_control="$value" ;;
+            trim) trim="$value" ;;
+            pedestal) pedestal="$value" ;;
+            ip_addr) ip_addr="$value" ;;
+            port) port="$value" ;;
+            waveform_count) N="$value" ;;
+            waveform_length) L="$value" ;;
+            trigger_source) trigger_source_arg="$value" ;;
+            route) route="$value" ;;
+            timeout_ms) timeout_ms="$value" ;;
+        esac
+    done < "$metadata_file"
+
+    if [[ "$format_version" != "1" || -z "$channel_csv" || -z "$bias_csv" || -z "$vgain_csv" || -z "$scan_created_utc" ]]; then
+        fail "invalid or incomplete resume metadata: $metadata_file"
+        return 1
+    fi
+    if [[ "$set_as_dac" != true && "$set_as_dac" != false ]]; then
+        fail "invalid set_as_dac value in $metadata_file"
+        return 1
+    fi
+    IFS=',' read -r -a channel_list <<< "$channel_csv"
+    IFS=',' read -r -a bias_array <<< "$bias_csv"
+    IFS=',' read -r -a vgain_array <<< "$vgain_csv"
+    metadata_afe="$saved_afe"
+}
+
+point_data_is_complete() {
+    local folder="$1" expected_size actual_size data_channel
+    [[ -f "$folder/config.txt" ]] || return 1
+    expected_size=$((N * L * 2))
+    for data_channel in "${channel_list[@]}"; do
+        [[ -f "$folder/channel_${data_channel}.dat" ]] || return 1
+        actual_size=$(stat -c '%s' "$folder/channel_${data_channel}.dat" 2>/dev/null) || return 1
+        [[ "$actual_size" == "$expected_size" ]] || return 1
+    done
+    return 0
+}
+
+prepare_resume() {
+    local point_index=0 seen_gap=false folder resume_bias resume_vgain
+    local last_existing=-1 all_complete=true
+
+    resume_delete_folder=""
+    for resume_bias in "${bias_array[@]}"; do
+        for resume_vgain in "${vgain_array[@]}"; do
+            folder="${output_folder}/vbias_${resume_bias}/vgain_${resume_vgain}"
+            if [[ -d "$folder" ]]; then
+                if [[ "$seen_gap" == true ]]; then
+                    fail "resume structure is not a contiguous scan: found data after a missing/incomplete point at $folder"
+                    return 1
+                fi
+                last_existing=$point_index
+                if ! point_data_is_complete "$folder"; then
+                    seen_gap=true
+                    all_complete=false
+                fi
+            else
+                seen_gap=true
+                all_complete=false
+            fi
+            ((point_index += 1))
+        done
+    done
+
+    if [[ "$all_complete" == true ]]; then
+        completed_points=$total_points
+        scan_status_text="complete"
+        write_scan_metadata || {
+            fail "could not update completed metadata: $metadata_file"
+            return 1
+        }
+        scan_already_complete=true
+        return 0
+    fi
+
+    if (( last_existing >= 0 )); then
+        point_index=0
+        for resume_bias in "${bias_array[@]}"; do
+            for resume_vgain in "${vgain_array[@]}"; do
+                if (( point_index == last_existing )); then
+                    resume_delete_folder="${output_folder}/vbias_${resume_bias}/vgain_${resume_vgain}"
+                    break 2
+                fi
+                ((point_index += 1))
+            done
+        done
+        resume_start_index=$last_existing
+    else
+        resume_start_index=0
+    fi
+    completed_points=$resume_start_index
+    return 0
+}
+
+confirm_scan_parameters() {
+    echo
+    echo "================ SCAN CONFIRMATION ================"
+    echo "Mode:                 $([[ "$resume_mode" == true ]] && echo RESUME || echo NEW)"
+    echo "Output folder:        $output_folder"
+    echo "Channels:             ${channel_list[*]}"
+    echo "AFE:                  $afe"
+    echo "Bias values ($units): ${bias_array[*]}"
+    echo "Bias control:         $bias_control $units"
+    echo "TRIM:                 $trim DAC"
+    echo "VGAIN values (DAC):   ${vgain_array[*]}"
+    echo "Pedestal:             $pedestal ADC (regula_falsi, auto)"
+    echo "Waveforms / length:   $N / $L"
+    echo "Connection:           $ip_addr:$port, route=$route, timeout=${timeout_ms}ms"
+    echo "Trigger source:       $trigger_source"
+    echo "Points:               $total_points total, $completed_points retained, $((total_points - completed_points)) to acquire"
+    if [[ -n "$resume_delete_folder" ]]; then
+        echo "Point to replace:     $resume_delete_folder"
+    fi
+    echo "Failure recovery:     bias=0, TRIM=0, bias_control remains $bias_control"
+    echo "==================================================="
+
+    if [[ "$assume_yes" == true ]]; then
+        echo "Confirmation accepted by --yes."
+        return 0
+    fi
+    if [[ ! -t 0 ]]; then
+        fail "interactive confirmation requires a terminal; use --yes for unattended execution"
+        return 1
+    fi
+    local answer
+    read -r -p "Continue with this scan? [y/N] " answer
+    case "$answer" in
+        y|Y|yes|YES) return 0 ;;
+        *) echo "Scan cancelled; no hardware was configured."; return 1 ;;
+    esac
+}
+
 reset_bias_and_trim_after_failure() {
     local reset_log="${output_folder}/failure_reset.log"
     local reset_channel reset_readback
@@ -242,29 +441,35 @@ scan_main() {
     local trim="0" bias_control="0" ip_addr="" port="" N="" L=""
     local trigger_source_arg="" route="mezz/0" timeout_ms="30000"
     local pedestal="8192" set_as_dac=false legacy_software_trigger=false
+    local resume_mode=false assume_yes=false config_option_seen=false
+    local metadata_file="" metadata_afe="" scan_created_utc=""
+    local scan_status_text="in_progress" scan_already_complete=false
+    local resume_delete_folder="" resume_start_index=0 completed_points=0 total_points=0
+    local vgain_mode="" bias_mode="" units="" trigger_source="" afe=-1
     local python_bin="${DAPHNE_PYTHON:-python3}"
     local script_dir client_dir
     script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
     client_dir="${script_dir}/../client"
-    local -a channel_list=()
+    local -a channel_list=() vgain_array=() bias_array=()
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-            -output_folder|--output-folder)
+            -output_folder|--output-folder|-folder|--folder)
                 require_value "$@" || return 1; output_folder="$2"; shift 2 ;;
             -vgain_list|--vgain-list)
-                require_value "$@" || return 1; vgain_list="$2"; shift 2 ;;
+                require_value "$@" || return 1; vgain_list="$2"; config_option_seen=true; shift 2 ;;
             -vgain_range|--vgain-range|-range)
-                require_value "$@" || return 1; vgain_range="$2"; shift 2 ;;
+                require_value "$@" || return 1; vgain_range="$2"; config_option_seen=true; shift 2 ;;
             -vgain|--vgain)
-                require_value "$@" || return 1; fixed_vgain="$2"; shift 2 ;;
+                require_value "$@" || return 1; fixed_vgain="$2"; config_option_seen=true; shift 2 ;;
             -bias_list|--bias-list|-vbias_list|--vbias-list)
-                require_value "$@" || return 1; bias_list="$2"; shift 2 ;;
+                require_value "$@" || return 1; bias_list="$2"; config_option_seen=true; shift 2 ;;
             -bias_range|--bias-range|-vbias_range|--vbias-range)
-                require_value "$@" || return 1; bias_range="$2"; shift 2 ;;
+                require_value "$@" || return 1; bias_range="$2"; config_option_seen=true; shift 2 ;;
             -bias|--bias|-vbias|--vbias)
-                require_value "$@" || return 1; fixed_bias="$2"; shift 2 ;;
+                require_value "$@" || return 1; fixed_bias="$2"; config_option_seen=true; shift 2 ;;
             -channel|--channel)
+                config_option_seen=true
                 shift
                 while [[ $# -gt 0 && "$1" != -* ]]; do
                     channel_list+=("$1")
@@ -276,32 +481,36 @@ scan_main() {
                 fi
                 ;;
             -trim|--trim)
-                require_value "$@" || return 1; trim="$2"; shift 2 ;;
+                require_value "$@" || return 1; trim="$2"; config_option_seen=true; shift 2 ;;
             -bias_control|--bias-control)
-                require_value "$@" || return 1; bias_control="$2"; shift 2 ;;
+                require_value "$@" || return 1; bias_control="$2"; config_option_seen=true; shift 2 ;;
             -set_as_DAC|--set-as-dac)
-                set_as_dac=true; shift ;;
+                set_as_dac=true; config_option_seen=true; shift ;;
             -pedestal|--pedestal|-target_pedestal|--target-pedestal)
-                require_value "$@" || return 1; pedestal="$2"; shift 2 ;;
+                require_value "$@" || return 1; pedestal="$2"; config_option_seen=true; shift 2 ;;
             -ip|--ip)
-                require_value "$@" || return 1; ip_addr="$2"; shift 2 ;;
+                require_value "$@" || return 1; ip_addr="$2"; config_option_seen=true; shift 2 ;;
             -port|--port)
-                require_value "$@" || return 1; port="$2"; shift 2 ;;
+                require_value "$@" || return 1; port="$2"; config_option_seen=true; shift 2 ;;
             -N)
-                require_value "$@" || return 1; N="$2"; shift 2 ;;
+                require_value "$@" || return 1; N="$2"; config_option_seen=true; shift 2 ;;
             -L)
-                require_value "$@" || return 1; L="$2"; shift 2 ;;
+                require_value "$@" || return 1; L="$2"; config_option_seen=true; shift 2 ;;
             -trigger_source|--trigger-source)
-                require_value "$@" || return 1; trigger_source_arg="$2"; shift 2 ;;
+                require_value "$@" || return 1; trigger_source_arg="$2"; config_option_seen=true; shift 2 ;;
             -software_trigger|--software-trigger)
-                legacy_software_trigger=true; shift ;;
+                legacy_software_trigger=true; config_option_seen=true; shift ;;
             -route|--route|-r)
-                require_value "$@" || return 1; route="$2"; shift 2 ;;
+                require_value "$@" || return 1; route="$2"; config_option_seen=true; shift 2 ;;
             --timeout-ms|--timeout_ms)
-                require_value "$@" || return 1; timeout_ms="$2"; shift 2 ;;
+                require_value "$@" || return 1; timeout_ms="$2"; config_option_seen=true; shift 2 ;;
             -multi_channel|--multi-channel)
                 echo "WARNING: -multi_channel is no longer needed; selected channels are handled automatically." >&2
-                shift ;;
+                config_option_seen=true; shift ;;
+            --resume)
+                resume_mode=true; shift ;;
+            -y|--yes)
+                assume_yes=true; shift ;;
             -h|--help)
                 print_help; return 0 ;;
             *)
@@ -310,6 +519,19 @@ scan_main() {
                 return 1 ;;
         esac
     done
+
+    if [[ -z "$output_folder" ]]; then
+        fail "an output folder is required (-folder or -output_folder)"
+        return 1
+    fi
+    metadata_file="${output_folder}/scan_metadata.txt"
+    if [[ "$resume_mode" == true ]]; then
+        if [[ "$config_option_seen" == true ]]; then
+            fail "--resume loads every scan parameter from metadata; use only -folder DIR --resume [--yes]"
+            return 1
+        fi
+        load_scan_metadata || return 1
+    fi
 
     if [[ -z "$output_folder" || -z "$ip_addr" || -z "$port" || -z "$N" || -z "$L" || ${#channel_list[@]} -eq 0 ]]; then
         fail "missing required arguments: output folder, channel(s), IP, port, N and L are required"
@@ -326,8 +548,9 @@ scan_main() {
         return 1
     fi
 
-    local channel afe=-1 channel_afe
+    local channel channel_afe
     local -A seen_channels=()
+    afe=-1
     for channel in "${channel_list[@]}"; do
         if [[ ! "$channel" =~ ^[0-9]+$ ]] || (( channel < 0 || channel > 39 )); then
             fail "channel must be an integer in 0..39 (got '$channel')"
@@ -346,6 +569,10 @@ scan_main() {
             return 1
         fi
     done
+    if [[ "$resume_mode" == true && "$metadata_afe" != "$afe" ]]; then
+        fail "metadata AFE $metadata_afe does not match channels ${channel_list[*]} (AFE $afe)"
+        return 1
+    fi
 
     if [[ "$legacy_software_trigger" == true ]]; then
         if [[ -n "$trigger_source_arg" && "$trigger_source_arg" != "software" ]]; then
@@ -355,57 +582,57 @@ scan_main() {
         echo "WARNING: -software_trigger is deprecated; use -trigger_source software" >&2
         trigger_source_arg="software"
     fi
-    local trigger_source="${trigger_source_arg:-external}"
+    trigger_source="${trigger_source_arg:-external}"
     case "$trigger_source" in
         software|external|timing|all) ;;
         *) fail "invalid trigger source '$trigger_source' (expected software, external, timing, or all)"; return 1 ;;
     esac
 
-    local vgain_selectors=0 bias_selectors=0
-    [[ -n "$vgain_list" ]] && ((++vgain_selectors))
-    [[ -n "$vgain_range" ]] && ((++vgain_selectors))
-    [[ -n "$fixed_vgain" ]] && ((++vgain_selectors))
-    [[ -n "$bias_list" ]] && ((++bias_selectors))
-    [[ -n "$bias_range" ]] && ((++bias_selectors))
-    [[ -n "$fixed_bias" ]] && ((++bias_selectors))
-    if (( vgain_selectors > 1 )); then
-        fail "choose only one of -vgain_list, -vgain_range/-range, or -vgain"
-        return 1
-    fi
-    if (( bias_selectors > 1 )); then
-        fail "choose only one of -bias_list, -bias_range, or -bias"
-        return 1
-    fi
-    if [[ -z "$vgain_list" && -z "$vgain_range" && -z "$bias_list" && -z "$bias_range" ]]; then
-        fail "at least one scan is required: use a VGAIN or bias list/range"
-        return 1
-    fi
-
-    local -a vgain_array bias_array
-    local vgain_mode bias_mode
-    if [[ -n "$vgain_list" ]]; then
-        parse_list "$vgain_list" vgain_array || return 1
-        vgain_mode="scan-list"
-    elif [[ -n "$vgain_range" ]]; then
-        build_integer_range "$vgain_range" vgain_array || return 1
-        vgain_mode="scan-range"
-    else
-        vgain_array=("${fixed_vgain:-1800}")
-        vgain_mode="fixed"
-    fi
-    if [[ -n "$bias_list" ]]; then
-        parse_list "$bias_list" bias_array || return 1
-        bias_mode="scan-list"
-    elif [[ -n "$bias_range" ]]; then
-        build_decimal_range "$bias_range" bias_array || return 1
-        bias_mode="scan-range"
-    else
-        if [[ "$set_as_dac" == true ]]; then
-            bias_array=("${fixed_bias:-0}")
-        else
-            bias_array=("${fixed_bias:-0.0}")
+    if [[ "$resume_mode" != true ]]; then
+        local vgain_selectors=0 bias_selectors=0
+        [[ -n "$vgain_list" ]] && ((++vgain_selectors))
+        [[ -n "$vgain_range" ]] && ((++vgain_selectors))
+        [[ -n "$fixed_vgain" ]] && ((++vgain_selectors))
+        [[ -n "$bias_list" ]] && ((++bias_selectors))
+        [[ -n "$bias_range" ]] && ((++bias_selectors))
+        [[ -n "$fixed_bias" ]] && ((++bias_selectors))
+        if (( vgain_selectors > 1 )); then
+            fail "choose only one of -vgain_list, -vgain_range/-range, or -vgain"
+            return 1
         fi
-        bias_mode="fixed"
+        if (( bias_selectors > 1 )); then
+            fail "choose only one of -bias_list, -bias_range, or -bias"
+            return 1
+        fi
+        if [[ -z "$vgain_list" && -z "$vgain_range" && -z "$bias_list" && -z "$bias_range" ]]; then
+            fail "at least one scan is required: use a VGAIN or bias list/range"
+            return 1
+        fi
+
+        if [[ -n "$vgain_list" ]]; then
+            parse_list "$vgain_list" vgain_array || return 1
+            vgain_mode="scan-list"
+        elif [[ -n "$vgain_range" ]]; then
+            build_integer_range "$vgain_range" vgain_array || return 1
+            vgain_mode="scan-range"
+        else
+            vgain_array=("${fixed_vgain:-1800}")
+            vgain_mode="fixed"
+        fi
+        if [[ -n "$bias_list" ]]; then
+            parse_list "$bias_list" bias_array || return 1
+            bias_mode="scan-list"
+        elif [[ -n "$bias_range" ]]; then
+            build_decimal_range "$bias_range" bias_array || return 1
+            bias_mode="scan-range"
+        else
+            if [[ "$set_as_dac" == true ]]; then
+                bias_array=("${fixed_bias:-0}")
+            else
+                bias_array=("${fixed_bias:-0.0}")
+            fi
+            bias_mode="fixed"
+        fi
     fi
 
     local vgain bias
@@ -431,19 +658,66 @@ scan_main() {
         done
     fi
 
-    mkdir -p "$output_folder" || { fail "could not create output folder '$output_folder'"; return 1; }
-    local units="volts"
+    units="volts"
     [[ "$set_as_dac" == true ]] && units="DAC"
-    echo "Channels: ${channel_list[*]} (AFE $afe)"
-    echo "Bias points ($bias_mode, $units): ${bias_array[*]}"
-    echo "VGAIN points ($vgain_mode, DAC): ${vgain_array[*]}"
+    total_points=$((${#bias_array[@]} * ${#vgain_array[@]}))
+
+    if [[ "$resume_mode" == true ]]; then
+        prepare_resume || return 1
+        if [[ "$scan_already_complete" == true ]]; then
+            echo "Scan already complete: all $total_points points contain config.txt and the expected $N x $L samples for channels ${channel_list[*]}."
+            return 0
+        fi
+    else
+        if [[ -e "$metadata_file" ]]; then
+            fail "scan metadata already exists at $metadata_file; use --resume or choose a new folder"
+            return 1
+        fi
+        if [[ -d "$output_folder" ]] && compgen -G "${output_folder}/vbias_*" >/dev/null; then
+            fail "output folder already contains vbias_* data but has no resumable metadata: $output_folder"
+            return 1
+        fi
+        scan_created_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+        completed_points=0
+        resume_start_index=0
+    fi
+
+    confirm_scan_parameters || return 1
+
+    mkdir -p "$output_folder" || { fail "could not create output folder '$output_folder'"; return 1; }
+    if [[ "$resume_mode" == true && -n "$resume_delete_folder" ]]; then
+        case "$resume_delete_folder" in
+            "$output_folder"/vbias_*/vgain_*)
+                echo "Removing last potentially corrupt scan point: $resume_delete_folder"
+                rm -rf -- "$resume_delete_folder" || {
+                    fail "could not remove the last scan point: $resume_delete_folder"
+                    return 1
+                }
+                ;;
+            *)
+                fail "refusing to remove unsafe resume path: $resume_delete_folder"
+                return 1
+                ;;
+        esac
+    fi
+    scan_status_text="in_progress"
+    write_scan_metadata || {
+        fail "could not write scan metadata: $metadata_file"
+        return 1
+    }
 
     local bias_folder bias_log bias_readback
     local -a common_connection_args bias_args read_bias_args vgain_args pedestal_args read_all_args
     common_connection_args=(-ip "$ip_addr" -port "$port" -route "$route" --timeout-ms "$timeout_ms")
 
     _run_scan_points() {
+    local point_index=0
+    local points_per_bias=${#vgain_array[@]}
     for bias in "${bias_array[@]}"; do
+        if (( point_index + points_per_bias <= resume_start_index )); then
+            ((point_index += points_per_bias))
+            continue
+        fi
         bias_folder="${output_folder}/vbias_${bias}"
         mkdir -p "$bias_folder" || { fail "could not create '$bias_folder'"; return 1; }
         bias_log="${bias_folder}/vbias_config.txt"
@@ -475,6 +749,10 @@ scan_main() {
 
         for vgain in "${vgain_array[@]}"; do
             local point_folder config_file final_readback
+            if (( point_index < resume_start_index )); then
+                ((point_index += 1))
+                continue
+            fi
             point_folder="${bias_folder}/vgain_${vgain}"
             mkdir -p "$point_folder" || { fail "could not create '$point_folder'"; return 1; }
             config_file="${point_folder}/config.txt"
@@ -546,13 +824,33 @@ scan_main() {
                 fail "acquisition failed for bias $bias, VGAIN $vgain"
                 return 1
             fi
+            if ! point_data_is_complete "$point_folder"; then
+                fail "acquisition for bias $bias, VGAIN $vgain did not produce config.txt and exactly $((N * L * 2)) bytes for every selected channel"
+                return 1
+            fi
+            printf 'complete_utc=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "${point_folder}/.scan_point_complete"
+            completed_points=$((point_index + 1))
+            scan_status_text="in_progress"
+            write_scan_metadata || {
+                fail "could not update scan metadata after bias $bias, VGAIN $vgain"
+                return 1
+            }
+            ((point_index += 1))
         done
     done
 
+    completed_points=$total_points
+    scan_status_text="complete"
+    write_scan_metadata || {
+        fail "could not mark scan metadata complete: $metadata_file"
+        return 1
+    }
     echo "Bias/VGAIN scan completed. All output files are stored in: $output_folder"
     }
 
     if ! _run_scan_points; then
+        scan_status_text="failed"
+        write_scan_metadata || true
         reset_bias_and_trim_after_failure || true
         return 1
     fi
