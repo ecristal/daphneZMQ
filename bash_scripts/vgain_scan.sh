@@ -42,8 +42,8 @@ Acquisition options:
   -multi_channel           Accepted for backward compatibility; channel count
                            is inferred automatically.
 
-On any hardware-stage failure, AFE bias and selected-channel TRIMs are reset
-to 0 and read back; bias-control is left at the requested value.
+After every successful or failed scan, the selected hardware is restored to
+bias=0, TRIM=0, VGAIN=1700, and pedestal=8192. Bias-control is preserved.
 
 Resume options:
   --resume                 Load the scan plan from DIR/scan_metadata.txt,
@@ -238,6 +238,10 @@ write_scan_metadata() {
         echo "timeout_ms=$timeout_ms"
         echo "completed_points=$completed_points"
         echo "total_points=$total_points"
+        echo "default_bias=0"
+        echo "default_trim=0"
+        echo "default_vgain=1700"
+        echo "default_pedestal=8192"
     } > "$metadata_tmp" || return 1
     mv -f -- "$metadata_tmp" "$metadata_file"
 }
@@ -328,12 +332,12 @@ prepare_resume() {
 
     if [[ "$all_complete" == true ]]; then
         completed_points=$total_points
-        scan_status_text="complete"
-        write_scan_metadata || {
-            fail "could not update completed metadata: $metadata_file"
-            return 1
-        }
-        scan_already_complete=true
+        resume_start_index=$total_points
+        if [[ "$scan_status_text" == "complete" ]]; then
+            scan_already_complete=true
+        else
+            restore_only_mode=true
+        fi
         return 0
     fi
 
@@ -372,10 +376,14 @@ confirm_scan_parameters() {
     echo "Connection:           $ip_addr:$port, route=$route, timeout=${timeout_ms}ms"
     echo "Trigger source:       $trigger_source"
     echo "Points:               $total_points total, $completed_points retained, $((total_points - completed_points)) to acquire"
+    if [[ "$restore_only_mode" == true ]]; then
+        echo "Resume action:        data complete; restore default hardware only"
+    fi
     if [[ -n "$resume_delete_folder" ]]; then
         echo "Point to replace:     $resume_delete_folder"
     fi
-    echo "Failure recovery:     bias=0, TRIM=0, bias_control remains $bias_control"
+    echo "Final restoration:    bias=0, TRIM=0, VGAIN=1700, pedestal=8192"
+    echo "Bias control:         remains $bias_control $units"
     echo "==================================================="
 
     if [[ "$assume_yes" == true ]]; then
@@ -394,44 +402,57 @@ confirm_scan_parameters() {
     esac
 }
 
-reset_bias_and_trim_after_failure() {
-    local reset_log="${output_folder}/failure_reset.log"
-    local reset_channel reset_readback
-    local reset_failed=false
-    local -a reset_args reset_read_args
+restore_default_configuration() {
+    local reason="$1"
+    local restore_log="${output_folder}/default_restore.log"
+    local restore_channel restore_readback
+    local restore_failed=false
+    local -a restore_args restore_vgain_args restore_pedestal_args restore_read_args
 
-    echo "WARNING: scan failed; resetting AFE $afe bias and selected-channel TRIMs to 0 while preserving bias_control=$bias_control." >&2
-    : > "$reset_log"
-    for reset_channel in "${channel_list[@]}"; do
-        reset_args=("${common_connection_args[@]}" -channel "$reset_channel" -bias 0 -trim 0 -bias_control "$bias_control")
-        [[ "$set_as_dac" == true ]] && reset_args+=(--set-as-dac)
-        if ! run_logged "$reset_log" "failure recovery for channel $reset_channel" \
-            "$python_bin" "$client_dir/protobuf_configure_vbias_trim.py" "${reset_args[@]}"; then
-            reset_failed=true
+    echo "Restoring defaults after $reason: bias=0, TRIM=0, VGAIN=1700, pedestal=8192; preserving bias_control=$bias_control."
+    : > "$restore_log"
+    for restore_channel in "${channel_list[@]}"; do
+        restore_args=("${common_connection_args[@]}" -channel "$restore_channel" -bias 0 -trim 0 -bias_control "$bias_control")
+        [[ "$set_as_dac" == true ]] && restore_args+=(--set-as-dac)
+        if ! run_logged "$restore_log" "restore bias/TRIM for channel $restore_channel" \
+            "$python_bin" "$client_dir/protobuf_configure_vbias_trim.py" "${restore_args[@]}"; then
+            restore_failed=true
         fi
     done
 
-    reset_read_args=("${common_connection_args[@]}" -channel "${channel_list[@]}" -afe "$afe" --trim --bias --bias-control --compact)
-    if reset_readback=$("$python_bin" "$client_dir/protobuf_read_configuration.py" "${reset_read_args[@]}" 2>&1); then
+    restore_vgain_args=("${common_connection_args[@]}" -afe "$afe" -vgain_value 1700)
+    if ! run_logged "$restore_log" "restore VGAIN to 1700" \
+        "$python_bin" "$client_dir/protobuf_configure_vgain.py" "${restore_vgain_args[@]}"; then
+        restore_failed=true
+    fi
+
+    restore_pedestal_args=("${common_connection_args[@]}" -channel "${channel_list[@]}" --use-current-offset -target_pedestal 8192 -method regula_falsi --auto -L "$L")
+    if ! run_logged "$restore_log" "restore pedestal to 8192" \
+        "$python_bin" "$client_dir/protobuf_configure_pedestal_level.py" "${restore_pedestal_args[@]}"; then
+        restore_failed=true
+    fi
+
+    restore_read_args=("${common_connection_args[@]}" -channel "${channel_list[@]}" -afe "$afe" --offset --trim --bias --vgain --bias-control --compact)
+    if restore_readback=$("$python_bin" "$client_dir/protobuf_read_configuration.py" "${restore_read_args[@]}" 2>&1); then
         {
             echo
-            echo "===== failure recovery readback ====="
-            echo "$reset_readback"
-        } >> "$reset_log"
+            echo "===== default configuration readback ====="
+            echo "$restore_readback"
+        } >> "$restore_log"
     else
         {
             echo
-            echo "===== failure recovery readback failed ====="
-            echo "$reset_readback"
-        } >> "$reset_log"
-        reset_failed=true
+            echo "===== default configuration readback failed ====="
+            echo "$restore_readback"
+        } >> "$restore_log"
+        restore_failed=true
     fi
 
-    if [[ "$reset_failed" == true ]]; then
-        echo "ERROR: scan failed and the bias/TRIM recovery could not be fully verified; see $reset_log" >&2
+    if [[ "$restore_failed" == true ]]; then
+        echo "ERROR: default restoration could not be fully verified; see $restore_log" >&2
         return 1
     fi
-    echo "Failure recovery verified: bias=0 and TRIM=0; bias_control remains $bias_control. Details: $reset_log" >&2
+    echo "Default restoration verified. Details: $restore_log"
     return 0
 }
 
@@ -443,7 +464,7 @@ scan_main() {
     local pedestal="8192" set_as_dac=false legacy_software_trigger=false
     local resume_mode=false assume_yes=false config_option_seen=false
     local metadata_file="" metadata_afe="" scan_created_utc=""
-    local scan_status_text="in_progress" scan_already_complete=false
+    local scan_status_text="in_progress" scan_already_complete=false restore_only_mode=false
     local resume_delete_folder="" resume_start_index=0 completed_points=0 total_points=0
     local vgain_mode="" bias_mode="" units="" trigger_source="" afe=-1
     local python_bin="${DAPHNE_PYTHON:-python3}"
@@ -700,7 +721,11 @@ scan_main() {
                 ;;
         esac
     fi
-    scan_status_text="in_progress"
+    if [[ "$restore_only_mode" == true ]]; then
+        scan_status_text="restoring_defaults"
+    else
+        scan_status_text="in_progress"
+    fi
     write_scan_metadata || {
         fail "could not write scan metadata: $metadata_file"
         return 1
@@ -840,20 +865,38 @@ scan_main() {
     done
 
     completed_points=$total_points
-    scan_status_text="complete"
+    scan_status_text="acquisition_complete"
     write_scan_metadata || {
-        fail "could not mark scan metadata complete: $metadata_file"
+        fail "could not mark scan acquisition complete: $metadata_file"
         return 1
     }
-    echo "Bias/VGAIN scan completed. All output files are stored in: $output_folder"
     }
 
-    if ! _run_scan_points; then
+    if [[ "$restore_only_mode" != true ]] && ! _run_scan_points; then
         scan_status_text="failed"
         write_scan_metadata || true
-        reset_bias_and_trim_after_failure || true
+        if restore_default_configuration "scan failure"; then
+            scan_status_text="failed_restored"
+        else
+            scan_status_text="failed_restore_failed"
+        fi
+        write_scan_metadata || true
         return 1
     fi
+
+    scan_status_text="restoring_defaults"
+    write_scan_metadata || true
+    if ! restore_default_configuration "$([[ "$restore_only_mode" == true ]] && echo 'interrupted completed scan' || echo 'successful scan')"; then
+        scan_status_text="complete_restore_failed"
+        write_scan_metadata || true
+        return 1
+    fi
+    scan_status_text="complete"
+    write_scan_metadata || {
+        fail "data and default restoration succeeded, but final metadata could not be written: $metadata_file"
+        return 1
+    }
+    echo "Bias/VGAIN scan completed and default hardware configuration restored. All output files are stored in: $output_folder"
 }
 
 scan_main "$@"
