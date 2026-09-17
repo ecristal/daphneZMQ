@@ -44,6 +44,8 @@ Acquisition options:
 
 After every successful or failed scan, the selected hardware is restored to
 bias=0, TRIM=0, VGAIN=1700, and pedestal=8192. Bias-control is preserved.
+SIGINT (Ctrl+C), SIGTERM, and SIGHUP trigger the same default restoration
+before the scan process exits.
 
 Resume options:
   --resume                 Load the scan plan from DIR/scan_metadata.txt,
@@ -197,10 +199,20 @@ run_logged() {
         printf ' %q' "$@"
         echo
     } >> "$log_file"
-    if ! "$@" >> "$log_file" 2>&1; then
+    if ! run_external_command "$@" >> "$log_file" 2>&1; then
         echo "ERROR: $label failed; see $log_file" >&2
         return 1
     fi
+}
+
+run_external_command() {
+    local command_status
+    "$@" &
+    active_child_pid=$!
+    wait "$active_child_pid"
+    command_status=$?
+    active_child_pid=""
+    return "$command_status"
 }
 
 join_by_comma() {
@@ -456,6 +468,30 @@ restore_default_configuration() {
     return 0
 }
 
+handle_scan_signal() {
+    local signal_name="$1" signal_status="$2"
+    local normalized_signal="${signal_name,,}"
+
+    # Prevent a second signal from recursively starting another restoration.
+    trap - INT TERM HUP
+    echo >&2
+    echo "EMERGENCY STOP: received $signal_name; aborting the scan and restoring defaults." >&2
+    if [[ -n "${active_child_pid:-}" ]]; then
+        kill -TERM "$active_child_pid" 2>/dev/null || true
+        wait "$active_child_pid" 2>/dev/null || true
+        active_child_pid=""
+    fi
+    scan_status_text="interrupted_${normalized_signal}"
+    write_scan_metadata || true
+    if restore_default_configuration "signal $signal_name"; then
+        scan_status_text="interrupted_${normalized_signal}_restored"
+    else
+        scan_status_text="interrupted_${normalized_signal}_restore_failed"
+    fi
+    write_scan_metadata || true
+    exit "$signal_status"
+}
+
 scan_main() {
     local output_folder="" vgain_list="" vgain_range="" fixed_vgain=""
     local bias_list="" bias_range="" fixed_bias=""
@@ -467,6 +503,7 @@ scan_main() {
     local scan_status_text="in_progress" scan_already_complete=false restore_only_mode=false
     local resume_delete_folder="" resume_start_index=0 completed_points=0 total_points=0
     local vgain_mode="" bias_mode="" units="" trigger_source="" afe=-1
+    local active_child_pid=""
     local python_bin="${DAPHNE_PYTHON:-python3}"
     local script_dir client_dir
     script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
@@ -734,6 +771,9 @@ scan_main() {
     local bias_folder bias_log bias_readback
     local -a common_connection_args bias_args read_bias_args vgain_args pedestal_args read_all_args
     common_connection_args=(-ip "$ip_addr" -port "$port" -route "$route" --timeout-ms "$timeout_ms")
+    trap 'handle_scan_signal INT 130' INT
+    trap 'handle_scan_signal TERM 143' TERM
+    trap 'handle_scan_signal HUP 129' HUP
 
     _run_scan_points() {
     local point_index=0
@@ -833,7 +873,7 @@ scan_main() {
                 echo "$final_readback"
             } >> "$config_file"
 
-            if ! "$python_bin" "$client_dir/protobuf_acquire_list_channels.py" \
+            if ! run_external_command "$python_bin" "$client_dir/protobuf_acquire_list_channels.py" \
                 -ip "$ip_addr" \
                 -port "$port" \
                 -route "$route" \
@@ -899,6 +939,13 @@ scan_main() {
     echo "Bias/VGAIN scan completed and default hardware configuration restored. All output files are stored in: $output_folder"
 }
 
-scan_main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    scan_main "$@"
+    exit $?
+fi
+
+# A sourced script runs the scan in a subshell so emergency-handler `exit`
+# terminates only the scan, never the user's interactive shell.
+(scan_main "$@")
 scan_status=$?
-return "$scan_status" 2>/dev/null || exit "$scan_status"
+return "$scan_status"
