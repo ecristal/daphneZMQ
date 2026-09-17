@@ -30,6 +30,8 @@ Configuration options:
                            without it they are interpreted as volts. TRIM and
                            VGAIN are always DAC codes.
   -pedestal VALUE          Target pedestal ADC code (default: 8192)
+                           Tuning uses regula_falsi, --auto, and the current
+                           OFFSET as its starting point.
 
 Acquisition options:
   -trigger_source software|external|timing|all  (default: external)
@@ -37,6 +39,9 @@ Acquisition options:
   --timeout-ms MS          Client timeout (default: 30000)
   -multi_channel           Accepted for backward compatibility; channel count
                            is inferred automatically.
+
+On any hardware-stage failure, AFE bias and selected-channel TRIMs are reset
+to 0 and read back; bias-control is left at the requested value.
 
 Examples:
   # VGAIN-only scan at a fixed bias
@@ -188,6 +193,47 @@ run_logged() {
         echo "ERROR: $label failed; see $log_file" >&2
         return 1
     fi
+}
+
+reset_bias_and_trim_after_failure() {
+    local reset_log="${output_folder}/failure_reset.log"
+    local reset_channel reset_readback
+    local reset_failed=false
+    local -a reset_args reset_read_args
+
+    echo "WARNING: scan failed; resetting AFE $afe bias and selected-channel TRIMs to 0 while preserving bias_control=$bias_control." >&2
+    : > "$reset_log"
+    for reset_channel in "${channel_list[@]}"; do
+        reset_args=("${common_connection_args[@]}" -channel "$reset_channel" -bias 0 -trim 0 -bias_control "$bias_control")
+        [[ "$set_as_dac" == true ]] && reset_args+=(--set-as-dac)
+        if ! run_logged "$reset_log" "failure recovery for channel $reset_channel" \
+            "$python_bin" "$client_dir/protobuf_configure_vbias_trim.py" "${reset_args[@]}"; then
+            reset_failed=true
+        fi
+    done
+
+    reset_read_args=("${common_connection_args[@]}" -channel "${channel_list[@]}" -afe "$afe" --trim --bias --bias-control --compact)
+    if reset_readback=$("$python_bin" "$client_dir/protobuf_read_configuration.py" "${reset_read_args[@]}" 2>&1); then
+        {
+            echo
+            echo "===== failure recovery readback ====="
+            echo "$reset_readback"
+        } >> "$reset_log"
+    else
+        {
+            echo
+            echo "===== failure recovery readback failed ====="
+            echo "$reset_readback"
+        } >> "$reset_log"
+        reset_failed=true
+    fi
+
+    if [[ "$reset_failed" == true ]]; then
+        echo "ERROR: scan failed and the bias/TRIM recovery could not be fully verified; see $reset_log" >&2
+        return 1
+    fi
+    echo "Failure recovery verified: bias=0 and TRIM=0; bias_control remains $bias_control. Details: $reset_log" >&2
+    return 0
 }
 
 scan_main() {
@@ -396,6 +442,7 @@ scan_main() {
     local -a common_connection_args bias_args read_bias_args vgain_args pedestal_args read_all_args
     common_connection_args=(-ip "$ip_addr" -port "$port" -route "$route" --timeout-ms "$timeout_ms")
 
+    _run_scan_points() {
     for bias in "${bias_array[@]}"; do
         bias_folder="${output_folder}/vbias_${bias}"
         mkdir -p "$bias_folder" || { fail "could not create '$bias_folder'"; return 1; }
@@ -447,6 +494,7 @@ scan_main() {
                 echo "vgain_units=DAC"
                 echo "pedestal_target=$pedestal"
                 echo "pedestal_method=regula_falsi"
+                echo "pedestal_mode=auto"
                 echo "pedestal_initial_offset=current"
                 echo "trigger_source=$trigger_source"
                 echo "route=$route"
@@ -462,7 +510,7 @@ scan_main() {
             run_logged "$config_file" "configure VGAIN" \
                 "$python_bin" "$client_dir/protobuf_configure_vgain.py" "${vgain_args[@]}" || return 1
 
-            pedestal_args=("${common_connection_args[@]}" -channel "${channel_list[@]}" --use-current-offset -target_pedestal "$pedestal" -method regula_falsi -L "$L")
+            pedestal_args=("${common_connection_args[@]}" -channel "${channel_list[@]}" --use-current-offset -target_pedestal "$pedestal" -method regula_falsi --auto -L "$L")
             run_logged "$config_file" "configure pedestal OFFSETs" \
                 "$python_bin" "$client_dir/protobuf_configure_pedestal_level.py" "${pedestal_args[@]}" || return 1
 
@@ -502,6 +550,12 @@ scan_main() {
     done
 
     echo "Bias/VGAIN scan completed. All output files are stored in: $output_folder"
+    }
+
+    if ! _run_scan_points; then
+        reset_bias_and_trim_after_failure || true
+        return 1
+    fi
 }
 
 scan_main "$@"
