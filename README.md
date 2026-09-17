@@ -123,6 +123,11 @@ are automatically split into safe response sizes during acquisition.
 python3 client/protobuf_configure_pedestal_level.py \
   -ip 192.168.1.10 -channel 3 -target_pedestal 6000 -L 1024 --auto
 
+# Start from the OFFSET already configured in hardware (do not write 2275)
+python3 client/protobuf_configure_pedestal_level.py \
+  -ip 192.168.1.10 -channel 3 -target_pedestal 6000 -L 1024 --auto \
+  --use-current-offset
+
 # A set of channels, with bisection and a 256-code per-step limit
 python3 client/protobuf_configure_pedestal_level.py \
   -ip 192.168.1.10 -channel 0 1 7 12 -target_pedestal 6000 -L 1024 \
@@ -145,6 +150,59 @@ cannot converge, its best measured offset is restored and the process exits
 with status 1. The older
 `-max_iteration_steps` and `-max_iteration_offset` spellings remain accepted as
 hidden compatibility aliases for manual mode.
+
+`--use-current-offset` reads back all channel OFFSET codes and uses the selected
+channels' current values for the initial pedestal acquisition. No OFFSET write
+is issued before that first acquisition; subsequent sensitivity probes and
+search iterations can modify the selected channels normally. The underscore
+form `--use_current_offset` is also accepted.
+
+After calibration, the client independently reads back the OFFSET configuration
+and verifies every selected channel against the reported final value. This
+verification works identically for one channel, a channel list, or all 40
+channels; a mismatch is reported as an error.
+
+### Configuration readback client
+
+`client/protobuf_read_configuration.py` reads OFFSET and TRIM for the selected
+channels, BIAS and VGAIN for their AFEs, and the global BIAS control setting. It
+is read-only and prints JSON. BIAS is an AFE-wide setting shared by its eight
+channels, so each channel entry reports the BIAS inherited from its AFE; TRIM
+is the independent per-channel bias adjustment.
+
+```bash
+# One channel (also reads BIAS and VGAIN for its AFE)
+python3 client/protobuf_read_configuration.py \
+  -ip 192.168.1.10 -port 40001 -channel 33
+
+# Multiple channels (space- or comma-separated)
+python3 client/protobuf_read_configuration.py \
+  -ip 192.168.1.10 -channel 0 1 8 17
+
+# Read only OFFSET for selected channels
+python3 client/protobuf_read_configuration.py \
+  -ip 192.168.1.10 -channel 0 1 8 17 --offset
+
+# Read only BIAS and VGAIN for selected AFEs
+python3 client/protobuf_read_configuration.py \
+  -ip 192.168.1.10 -afe 1 3 --bias --vgain
+
+# Read only the global BIAS control configuration
+python3 client/protobuf_read_configuration.py \
+  -ip 192.168.1.10 --bias-control
+
+# Two complete AFEs, including all of their channels
+python3 client/protobuf_read_configuration.py \
+  -ip 192.168.1.10 -afe 1 3
+
+# All 40 channels and all five AFEs (the default with no selector)
+python3 client/protobuf_read_configuration.py -ip 192.168.1.10
+```
+
+The independent selectors are `--offset`, `--trim`, `--bias`, `--vgain`, and
+`--bias-control`; they can be combined. When none is specified, all five
+configuration types are read. Only the RPCs required by the selected flags are
+issued.
 
 ## ZeroMQ register server
 

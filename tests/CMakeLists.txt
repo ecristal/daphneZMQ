@@ -103,6 +103,17 @@ if(PYTHONINTERP_FOUND)
     pedestal_calibration_unit
     PROPERTIES LABELS unit
   )
+
+  add_test(
+    NAME read_configuration_unit
+    COMMAND
+      ${PYTHON_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/test_read_configuration.py
+  )
+  set_tests_properties(
+    read_configuration_unit
+    PROPERTIES LABELS unit
+  )
 endif()
 
 if(DAPHNE_ENABLE_HARDWARE_TESTS AND CMAKE_SYSTEM_NAME STREQUAL "Linux")

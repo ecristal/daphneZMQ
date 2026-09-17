@@ -285,6 +285,28 @@ def _accept_best(
     return False
 
 
+def _resolve_initial_offsets(
+    channels: Sequence[int],
+    initial_offsets: Optional[Dict[int, int]],
+) -> Tuple[Dict[int, int], bool]:
+    if initial_offsets is None:
+        return ({channel: INITIAL_OFFSET for channel in channels}, True)
+    if set(initial_offsets) != set(channels):
+        raise ValueError(
+            "initial OFFSET map must contain exactly the selected channels"
+        )
+    resolved = {}
+    for channel in channels:
+        offset = int(initial_offsets[channel])
+        if not OFFSET_MIN <= offset <= OFFSET_MAX:
+            raise ValueError(
+                f"channel {channel} initial OFFSET {offset} is outside "
+                f"{OFFSET_MIN}..{OFFSET_MAX}"
+            )
+        resolved[channel] = offset
+    return resolved, False
+
+
 def next_offset(
     state: ChannelState,
     target: float,
@@ -351,6 +373,7 @@ def calibrate_pedestals(
     write_offset: Callable[[int, int], None],
     measure_pedestals: Callable[[Sequence[int]], Dict[int, float]],
     report: Optional[Callable[[str], None]] = print,
+    initial_offsets: Optional[Dict[int, int]] = None,
 ) -> List[CalibrationResult]:
     """Calibrate selected channels concurrently and leave each at its best offset."""
     if method not in ("bisection", "regula_falsi"):
@@ -358,11 +381,18 @@ def calibrate_pedestals(
     if max_iterations <= 0 or max_offset_step <= 0 or tolerance <= 0:
         raise ValueError("iteration count, offset step, and tolerance must be positive")
 
-    states = {channel: ChannelState(channel) for channel in channels}
+    resolved_offsets, configure_initial = _resolve_initial_offsets(
+        channels, initial_offsets
+    )
+    states = {
+        channel: ChannelState(channel, current_offset=resolved_offsets[channel])
+        for channel in channels
+    }
     active = list(channels)
     for iteration in range(1, max_iterations + 1):
-        for channel in active:
-            write_offset(channel, states[channel].current_offset)
+        if iteration > 1 or configure_initial:
+            for channel in active:
+                write_offset(channel, states[channel].current_offset)
 
         measured = measure_pedestals(active)
         if set(measured) != set(active):
@@ -487,6 +517,7 @@ def calibrate_pedestals_auto(
     write_offset: Callable[[int, int], None],
     measure_pedestals: Callable[[Sequence[int]], Dict[int, float]],
     report: Optional[Callable[[str], None]] = print,
+    initial_offsets: Optional[Dict[int, int]] = None,
 ) -> List[CalibrationResult]:
     """Measure channel sensitivity, then tune with fully automatic bounds."""
     if method not in ("bisection", "regula_falsi"):
@@ -494,13 +525,20 @@ def calibrate_pedestals_auto(
     if minimum_tolerance <= 0:
         raise ValueError("minimum tolerance must be positive")
 
-    states = {channel: ChannelState(channel) for channel in channels}
+    resolved_offsets, configure_initial = _resolve_initial_offsets(
+        channels, initial_offsets
+    )
+    states = {
+        channel: ChannelState(channel, current_offset=resolved_offsets[channel])
+        for channel in channels
+    }
     sensitivities: Dict[int, float] = {}
     tolerances = {channel: minimum_tolerance for channel in channels}
 
-    def measure_offsets(selected, offsets, phase):
-        for channel in selected:
-            write_offset(channel, offsets[channel])
+    def measure_offsets(selected, offsets, phase, configure=True):
+        if configure:
+            for channel in selected:
+                write_offset(channel, offsets[channel])
         measured = measure_pedestals(selected)
         if set(measured) != set(selected):
             raise RuntimeError(
@@ -527,11 +565,15 @@ def calibrate_pedestals_auto(
                     f"error={pedestal - target:+.3f}{_rail_label(pedestal)}"
                 )
 
-    initial_offsets = {channel: INITIAL_OFFSET for channel in channels}
-    measure_offsets(channels, initial_offsets, "initial")
+    measure_offsets(
+        channels,
+        resolved_offsets,
+        "initial",
+        configure=configure_initial,
+    )
 
     probe_origins = {
-        channel: states[channel].observations[INITIAL_OFFSET]
+        channel: states[channel].observations[resolved_offsets[channel]]
         for channel in channels
     }
     probe_directions = {}
@@ -727,6 +769,52 @@ def calibrate_pedestals_auto(
     return results
 
 
+def _read_current_offsets(pb_high, pb_low, client, channels: Sequence[int]):
+    response = client.rpc(
+        pb_high.MT2_READ_OFFSET_ALL_CH_REQ,
+        pb_low.cmd_readOffset_allChannels(),
+        pb_high.MT2_READ_OFFSET_ALL_CH_RESP,
+        pb_low.cmd_readOffset_allChannels_response,
+    )
+    if not response.success:
+        raise RuntimeError(f"could not read channel OFFSETs: {response.message}")
+    values = list(response.offsetValues)
+    if len(values) != CHANNEL_COUNT:
+        raise RuntimeError(
+            f"OFFSET readback returned {len(values)} channels; "
+            f"expected {CHANNEL_COUNT}"
+        )
+    offsets = {}
+    for channel in channels:
+        offset = int(values[channel])
+        if not OFFSET_MIN <= offset <= OFFSET_MAX:
+            raise RuntimeError(
+                f"channel {channel} OFFSET readback {offset} is outside "
+                f"{OFFSET_MIN}..{OFFSET_MAX}"
+            )
+        offsets[channel] = offset
+    return offsets
+
+
+def _verify_configured_offsets(pb_high, pb_low, client, expected_offsets):
+    channels = list(expected_offsets)
+    actual_offsets = _read_current_offsets(
+        pb_high, pb_low, client, channels
+    )
+    mismatches = {
+        channel: (int(expected_offsets[channel]), actual_offsets[channel])
+        for channel in channels
+        if actual_offsets[channel] != int(expected_offsets[channel])
+    }
+    if mismatches:
+        details = ", ".join(
+            f"ch{channel}: expected {expected}, read {actual}"
+            for channel, (expected, actual) in mismatches.items()
+        )
+        raise RuntimeError(f"final OFFSET verification failed: {details}")
+    return actual_offsets
+
+
 def _write_offset(pb_high, pb_low, client, channel: int, offset: int):
     request = pb_low.cmd_writeOFFSET_singleChannel(
         offsetChannel=channel,
@@ -827,6 +915,23 @@ def build_parser():
         "--configure-all",
         action="store_true",
         help="Configure all 40 channels.",
+    )
+    parser.add_argument(
+        "--use-current-offset",
+        "--use_current_offset",
+        action="store_true",
+        dest="use_current_offset",
+        help=(
+            "Use each channel's current OFFSET for the initial pedestal "
+            "measurement instead of writing 2275."
+        ),
+    )
+    parser.add_argument(
+        "--use_init_current_pedestal",
+        "--use-init-current-pedestal",
+        action="store_true",
+        dest="use_current_offset",
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "-target_pedestal",
@@ -939,6 +1044,20 @@ def main(argv=None):
             )
             print("Configured spybuffer trigger source: software")
 
+            initial_offsets = None
+            if args.use_current_offset:
+                initial_offsets = _read_current_offsets(
+                    pb_high, pb_low, client, channels
+                )
+                summary = ", ".join(
+                    f"ch{channel}={initial_offsets[channel]}"
+                    for channel in channels
+                )
+                print(
+                    "Using current OFFSET configuration for initial "
+                    f"measurement: {summary}"
+                )
+
             def write_offset(channel, offset):
                 return _write_offset(
                     pb_high, pb_low, client, channel, offset
@@ -957,6 +1076,7 @@ def main(argv=None):
                     minimum_tolerance=args.tolerance,
                     write_offset=write_offset,
                     measure_pedestals=measure_pedestals,
+                    initial_offsets=initial_offsets,
                 )
             else:
                 results = calibrate_pedestals(
@@ -968,7 +1088,20 @@ def main(argv=None):
                     tolerance=args.tolerance,
                     write_offset=write_offset,
                     measure_pedestals=measure_pedestals,
+                    initial_offsets=initial_offsets,
                 )
+
+            expected_offsets = {
+                result.channel: result.offset for result in results
+            }
+            verified_offsets = _verify_configured_offsets(
+                pb_high, pb_low, client, expected_offsets
+            )
+            summary = ", ".join(
+                f"ch{channel}={verified_offsets[channel]}"
+                for channel in channels
+            )
+            print(f"Verified final OFFSET readback: {summary}")
     except (RuntimeError, TimeoutError, ValueError, zmq.ZMQError) as exc:
         print(f"[ERROR] {exc}", file=sys.stderr)
         return 2

@@ -33,7 +33,10 @@ from protobuf_configure_pedestal_level import (  # noqa: E402
     ADC_MAX,
     INITIAL_OFFSET,
     PEDESTAL_WAVEFORMS,
+    _read_current_offsets,
     _measure_pedestals,
+    _verify_configured_offsets,
+    _write_offset,
     build_parser,
     calibrate_pedestals,
     calibrate_pedestals_auto,
@@ -47,12 +50,16 @@ class _SimulatedHardware:
         self.transfer_functions = transfer_functions
         self.offsets = {}
         self.writes = {channel: [] for channel in transfer_functions}
+        self.measurements = []
 
     def write_offset(self, channel, offset):
         self.offsets[channel] = offset
         self.writes[channel].append(offset)
 
     def measure(self, channels):
+        self.measurements.append(
+            {channel: self.offsets[channel] for channel in channels}
+        )
         return {
             channel: self.transfer_functions[channel](self.offsets[channel])
             for channel in channels
@@ -101,6 +108,80 @@ class _AcquisitionClient:
         one_waveform = [100, 100, 200, 300, 400, 400]
         response.data = one_waveform * PEDESTAL_WAVEFORMS
         return response
+
+
+class _OffsetReadRequest:
+    pass
+
+
+class _OffsetReadResponse:
+    pass
+
+
+class _FakeLowProto:
+    cmd_readOffset_allChannels = _OffsetReadRequest
+    cmd_readOffset_allChannels_response = _OffsetReadResponse
+
+
+class _OffsetReadClient:
+    def rpc(self, request_type, request, response_type, response_class):
+        self.request = request
+        self.response_class = response_class
+        response = _OffsetReadResponse()
+        response.success = True
+        response.message = "OK"
+        response.offsetValues = [2000 + channel for channel in range(40)]
+        return response
+
+
+class _WriteOffsetRequest:
+    def __init__(self, offsetChannel, offsetValue, offsetGain):
+        self.offsetChannel = offsetChannel
+        self.offsetValue = offsetValue
+        self.offsetGain = offsetGain
+
+
+class _WriteOffsetResponse:
+    pass
+
+
+class _StatefulLowProto:
+    cmd_readOffset_allChannels = _OffsetReadRequest
+    cmd_readOffset_allChannels_response = _OffsetReadResponse
+    cmd_writeOFFSET_singleChannel = _WriteOffsetRequest
+    cmd_writeOFFSET_singleChannel_response = _WriteOffsetResponse
+
+
+class _StatefulHighProto:
+    MT2_READ_OFFSET_ALL_CH_REQ = 200
+    MT2_READ_OFFSET_ALL_CH_RESP = 201
+    MT2_WRITE_OFFSET_CH_REQ = 202
+    MT2_WRITE_OFFSET_CH_RESP = 203
+
+
+class _StatefulOffsetClient:
+    def __init__(self):
+        self.offsets = [0] * 40
+
+    def rpc(self, request_type, request, response_type, response_class):
+        if request_type == _StatefulHighProto.MT2_WRITE_OFFSET_CH_REQ:
+            if response_type != _StatefulHighProto.MT2_WRITE_OFFSET_CH_RESP:
+                raise AssertionError("unexpected write response type")
+            self.offsets[request.offsetChannel] = request.offsetValue
+            response = _WriteOffsetResponse()
+            response.success = True
+            response.message = "OK"
+            response.offsetValue = request.offsetValue
+            return response
+        if request_type == _StatefulHighProto.MT2_READ_OFFSET_ALL_CH_REQ:
+            if response_type != _StatefulHighProto.MT2_READ_OFFSET_ALL_CH_RESP:
+                raise AssertionError("unexpected read response type")
+            response = _OffsetReadResponse()
+            response.success = True
+            response.message = "OK"
+            response.offsetValues = list(self.offsets)
+            return response
+        raise AssertionError(f"unexpected request type {request_type}")
 
 
 class PedestalCalibrationTests(unittest.TestCase):
@@ -155,6 +236,17 @@ class PedestalCalibrationTests(unittest.TestCase):
         self.assertIn("--max-offset-change", help_text)
         self.assertNotIn("max_iteration_offset", help_text)
 
+    def test_cli_accepts_current_offset_flag_and_suggested_alias(self):
+        for flag in (
+            "--use-current-offset",
+            "--use_current_offset",
+            "--use_init_current_pedestal",
+        ):
+            args = build_parser().parse_args(
+                [flag, "-target_pedestal", "8000", "-L", "64"]
+            )
+            self.assertTrue(args.use_current_offset)
+
     def test_parses_one_many_comma_separated_and_all_channels(self):
         self.assertEqual(parse_channels(None, False), [0])
         self.assertEqual(parse_channels(["1", "3,5", "3"], False), [1, 3, 5])
@@ -182,6 +274,60 @@ class PedestalCalibrationTests(unittest.TestCase):
         )
         self.assertEqual(levels, {2: 100.0, 7: 400.0})
 
+    def test_reads_current_offsets_for_selected_channels(self):
+        class HighProto:
+            MT2_READ_OFFSET_ALL_CH_REQ = 200
+            MT2_READ_OFFSET_ALL_CH_RESP = 201
+
+        client = _OffsetReadClient()
+        offsets = _read_current_offsets(
+            HighProto, _FakeLowProto, client, [0, 7, 33]
+        )
+
+        self.assertEqual(offsets, {0: 2000, 7: 2007, 33: 2033})
+        self.assertIsInstance(client.request, _OffsetReadRequest)
+        self.assertIs(client.response_class, _OffsetReadResponse)
+
+    def test_configures_and_reads_back_one_or_multiple_channel_offsets(self):
+        cases = (
+            {7: 2210},
+            {1: 2101, 8: 2208, 33: 2233},
+        )
+        for expected in cases:
+            with self.subTest(channels=list(expected)):
+                client = _StatefulOffsetClient()
+                for channel, offset in expected.items():
+                    _write_offset(
+                        _StatefulHighProto,
+                        _StatefulLowProto,
+                        client,
+                        channel,
+                        offset,
+                    )
+
+                actual = _verify_configured_offsets(
+                    _StatefulHighProto,
+                    _StatefulLowProto,
+                    client,
+                    expected,
+                )
+
+                self.assertEqual(actual, expected)
+                for channel, offset in expected.items():
+                    self.assertEqual(client.offsets[channel], offset)
+
+    def test_final_offset_verification_rejects_a_readback_mismatch(self):
+        client = _StatefulOffsetClient()
+        client.offsets[5] = 2000
+
+        with self.assertRaisesRegex(RuntimeError, "ch5: expected 2100, read 2000"):
+            _verify_configured_offsets(
+                _StatefulHighProto,
+                _StatefulLowProto,
+                client,
+                {5: 2100},
+            )
+
     def test_bisection_converges_and_obeys_maximum_step(self):
         hardware = _SimulatedHardware({0: lambda offset: 4.0 * offset})
 
@@ -203,6 +349,27 @@ class PedestalCalibrationTests(unittest.TestCase):
         self.assertEqual(hardware.writes[0][0], INITIAL_OFFSET)
         for previous, current in zip(hardware.writes[0], hardware.writes[0][1:]):
             self.assertLessEqual(abs(current - previous), 400)
+
+    def test_manual_mode_can_measure_current_offset_without_initial_write(self):
+        hardware = _SimulatedHardware({0: lambda offset: 4.0 * offset})
+        hardware.offsets[0] = 1800
+
+        result = calibrate_pedestals(
+            channels=[0],
+            target=7200,
+            method="bisection",
+            max_iterations=12,
+            max_offset_step=400,
+            tolerance=1.0,
+            write_offset=hardware.write_offset,
+            measure_pedestals=hardware.measure,
+            report=None,
+            initial_offsets={0: 1800},
+        )[0]
+
+        self.assertTrue(result.converged)
+        self.assertEqual(hardware.measurements[0], {0: 1800})
+        self.assertEqual(hardware.writes[0], [])
 
     def test_regula_falsi_calibrates_channels_independently(self):
         hardware = _SimulatedHardware(
@@ -252,6 +419,26 @@ class PedestalCalibrationTests(unittest.TestCase):
         self.assertGreater(
             abs(hardware.writes[33][2] - hardware.writes[33][1]), 1
         )
+
+    def test_auto_mode_starts_from_current_offset_without_rewriting_it(self):
+        hardware = _SimulatedHardware({0: lambda offset: 4.0 * offset})
+        hardware.offsets[0] = 2200
+
+        result = calibrate_pedestals_auto(
+            channels=[0],
+            target=8800,
+            method="regula_falsi",
+            minimum_tolerance=1.0,
+            write_offset=hardware.write_offset,
+            measure_pedestals=hardware.measure,
+            report=None,
+            initial_offsets={0: 2200},
+        )[0]
+
+        self.assertTrue(result.converged)
+        self.assertEqual(hardware.measurements[0], {0: 2200})
+        self.assertEqual(hardware.writes[0][0], 2201)
+        self.assertNotIn(INITIAL_OFFSET, hardware.writes[0])
 
     def test_auto_mode_expands_probe_out_of_low_saturation(self):
         hardware = _SimulatedHardware(
