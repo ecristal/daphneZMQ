@@ -121,6 +121,7 @@ build_integer_range() {
             ((++count > 10000)) && { fail "VGAIN range has more than 10000 points"; return 1; }
         done
     fi
+    return 0
 }
 
 build_decimal_range() {
