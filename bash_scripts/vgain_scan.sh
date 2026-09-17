@@ -47,6 +47,11 @@ bias=0, TRIM=0, VGAIN=1700, and pedestal=8192. Bias-control is preserved.
 SIGINT (Ctrl+C), SIGTERM, and SIGHUP trigger the same default restoration
 before the scan process exits.
 
+Data integrity:
+  Every completed point contains a SHA256SUMS manifest for config.txt and the
+  channel_*.dat files. After the complete scan and default restoration, a
+  second SHA256SUMS manifest is written at the scan root and verified.
+
 Resume options:
   --resume                 Load the scan plan from DIR/scan_metadata.txt,
                            remove the last incomplete/potentially corrupt
@@ -220,6 +225,83 @@ join_by_comma() {
     echo "$*"
 }
 
+verify_point_checksum_manifest() {
+    local folder="$1"
+    [[ -f "$folder/SHA256SUMS" ]] || return 1
+    (
+        cd -- "$folder" || exit 1
+        sha256sum --check --strict --quiet SHA256SUMS
+    )
+}
+
+write_point_checksum_manifest() {
+    local folder="$1" data_channel
+    local manifest_tmp="${folder}/.SHA256SUMS.tmp.$$"
+
+    (
+        cd -- "$folder" || exit 1
+        sha256sum -- config.txt
+        for data_channel in "${channel_list[@]}"; do
+            sha256sum -- "channel_${data_channel}.dat"
+        done
+    ) > "$manifest_tmp" || {
+        rm -f -- "$manifest_tmp"
+        return 1
+    }
+    mv -f -- "$manifest_tmp" "$folder/SHA256SUMS" || return 1
+    return 0
+}
+
+verify_scan_checksum_manifest() {
+    [[ -f "$output_folder/SHA256SUMS" ]] || return 1
+    (
+        cd -- "$output_folder" || exit 1
+        sha256sum --check --strict --quiet SHA256SUMS
+    )
+}
+
+write_scan_checksum_manifest() {
+    local manifest_tmp="${output_folder}/.SHA256SUMS.tmp.$$"
+    local checksum_bias checksum_vgain bias_dir point_dir
+
+    # Older resumable scans may have valid-sized data but no point manifest.
+    # Create the missing manifests before assembling the scan-wide one.
+    for checksum_bias in "${bias_array[@]}"; do
+        for checksum_vgain in "${vgain_array[@]}"; do
+            point_dir="${output_folder}/vbias_${checksum_bias}/vgain_${checksum_vgain}"
+            if [[ ! -f "$point_dir/SHA256SUMS" ]]; then
+                write_point_checksum_manifest "$point_dir" || return 1
+            fi
+        done
+    done
+
+    (
+        cd -- "$output_folder" || exit 1
+        for checksum_bias in "${bias_array[@]}"; do
+            bias_dir="vbias_${checksum_bias}"
+            sha256sum -- "$bias_dir/vbias_config.txt" || exit 1
+            for checksum_vgain in "${vgain_array[@]}"; do
+                point_dir="${bias_dir}/vgain_${checksum_vgain}"
+                [[ -f "$point_dir/SHA256SUMS" && -f "$point_dir/.scan_point_complete" ]] || exit 1
+
+                # Reuse the already-computed hashes of the large waveform files
+                # and make their paths relative to the scan root.
+                sed "s#  #  ${point_dir}/#" "$point_dir/SHA256SUMS" || exit 1
+                sha256sum -- "$point_dir/SHA256SUMS" "$point_dir/.scan_point_complete" || exit 1
+            done
+        done
+    ) > "$manifest_tmp" || {
+        rm -f -- "$manifest_tmp"
+        return 1
+    }
+    if [[ ! -s "$manifest_tmp" ]]; then
+        rm -f -- "$manifest_tmp"
+        return 1
+    fi
+    mv -f -- "$manifest_tmp" "$output_folder/SHA256SUMS" || return 1
+    verify_scan_checksum_manifest
+}
+
 write_scan_metadata() {
     local metadata_tmp="${metadata_file}.tmp.$$"
     local channel_csv bias_csv vgain_csv
@@ -254,13 +336,17 @@ write_scan_metadata() {
         echo "default_trim=0"
         echo "default_vgain=1700"
         echo "default_pedestal=8192"
+        if [[ "$checksums_required" == true ]]; then
+            echo "checksum_algorithm=sha256"
+            echo "checksum_manifest=SHA256SUMS"
+        fi
     } > "$metadata_tmp" || return 1
     mv -f -- "$metadata_tmp" "$metadata_file"
 }
 
 load_scan_metadata() {
     local key value format_version="" channel_csv="" bias_csv="" vgain_csv=""
-    local saved_afe=""
+    local saved_afe="" saved_checksum_algorithm=""
     [[ -f "$metadata_file" ]] || {
         fail "resume metadata not found: $metadata_file"
         return 1
@@ -287,6 +373,7 @@ load_scan_metadata() {
             trigger_source) trigger_source_arg="$value" ;;
             route) route="$value" ;;
             timeout_ms) timeout_ms="$value" ;;
+            checksum_algorithm) saved_checksum_algorithm="$value" ;;
         esac
     done < "$metadata_file"
 
@@ -298,6 +385,11 @@ load_scan_metadata() {
         fail "invalid set_as_dac value in $metadata_file"
         return 1
     fi
+    case "$saved_checksum_algorithm" in
+        "") checksums_required=false ;;
+        sha256) checksums_required=true ;;
+        *) fail "unsupported checksum algorithm '$saved_checksum_algorithm' in $metadata_file"; return 1 ;;
+    esac
     IFS=',' read -r -a channel_list <<< "$channel_csv"
     IFS=',' read -r -a bias_array <<< "$bias_csv"
     IFS=',' read -r -a vgain_array <<< "$vgain_csv"
@@ -313,6 +405,11 @@ point_data_is_complete() {
         actual_size=$(stat -c '%s' "$folder/channel_${data_channel}.dat" 2>/dev/null) || return 1
         [[ "$actual_size" == "$expected_size" ]] || return 1
     done
+    if [[ "$checksums_required" == true ]]; then
+        verify_point_checksum_manifest "$folder" || return 1
+    elif [[ -f "$folder/SHA256SUMS" ]]; then
+        verify_point_checksum_manifest "$folder" || return 1
+    fi
     return 0
 }
 
@@ -387,6 +484,7 @@ confirm_scan_parameters() {
     echo "Waveforms / length:   $N / $L"
     echo "Connection:           $ip_addr:$port, route=$route, timeout=${timeout_ms}ms"
     echo "Trigger source:       $trigger_source"
+    echo "Integrity check:      SHA-256 per point and for the complete scan"
     echo "Points:               $total_points total, $completed_points retained, $((total_points - completed_points)) to acquire"
     if [[ "$restore_only_mode" == true ]]; then
         echo "Resume action:        data complete; restore default hardware only"
@@ -501,6 +599,7 @@ scan_main() {
     local resume_mode=false assume_yes=false config_option_seen=false
     local metadata_file="" metadata_afe="" scan_created_utc=""
     local scan_status_text="in_progress" scan_already_complete=false restore_only_mode=false
+    local checksums_required=true
     local resume_delete_folder="" resume_start_index=0 completed_points=0 total_points=0
     local vgain_mode="" bias_mode="" units="" trigger_source="" afe=-1
     local active_child_pid=""
@@ -594,6 +693,10 @@ scan_main() {
     if [[ -z "$output_folder" || -z "$ip_addr" || -z "$port" || -z "$N" || -z "$L" || ${#channel_list[@]} -eq 0 ]]; then
         fail "missing required arguments: output folder, channel(s), IP, port, N and L are required"
         print_help
+        return 1
+    fi
+    if ! command -v sha256sum >/dev/null 2>&1; then
+        fail "sha256sum is required for scan file integrity verification"
         return 1
     fi
     validate_positive_integer "$port" "port" || return 1
@@ -723,7 +826,22 @@ scan_main() {
     if [[ "$resume_mode" == true ]]; then
         prepare_resume || return 1
         if [[ "$scan_already_complete" == true ]]; then
-            echo "Scan already complete: all $total_points points contain config.txt and the expected $N x $L samples for channels ${channel_list[*]}."
+            if [[ "$checksums_required" != true ]]; then
+                echo "Completed legacy scan has no SHA-256 manifest; creating and verifying it now..."
+                if ! write_scan_checksum_manifest; then
+                    fail "could not create or verify SHA-256 checksums for the completed legacy scan"
+                    return 1
+                fi
+                checksums_required=true
+                write_scan_metadata || {
+                    fail "checksums succeeded, but scan metadata could not be updated: $metadata_file"
+                    return 1
+                }
+            elif ! verify_scan_checksum_manifest; then
+                fail "scan metadata says complete, but $output_folder/SHA256SUMS is missing or its verification failed"
+                return 1
+            fi
+            echo "Scan already complete: all $total_points points and their SHA-256 checksums were verified successfully."
             return 0
         fi
     else
@@ -893,6 +1011,10 @@ scan_main() {
                 fail "acquisition for bias $bias, VGAIN $vgain did not produce config.txt and exactly $((N * L * 2)) bytes for every selected channel"
                 return 1
             fi
+            if ! write_point_checksum_manifest "$point_folder"; then
+                fail "could not create SHA-256 checksums for bias $bias, VGAIN $vgain"
+                return 1
+            fi
             printf 'complete_utc=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "${point_folder}/.scan_point_complete"
             completed_points=$((point_index + 1))
             scan_status_text="in_progress"
@@ -931,12 +1053,25 @@ scan_main() {
         write_scan_metadata || true
         return 1
     fi
+    scan_status_text="verifying_checksums"
+    write_scan_metadata || {
+        fail "default restoration succeeded, but checksum verification state could not be recorded: $metadata_file"
+        return 1
+    }
+    echo "Creating and verifying SHA-256 manifest for the complete scan..."
+    if ! write_scan_checksum_manifest; then
+        scan_status_text="checksum_failed_restored"
+        write_scan_metadata || true
+        fail "scan acquisition and default restoration succeeded, but SHA-256 verification failed"
+        return 1
+    fi
+    checksums_required=true
     scan_status_text="complete"
     write_scan_metadata || {
         fail "data and default restoration succeeded, but final metadata could not be written: $metadata_file"
         return 1
     }
-    echo "Bias/VGAIN scan completed and default hardware configuration restored. All output files are stored in: $output_folder"
+    echo "Bias/VGAIN scan completed, SHA-256 checksums verified, and default hardware configuration restored. All output files are stored in: $output_folder"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
