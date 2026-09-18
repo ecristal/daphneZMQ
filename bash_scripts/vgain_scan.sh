@@ -228,10 +228,53 @@ join_by_comma() {
 verify_point_checksum_manifest() {
     local folder="$1"
     [[ -f "$folder/SHA256SUMS" ]] || return 1
+    validate_point_checksum_manifest_inventory "$folder" || return 1
     (
         cd -- "$folder" || exit 1
         sha256sum --check --strict --quiet SHA256SUMS
     )
+}
+
+validate_point_checksum_manifest_inventory() {
+    local folder="$1" manifest="$folder/SHA256SUMS"
+    local line filename data_channel entry_count=0
+    local -A expected_files=() seen_files=()
+
+    [[ -f "$manifest" ]] || return 1
+    expected_files[config.txt]=1
+    for data_channel in "${channel_list[@]}"; do
+        expected_files["channel_${data_channel}.dat"]=1
+    done
+
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        if [[ ! "$line" =~ ^[0-9a-f]{64}\ \ (.+)$ ]]; then
+            echo "ERROR: malformed SHA-256 entry in $manifest: $line" >&2
+            return 1
+        fi
+        filename="${BASH_REMATCH[1]}"
+        if [[ -z "${expected_files[$filename]+present}" ]]; then
+            echo "ERROR: unexpected file '$filename' in $manifest" >&2
+            return 1
+        fi
+        if [[ -n "${seen_files[$filename]+present}" ]]; then
+            echo "ERROR: duplicate file '$filename' in $manifest" >&2
+            return 1
+        fi
+        seen_files[$filename]=1
+        ((entry_count += 1))
+    done < "$manifest"
+
+    if (( entry_count != ${#expected_files[@]} )); then
+        echo "ERROR: $manifest contains $entry_count entries; expected ${#expected_files[@]}" >&2
+        return 1
+    fi
+    for filename in "${!expected_files[@]}"; do
+        if [[ -z "${seen_files[$filename]+present}" ]]; then
+            echo "ERROR: missing file '$filename' in $manifest" >&2
+            return 1
+        fi
+    done
+    return 0
 }
 
 write_point_checksum_manifest() {
@@ -272,6 +315,7 @@ write_scan_checksum_manifest() {
             if [[ ! -f "$point_dir/SHA256SUMS" ]]; then
                 write_point_checksum_manifest "$point_dir" || return 1
             fi
+            validate_point_checksum_manifest_inventory "$point_dir" || return 1
         done
     done
 
@@ -396,7 +440,7 @@ load_scan_metadata() {
     metadata_afe="$saved_afe"
 }
 
-point_data_is_complete() {
+point_data_files_have_expected_size() {
     local folder="$1" expected_size actual_size data_channel
     [[ -f "$folder/config.txt" ]] || return 1
     expected_size=$((N * L * 2))
@@ -405,6 +449,12 @@ point_data_is_complete() {
         actual_size=$(stat -c '%s' "$folder/channel_${data_channel}.dat" 2>/dev/null) || return 1
         [[ "$actual_size" == "$expected_size" ]] || return 1
     done
+    return 0
+}
+
+point_data_is_complete() {
+    local folder="$1"
+    point_data_files_have_expected_size "$folder" || return 1
     if [[ "$checksums_required" == true ]]; then
         verify_point_checksum_manifest "$folder" || return 1
     elif [[ -f "$folder/SHA256SUMS" ]]; then
@@ -1007,12 +1057,16 @@ scan_main() {
                 fail "acquisition failed for bias $bias, VGAIN $vgain"
                 return 1
             fi
-            if ! point_data_is_complete "$point_folder"; then
+            if ! point_data_files_have_expected_size "$point_folder"; then
                 fail "acquisition for bias $bias, VGAIN $vgain did not produce config.txt and exactly $((N * L * 2)) bytes for every selected channel"
                 return 1
             fi
             if ! write_point_checksum_manifest "$point_folder"; then
                 fail "could not create SHA-256 checksums for bias $bias, VGAIN $vgain"
+                return 1
+            fi
+            if ! verify_point_checksum_manifest "$point_folder"; then
+                fail "SHA-256 verification failed for bias $bias, VGAIN $vgain"
                 return 1
             fi
             printf 'complete_utc=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "${point_folder}/.scan_point_complete"
